@@ -1,15 +1,66 @@
+<<<<<<< HEAD
 #include "tensorflow/core/graph/testlib.h"
 
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_builder.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/graph/testlib.h"
+
+#include <vector>
+#include "tensorflow/core/framework/graph.pb.h"
+#include "tensorflow/core/framework/node_def_builder.h"
+#include "tensorflow/core/framework/op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/graph/node_builder.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/status.h"
 
 namespace tensorflow {
+=======
+#include "tensorflow/core/kernels/constant_op.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/logging.h"
+
+namespace tensorflow {
+
+// HostConst: forced to generate output on the host.
+// Only used by testlib; no op is registered for this kernel
+// externally (i.e., in array_ops.cc)
+REGISTER_KERNEL_BUILDER(Name("HostConst").Device(DEVICE_CPU), HostConstantOp);
+REGISTER_KERNEL_BUILDER(
+    Name("HostConst").Device(DEVICE_GPU).HostMemory("output"), HostConstantOp);
+
+// Register the HostConst Op
+// Returns a constant tensor on the host.  Useful for writing C++ tests
+// and benchmarks which run on GPU but require arguments pinned to the host.
+// Used by test::graph::HostConstant.
+// value: Attr `value` is the tensor to return.
+REGISTER_OP("HostConst")
+    .Output("output: dtype")
+    .Attr("value: tensor")
+    .Attr("dtype: type");
+
+>>>>>>> tensorflow/master
 namespace test {
 namespace graph {
 
@@ -62,6 +113,22 @@ Node* Constant(Graph* g, const Tensor& tensor, const string& name) {
   return ret;
 }
 
+<<<<<<< HEAD
+=======
+Node* HostConstant(Graph* g, const Tensor& tensor) {
+  return HostConstant(g, tensor, g->NewName("n"));
+}
+
+Node* HostConstant(Graph* g, const Tensor& tensor, const string& name) {
+  Node* ret;
+  TF_CHECK_OK(NodeBuilder(name, "HostConst")
+                  .Attr("dtype", tensor.dtype())
+                  .Attr("value", tensor)
+                  .Finalize(g, &ret));
+  return ret;
+}
+
+>>>>>>> tensorflow/master
 Node* Var(Graph* g, const DataType dtype, const TensorShape& shape) {
   Node* ret;
   TF_CHECK_OK(NodeBuilder(g->NewName("n"), "Variable")
@@ -134,8 +201,13 @@ Node* RandomGaussian(Graph* g, Node* input, DataType dtype) {
   return RandomNumberGenerator("RandomStandardNormal", g, input, dtype);
 }
 
+<<<<<<< HEAD
 Node* RandomParameters(Graph* g, Node* input, DataType dtype) {
   return RandomNumberGenerator("RandomParameters", g, input, dtype);
+=======
+Node* TruncatedNormal(Graph* g, Node* input, DataType dtype) {
+  return RandomNumberGenerator("TruncatedNormal", g, input, dtype);
+>>>>>>> tensorflow/master
 }
 
 Node* Unary(Graph* g, const string& func, Node* input, int index) {
@@ -292,6 +364,27 @@ Node* Cast(Graph* g, Node* in, DataType dst) {
   return ret;
 }
 
+<<<<<<< HEAD
+=======
+Node* BroadcastGradientArgs(Graph* g, Node* s0, Node* s1) {
+  Node* ret;
+  TF_CHECK_OK(NodeBuilder(g->NewName("n"), "BroadcastGradientArgs")
+                  .Input(s0)
+                  .Input(s1)
+                  .Finalize(g, &ret));
+  return ret;
+}
+
+Node* Gather(Graph* g, Node* in0, Node* in1) {
+  Node* ret;
+  TF_CHECK_OK(NodeBuilder(g->NewName("n"), "Gather")
+                  .Input(in0)
+                  .Input(in1)
+                  .Finalize(g, &ret));
+  return ret;
+}
+
+>>>>>>> tensorflow/master
 void ToGraphDef(Graph* g, GraphDef* gdef) { g->ToGraphDef(gdef); }
 
 }  // end namespace graph

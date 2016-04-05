@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 # pylint: disable=invalid-name
 """Save and restore variables."""
 from __future__ import absolute_import
@@ -5,6 +23,7 @@ from __future__ import division
 from __future__ import print_function
 
 import collections
+<<<<<<< HEAD
 import numbers
 import os.path
 import time
@@ -15,20 +34,107 @@ from google.protobuf import text_format
 
 from tensorflow.python.client import graph_util
 from tensorflow.python.client import session
+=======
+import os.path
+import re
+import time
+
+import numpy as np
+import six
+
+from google.protobuf.any_pb2 import Any
+from google.protobuf import text_format
+
+from tensorflow.core.framework import graph_pb2
+from tensorflow.core.framework import op_def_pb2
+from tensorflow.core.protobuf import meta_graph_pb2
+from tensorflow.core.protobuf import saver_pb2
+from tensorflow.python.client import graph_util
+from tensorflow.python.client import session
+from tensorflow.python.framework import device as pydev
+from tensorflow.python.framework import importer
+from tensorflow.python.framework import op_def_registry
+>>>>>>> tensorflow/master
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import constant_op
 from tensorflow.python.ops import control_flow_ops
+<<<<<<< HEAD
 from tensorflow.python.ops import gen_array_ops
+=======
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import gen_io_ops
 from tensorflow.python.ops import io_ops
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import variables
 from tensorflow.python.platform import gfile
 from tensorflow.python.platform import logging
+<<<<<<< HEAD
 from tensorflow.python.training import saver_pb2
 from tensorflow.python.training import training_util
 from tensorflow.python.training.checkpoint_state_pb2 import CheckpointState
+=======
+from tensorflow.python.training import training_util
+from tensorflow.python.training.checkpoint_state_pb2 import CheckpointState
+from tensorflow.python.util import compat
+
+
+def stripped_op_list_for_graph(graph_def):
+  """Collect the ops used by a graph.
+
+  This function computes the `stripped_op_list` field of `MetaGraphDef` and
+  similar protos.  The result can be communicated from the producer to the
+  consumer, which can then use the C++ function
+  `RemoveNewDefaultAttrsFromGraphDef` to improve forwards compatibility.
+
+  Args:
+    graph_def: A `GraphDef` proto, as from `graph.as_graph_def()`.
+
+  Returns:
+    An `OpList` of ops used by the graph.
+
+  Raises:
+    ValueError: If an unregistered op is used.
+  """
+  # This is the Python equivalent of StrippedOpListForGraph in C++.
+  # Unfortunately, since the Python op registry can differ from that in C++, we
+  # can't remove the duplication using swig (at least naively).
+  # TODO(irving): Support taking graphs directly.
+
+  # Map function names to definitions
+  name_to_function = {}
+  for fun in graph_def.library.function:
+    name_to_function[fun.signature.name] = fun
+
+  # Collect the list of op names.  Since functions can reference functions, we
+  # need a recursive traversal.
+  used_ops = set()  # Includes both primitive ops and functions
+  functions_to_process = []  # A subset of used_ops
+  def mark_op_as_used(op):
+    if op not in used_ops and op in name_to_function:
+      functions_to_process.append(name_to_function[op])
+    used_ops.add(op)
+  for node in graph_def.node:
+    mark_op_as_used(node.op)
+  while functions_to_process:
+    fun = functions_to_process.pop()
+    for node in fun.node:
+      mark_op_as_used(node.op)
+
+  # Verify that all used ops are registered.
+  registered_ops = op_def_registry.get_registered_ops()
+  # These internal ops used by functions are not registered, so we need to
+  # whitelist them.  # TODO(irving): Do something better here.
+  op_whitelist = ("_Arg", "_Retval", "_ListToArray", "_ArrayToList")
+  for op in used_ops:
+    if (op not in name_to_function and op not in registered_ops and
+        op not in op_whitelist):
+      raise ValueError("Op %s is used by the graph, but is not registered" % op)
+
+  # Build the stripped op list in sorted order
+  return op_def_pb2.OpList(op=[registered_ops[op] for op in sorted(used_ops)
+                               if op in registered_ops])
+>>>>>>> tensorflow/master
 
 
 class BaseSaverBuilder(object):
@@ -56,11 +162,19 @@ class BaseSaverBuilder(object):
 
     Args:
       filename_tensor: String Tensor.
+<<<<<<< HEAD
       vars_to_save: a list of BaseSaverBuilder.VarToSave objects.
+=======
+      vars_to_save: A list of BaseSaverBuilder.VarToSave objects.
+>>>>>>> tensorflow/master
 
     Returns:
       An Operation that save the variables.
     """
+<<<<<<< HEAD
+=======
+    # pylint: disable=protected-access
+>>>>>>> tensorflow/master
     return io_ops._save(
         filename=filename_tensor,
         tensor_names=[vs.name for vs in vars_to_save],
@@ -75,12 +189,20 @@ class BaseSaverBuilder(object):
 
     Args:
       filename_tensor: String Tensor.
+<<<<<<< HEAD
       var_to_save: a BaseSaverBuilder.VarToSave object.
+=======
+      var_to_save: A BaseSaverBuilder.VarToSave object.
+>>>>>>> tensorflow/master
       preferred_shard: Int.  Shard to open first when loading a sharded file.
 
     Returns:
       A Tensor resulting from reading 'var_to_save' from 'filename'.
     """
+<<<<<<< HEAD
+=======
+    # pylint: disable=protected-access
+>>>>>>> tensorflow/master
     return io_ops._restore_slice(
         filename_tensor,
         var_to_save.name,
@@ -92,13 +214,23 @@ class BaseSaverBuilder(object):
     """Append sharding information to a filename.
 
     Args:
+<<<<<<< HEAD
       filename_tensor: a string tensor.
       shard: integer.  The shard for the filename.
       num_shards: an int Tensor for the number of shards.
+=======
+      filename_tensor: A string tensor.
+      shard: Integer.  The shard for the filename.
+      num_shards: An int Tensor for the number of shards.
+>>>>>>> tensorflow/master
 
     Returns:
       A string tensor.
     """
+<<<<<<< HEAD
+=======
+    # pylint: disable=protected-access
+>>>>>>> tensorflow/master
     return gen_io_ops._sharded_filename(filename_tensor, shard, num_shards)
 
   def _AddSaveOps(self, filename_tensor, vars_to_save):
@@ -106,7 +238,11 @@ class BaseSaverBuilder(object):
 
     Args:
       filename_tensor: String Tensor.
+<<<<<<< HEAD
       vars_to_save: a list of _VarToSave objects.
+=======
+      vars_to_save: A list of _VarToSave objects.
+>>>>>>> tensorflow/master
 
     Returns:
       A tensor with the filename used to save.
@@ -135,6 +271,10 @@ class BaseSaverBuilder(object):
         sharded_saves.append(self._AddSaveOps(sharded_filename, vars_to_save))
     # Return the sharded name for the save path.
     with ops.control_dependencies([x.op for x in sharded_saves]):
+<<<<<<< HEAD
+=======
+      # pylint: disable=protected-access
+>>>>>>> tensorflow/master
       return gen_io_ops._sharded_filespec(filename_tensor, num_shards_tensor)
 
   def _AddRestoreOps(self,
@@ -148,7 +288,11 @@ class BaseSaverBuilder(object):
 
     Args:
       filename_tensor: Tensor for the path of the file to load.
+<<<<<<< HEAD
       vars_to_save: a list of _VarToSave objects.
+=======
+      vars_to_save: A list of _VarToSave objects.
+>>>>>>> tensorflow/master
       restore_sequentially: True if we want to restore variables sequentially
         within a shard.
       reshape: True if we want to reshape loaded tensors to the shape of
@@ -177,10 +321,18 @@ class BaseSaverBuilder(object):
           values = array_ops.reshape(values, shape)
 
       # Assign on the same device as the variable.
+<<<<<<< HEAD
       with ops.device(v.device):
         assign_ops.append(state_ops.assign(v,
                                            values,
                                            validate_shape=not reshape))
+=======
+      validate_shape = not reshape and v.get_shape().is_fully_defined()
+      with ops.colocate_with(v):
+        assign_ops.append(state_ops.assign(v,
+                                           values,
+                                           validate_shape=validate_shape))
+>>>>>>> tensorflow/master
 
     # Create a Noop that has control dependencies from all the updates.
     return control_flow_ops.group(*assign_ops, name=name)
@@ -225,7 +377,11 @@ class BaseSaverBuilder(object):
     It can happen if the devices as unspecified.
 
     Args:
+<<<<<<< HEAD
       vars_to_save: a list of BaseSaverBuilder.VarToSave objects.
+=======
+      vars_to_save: A list of BaseSaverBuilder.VarToSave objects.
+>>>>>>> tensorflow/master
 
     Returns:
       A list of tuples: (device_name, BaseSaverBuilder.VarToSave) tuples.
@@ -233,7 +389,12 @@ class BaseSaverBuilder(object):
     """
     per_device = collections.defaultdict(lambda: [])
     for var_to_save in vars_to_save:
+<<<<<<< HEAD
       per_device[var_to_save.var.device].append(var_to_save)
+=======
+      canonical_device = pydev.canonical_name(var_to_save.var.device)
+      per_device[canonical_device].append(var_to_save)
+>>>>>>> tensorflow/master
     return sorted(per_device.items(), key=lambda t: t[0])
 
   def _VarListToDict(self, var_list):
@@ -259,7 +420,11 @@ class BaseSaverBuilder(object):
     for var in var_list:
       # pylint: disable=protected-access
       if isinstance(var, variables.Variable) and var._save_slice_info:
+<<<<<<< HEAD
         name = var._save_slice_info.name
+=======
+        name = var._save_slice_info.full_name
+>>>>>>> tensorflow/master
         if name in names_to_variables:
           if not isinstance(names_to_variables[name], list):
             raise ValueError("Mixing slices and non-slices with the same name: "
@@ -268,7 +433,11 @@ class BaseSaverBuilder(object):
         else:
           names_to_variables[name] = [var]
       else:
+<<<<<<< HEAD
         var = ops.convert_to_tensor(var)
+=======
+        var = ops.convert_to_tensor(var, as_ref=True)
+>>>>>>> tensorflow/master
         if not self._IsVariable(var):
           raise TypeError("Variable to save is not a Variable: %s" % var)
         name = var.op.name
@@ -290,9 +459,15 @@ class BaseSaverBuilder(object):
       A list of BaseSaverBuilder.VarToSave objects.
 
     Raises:
+<<<<<<< HEAD
       TypeError: if any of the keys are not strings or any of the
         values are not one of Tensor or Variable.
       ValueError: if the same variable is given in more than one value
+=======
+      TypeError: If any of the keys are not strings or any of the
+        values are not one of Tensor or Variable.
+      ValueError: If the same variable is given in more than one value
+>>>>>>> tensorflow/master
         (this also applies to slices of SlicedVariables).
     """
     if not isinstance(names_to_variables, dict):
@@ -316,16 +491,28 @@ class BaseSaverBuilder(object):
           if not variable._save_slice_info:
             raise ValueError("Slices must all be slices: %s" % variable)
           if slice_name is None:
+<<<<<<< HEAD
             slice_name = variable._save_slice_info.name
           elif slice_name != variable._save_slice_info.name:
             raise variable("Slices must all be from the same tensor: %s != %s"
                            % (slice_name, variable._save_slice_info.name))
+=======
+            slice_name = variable._save_slice_info.full_name
+          elif slice_name != variable._save_slice_info.full_name:
+            raise ValueError(
+                "Slices must all be from the same tensor: %s != %s"
+                % (slice_name, variable._save_slice_info.full_name))
+>>>>>>> tensorflow/master
           self._AddVarToSave(vars_to_save, seen_variables,
                              variable, variable._save_slice_info.spec, name)
         # pylint: enable=protected-access
       else:
         # A variable or tensor.
+<<<<<<< HEAD
         variable = ops.convert_to_tensor(v)
+=======
+        variable = ops.convert_to_tensor(v, as_ref=True)
+>>>>>>> tensorflow/master
         if not self._IsVariable(variable):
           raise TypeError("names_to_variables must be a dict mapping string "
                           "names to Tensors/Variables. Not a variable: %s" %
@@ -373,6 +560,7 @@ class BaseSaverBuilder(object):
         only needed when you try to restore from a Dist-Belief checkpoint,
         and only some times.
       sharded: If True, shard the checkpoints, one per device that has
+<<<<<<< HEAD
         Parameters nodes.
       max_to_keep: maximum number of checkpoints to keep.  As new checkpoints
         are created, old ones are deleted.  If None or 0, no checkpoints are
@@ -381,6 +569,18 @@ class BaseSaverBuilder(object):
       keep_checkpoint_every_n_hours: How often checkpoints should be kept.
         Defaults to 10,000 hours.
       name: string.  Optional name to use as a prefix when adding operations.
+=======
+        Variable nodes.
+      max_to_keep: Maximum number of checkpoints to keep.  As new checkpoints
+        are created, old ones are deleted.  If None or 0, no checkpoints are
+        deleted from the filesystem but only the last one is kept in the
+        `checkpoint` file.  Presently the number is only roughly enforced.  For
+        example in case of restarts more than max_to_keep checkpoints may be
+        kept.
+      keep_checkpoint_every_n_hours: How often checkpoints should be kept.
+        Defaults to 10,000 hours.
+      name: String.  Optional name to use as a prefix when adding operations.
+>>>>>>> tensorflow/master
       restore_sequentially: A Bool, which if true, causes restore of different
         variables to happen sequentially within each device.
 
@@ -422,6 +622,10 @@ class BaseSaverBuilder(object):
         keep_checkpoint_every_n_hours=keep_checkpoint_every_n_hours,
         sharded=sharded)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> tensorflow/master
 def _GetCheckpointFilename(save_dir, latest_filename):
   """Returns a filename for storing the CheckpointState.
 
@@ -438,6 +642,53 @@ def _GetCheckpointFilename(save_dir, latest_filename):
   return os.path.join(save_dir, latest_filename)
 
 
+<<<<<<< HEAD
+=======
+def generate_checkpoint_state_proto(save_dir,
+                                    model_checkpoint_path,
+                                    all_model_checkpoint_paths=None):
+  """Generates a checkpoint state proto.
+
+  Args:
+    save_dir: Directory where the model was saved.
+    model_checkpoint_path: The checkpoint file.
+    all_model_checkpoint_paths: List of strings.  Paths to all not-yet-deleted
+      checkpoints, sorted from oldest to newest.  If this is a non-empty list,
+      the last element must be equal to model_checkpoint_path.  These paths
+      are also saved in the CheckpointState proto.
+
+  Returns:
+    CheckpointState proto with model_checkpoint_path and
+    all_model_checkpoint_paths updated to either absolute paths or
+    relative paths to the current save_dir.
+  """
+  if all_model_checkpoint_paths is None:
+    all_model_checkpoint_paths = []
+
+  if (not all_model_checkpoint_paths or
+      all_model_checkpoint_paths[-1] != model_checkpoint_path):
+    logging.info("%s is not in all_model_checkpoint_paths. Manually adding it.",
+                 model_checkpoint_path)
+    all_model_checkpoint_paths.append(model_checkpoint_path)
+
+  # Relative paths need to be rewritten to be relative to the "save_dir"
+  # if model_checkpoint_path already contains "save_dir".
+  if not os.path.isabs(save_dir):
+    if not os.path.isabs(model_checkpoint_path):
+      model_checkpoint_path = os.path.relpath(model_checkpoint_path, save_dir)
+    for i in range(len(all_model_checkpoint_paths)):
+      p = all_model_checkpoint_paths[i]
+      if not os.path.isabs(p):
+        all_model_checkpoint_paths[i] = os.path.relpath(p, save_dir)
+
+  coord_checkpoint_proto = CheckpointState(
+      model_checkpoint_path=model_checkpoint_path,
+      all_model_checkpoint_paths=all_model_checkpoint_paths)
+
+  return coord_checkpoint_proto
+
+
+>>>>>>> tensorflow/master
 def update_checkpoint_state(save_dir,
                             model_checkpoint_path,
                             all_model_checkpoint_paths=None,
@@ -450,7 +701,11 @@ def update_checkpoint_state(save_dir,
   Args:
     save_dir: Directory where the model was saved.
     model_checkpoint_path: The checkpoint file.
+<<<<<<< HEAD
     all_model_checkpoint_paths: list of strings.  Paths to all not-yet-deleted
+=======
+    all_model_checkpoint_paths: List of strings.  Paths to all not-yet-deleted
+>>>>>>> tensorflow/master
       checkpoints, sorted from oldest to newest.  If this is a non-empty list,
       the last element must be equal to model_checkpoint_path.  These paths
       are also saved in the CheckpointState proto.
@@ -460,6 +715,7 @@ def update_checkpoint_state(save_dir,
   Raises:
     RuntimeError: If the save paths conflict.
   """
+<<<<<<< HEAD
   if all_model_checkpoint_paths is None:
     all_model_checkpoint_paths = []
   elif all_model_checkpoint_paths[-1] != model_checkpoint_path:
@@ -478,6 +734,21 @@ def update_checkpoint_state(save_dir,
       all_model_checkpoint_paths=all_model_checkpoint_paths)
   f = gfile.FastGFile(coord_checkpoint_filename, mode="w")
   f.write(text_format.MessageToString(coord_checkpoint_proto))
+=======
+  # Writes the "checkpoint" file for the coordinator for later restoration.
+  coord_checkpoint_filename = _GetCheckpointFilename(save_dir, latest_filename)
+  ckpt = generate_checkpoint_state_proto(
+      save_dir,
+      model_checkpoint_path,
+      all_model_checkpoint_paths=all_model_checkpoint_paths)
+
+  if coord_checkpoint_filename == ckpt.model_checkpoint_path:
+    raise RuntimeError("Save path '%s' conflicts with path used for "
+                       "checkpoint state.  Please use a different save path." %
+                       model_checkpoint_path)
+  f = gfile.FastGFile(coord_checkpoint_filename, mode="w")
+  f.write(text_format.MessageToString(ckpt))
+>>>>>>> tensorflow/master
   f.close()
 
 
@@ -501,13 +772,31 @@ def get_checkpoint_state(checkpoint_dir, latest_filename=None):
       checkpoint_dir, latest_filename)
   f = None
   try:
+<<<<<<< HEAD
     # Check that the file exists before opeining it to avoid
+=======
+    # Check that the file exists before opening it to avoid
+>>>>>>> tensorflow/master
     # many lines of errors from colossus in the logs.
     if gfile.Exists(coord_checkpoint_filename):
       f = gfile.FastGFile(coord_checkpoint_filename, mode="r")
       ckpt = CheckpointState()
       text_format.Merge(f.read(), ckpt)
+<<<<<<< HEAD
   except gfile.FileError:
+=======
+      # For relative model_checkpoint_path and all_model_checkpoint_paths,
+      # prepend checkpoint_dir.
+      if not os.path.isabs(checkpoint_dir):
+        if not os.path.isabs(ckpt.model_checkpoint_path):
+          ckpt.model_checkpoint_path = os.path.join(checkpoint_dir,
+                                                    ckpt.model_checkpoint_path)
+        for i in range(len(ckpt.all_model_checkpoint_paths)):
+          p = ckpt.all_model_checkpoint_paths[i]
+          if not os.path.isabs(p):
+            ckpt.all_model_checkpoint_paths[i] = os.path.join(checkpoint_dir, p)
+  except IOError:
+>>>>>>> tensorflow/master
     # It's ok if the file cannot be read
     return None
   except text_format.ParseError as e:
@@ -642,11 +931,16 @@ class Saver(object):
     saver = tf.train.Saver({v.op.name: v for v in [v1, v2]})
     ```
 
+<<<<<<< HEAD
     The optional `reshape` argument, if True, allows restoring a variable from
+=======
+    The optional `reshape` argument, if `True`, allows restoring a variable from
+>>>>>>> tensorflow/master
     a save file where the variable had a different shape, but the same number
     of elements and type.  This is useful if you have reshaped a variable and
     want to reload it from an older checkpoint.
 
+<<<<<<< HEAD
     The optional `sharded` argument, if True, instructs the saver to shard
     checkpoints per device.
 
@@ -677,6 +971,38 @@ class Saver(object):
       ValueError: If any of the keys or values in `var_list` is not unique.
     """
     if saver_def is None:
+=======
+    The optional `sharded` argument, if `True`, instructs the saver to shard
+    checkpoints per device.
+
+    Args:
+      var_list: A list of `Variable` objects or a dictionary mapping names to
+        variables.  If `None`, defaults to the list of all variables.
+      reshape: If `True`, allows restoring parameters from a checkpoint
+        where the variables have a different shape.
+      sharded: If `True`, shard the checkpoints, one per device.
+      max_to_keep: Maximum number of recent checkpoints to keep.
+        Defaults to 5.
+      keep_checkpoint_every_n_hours: How often to keep checkpoints.
+        Defaults to 10,000 hours.
+      name: String.  Optional name to use as a prefix when adding operations.
+      restore_sequentially: A `Bool`, which if true, causes restore of different
+        variables to happen sequentially within each device.  This can lower
+        memory usage when restoring very large models.
+      saver_def: Optional `SaverDef` proto to use instead of running the
+        builder. This is only useful for specialty code that wants to recreate
+        a `Saver` object for a previously built `Graph` that had a `Saver`.
+        The `saver_def` proto should be the one returned by the
+        `as_saver_def()` call of the `Saver` that was created for that `Graph`.
+      builder: Optional `SaverBuilder` to use if a `saver_def` was not provided.
+        Defaults to `BaseSaverBuilder()`.
+
+    Raises:
+      TypeError: If `var_list` is invalid.
+      ValueError: If any of the keys or values in `var_list` are not unique.
+    """
+    if not saver_def:
+>>>>>>> tensorflow/master
       if builder is None:
         builder = BaseSaverBuilder()
       if var_list is None:
@@ -699,6 +1025,7 @@ class Saver(object):
     if not saver_def.restore_op_name:
       raise ValueError("saver_def must specify the restore_op_name: %s"
                        % str(saver_def))
+<<<<<<< HEAD
     self._filename_tensor_name = saver_def.filename_tensor_name
     self._save_tensor_name = saver_def.save_tensor_name
     self._restore_op_name = saver_def.restore_op_name
@@ -719,10 +1046,26 @@ class Saver(object):
 
     Args:
       p: (filename, time) pair or just checkpoint filename.
+=======
+
+    # Assigns saver_def.
+    self.saver_def = saver_def
+    # Updates next checkpoint time.
+    self._next_checkpoint_time = (
+        time.time() + self.saver_def.keep_checkpoint_every_n_hours * 3600)
+    self._last_checkpoints = []
+
+  def _CheckpointFilename(self, p):
+    """Returns the checkpoint filename given a `(filename, time)` pair.
+
+    Args:
+      p: (filename, time) pair.
+>>>>>>> tensorflow/master
 
     Returns:
       Checkpoint file name.
     """
+<<<<<<< HEAD
     return p[0] if isinstance(p, tuple) else p
 
   def _MaybeDeleteOldCheckpoints(self, latest_save_path):
@@ -738,6 +1081,43 @@ class Saver(object):
       latest_save_path: Name including path of checkpoint file to save.
     """
     if not self._max_to_keep:
+=======
+    name, _ = p
+    return name
+
+  def _MetaGraphFilename(self, checkpoint_filename, meta_graph_suffix="meta"):
+    """Returns the meta graph filename.
+
+    Args:
+      checkpoint_filename: Name of the checkpoint file.
+      meta_graph_suffix: Suffix for `MetaGraphDef` file. Defaults to 'meta'.
+
+    Returns:
+      MetaGraph file name.
+    """
+    # If the checkpoint_filename is sharded, the checkpoint_filename could
+    # be of format model.ckpt-step#-?????-of-shard#. For example,
+    # model.ckpt-123456-?????-of-00005, or model.ckpt-123456-00001-of-00002.
+    basename = re.sub(r"-[\d\?]+-of-\d+$", "", checkpoint_filename)
+    meta_graph_filename = ".".join([basename, meta_graph_suffix])
+    return meta_graph_filename
+
+  def _MaybeDeleteOldCheckpoints(self, latest_save_path,
+                                 meta_graph_suffix="meta"):
+    """Deletes old checkpoints if necessary.
+
+    Always keep the last `max_to_keep` checkpoints.  If
+    `keep_checkpoint_every_n_hours` was specified, keep an additional checkpoint
+    every `N` hours. For example, if `N` is 0.5, an additional checkpoint is
+    kept for every 0.5 hours of training; if `N` is 10, an additional
+    checkpoint is kept for every 10 hours of training.
+
+    Args:
+      latest_save_path: Name including path of checkpoint file to save.
+      meta_graph_suffix: Suffix for `MetaGraphDef` file. Defaults to 'meta'.
+    """
+    if not self.saver_def.max_to_keep:
+>>>>>>> tensorflow/master
       return
     # Remove first from list if the same name was used before.
     for p in self._last_checkpoints:
@@ -746,20 +1126,36 @@ class Saver(object):
     # Append new path to list
     self._last_checkpoints.append((latest_save_path, time.time()))
     # If more than max_to_keep, remove oldest.
+<<<<<<< HEAD
     if len(self._last_checkpoints) > self._max_to_keep:
+=======
+    if len(self._last_checkpoints) > self.saver_def.max_to_keep:
+>>>>>>> tensorflow/master
       p = self._last_checkpoints.pop(0)
       # Do not delete the file if we keep_checkpoint_every_n_hours is set and we
       # have reached N hours of training.
       should_keep = p[1] > self._next_checkpoint_time
       if should_keep:
         self._next_checkpoint_time += (
+<<<<<<< HEAD
             self._keep_checkpoint_every_n_hours * 3600)
+=======
+            self.saver_def.keep_checkpoint_every_n_hours * 3600)
+>>>>>>> tensorflow/master
         return
       # Otherwise delete the files.
       for f in gfile.Glob(self._CheckpointFilename(p)):
         try:
           gfile.Remove(f)
+<<<<<<< HEAD
         except gfile.GOSError as e:
+=======
+          meta_graph_filename = self._MetaGraphFilename(
+              f, meta_graph_suffix=meta_graph_suffix)
+          if gfile.Exists(meta_graph_filename):
+            gfile.Remove(meta_graph_filename)
+        except OSError as e:
+>>>>>>> tensorflow/master
           logging.warning("Ignoring: %s", str(e))
 
   def as_saver_def(self):
@@ -768,6 +1164,7 @@ class Saver(object):
     Returns:
       A `SaverDef` proto.
     """
+<<<<<<< HEAD
     return saver_pb2.SaverDef(
         filename_tensor_name=self._filename_tensor_name,
         save_tensor_name=self._save_tensor_name,
@@ -775,6 +1172,22 @@ class Saver(object):
         max_to_keep=self._max_to_keep,
         keep_checkpoint_every_n_hours=self._keep_checkpoint_every_n_hours,
         sharded=self._sharded)
+=======
+    return self.saver_def
+
+  def to_proto(self):
+    """Converts this `Saver` to a `SaverDef` protocol buffer.
+
+    Returns:
+      A `SaverDef` protocol buffer.
+    """
+    return self.saver_def
+
+  @staticmethod
+  def from_proto(saver_def):
+    """Returns a `Saver` object created from `saver_def`."""
+    return Saver(saver_def=saver_def)
+>>>>>>> tensorflow/master
 
   @property
   def last_checkpoints(self):
@@ -788,6 +1201,7 @@ class Saver(object):
     return list(self._CheckpointFilename(p) for p in self._last_checkpoints)
 
   def set_last_checkpoints(self, last_checkpoints):
+<<<<<<< HEAD
     """Sets the list of not-yet-deleted checkpoint filenames.
 
     Args:
@@ -801,6 +1215,39 @@ class Saver(object):
     self._last_checkpoints = list(last_checkpoints)
 
   def save(self, sess, save_path, global_step=None, latest_filename=None):
+=======
+    """DEPRECATED: Use set_last_checkpoints_with_time.
+
+    Sets the list of old checkpoint filenames.
+
+    Args:
+      last_checkpoints: A list of checkpoint filenames.
+
+    Raises:
+      AssertionError: If last_checkpoints is not a list.
+    """
+    assert isinstance(last_checkpoints, list)
+    # We use a timestamp of +inf so that this checkpoint will never be
+    # deleted.  This is both safe and backwards compatible to a previous
+    # version of the code which used s[1] as the "timestamp".
+    self._last_checkpoints = [(s, np.inf) for s in last_checkpoints]
+
+  def set_last_checkpoints_with_time(self, last_checkpoints_with_time):
+    """Sets the list of old checkpoint filenames and timestamps.
+
+    Args:
+      last_checkpoints_with_time: A list of tuples of checkpoint filenames and
+        timestamps.
+
+    Raises:
+      AssertionError: If last_checkpoints_with_time is not a list.
+    """
+    assert isinstance(last_checkpoints_with_time, list)
+    self._last_checkpoints = last_checkpoints_with_time
+
+  def save(self, sess, save_path, global_step=None, latest_filename=None,
+           meta_graph_suffix="meta"):
+>>>>>>> tensorflow/master
     """Saves variables.
 
     This method runs the ops added by the constructor for saving variables.
@@ -812,16 +1259,28 @@ class Saver(object):
 
     Args:
       sess: A Session to use to save the variables.
+<<<<<<< HEAD
       save_path: string.  Path to the checkpoint filename.  If the saver is
         `sharded`, this is the prefix of the sharded checkpoint filename.
       global_step: If provided the global step number is appended to
         `save_path` to create the checkpoint filename. The optional argument
         can be a Tensor, a Tensor name or an integer.
+=======
+      save_path: String.  Path to the checkpoint filename.  If the saver is
+        `sharded`, this is the prefix of the sharded checkpoint filename.
+      global_step: If provided the global step number is appended to
+        `save_path` to create the checkpoint filename. The optional argument
+        can be a `Tensor`, a `Tensor` name or an integer.
+>>>>>>> tensorflow/master
       latest_filename: Optional name for the protocol buffer file that will
         contains the list of most recent checkpoint filenames.  That file,
         kept in the same directory as the checkpoint files, is automatically
         managed by the saver to keep track of recent checkpoints.  Defaults to
         'checkpoint'.
+<<<<<<< HEAD
+=======
+      meta_graph_suffix: Suffix for `MetaGraphDef` file. Defaults to 'meta'.
+>>>>>>> tensorflow/master
 
     Returns:
       A string: path at which the variables were saved.  If the saver is
@@ -829,12 +1288,26 @@ class Saver(object):
         is the number of shards created.
 
     Raises:
+<<<<<<< HEAD
       TypeError: If `sess` is not a Session.
     """
     if latest_filename is None:
       latest_filename = "checkpoint"
     if global_step is not None:
       if not isinstance(global_step, numbers.Number):
+=======
+      TypeError: If `sess` is not a `Session`.
+      ValueError: If `latest_filename` contains path components.
+    """
+    if latest_filename is None:
+      latest_filename = "checkpoint"
+
+    if os.path.split(latest_filename)[0]:
+      raise ValueError("'latest_filename' must not contain path components")
+
+    if global_step is not None:
+      if not isinstance(global_step, compat.integral_types):
+>>>>>>> tensorflow/master
         global_step = training_util.global_step(sess, global_step)
       checkpoint_file = "%s-%d" % (save_path, global_step)
     else:
@@ -844,6 +1317,7 @@ class Saver(object):
       raise TypeError("'sess' must be a Session; %s" % sess)
 
     model_checkpoint_path = sess.run(
+<<<<<<< HEAD
         self._save_tensor_name, {self._filename_tensor_name: checkpoint_file})
     model_checkpoint_path = str(model_checkpoint_path)
     self._MaybeDeleteOldCheckpoints(model_checkpoint_path)
@@ -851,6 +1325,40 @@ class Saver(object):
                             self.last_checkpoints, latest_filename)
     return model_checkpoint_path
 
+=======
+        self.saver_def.save_tensor_name,
+        {self.saver_def.filename_tensor_name: checkpoint_file})
+    model_checkpoint_path = compat.as_str(model_checkpoint_path)
+    self._MaybeDeleteOldCheckpoints(model_checkpoint_path,
+                                    meta_graph_suffix=meta_graph_suffix)
+    update_checkpoint_state(save_path, model_checkpoint_path,
+                            self.last_checkpoints, latest_filename)
+    meta_graph_filename = self._MetaGraphFilename(
+        checkpoint_file, meta_graph_suffix=meta_graph_suffix)
+    with sess.graph.as_default():
+      self.export_meta_graph(meta_graph_filename)
+
+    return model_checkpoint_path
+
+  def export_meta_graph(self, filename=None, collection_list=None,
+                        as_text=False):
+    """Writes `MetaGraphDef` to save_path/filename.
+
+    Args:
+      filename: Optional meta_graph filename including the path.
+      collection_list: List of string keys to collect.
+      as_text: If `True`, writes the meta_graph as an ASCII proto.
+
+    Returns:
+      A `MetaGraphDef` proto.
+    """
+    return export_meta_graph(filename=filename,
+                             graph_def=ops.get_default_graph().as_graph_def(),
+                             saver_def=self.saver_def,
+                             collection_list=collection_list,
+                             as_text=as_text)
+
+>>>>>>> tensorflow/master
   def restore(self, sess, save_path):
     """Restores previously saved variables.
 
@@ -863,10 +1371,33 @@ class Saver(object):
     `save()` call, or a call to `latest_checkpoint()`.
 
     Args:
+<<<<<<< HEAD
       sess: A Session to use to restore the parameters.
       save_path: Path where parameters were previously saved.
     """
     sess.run([self._restore_op_name], {self._filename_tensor_name: save_path})
+=======
+      sess: A `Session` to use to restore the parameters.
+      save_path: Path where parameters were previously saved.
+
+    Raises:
+      ValueError: If the given `save_path` does not point to a file.
+    """
+    if not gfile.Glob(save_path):
+      raise ValueError("Restore called with invalid save path %s" % save_path)
+    sess.run(self.saver_def.restore_op_name,
+             {self.saver_def.filename_tensor_name: save_path})
+
+  @staticmethod
+  def _add_collection_def(meta_graph_def, key):
+    """Adds a collection to MetaGraphDef protocol buffer.
+
+    Args:
+      meta_graph_def: MetaGraphDef protocol buffer.
+      key: One of the GraphKeys or user-defined string.
+    """
+    _add_collection_def(meta_graph_def, key)
+>>>>>>> tensorflow/master
 
 
 def latest_checkpoint(checkpoint_dir, latest_filename=None):
@@ -879,14 +1410,355 @@ def latest_checkpoint(checkpoint_dir, latest_filename=None):
       See the corresponding argument to `Saver.save()`.
 
   Returns:
+<<<<<<< HEAD
     The full path to the latest checkpoint or None if no checkpoint was found.
+=======
+    The full path to the latest checkpoint or `None` if no checkpoint was found.
+>>>>>>> tensorflow/master
   """
   # Pick the latest checkpoint based on checkpoint state.
   ckpt = get_checkpoint_state(checkpoint_dir, latest_filename)
   if ckpt and ckpt.model_checkpoint_path:
+<<<<<<< HEAD
     checkpoint_full_path = os.path.join(
         checkpoint_dir, ckpt.model_checkpoint_path)
     if gfile.Exists(checkpoint_full_path):
       return checkpoint_full_path
 
   return None
+=======
+    if gfile.Glob(ckpt.model_checkpoint_path):
+      return ckpt.model_checkpoint_path
+
+  return None
+
+
+def _get_kind_name(item):
+  """Returns the kind name in CollectionDef.
+
+  Args:
+    item: A data item.
+
+  Returns:
+    The string representation of the kind in CollectionDef.
+  """
+  if isinstance(item, (six.string_types, six.binary_type)):
+    kind = "bytes_list"
+  elif isinstance(item, six.integer_types):
+    kind = "int64_list"
+  elif isinstance(item, float):
+    kind = "float_list"
+  elif isinstance(item, Any):
+    kind = "any_list"
+  else:
+    kind = "node_list"
+  return kind
+
+
+def _add_collection_def(meta_graph_def, key):
+  """Adds a collection to MetaGraphDef protocol buffer.
+
+  Args:
+    meta_graph_def: MetaGraphDef protocol buffer.
+    key: One of the GraphKeys or user-defined string.
+  """
+  if not isinstance(key, six.string_types) and not isinstance(key, bytes):
+    logging.warning("Only collections with string type keys will be "
+                    "serialized. This key has %s" % type(key))
+    return
+  collection_list = ops.get_collection(key)
+  if not collection_list:
+    return
+  try:
+    col_def = meta_graph_def.collection_def[key]
+    to_proto = ops.get_to_proto_function(key)
+    proto_type = ops.get_collection_proto_type(key)
+    if to_proto:
+      kind = "bytes_list"
+      for x in collection_list:
+        # Additional type check to make sure the returned proto is indeed
+        # what we expect.
+        proto = to_proto(x)
+        assert isinstance(proto, proto_type)
+        getattr(col_def, kind).value.append(proto.SerializeToString())
+    else:
+      kind = _get_kind_name(collection_list[0])
+      if kind == "node_list":
+        getattr(col_def, kind).value.extend([x.name for x in collection_list])
+      elif kind == "bytes_list":
+        # NOTE(opensource): This force conversion is to work around the fact
+        # that Python3 distinguishes between bytes and strings.
+        getattr(col_def, kind).value.extend(
+            [compat.as_bytes(x) for x in collection_list])
+      else:
+        getattr(col_def, kind).value.extend([x for x in collection_list])
+  except Exception as e:  # pylint: disable=broad-except
+    logging.warning("Error encountered when serializing %s.\n"
+                    "Type is unsupported, or the types of the items don't "
+                    "match field type in CollectionDef.\n%s" % (key, str(e)))
+    if key in meta_graph_def.collection_def:
+      del meta_graph_def.collection_def[key]
+    return
+
+
+def _as_meta_graph_def(meta_info_def=None, graph_def=None, saver_def=None,
+                       collection_list=None):
+  """Construct and returns a `MetaGraphDef` protocol buffer.
+
+  Args:
+    meta_info_def: `MetaInfoDef` protocol buffer.
+    graph_def: `GraphDef` protocol buffer.
+    saver_def: `SaverDef` protocol buffer.
+    collection_list: List of string keys to collect.
+
+  Returns:
+    MetaGraphDef protocol buffer.
+
+  Raises:
+    TypeError: If the arguments are not of the correct proto buffer type.
+  """
+  # Type check.
+  if meta_info_def and not isinstance(meta_info_def,
+                                      meta_graph_pb2.MetaGraphDef.MetaInfoDef):
+    raise TypeError("meta_info_def must be of type MetaInfoDef, not %s",
+                    type(meta_info_def))
+  if graph_def and not isinstance(graph_def, graph_pb2.GraphDef):
+    raise TypeError("graph_def must be of type GraphDef, not %s",
+                    type(graph_def))
+  if saver_def and not isinstance(saver_def, saver_pb2.SaverDef):
+    raise TypeError("saver_def must be of type SaverDef, not %s",
+                    type(saver_def))
+
+  # Creates a MetaGraphDef proto.
+  meta_graph_def = meta_graph_pb2.MetaGraphDef()
+  # Adds meta_info_def.
+  if meta_info_def:
+    meta_graph_def.meta_info_def.MergeFrom(meta_info_def)
+
+  # Adds graph_def or the default.
+  if not graph_def:
+    meta_graph_def.graph_def.MergeFrom(ops.get_default_graph().as_graph_def())
+  else:
+    meta_graph_def.graph_def.MergeFrom(graph_def)
+
+  # Fills in meta_info_def.stripped_op_list using the ops from graph_def.
+  # pylint: disable=g-explicit-length-test
+  if len(meta_graph_def.meta_info_def.stripped_op_list.op) == 0:
+    meta_graph_def.meta_info_def.stripped_op_list.MergeFrom(
+        stripped_op_list_for_graph(meta_graph_def.graph_def))
+  # pylint: enable=g-explicit-length-test
+
+  # Adds saver_def.
+  if saver_def:
+    meta_graph_def.saver_def.MergeFrom(saver_def)
+
+  # Adds collection_list.
+  if collection_list:
+    clist = collection_list
+  else:
+    clist = ops.get_all_collection_keys()
+  for ctype in clist:
+    _add_collection_def(meta_graph_def, ctype)
+  return meta_graph_def
+
+
+def _read_meta_graph_file(filename):
+  """Reads a file containing `MetaGraphDef` and returns the protocol buffer.
+
+  Args:
+    filename: `meta_graph_def` filename including the path.
+
+  Returns:
+    A `MetaGraphDef` protocol buffer.
+
+  Raises:
+    IOError: If the file doesn't exist, or cannot be successfully parsed.
+  """
+  meta_graph_def = meta_graph_pb2.MetaGraphDef()
+  if not gfile.Exists(filename):
+    raise IOError("File %s does not exist." % filename)
+  # First try to read it as a binary file.
+  with gfile.FastGFile(filename, "rb") as f:
+    file_content = f.read()
+    try:
+      meta_graph_def.ParseFromString(file_content)
+      return meta_graph_def
+    except Exception:  # pylint: disable=broad-except
+      pass
+
+  # Next try to read it as a text file.
+  with gfile.FastGFile(filename, "r") as f:
+    file_content = f.read()
+    try:
+      text_format.Merge(file_content, meta_graph_def)
+      return meta_graph_def
+    except text_format.ParseError as e:
+      raise IOError("Cannot parse file %s: %s." % (filename, str(e)))
+
+  return None
+
+
+def _import_meta_graph_def(meta_graph_def):
+  """Recreates a Graph saved in a `MetaGraphDef` proto.
+
+  This function adds all the nodes from the meta graph def proto to the current
+  graph, recreates all the collections, and returns a saver from saver_def.
+
+  Args:
+    meta_graph_def: `MetaGraphDef` protocol buffer.
+
+  Returns:
+    A saver constructed from `saver_def` in `meta_graph_def` or None.
+
+    A None value is returned if no variables exist in the `meta_graph_def`
+    (i.e., no variables to restore).
+  """
+  # Gathers the list of nodes we are interested in.
+  importer.import_graph_def(meta_graph_def.graph_def, name="")
+
+  # Restores all the other collections.
+  for key, col_def in meta_graph_def.collection_def.items():
+    kind = col_def.WhichOneof("kind")
+    if kind is None:
+      logging.error("Cannot identify data type for collection %s. Skipping."
+                    % key)
+      continue
+    from_proto = ops.get_from_proto_function(key)
+    if from_proto:
+      assert kind == "bytes_list"
+      proto_type = ops.get_collection_proto_type(key)
+      for value in col_def.bytes_list.value:
+        proto = proto_type()
+        proto.ParseFromString(value)
+        ops.add_to_collection(key, from_proto(proto))
+    else:
+      field = getattr(col_def, kind)
+      if kind == "node_list":
+        for value in field.value:
+          col_op = ops.get_default_graph().as_graph_element(value)
+          ops.add_to_collection(key, col_op)
+      elif kind == "int64_list":
+        # NOTE(opensource): This force conversion is to work around the fact
+        # that Python2 distinguishes between int and long, while Python3 has
+        # only int.
+        for value in field.value:
+          ops.add_to_collection(key, int(value))
+      else:
+        for value in field.value:
+          ops.add_to_collection(key, value)
+
+  if meta_graph_def.HasField("saver_def"):
+    return Saver(saver_def=meta_graph_def.saver_def)
+  else:
+    if variables.all_variables():
+      # Return the default saver instance for all graph variables.
+      return Saver()
+    else:
+      # If not graph variables exist, then a Saver cannot be constructed.
+      logging.info("Saver not created because there are no variables in the"
+                   " graph to restore")
+      return None
+
+
+def import_meta_graph(meta_graph_or_file):
+  """Recreates a Graph saved in a `MetaGraphDef` proto.
+
+  This function takes a `MetaGraphDef` protocol buffer as input. If
+  the argument is a file containing a `MetaGraphDef` protocol buffer ,
+  it constructs a protocol buffer from the file content. The function
+  then adds all the nodes from the `graph_def` field to the
+  current graph, recreates all the collections, and returns a saver
+  constructed from the `saver_def` field.
+
+  In combination with `export_meta_graph()`, this function can be used to
+
+  * Serialize a graph along with other Python objects such as `QueueRunner`,
+    `Variable` into a `MetaGraphDef`.
+
+  * Restart training from a saved graph and checkpoints.
+
+  * Run inference from a saved graph and checkpoints.
+
+  ```Python
+  ...
+  # Create a saver.
+  saver = tf.train.Saver(...variables...)
+  # Remember the training_op we want to run by adding it to a collection.
+  tf.add_to_collection('train_op', train_op)
+  sess = tf.Session()
+  for step in xrange(1000000):
+      sess.run(train_op)
+      if step % 1000 == 0:
+          # Saves checkpoint, which by default also exports a meta_graph
+          # named 'my-model-global_step.meta'.
+          saver.save(sess, 'my-model', global_step=step)
+  ```
+
+  Later we can continue training from this saved `meta_graph` without building
+  the model from scratch.
+
+  ```Python
+  with tf.Session() as sess:
+    new_saver = tf.train.import_meta_graph('my-save-dir/my-model-10000.meta')
+    new_saver.restore(sess, 'my-save-dir/my-model-10000')
+    # tf.get_collection() returns a list. In this example we only want the
+    # first one.
+    train_op = tf.get_collection('train_op')[0]
+    for step in xrange(1000000):
+      sess.run(train_op)
+  ```
+
+  NOTE: Restarting training from saved `meta_graph` only works if the
+  device assignments have not changed.
+
+  Args:
+    meta_graph_or_file: `MetaGraphDef` protocol buffer or filename (including
+      the path) containing a `MetaGraphDef`.
+
+  Returns:
+    A saver constructed from `saver_def` in `MetaGraphDef` or None.
+
+    A None value is returned if no variables exist in the `MetaGraphDef`
+    (i.e., there are no variables to restore).
+  """
+  if isinstance(meta_graph_or_file, meta_graph_pb2.MetaGraphDef):
+    return _import_meta_graph_def(meta_graph_or_file)
+  else:
+    return _import_meta_graph_def(_read_meta_graph_file(meta_graph_or_file))
+
+
+def export_meta_graph(filename=None, meta_info_def=None, graph_def=None,
+                      saver_def=None, collection_list=None, as_text=False):
+  """Returns `MetaGraphDef` proto. Optionally writes it to filename.
+
+  This function exports the graph, saver, and collection objects into
+  `MetaGraphDef` protocol buffer with the intension of it being imported
+  at a later time or location to restart training, run inference, or be
+  a subgraph.
+
+  Args:
+    filename: Optional filename including the path for writing the
+      generated `MetaGraphDef` protocol buffer.
+    meta_info_def: `MetaInfoDef` protocol buffer.
+    graph_def: `GraphDef` protocol buffer.
+    saver_def: `SaverDef` protocol buffer.
+    collection_list: List of string keys to collect.
+    as_text: If `True`, writes the `MetaGraphDef` as an ASCII proto.
+
+  Returns:
+    A `MetaGraphDef` proto.
+  """
+  meta_graph_def = _as_meta_graph_def(meta_info_def=meta_info_def,
+                                      graph_def=graph_def,
+                                      saver_def=saver_def,
+                                      collection_list=collection_list)
+  if filename:
+    training_util.write_graph(meta_graph_def, os.path.dirname(filename),
+                              os.path.basename(filename), as_text=as_text)
+  return meta_graph_def
+
+ops.register_proto_function(ops.GraphKeys.SAVERS,
+                            proto_type=saver_pb2.SaverDef,
+                            to_proto=Saver.to_proto,
+                            from_proto=Saver.from_proto)
+>>>>>>> tensorflow/master

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/tensor_slice_reader.h"
 
 #include "tensorflow/core/framework/types.h"
@@ -5,6 +23,7 @@
 #include "tensorflow/core/lib/core/stringpiece.h"
 #include "tensorflow/core/lib/io/path.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/protobuf.h"
@@ -13,6 +32,17 @@
 #include "tensorflow/core/util/tensor_slice_writer.h"
 #include "tensorflow/core/util/tensor_slice_reader_cache.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/public/version.h"
+#include "tensorflow/core/util/saved_tensor_slice_util.h"
+#include "tensorflow/core/util/tensor_slice_reader_cache.h"
+#include "tensorflow/core/util/tensor_slice_writer.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -93,7 +123,11 @@ void SimpleFloatHelper(TensorSliceWriter::CreateBuilderFunction create_function,
   // Now we need to read the tensor slices
   const string filepattern = strings::StrCat(fname_base, "_*");
   TensorSliceReader reader(filepattern, open_function);
+<<<<<<< HEAD
   EXPECT_OK(reader.status());
+=======
+  TF_EXPECT_OK(reader.status());
+>>>>>>> tensorflow/master
   EXPECT_EQ(2, reader.num_files());
 
   // We query some of the tensors
@@ -101,10 +135,14 @@ void SimpleFloatHelper(TensorSliceWriter::CreateBuilderFunction create_function,
     TensorShape shape;
     DataType type;
     EXPECT_TRUE(reader.HasTensor("test", &shape, &type));
+<<<<<<< HEAD
     EXPECT_EQ(
         "dim { size: 4 } "
         "dim { size: 5 }",
         shape.DebugString());
+=======
+    EXPECT_EQ("[4,5]", shape.DebugString());
+>>>>>>> tensorflow/master
     EXPECT_EQ(DT_FLOAT, type);
     EXPECT_FALSE(reader.HasTensor("don't exist", nullptr, nullptr));
   }
@@ -220,7 +258,11 @@ void SimpleIntXHelper(TensorSliceWriter::CreateBuilderFunction create_function,
   // Now we need to read the tensor slices
   const string filepattern = strings::StrCat(fname_base, "_*");
   TensorSliceReader reader(filepattern, open_function);
+<<<<<<< HEAD
   EXPECT_OK(reader.status());
+=======
+  TF_EXPECT_OK(reader.status());
+>>>>>>> tensorflow/master
   EXPECT_EQ(2, reader.num_files());
 
   // We query some of the tensors
@@ -228,10 +270,14 @@ void SimpleIntXHelper(TensorSliceWriter::CreateBuilderFunction create_function,
     TensorShape shape;
     DataType type;
     EXPECT_TRUE(reader.HasTensor("test", &shape, &type));
+<<<<<<< HEAD
     EXPECT_EQ(
         "dim { size: 4 } "
         "dim { size: 5 }",
         shape.DebugString());
+=======
+    EXPECT_EQ("[4,5]", shape.DebugString());
+>>>>>>> tensorflow/master
     EXPECT_EQ(DataTypeToEnum<T>::v(), type);
     EXPECT_FALSE(reader.HasTensor("don't exist", nullptr, nullptr));
   }
@@ -365,10 +411,14 @@ void CachedTensorSliceReaderTesterHelper(
     TensorShape shape;
     DataType type;
     EXPECT_TRUE(reader->HasTensor("test", &shape, &type));
+<<<<<<< HEAD
     EXPECT_EQ(
         "dim { size: 4 } "
         "dim { size: 5 }",
         shape.DebugString());
+=======
+    EXPECT_EQ("[4,5]", shape.DebugString());
+>>>>>>> tensorflow/master
     EXPECT_EQ(DT_FLOAT, type);
     EXPECT_FALSE(reader->HasTensor("don't exist", nullptr, nullptr));
   }
@@ -388,6 +438,68 @@ TEST(CachedTensorSliceReaderTest, SimpleFloat) {
                                       OpenTableTensorSliceReader);
 }
 
+<<<<<<< HEAD
+=======
+static void VersionTest(const VersionDef& versions, const string& error) {
+  const string path = io::JoinPath(testing::TmpDir(), "checkpoint");
+
+  {
+    // Prepare an empty checkpoint with some version information
+    SavedTensorSlices sts;
+    sts.mutable_meta()->mutable_versions()->CopyFrom(versions);
+    string contents;
+    EXPECT_TRUE(sts.SerializeToString(&contents));
+
+    // Write it to disk
+    TensorSliceWriter::Builder* builder;
+    TF_ASSERT_OK(CreateTableTensorSliceBuilder(path, &builder));
+    builder->Add(kSavedTensorSlicesKey, contents);
+    int64 file_size;
+    builder->Finish(&file_size);
+    delete builder;
+  }
+
+  // Read it back in and verify that we get the expected error
+  TensorSliceReader reader(path, OpenTableTensorSliceReader);
+  EXPECT_TRUE(reader.status().code() == error::INVALID_ARGUMENT &&
+              StringPiece(reader.status().error_message()).starts_with(error))
+      << "Expected error starting with '" << errors::InvalidArgument(error)
+      << "', got '" << reader.status() << "'";
+}
+
+TEST(CheckpointVersionTest, MinConsumer) {
+  VersionDef versions;
+  versions.set_producer(TF_CHECKPOINT_VERSION + 1);
+  versions.set_min_consumer(TF_CHECKPOINT_VERSION + 1);
+  VersionTest(
+      versions,
+      strings::StrCat("Checkpoint min consumer version ",
+                      TF_CHECKPOINT_VERSION + 1, " above current version ",
+                      TF_CHECKPOINT_VERSION, " for TensorFlow"));
+}
+
+TEST(CheckpointVersionTest, MinProducer) {
+  VersionDef versions;
+  versions.set_producer(TF_CHECKPOINT_VERSION_MIN_PRODUCER - 1);
+  VersionTest(versions, strings::StrCat("Checkpoint producer version ",
+                                        TF_CHECKPOINT_VERSION_MIN_PRODUCER - 1,
+                                        " below min producer ",
+                                        TF_CHECKPOINT_VERSION_MIN_PRODUCER,
+                                        " supported by TensorFlow"));
+}
+
+TEST(CheckpointVersionTest, BadConsumer) {
+  VersionDef versions;
+  versions.set_producer(TF_CHECKPOINT_VERSION + 1);
+  versions.add_bad_consumers(TF_CHECKPOINT_VERSION);
+  VersionTest(
+      versions,
+      strings::StrCat(
+          "Checkpoint disallows consumer version ", TF_CHECKPOINT_VERSION,
+          ".  Please upgrade TensorFlow: this version is likely buggy."));
+}
+
+>>>>>>> tensorflow/master
 }  // namespace
 
 }  // namespace checkpoint

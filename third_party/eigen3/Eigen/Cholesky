@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef EIGEN_CHOLESKY_MODULE_H
 #define EIGEN_CHOLESKY_MODULE_H
 
@@ -32,3 +33,6 @@
 
 #endif // EIGEN_CHOLESKY_MODULE_H
 /* vim: set filetype=cpp et sw=2 ts=2 ai: */
+=======
+#include "eigen-eigen-3d9f227afae2/Eigen/Cholesky"
+>>>>>>> tensorflow/master

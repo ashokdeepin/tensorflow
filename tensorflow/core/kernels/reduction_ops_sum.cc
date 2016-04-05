@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/kernels/reduction_ops_common.h"
 
 namespace tensorflow {
@@ -26,12 +44,37 @@ REGISTER_KERNEL_BUILDER(
           .HostMemory("reduction_indices"), \
       ReductionOp<GPUDevice, type, Eigen::internal::SumReducer<type>>);
 REGISTER_GPU_KERNELS(float);
+<<<<<<< HEAD
 #undef REGISTER_GPU_KERNELS
 
 REGISTER_KERNEL_BUILDER(
     Name("Sum").Device(DEVICE_GPU).TypeConstraint<complex64>("T"),
     ReductionOp<GPUDevice, complex64, Eigen::internal::SumReducer<complex64>>);
 
+=======
+REGISTER_GPU_KERNELS(double);
+#undef REGISTER_GPU_KERNELS
+
+REGISTER_KERNEL_BUILDER(
+    Name("Sum")
+        .Device(DEVICE_GPU)
+        .TypeConstraint<complex64>("T")
+        .HostMemory("reduction_indices"),
+    ReductionOp<GPUDevice, complex64, Eigen::internal::SumReducer<complex64>>);
+
+// A special GPU kernel for int32.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+REGISTER_KERNEL_BUILDER(
+    Name("Sum")
+        .Device(DEVICE_GPU)
+        .TypeConstraint<int32>("T")
+        .HostMemory("input")
+        .HostMemory("output")
+        .HostMemory("reduction_indices"),
+    ReductionOp<CPUDevice, int32, Eigen::internal::SumReducer<int32>>);
+
+>>>>>>> tensorflow/master
 #endif
 
 }  // namespace tensorflow

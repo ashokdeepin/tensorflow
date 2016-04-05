@@ -1,13 +1,41 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/node_def_builder.h"
 
 #include <memory>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/node_def_builder.h"
+
+#include <memory>
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/fake_input.h"
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op_def_builder.h"
 #include "tensorflow/core/framework/op_def_util.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/lib/core/status_test_util.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -16,7 +44,11 @@ class NodeDefBuilderTest : public ::testing::Test {
  protected:
   // Specify an OpDef via an OpDefBuilder.
   void Op(const OpDefBuilder& op_def_builder) {
+<<<<<<< HEAD
     EXPECT_OK(op_def_builder.Finalize(&op_def_));
+=======
+    TF_EXPECT_OK(op_def_builder.Finalize(&op_def_));
+>>>>>>> tensorflow/master
   }
 
   // Resets builder_ with a new NodeDefBuilder using the Op from the last call
@@ -34,7 +66,11 @@ class NodeDefBuilderTest : public ::testing::Test {
                      DataTypeSlice expected_out_types, StringPiece proto) {
     NodeDef node_def;
     Status status = builder.Finalize(&node_def);
+<<<<<<< HEAD
     EXPECT_OK(status);
+=======
+    TF_EXPECT_OK(status);
+>>>>>>> tensorflow/master
     if (!status.ok()) return;
     NodeDef expected;
     protobuf::TextFormat::ParseFromString(strings::StrCat("name: 'n' ", proto),
@@ -44,7 +80,11 @@ class NodeDefBuilderTest : public ::testing::Test {
     DataTypeVector in_types, out_types;
     status =
         InOutTypesForNode(node_def, builder.op_def(), &in_types, &out_types);
+<<<<<<< HEAD
     EXPECT_OK(status);
+=======
+    TF_EXPECT_OK(status);
+>>>>>>> tensorflow/master
     if (!status.ok()) return;
     EXPECT_EQ(DataTypeSliceString(expected_in_types),
               DataTypeVectorString(in_types));
@@ -52,7 +92,11 @@ class NodeDefBuilderTest : public ::testing::Test {
               DataTypeVectorString(out_types));
 
     status = ValidateNodeDef(node_def, op_def_);
+<<<<<<< HEAD
     EXPECT_OK(status);
+=======
+    TF_EXPECT_OK(status);
+>>>>>>> tensorflow/master
   }
 
   // Calls Finalize() and verifies it returns an error.

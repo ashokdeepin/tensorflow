@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for ops used with embeddings."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,14 +23,20 @@ from __future__ import print_function
 
 import itertools
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
+<<<<<<< HEAD
 from tensorflow.python.kernel_tests import gradient_checker as gc
 
+=======
+>>>>>>> tensorflow/master
 
 def _AsLong(array):
   """Casts arrays elements to long type. Used to convert from numpy tf."""
@@ -102,11 +126,17 @@ def _PName(param_id):
 
 def _EmbeddingParams(num_shards, vocab_size,
                      dtype=tf.float32,
+<<<<<<< HEAD
                      shape=None):
+=======
+                     shape=None,
+                     use_shapeless_placeholder=False):
+>>>>>>> tensorflow/master
   p = []
   params = {}
   feed_dict = {}
   if not shape: shape = [10]
+<<<<<<< HEAD
   assert not vocab_size % num_shards
   shape = [vocab_size // num_shards] + shape
   for i in range(num_shards):
@@ -122,11 +152,36 @@ def _EmbeddingParams(num_shards, vocab_size,
 
 
 def _EmbeddingResult(params, id_vals, num_shards, weight_vals=None):
+=======
+  for i in range(num_shards):
+    shard_shape = [vocab_size // num_shards] + shape
+    if i < vocab_size % num_shards:  # Excess goes evenly on the first shards
+      shard_shape[0] += 1
+
+    param_name = _PName(i)
+
+    if use_shapeless_placeholder:
+      param = tf.placeholder(dtype, shape=None, name=param_name)
+    else:
+      param = tf.constant(1.0, shape=shard_shape, dtype=dtype, name=param_name)
+    p.append(param)
+    np_type = "f" if dtype == tf.float32 else "d"
+    val = (np.random.rand(*shard_shape).astype(np_type)) + 1
+    params[param_name + ":0"] = val
+    feed_dict[param.name] = val
+  return p, params, feed_dict
+
+
+def _EmbeddingResult(params, id_vals, num_shards, vocab_size,
+                     partition_strategy="mod",
+                     weight_vals=None):
+>>>>>>> tensorflow/master
   if weight_vals is None:
     weight_vals = np.copy(id_vals)
     weight_vals.fill(1)
   values = []
   weights = []
+<<<<<<< HEAD
   for ids, wts in zip(id_vals, weight_vals):
     val_aggr = None
     wt_aggr = None
@@ -149,6 +204,52 @@ def _EmbeddingResult(params, id_vals, num_shards, weight_vals=None):
   values = np.array(values).astype(np.float32)
   weights = np.array(weights).astype(np.float32)
   return values, weights
+=======
+  weights_squared = []
+  for ids, wts in zip(id_vals, weight_vals):
+    value_aggregation = None
+    weight_aggregation = None
+    squared_weight_aggregation = None
+    if isinstance(ids, tf.compat.integral_types):
+      ids = [ids]
+      wts = [wts]
+    for i, weight_value in zip(ids, wts):
+      if partition_strategy == "mod":
+        val = np.copy(params[_PName(i % num_shards) + ":0"][
+            i // num_shards, :]) * weight_value
+      elif partition_strategy == "div":
+        ids_per_partition, extras = divmod(vocab_size, num_shards)
+        threshold = extras * (ids_per_partition + 1)
+        if i < threshold:
+          partition = i // (ids_per_partition + 1)
+          offset = i % (ids_per_partition + 1)
+        else:
+          partition = extras + (i - threshold) // ids_per_partition
+          offset = (i - threshold) % ids_per_partition
+        val = np.copy(
+            params[_PName(partition) + ":0"][offset, :]) * weight_value
+      else:
+        assert False
+      if value_aggregation is None:
+        assert weight_aggregation is None
+        assert squared_weight_aggregation is None
+        value_aggregation = val
+        weight_aggregation = weight_value
+        squared_weight_aggregation = weight_value * weight_value
+      else:
+        assert weight_aggregation is not None
+        assert squared_weight_aggregation is not None
+        value_aggregation += val
+        weight_aggregation += weight_value
+        squared_weight_aggregation += weight_value * weight_value
+    values.append(value_aggregation)
+    weights.append(weight_aggregation)
+    weights_squared.append(squared_weight_aggregation)
+  values = np.array(values).astype(np.float32)
+  weights = np.array(weights).astype(np.float32)
+  weights_squared = np.array(weights_squared).astype(np.float32)
+  return values, weights, weights_squared
+>>>>>>> tensorflow/master
 
 
 class EmbeddingLookupTest(tf.test.TestCase):
@@ -169,6 +270,7 @@ class EmbeddingLookupTest(tf.test.TestCase):
       embedding = tf.nn.embedding_lookup(p, ids)
 
       tf_result = embedding.eval(feed_dict=feed_dict)
+<<<<<<< HEAD
     np_result, _ = _EmbeddingResult(params, id_vals, num_shards)
     self.assertAllEqual(np_result, tf_result)
     self.assertShapeEqual(np_result, embedding)
@@ -180,6 +282,19 @@ class EmbeddingLookupTest(tf.test.TestCase):
       # Embedding dimensions is 10. The 10 x vocab_size embedding
       # parameters are spread in num_shards matrices, so each
       # matrix is 10 x (vocab_size / num_shards)
+=======
+    np_result, _, _ = _EmbeddingResult(params, id_vals, num_shards, vocab_size)
+    self.assertAllEqual(np_result, tf_result)
+    self.assertShapeEqual(np_result, embedding)
+
+  def testShardedModPartitioningInt32Ids(self):
+    with self.test_session():
+      num_shards = 5
+      vocab_size = 13
+      # Embedding dimensions is 10. The vocab_size x 10 embedding
+      # parameters are spread in num_shards matrices, so the first
+      # 3 shards are 3 x 10 and the last 2 shards are 2 x 10.
+>>>>>>> tensorflow/master
       p, params, feed_dict = _EmbeddingParams(num_shards, vocab_size)
 
       num_vals = 30
@@ -191,6 +306,7 @@ class EmbeddingLookupTest(tf.test.TestCase):
 
       embedding = tf.nn.embedding_lookup(p, ids)
       tf_result = embedding.eval(feed_dict=feed_dict)
+<<<<<<< HEAD
     np_result, _ = _EmbeddingResult(params, id_vals, num_shards)
     self.assertAllEqual(np_result, tf_result)
     self.assertShapeEqual(np_result, embedding)
@@ -213,6 +329,127 @@ class EmbeddingLookupTest(tf.test.TestCase):
         err = gc.ComputeGradientError(x, x_shape, y, y_shape,
                                       x_init_value=x_init_value)
       self.assertLess(err, 1e-4)
+=======
+    np_result, _, _ = _EmbeddingResult(params, id_vals, num_shards, vocab_size)
+    self.assertAllEqual(np_result, tf_result)
+    self.assertShapeEqual(np_result, embedding)
+
+  def testShardedModPartitioningInt64Ids(self):
+    with self.test_session():
+      num_shards = 5
+      vocab_size = 13
+      # Embedding dimensions is 10. The vocab_size x 10 embedding
+      # parameters are spread in num_shards matrices, so the first
+      # 3 shards are 3 x 10 and the last 2 shards are 2 x 10.
+      p, params, feed_dict = _EmbeddingParams(num_shards, vocab_size)
+
+      num_vals = 30
+      # Fetch num_vals embeddings for random word ids. Since
+      # num_vals > vocab_size, this ought to have repetitions, so
+      # will test that aspect.
+      id_vals = np.random.randint(vocab_size, size=num_vals)
+      ids = tf.constant(list(id_vals), dtype=tf.int64)
+
+      embedding = tf.nn.embedding_lookup(p, ids)
+      tf_result = embedding.eval(feed_dict=feed_dict)
+    np_result, _, _ = _EmbeddingResult(params, id_vals, num_shards, vocab_size)
+    self.assertAllEqual(np_result, tf_result)
+    self.assertShapeEqual(np_result, embedding)
+
+  def testShardedDivPartitioningInt32Ids(self):
+    with self.test_session():
+      num_shards = 5
+      vocab_size = 13
+      # Embedding dimensions is 10. The vocab_size x 10 embedding
+      # parameters are spread in num_shards matrices, so the first
+      # 3 shards are 3 x 10 and the last 2 shards are 2 x 10.
+      p, params, feed_dict = _EmbeddingParams(num_shards, vocab_size)
+
+      num_vals = 30
+      # Fetch num_vals embeddings for random word ids. Since
+      # num_vals > vocab_size, this ought to have repetitions, so
+      # will test that aspect.
+      id_vals = np.random.randint(vocab_size, size=num_vals)
+      ids = tf.constant(list(id_vals), dtype=tf.int32)
+
+      embedding = tf.nn.embedding_lookup(p, ids, partition_strategy="div")
+      tf_result = embedding.eval(feed_dict=feed_dict)
+    np_result, _, _ = _EmbeddingResult(
+        params, id_vals, num_shards, vocab_size, partition_strategy="div")
+    self.assertAllEqual(np_result, tf_result)
+    self.assertShapeEqual(np_result, embedding)
+
+  def testShardedDivPartitioningInt64Ids(self):
+    with self.test_session():
+      num_shards = 5
+      vocab_size = 13
+      # Embedding dimensions is 10. The vocab_size x 10 embedding
+      # parameters are spread in num_shards matrices, so the first
+      # 3 shards are 3 x 10 and the last 2 shards are 2 x 10.
+      p, params, feed_dict = _EmbeddingParams(num_shards, vocab_size)
+
+      num_vals = 30
+      # Fetch num_vals embeddings for random word ids. Since
+      # num_vals > vocab_size, this ought to have repetitions, so
+      # will test that aspect.
+      id_vals = np.random.randint(vocab_size, size=num_vals)
+      ids = tf.constant(list(id_vals), dtype=tf.int64)
+
+      embedding = tf.nn.embedding_lookup(p, ids, partition_strategy="div")
+      tf_result = embedding.eval(feed_dict=feed_dict)
+    np_result, _, _ = _EmbeddingResult(
+        params, id_vals, num_shards, vocab_size, partition_strategy="div")
+    self.assertAllEqual(np_result, tf_result)
+    self.assertShapeEqual(np_result, embedding)
+
+  def testShardedDivPartitioningUnknownParamShape(self):
+    with self.test_session():
+      num_shards = 5
+      vocab_size = 13
+      # Embedding dimensions is 10. The vocab_size x 10 embedding
+      # parameters are spread in num_shards matrices, so the first
+      # 3 shards are 3 x 10 and the last 2 shards are 2 x 10.
+
+      # We clear parameter shapes, to test when shape is not statically known.
+      p, params, feed_dict = _EmbeddingParams(
+          num_shards, vocab_size, use_shapeless_placeholder=True)
+
+      num_vals = 30
+      # Fetch num_vals embeddings for random word ids. Since
+      # num_vals > vocab_size, this ought to have repetitions, so
+      # will test that aspect.
+      id_vals = np.random.randint(vocab_size, size=num_vals)
+      ids = tf.constant(list(id_vals), dtype=tf.int64)
+
+      embedding = tf.nn.embedding_lookup(p, ids, partition_strategy="div")
+      tf_result = embedding.eval(feed_dict=feed_dict)
+    np_result, _, _ = _EmbeddingResult(
+        params, id_vals, num_shards, vocab_size, partition_strategy="div")
+    self.assertAllEqual(np_result, tf_result)
+
+  def testGradientsEmbeddingLookup(self):
+    vocab_size = 9
+    num_ids = 10
+    id_vals = list(np.random.randint(vocab_size, size=num_ids))
+    tf.logging.vlog(1, id_vals)
+    for ids_shape in [(10,), (2, 5)]:
+      for num_shards in [1, 3]:
+        with self.test_session():
+          ids = tf.constant(id_vals, shape=ids_shape, dtype=tf.int32)
+          x, params, _ = _EmbeddingParams(
+              num_shards, vocab_size, shape=[2])
+          y = tf.nn.embedding_lookup(x, ids)
+          y_shape = [num_ids] + list(params[_PName(0) + ":0"].shape[1:])
+          x_name = [_PName(i) for i in range(num_shards)]
+          x_init_value = [params[x_n + ":0"] for x_n in x_name]
+          x_shape = [i.shape for i in x_init_value]
+          err = tf.test.compute_gradient_error(x,
+                                               x_shape,
+                                               y,
+                                               y_shape,
+                                               x_init_value=x_init_value)
+        self.assertLess(err, 1e-4)
+>>>>>>> tensorflow/master
 
   def testGradientsEmbeddingLookupWithComputedParams(self):
     vocab_size = 9
@@ -231,8 +468,16 @@ class EmbeddingLookupTest(tf.test.TestCase):
         x_name = [_PName(i) for i in range(num_shards)]
         x_init_value = [params[x_n + ":0"] for x_n in x_name]
         x_shape = [i.shape for i in x_init_value]
+<<<<<<< HEAD
         err = gc.ComputeGradientError(x, x_shape, y, y_shape,
                                       x_init_value=x_init_value)
+=======
+        err = tf.test.compute_gradient_error(x,
+                                             x_shape,
+                                             y,
+                                             y_shape,
+                                             x_init_value=x_init_value)
+>>>>>>> tensorflow/master
       self.assertLess(err, 1e-3)
 
   def testConstructionNonSharded(self):
@@ -307,9 +552,16 @@ class EmbeddingLookupSparseTest(tf.test.TestCase):
     return grouped_vals
 
   def testEmbeddingLookupSparse(self):
+<<<<<<< HEAD
     vocab_size = 25
     batch_size = 10
     param_shape = [2, 5]
+=======
+    vocab_size = 13
+    batch_size = 10
+    param_shape = [2, 5]
+    expected_lookup_result_shape = [None] + param_shape
+>>>>>>> tensorflow/master
 
     sp_ids, sp_weights, ids, weights, vals_per_batch_entry = (
         self._RandomIdsAndWeights(batch_size, vocab_size))
@@ -321,7 +573,11 @@ class EmbeddingLookupSparseTest(tf.test.TestCase):
 
     for num_shards, combiner, dtype, ignore_weights in itertools.product(
         [1, 5],
+<<<<<<< HEAD
         ["sum", "mean"],
+=======
+        ["sum", "mean", "sqrtn"],
+>>>>>>> tensorflow/master
         [tf.float32, tf.float64],
         [True, False]):
 
@@ -332,14 +588,31 @@ class EmbeddingLookupSparseTest(tf.test.TestCase):
         embedding_sum = tf.nn.embedding_lookup_sparse(
             p, sp_ids, None if ignore_weights else sp_weights,
             combiner=combiner)
+<<<<<<< HEAD
         tf_embedding_sum = embedding_sum.eval(feed_dict=feed_dict)
 
         np_embedding_sum, np_weight_sum = _EmbeddingResult(
             params, grouped_ids, num_shards,
+=======
+
+        self.assertEqual(embedding_sum.get_shape().as_list(),
+                         expected_lookup_result_shape)
+
+        tf_embedding_sum = embedding_sum.eval(feed_dict=feed_dict)
+
+        np_embedding_sum, np_weight_sum, np_weight_sq_sum = _EmbeddingResult(
+            params, grouped_ids, num_shards, vocab_size,
+>>>>>>> tensorflow/master
             weight_vals=grouped_ignored_weights
             if ignore_weights else grouped_weights)
         if combiner == "mean":
           np_embedding_sum /= np.reshape(np_weight_sum, (batch_size, 1, 1))
+<<<<<<< HEAD
+=======
+        if combiner == "sqrtn":
+          np_embedding_sum /= np.reshape(
+              np.sqrt(np_weight_sq_sum), (batch_size, 1, 1))
+>>>>>>> tensorflow/master
         self.assertAllClose(np_embedding_sum, tf_embedding_sum)
 
   def testGradientsEmbeddingLookupSparse(self):
@@ -351,7 +624,11 @@ class EmbeddingLookupSparseTest(tf.test.TestCase):
 
     for num_shards, combiner, dtype, ignore_weights in itertools.product(
         [1, 3],
+<<<<<<< HEAD
         ["sum", "mean"],
+=======
+        ["sum", "mean", "sqrtn"],
+>>>>>>> tensorflow/master
         [tf.float32, tf.float64],
         [True, False]):
       with self.test_session():
@@ -366,10 +643,35 @@ class EmbeddingLookupSparseTest(tf.test.TestCase):
         x_init_value = [params[x_n + ":0"] for x_n in x_name]
         x_shape = [i.shape for i in x_init_value]
         y_shape = [batch_size] + list(params[_PName(0) + ":0"].shape[1:])
+<<<<<<< HEAD
         err = gc.ComputeGradientError(x, x_shape, y, y_shape,
                                       x_init_value=x_init_value)
       self.assertLess(err, 1e-5 if dtype == tf.float64 else 2e-3)
 
+=======
+        err = tf.test.compute_gradient_error(x,
+                                             x_shape,
+                                             y,
+                                             y_shape,
+                                             x_init_value=x_init_value)
+      self.assertLess(err, 1e-5 if dtype == tf.float64 else 2e-3)
+
+  def testIncompatibleShapes(self):
+    with self.test_session():
+      x, _, _ = _EmbeddingParams(1, 10, dtype=tf.float32)
+      sp_ids = tf.SparseTensor(
+          tf.constant([[0, 0], [0, 1], [1, 0]], tf.int64),
+          tf.constant([0, 1, 2], tf.int32),
+          tf.constant([2, 2], tf.int64))
+      sp_weights = tf.SparseTensor(
+          tf.constant([[0, 0], [0, 1]], tf.int64),
+          tf.constant([12.0, 5.0], tf.float32),
+          tf.constant([1, 2], tf.int64))
+
+      with self.assertRaises(ValueError):
+        tf.nn.embedding_lookup_sparse(x, sp_ids, sp_weights, combiner="mean")
+
+>>>>>>> tensorflow/master
 
 class DynamicStitchOpTest(tf.test.TestCase):
 

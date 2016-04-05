@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 
 #include <list>
@@ -6,9 +24,16 @@
 #include <vector>
 
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/test_benchmark.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -125,9 +150,12 @@ TEST(IntVec, SimpleOps) {
     for (int i = 0; i < len; i++) {
       EXPECT_EQ(i, v[i]);
     }
+<<<<<<< HEAD
     EXPECT_EQ(v.begin(), v.array());
     EXPECT_EQ(v.begin(), v.mutable_array());
 
+=======
+>>>>>>> tensorflow/master
     EXPECT_EQ(v.begin(), v.data());
     EXPECT_EQ(cv.begin(), cv.data());
 
@@ -359,6 +387,7 @@ TEST(IntVec, CopyConstructorAndAssignment) {
 
 TEST(OverheadTest, Storage) {
   // Check for size overhead.
+<<<<<<< HEAD
   // In particular, ensure that std::allocator doesn't cost anything to store.
   // The union should be absorbing some of the allocation bookkeeping overhead
   // in the larger vectors, leaving only the size_ field as overhead.
@@ -379,6 +408,20 @@ TEST(OverheadTest, Storage) {
             sizeof(InlinedVector<int*, 7>) - 7 * sizeof(int*));
   EXPECT_EQ(1 * sizeof(int*),
             sizeof(InlinedVector<int*, 8>) - 8 * sizeof(int*));
+=======
+  using tensorflow::gtl::InlinedVector;
+  EXPECT_EQ(2 * sizeof(int*), sizeof(InlinedVector<int*, 1>));
+  EXPECT_EQ(4 * sizeof(int*), sizeof(InlinedVector<int*, 2>));
+  EXPECT_EQ(4 * sizeof(int*), sizeof(InlinedVector<int*, 3>));
+  EXPECT_EQ(6 * sizeof(int*), sizeof(InlinedVector<int*, 4>));
+
+  EXPECT_EQ(2 * sizeof(char*), sizeof(InlinedVector<char, 1>));
+  EXPECT_EQ(2 * sizeof(char*), sizeof(InlinedVector<char, 2>));
+  EXPECT_EQ(2 * sizeof(char*), sizeof(InlinedVector<char, 3>));
+  EXPECT_EQ(2 * sizeof(char*),
+            sizeof(InlinedVector<char, 2 * sizeof(char*) - 1>));
+  EXPECT_EQ(4 * sizeof(char*), sizeof(InlinedVector<char, 2 * sizeof(char*)>));
+>>>>>>> tensorflow/master
 }
 
 TEST(IntVec, Clear) {
@@ -398,9 +441,15 @@ TEST(IntVec, Reserve) {
     Fill(&v, len);
 
     for (size_t newlen = 0; newlen < 100; newlen++) {
+<<<<<<< HEAD
       const int* start_rep = v.array();
       v.reserve(newlen);
       const int* final_rep = v.array();
+=======
+      const int* start_rep = v.data();
+      v.reserve(newlen);
+      const int* final_rep = v.data();
+>>>>>>> tensorflow/master
       if (newlen <= len) {
         EXPECT_EQ(start_rep, final_rep);
       }
@@ -410,7 +459,11 @@ TEST(IntVec, Reserve) {
       while (v.size() < newlen) {
         v.push_back(0);
       }
+<<<<<<< HEAD
       EXPECT_EQ(final_rep, v.array());
+=======
+      EXPECT_EQ(final_rep, v.data());
+>>>>>>> tensorflow/master
     }
   }
 }
@@ -613,6 +666,7 @@ TEST(InstanceVec, CountConstructorsDestructorsOnAssignment) {
 }
 
 TEST(RangedConstructor, SimpleType) {
+<<<<<<< HEAD
   std::vector<int> source_v = {4, 5, 6};
   // First try to fit in inline backing
   tensorflow::gtl::InlinedVector<int, 4> v(source_v.begin(), source_v.end());
@@ -621,15 +675,37 @@ TEST(RangedConstructor, SimpleType) {
   EXPECT_EQ(4, v[0]);
   EXPECT_EQ(5, v[1]);
   EXPECT_EQ(6, v[2]);
+=======
+  std::vector<int> source_v = {4, 5, 6, 7};
+  // First try to fit in inline backing
+  tensorflow::gtl::InlinedVector<int, 4> v(source_v.begin(), source_v.end());
+  tensorflow::gtl::InlinedVector<int, 4> empty4;
+  EXPECT_EQ(4, v.size());
+  EXPECT_EQ(empty4.capacity(), v.capacity());  // Must still be inline
+  EXPECT_EQ(4, v[0]);
+  EXPECT_EQ(5, v[1]);
+  EXPECT_EQ(6, v[2]);
+  EXPECT_EQ(7, v[3]);
+>>>>>>> tensorflow/master
 
   // Now, force a re-allocate
   tensorflow::gtl::InlinedVector<int, 2> realloc_v(source_v.begin(),
                                                    source_v.end());
+<<<<<<< HEAD
   EXPECT_EQ(3, realloc_v.size());
   EXPECT_LT(2, realloc_v.capacity());
   EXPECT_EQ(4, realloc_v[0]);
   EXPECT_EQ(5, realloc_v[1]);
   EXPECT_EQ(6, realloc_v[2]);
+=======
+  tensorflow::gtl::InlinedVector<int, 2> empty2;
+  EXPECT_EQ(4, realloc_v.size());
+  EXPECT_LT(empty2.capacity(), realloc_v.capacity());
+  EXPECT_EQ(4, realloc_v[0]);
+  EXPECT_EQ(5, realloc_v[1]);
+  EXPECT_EQ(6, realloc_v[2]);
+  EXPECT_EQ(7, realloc_v[3]);
+>>>>>>> tensorflow/master
 }
 
 TEST(RangedConstructor, ComplexType) {
@@ -640,6 +716,7 @@ TEST(RangedConstructor, ComplexType) {
   // First try to fit in inline backing
   tensorflow::gtl::InlinedVector<Instance, 1> v(source_v.begin(),
                                                 source_v.end());
+<<<<<<< HEAD
   EXPECT_EQ(1, v.size());
   EXPECT_EQ(1, v.capacity());  // Indication that we're still on inlined storage
   EXPECT_EQ(0, v[0].value_);
@@ -652,6 +729,24 @@ TEST(RangedConstructor, ComplexType) {
   EXPECT_LT(1, realloc_v.capacity());
   EXPECT_EQ(0, realloc_v[0].value_);
   EXPECT_EQ(1, realloc_v[1].value_);
+=======
+  tensorflow::gtl::InlinedVector<Instance, 1> empty1;
+  EXPECT_EQ(1, v.size());
+  EXPECT_EQ(empty1.capacity(), v.capacity());  // Must still be inline
+  EXPECT_EQ(0, v[0].value_);
+
+  std::list<Instance> source_v2 = {Instance(0), Instance(1), Instance(2),
+                                   Instance(3)};
+  // Now, force a re-allocate
+  tensorflow::gtl::InlinedVector<Instance, 1> realloc_v(source_v2.begin(),
+                                                        source_v2.end());
+  EXPECT_EQ(4, realloc_v.size());
+  EXPECT_LT(empty1.capacity(), realloc_v.capacity());
+  EXPECT_EQ(0, realloc_v[0].value_);
+  EXPECT_EQ(1, realloc_v[1].value_);
+  EXPECT_EQ(2, realloc_v[2].value_);
+  EXPECT_EQ(3, realloc_v[3].value_);
+>>>>>>> tensorflow/master
 }
 
 TEST(RangedConstructor, ElementsAreConstructed) {
@@ -665,9 +760,15 @@ TEST(RangedConstructor, ElementsAreConstructed) {
 }
 
 TEST(InitializerListConstructor, SimpleTypeWithInlineBacking) {
+<<<<<<< HEAD
   auto vec = tensorflow::gtl::InlinedVector<int, 4>{4, 5, 6};
   EXPECT_EQ(3, vec.size());
   EXPECT_EQ(4, vec.capacity());
+=======
+  auto vec = tensorflow::gtl::InlinedVector<int, 3>{4, 5, 6};
+  EXPECT_EQ(3, vec.size());
+  EXPECT_EQ(3, vec.capacity());
+>>>>>>> tensorflow/master
   EXPECT_EQ(4, vec[0]);
   EXPECT_EQ(5, vec[1]);
   EXPECT_EQ(6, vec[2]);
@@ -692,9 +793,16 @@ TEST(InitializerListConstructor, DisparateTypesInList) {
 }
 
 TEST(InitializerListConstructor, ComplexTypeWithInlineBacking) {
+<<<<<<< HEAD
   auto vec = tensorflow::gtl::InlinedVector<Instance, 1>{Instance(0)};
   EXPECT_EQ(1, vec.size());
   EXPECT_EQ(1, vec.capacity());
+=======
+  tensorflow::gtl::InlinedVector<Instance, 1> empty;
+  auto vec = tensorflow::gtl::InlinedVector<Instance, 1>{Instance(0)};
+  EXPECT_EQ(1, vec.size());
+  EXPECT_EQ(empty.capacity(), vec.capacity());
+>>>>>>> tensorflow/master
   EXPECT_EQ(0, vec[0].value_);
 }
 
@@ -712,6 +820,7 @@ TEST(DynamicVec, DynamicVecCompiles) {
   (void)v;
 }
 
+<<<<<<< HEAD
 #ifdef INLINED_VECTOR_HAS_ALLOC
 TEST(AllocatorSupportTest, Constructors) {
   typedef STLCountingAllocator<int> MyAlloc;
@@ -797,6 +906,8 @@ TEST(AllocatorSupportTest, SwapOneAllocated) {
 }
 #endif  // INLINED_VECTOR_HAS_ALLOC
 
+=======
+>>>>>>> tensorflow/master
 static void BM_InlinedVectorFill(int iters, int len) {
   for (int i = 0; i < iters; i++) {
     IntVec v;

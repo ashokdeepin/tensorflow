@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for summary ops."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import tensorflow as tf
 
 class SummaryOpsTest(tf.test.TestCase):
@@ -55,7 +76,11 @@ class SummaryOpsTest(tf.test.TestCase):
           sum_squares: 100.0
           bucket_limit: 9.93809490288
           bucket_limit: 10.9319043932
+<<<<<<< HEAD
           bucket_limit: 1.79769313486e+308
+=======
+          bucket_limit: 1.7976931348623157e+308
+>>>>>>> tensorflow/master
           bucket: 0.0
           bucket: 1.0
           bucket: 0.0
@@ -82,6 +107,16 @@ class SummaryOpsTest(tf.test.TestCase):
       self.assertEqual(summ2, merge.op.inputs[0])
       self.assertTrue(tf.merge_all_summaries("bar_key") is None)
 
+<<<<<<< HEAD
+=======
+  def testHistogramSummaryTypes(self):
+    with tf.Graph().as_default():
+      for dtype in (tf.int8, tf.uint8, tf.int16, tf.int32,
+                    tf.float32, tf.float64):
+        const = tf.constant(10, dtype=dtype)
+        tf.histogram_summary("h", const, name="histo")
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

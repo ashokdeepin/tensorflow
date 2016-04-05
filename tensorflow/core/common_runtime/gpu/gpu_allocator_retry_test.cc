@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/gpu/gpu_allocator_retry.h"
 
 #include "tensorflow/core/lib/core/notification.h"
@@ -6,6 +7,33 @@
 #include "tensorflow/core/platform/thread_annotations.h"
 #include "tensorflow/core/public/env.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/allocator_retry.h"
+
+#include <vector>
+#include "tensorflow/core/lib/core/notification.h"
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/thread_annotations.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -32,6 +60,7 @@ class FakeAllocator {
   }
 
   void DeallocateRaw(void* ptr) {
+<<<<<<< HEAD
     retry_.DeallocateRaw(
         [this](void* p) {
           mutex_lock l(mu_);
@@ -42,6 +71,15 @@ class FakeAllocator {
 
  private:
   GPUAllocatorRetry retry_;
+=======
+    mutex_lock l(mu_);
+    ++memory_capacity_;
+    retry_.NotifyDealloc();
+  }
+
+ private:
+  AllocatorRetry retry_;
+>>>>>>> tensorflow/master
   void* good_ptr_ = reinterpret_cast<void*>(0xdeadbeef);
   mutex mu_;
   size_t memory_capacity_ GUARDED_BY(mu_);
@@ -127,6 +165,10 @@ TEST_F(GPUAllocatorRetryTest, RetrySuccess) {
   EXPECT_GT(consumer_count_[2], 0);
 }
 
+<<<<<<< HEAD
+=======
+/* Disabled due to flakiness.  b/24738751
+>>>>>>> tensorflow/master
 // Verifies OutOfMemory failure when memory is slightly overcommitted
 // and retry is not allowed.
 TEST_F(GPUAllocatorRetryTest, NoRetryFail) {
@@ -147,6 +189,10 @@ TEST_F(GPUAllocatorRetryTest, NoRetryFail) {
     EXPECT_TRUE(has_failed_);
   }
 }
+<<<<<<< HEAD
+=======
+*/
+>>>>>>> tensorflow/master
 
 // Verifies OutOfMemory failure when retry is allowed but memory capacity
 // is too low even for retry.

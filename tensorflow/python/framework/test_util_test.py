@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.test_util."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,9 +23,15 @@ from __future__ import print_function
 
 import threading
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
+=======
+import numpy as np
+from six.moves import xrange  # pylint: disable=redefined-builtin
+import tensorflow as tf
+>>>>>>> tensorflow/master
 
 from google.protobuf import text_format
 
@@ -15,12 +39,54 @@ from tensorflow.core.framework import graph_pb2
 from tensorflow.python.framework import errors
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import test_util
+<<<<<<< HEAD
 from tensorflow.python.framework import types
 from tensorflow.python.platform import googletest
 from tensorflow.python.ops import logging_ops
 
 class TestUtilTest(test_util.TensorFlowTestCase):
 
+=======
+from tensorflow.python.platform import googletest
+from tensorflow.python.ops import constant_op
+from tensorflow.python.ops import logging_ops
+
+
+class TestUtilTest(test_util.TensorFlowTestCase):
+
+  def test_assert_ops_in_graph(self):
+    with self.test_session():
+      constant_op.constant(["hello", "taffy"], name="hello")
+      test_util.assert_ops_in_graph({"hello": "Const"}, ops.get_default_graph())
+
+    self.assertRaises(
+        ValueError, test_util.assert_ops_in_graph, {"bye": "Const"},
+        ops.get_default_graph())
+
+    self.assertRaises(
+        ValueError, test_util.assert_ops_in_graph, {"hello": "Variable"},
+        ops.get_default_graph())
+
+  def test_assert_equal_graph_def(self):
+    with tf.Graph().as_default() as g:
+      def_empty = g.as_graph_def()
+      tf.constant(5, name="five")
+      tf.constant(7, name="seven")
+      def_57 = g.as_graph_def()
+    with tf.Graph().as_default() as g:
+      tf.constant(7, name="seven")
+      tf.constant(5, name="five")
+      def_75 = g.as_graph_def()
+    # Comparing strings is order dependent
+    self.assertNotEqual(str(def_57), str(def_75))
+    # assert_equal_graph_def doesn't care about order
+    tf.test.assert_equal_graph_def(def_57, def_75)
+    # Compare two unequal graphs
+    with self.assertRaisesRegexp(AssertionError,
+                                 r"^Found unexpected node 'seven"):
+      tf.test.assert_equal_graph_def(def_57, def_empty)
+
+>>>>>>> tensorflow/master
   def testIsGoogleCudaEnabled(self):
     # The test doesn't assert anything. It ensures the py wrapper
     # function is generated correctly.
@@ -68,8 +134,12 @@ class TestUtilTest(test_util.TensorFlowTestCase):
     t.start()
     with self.assertRaises(self.failureException) as fe:
       t.join()
+<<<<<<< HEAD
     self.assertTrue("integer division or modulo by zero"
                     in fe.exception.message)
+=======
+    self.assertTrue("integer division or modulo by zero" in str(fe.exception))
+>>>>>>> tensorflow/master
 
   def testCheckedThreadWithWrongAssertionFails(self):
     x = 37
@@ -81,7 +151,11 @@ class TestUtilTest(test_util.TensorFlowTestCase):
     t.start()
     with self.assertRaises(self.failureException) as fe:
       t.join()
+<<<<<<< HEAD
     self.assertTrue("False is not true" in fe.exception.message)
+=======
+    self.assertTrue("False is not true" in str(fe.exception))
+>>>>>>> tensorflow/master
 
   def testMultipleThreadsWithOneFailure(self):
     def err_func(i):
@@ -119,6 +193,22 @@ class TestUtilTest(test_util.TensorFlowTestCase):
     with self.assertRaisesRegexp(AssertionError, r"Not equal to tolerance"):
       self.assertAllClose(7, 8)
 
+<<<<<<< HEAD
+=======
+  def testArrayNear(self):
+    a = [1, 2]
+    b = [1, 2, 5]
+    with self.assertRaises(AssertionError):
+      self.assertArrayNear(a, b, 0.001)
+    a = [1, 2]
+    b = [[1, 2], [3, 4]]
+    with self.assertRaises(TypeError):
+      self.assertArrayNear(a, b, 0.001)
+    a = [1, 2]
+    b = [1, 2]
+    self.assertArrayNear(a, b, 0.001)
+
+>>>>>>> tensorflow/master
   def testForceGPU(self):
     with self.assertRaisesRegexp(errors.InvalidArgumentError,
                                  "Cannot assign a device to node"):

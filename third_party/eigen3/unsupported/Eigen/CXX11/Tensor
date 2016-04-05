@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // This file is part of Eigen, a lightweight C++ template library
 // for linear algebra.
 //
@@ -143,3 +144,6 @@
 #include "Eigen/src/Core/util/ReenableStupidWarnings.h"
 
 #endif // EIGEN_CXX11_TENSOR_MODULE
+=======
+#include "eigen-eigen-3d9f227afae2/unsupported/Eigen/CXX11/Tensor"
+>>>>>>> tensorflow/master

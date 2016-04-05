@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef TENSORFLOW_KERNELS_LINALG_OPS_COMMON_H_
 #define TENSORFLOW_KERNELS_LINALG_OPS_COMMON_H_
 
@@ -31,6 +32,51 @@ class LinearAlgebraOpBase : public OpKernel {
   // Return the expected rank of the input.
   // TODO(kalakris): This should be a virtual function to support vector inputs.
   int GetInputMatrixRank() { return 2; }
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_KERNELS_LINALG_OPS_COMMON_H_
+#define TENSORFLOW_KERNELS_LINALG_OPS_COMMON_H_
+
+// Classes to support linear algebra functionality, similar to the numpy.linalg
+// module. Supports batch computation on several matrices at once, sharding the
+// computations across different threads if necessary.
+
+#define EIGEN_USE_THREADS
+
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/kernel_def_builder.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/util/work_sharder.h"
+
+namespace tensorflow {
+
+// Base class for unary linear algebra operators.
+class UnaryLinearAlgebraOpBase : public OpKernel {
+ public:
+  explicit UnaryLinearAlgebraOpBase(OpKernelConstruction* context)
+      : OpKernel(context) {}
+  ~UnaryLinearAlgebraOpBase() override {}
+>>>>>>> tensorflow/master
 
   // Return the output shape of each individual matrix operation. Must be
   // rank 0, 1, or 2.  Scalar outputs are rank 0.
@@ -62,7 +108,12 @@ class LinearAlgebraOpBase : public OpKernel {
   // address
   //   out->flat<Scalar>().data() +
   //   matrix_index * output_matrix_shape.num_elements().
+<<<<<<< HEAD
   // The LinearAlgebraOp<Scalar> class below has functionality which performs
+=======
+  // The UnaryLinearAlgebraOp<Scalar> class below has functionality which
+  // performs
+>>>>>>> tensorflow/master
   // this mapping and presents an interface based on the Eigen::MatrixBase API.
   virtual void ComputeMatrix(OpKernelContext* context, int64 matrix_index,
                              const Tensor& in,
@@ -72,8 +123,11 @@ class LinearAlgebraOpBase : public OpKernel {
   void Compute(OpKernelContext* context) override;
 };
 
+<<<<<<< HEAD
 // A base class for linear algebra ops templated on the scalar type.
 //
+=======
+>>>>>>> tensorflow/master
 // This base class encapsulates the functionality of mapping the input and
 // output tensors using Eigen::Map, so that the Eigen::MatrixBase API may be
 // directly used by derived classes.
@@ -81,6 +135,7 @@ class LinearAlgebraOpBase : public OpKernel {
 // will allow the Op to process batches of matrices (rank >= 3); if set to
 // false the Op will only accept rank 2 inputs.
 template <typename Scalar, bool SupportsBatchOperationT>
+<<<<<<< HEAD
 class LinearAlgebraOp : public LinearAlgebraOpBase {
  public:
   explicit LinearAlgebraOp(OpKernelConstruction* context)
@@ -91,6 +146,17 @@ class LinearAlgebraOp : public LinearAlgebraOpBase {
                                      Eigen::RowMajor>>;
   using MatrixMap = Eigen::Map<
       Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>;
+=======
+class UnaryLinearAlgebraOp : public UnaryLinearAlgebraOpBase {
+ public:
+  explicit UnaryLinearAlgebraOp(OpKernelConstruction* context)
+      : UnaryLinearAlgebraOpBase(context) {}
+
+  using Matrix =
+      Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>;
+  using ConstMatrixMap = Eigen::Map<const Matrix>;
+  using MatrixMap = Eigen::Map<Matrix>;
+>>>>>>> tensorflow/master
 
   // Perform the actual computation on the input matrix, and store the results
   // in the output. This will be called repeatedly for a single call to
@@ -101,18 +167,31 @@ class LinearAlgebraOp : public LinearAlgebraOpBase {
 
   bool SupportsBatchOperation() final { return SupportsBatchOperationT; }
 
+<<<<<<< HEAD
   // A concrete implementation of LinearAlgebraOpBase::ComputeMatrix().
+=======
+  // A concrete implementation of UnaryLinearAlgebraOpBase::ComputeMatrix().
+>>>>>>> tensorflow/master
   void ComputeMatrix(OpKernelContext* context, int64 matrix_index,
                      const Tensor& in, const TensorShape& input_matrix_shape,
                      Tensor* out, const TensorShape& output_matrix_shape) final;
 };
 
+<<<<<<< HEAD
 // Declare that LinearAlgebraOp is explicitly instantiated in
 // linalg_ops_common.cc for float and double.
 extern template class LinearAlgebraOp<float, false>;
 extern template class LinearAlgebraOp<float, true>;
 extern template class LinearAlgebraOp<double, false>;
 extern template class LinearAlgebraOp<double, true>;
+=======
+// Declare that UnaryLinearAlgebraOp is explicitly instantiated in
+// linalg_ops_common.cc for float and double.
+extern template class UnaryLinearAlgebraOp<float, false>;
+extern template class UnaryLinearAlgebraOp<float, true>;
+extern template class UnaryLinearAlgebraOp<double, false>;
+extern template class UnaryLinearAlgebraOp<double, true>;
+>>>>>>> tensorflow/master
 
 }  // namespace tensorflow
 

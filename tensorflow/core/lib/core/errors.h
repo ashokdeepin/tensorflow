@@ -1,9 +1,34 @@
+<<<<<<< HEAD
 #ifndef TENSORFLOW_LIB_CORE_ERRORS_H_
 #define TENSORFLOW_LIB_CORE_ERRORS_H_
 
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/platform/logging.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_LIB_CORE_ERRORS_H_
+#define TENSORFLOW_LIB_CORE_ERRORS_H_
+
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace errors {
@@ -17,7 +42,11 @@ template <typename... Args>
 void AppendToMessage(::tensorflow::Status* status, Args... args) {
   *status = ::tensorflow::Status(
       status->code(),
+<<<<<<< HEAD
       strings::StrCat(status->error_message(), "\n\t", args...));
+=======
+      ::tensorflow::strings::StrCat(status->error_message(), "\n\t", args...));
+>>>>>>> tensorflow/master
 }
 
 // For propagating errors when calling a function.
@@ -42,6 +71,7 @@ void AppendToMessage(::tensorflow::Status* status, Args... args) {
 //   if (errors::IsInvalidArgument(status)) { ... }
 //   switch (status.code()) { case error::INVALID_ARGUMENT: ... }
 
+<<<<<<< HEAD
 #define DECLARE_ERROR(FUNC, CONST)                           \
   template <typename... Args>                                \
   inline ::tensorflow::Status FUNC(Args... args) {           \
@@ -50,6 +80,16 @@ void AppendToMessage(::tensorflow::Status* status, Args... args) {
   }                                                          \
   inline bool Is##FUNC(const ::tensorflow::Status& status) { \
     return status.code() == ::tensorflow::error::CONST;      \
+=======
+#define DECLARE_ERROR(FUNC, CONST)                                       \
+  template <typename... Args>                                            \
+  ::tensorflow::Status FUNC(Args... args) {                              \
+    return ::tensorflow::Status(::tensorflow::error::CONST,              \
+                                ::tensorflow::strings::StrCat(args...)); \
+  }                                                                      \
+  inline bool Is##FUNC(const ::tensorflow::Status& status) {             \
+    return status.code() == ::tensorflow::error::CONST;                  \
+>>>>>>> tensorflow/master
   }
 
 DECLARE_ERROR(Cancelled, CANCELLED)
@@ -74,6 +114,7 @@ DECLARE_ERROR(Unauthenticated, UNAUTHENTICATED)
 // The CanonicalCode() for non-errors.
 using ::tensorflow::error::OK;
 
+<<<<<<< HEAD
 // Convenience macros for asserting and handling exceptional conditions.
 // Analogous to the CHECK* macros provided by logging.h.
 //
@@ -125,6 +166,8 @@ using ::tensorflow::error::OK;
     }                                               \
   } while (0)
 
+=======
+>>>>>>> tensorflow/master
 }  // namespace errors
 }  // namespace tensorflow
 

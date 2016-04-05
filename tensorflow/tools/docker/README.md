@@ -31,22 +31,33 @@ We currently maintain three Docker container images:
 Each of the containers is published to a Docker registry; for the non-GPU
 containers, running is as simple as
 
+<<<<<<< HEAD
     $ docker run -it b.gcr.io/tensorflow/tensorflow
+=======
+    $ docker run -it -p 8888:8888 b.gcr.io/tensorflow/tensorflow
+>>>>>>> tensorflow/master
 
 For the container with GPU support, we require the user to make the appropriate
 NVidia libraries available on their system, as well as providing mappings so
 that the container can see the host's GPU. For most purposes, this can be
 accomplished via
 
+<<<<<<< HEAD
     $ export CUDA_SO=$(\ls /usr/lib/x86_64-linux-gnu/libcuda* | xargs -I{} echo '-v {}:{}')
     $ export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
     $ export CUDA_SRCS="-v /usr/local/cuda:/usr/local/cuda -v /usr/share/nvidia:/usr/share/nvidia"
     $ docker run -it $CUDA_SO $CUDA_SRCS $DEVICES b.gcr.io/tensorflow/tensorflow-full-gpu
+=======
+    $ export CUDA_SO=$(\ls /usr/lib/x86_64-linux-gnu/libcuda.* | xargs -I{} echo '-v {}:{}')
+    $ export DEVICES=$(\ls /dev/nvidia* | xargs -I{} echo '--device {}:{}')
+    $ docker run -it -p 8888:8888 $CUDA_SO $DEVICES b.gcr.io/tensorflow/tensorflow-devel-gpu
+>>>>>>> tensorflow/master
 
 Alternately, you can use the `docker_run_gpu.sh` script in this directory.
 
 ## Rebuilding the containers
 
+<<<<<<< HEAD
 ### tensorflow/tensorflow
 
 This one requires no extra setup -- just
@@ -81,3 +92,8 @@ complete, we can build via
     $ docker rm $TC
 
 This final image is a full TensorFlow image with GPU support.
+=======
+Just pick the dockerfile corresponding to the container you want to build, and run;
+
+    $ docker build --pull -t $USER/tensorflow-suffix -f Dockerfile.suffix .
+>>>>>>> tensorflow/master

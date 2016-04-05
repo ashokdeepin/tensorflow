@@ -1,24 +1,56 @@
+<<<<<<< HEAD
 #include <functional>
 #include <memory>
 #include <vector>
 
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <functional>
+#include <memory>
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/fake_input.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/summary.pb.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/tensor.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/kernels/ops_testutil.h"
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
 #include "tensorflow/core/lib/histogram/histogram.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/public/env.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -36,6 +68,7 @@ static void EXPECT_SummaryMatches(const Summary& actual,
 class SummaryImageOpTest : public OpsTestBase {
  protected:
   void MakeOp(int max_images) {
+<<<<<<< HEAD
     RequireDefaultOps();
     ASSERT_OK(NodeDefBuilder("myop", "ImageSummary")
                   .Input(FakeInput())
@@ -43,6 +76,14 @@ class SummaryImageOpTest : public OpsTestBase {
                   .Attr("max_images", max_images)
                   .Finalize(node_def()));
     ASSERT_OK(InitOp());
+=======
+    TF_ASSERT_OK(NodeDefBuilder("myop", "ImageSummary")
+                     .Input(FakeInput())
+                     .Input(FakeInput())
+                     .Attr("max_images", max_images)
+                     .Finalize(node_def()));
+    TF_ASSERT_OK(InitOp());
+>>>>>>> tensorflow/master
   }
 
   void CheckAndRemoveEncodedImages(Summary* summary) {
@@ -69,7 +110,11 @@ TEST_F(SummaryImageOpTest, ThreeGrayImagesOutOfFive4dInput) {
   AddInputFromArray<string>(TensorShape({}), {"tag"});
   AddInputFromArray<float>(TensorShape({5, 2, 1, 1}),
                            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output size.
   Tensor* out_tensor = GetOutput(0);
@@ -92,7 +137,11 @@ TEST_F(SummaryImageOpTest, OneGrayImage4dInput) {
   AddInputFromArray<string>(TensorShape({}), {"tag"});
   AddInputFromArray<float>(TensorShape({5 /*batch*/, 2, 1, 1 /*depth*/}),
                            {0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output size.
   Tensor* out_tensor = GetOutput(0);
@@ -124,7 +173,11 @@ TEST_F(SummaryImageOpTest, OneColorImage4dInput) {
           /* r4, c0, RGB */ 1.0, 1.0, 0.0,
           /* r4, c1, RGB */ 1.0, 0.0, 1.0,
       });
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output size.
   Tensor* out_tensor = GetOutput(0);

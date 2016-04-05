@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor_c_api.h"
 
 #include <memory>
@@ -12,6 +13,40 @@
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/public/tensor_c_api.h"
+
+#include <memory>
+#include <vector>
+
+#include "tensorflow/core/framework/log_memory.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/lib/core/coding.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/public/session.h"
+>>>>>>> tensorflow/master
 
 // The implementation below is at the top level instead of the
 // brain namespace because we are defining 'extern "C"' functions.
@@ -28,6 +63,11 @@ using tensorflow::Session;
 using tensorflow::Tensor;
 using tensorflow::TensorBuffer;
 using tensorflow::SessionOptions;
+<<<<<<< HEAD
+=======
+using tensorflow::RunOptions;
+using tensorflow::RunMetadata;
+>>>>>>> tensorflow/master
 using tensorflow::TensorShape;
 
 extern "C" {
@@ -37,6 +77,14 @@ struct TF_Status {
   Status status;
 };
 
+<<<<<<< HEAD
+=======
+struct TF_Library {
+  void* lib_handle;
+  TF_Buffer op_list;
+};
+
+>>>>>>> tensorflow/master
 TF_Status* TF_NewStatus() { return new TF_Status; }
 
 void TF_DeleteStatus(TF_Status* s) { delete s; }
@@ -78,6 +126,15 @@ class TF_ManagedBuffer : public TensorBuffer {
 };
 
 void deallocate_realigned_buffer(void* data, size_t len, void* arg) {
+<<<<<<< HEAD
+=======
+  if (tensorflow::LogMemory::IsEnabled()) {
+    tensorflow::LogMemory::RecordRawDeallocation(
+        "TensorFlow C Api",
+        tensorflow::LogMemory::EXTERNAL_TENSOR_ALLOCATION_STEP_ID, data,
+        tensorflow::cpu_allocator(), false);
+  }
+>>>>>>> tensorflow/master
   tensorflow::cpu_allocator()->DeallocateRaw(data);
 }
 }  // namespace
@@ -104,6 +161,15 @@ TF_Tensor* TF_NewTensor(TF_DataType dtype, tensorflow::int64* dims,
     // requirements.
     buf->data_ =
         tensorflow::cpu_allocator()->AllocateRaw(EIGEN_MAX_ALIGN_BYTES, len);
+<<<<<<< HEAD
+=======
+    if (tensorflow::LogMemory::IsEnabled()) {
+      tensorflow::LogMemory::RecordRawAllocation(
+          "TF_NewTensor",
+          tensorflow::LogMemory::EXTERNAL_TENSOR_ALLOCATION_STEP_ID, len,
+          buf->data_, tensorflow::cpu_allocator());
+    }
+>>>>>>> tensorflow/master
     std::memcpy(buf->data_, data, len);
     buf->deallocator_ = deallocate_realigned_buffer;
     buf->deallocator_arg_ = nullptr;
@@ -141,13 +207,45 @@ void TF_SetTarget(TF_SessionOptions* options, const char* target) {
   options->options.target = target;
 }
 
+<<<<<<< HEAD
 void TF_SetConfig(TF_SessionOptions* options, const char* config,
                   size_t config_len, TF_Status* status) {
   if (!options->options.config.ParseFromArray(config, config_len)) {
+=======
+void TF_SetConfig(TF_SessionOptions* options, const void* proto,
+                  size_t proto_len, TF_Status* status) {
+  if (!options->options.config.ParseFromArray(proto, proto_len)) {
+>>>>>>> tensorflow/master
     status->status =
         tensorflow::errors::InvalidArgument("Unparseable ConfigProto");
   }
 }
+<<<<<<< HEAD
+=======
+// --------------------------------------------------------------------------
+TF_Buffer* TF_NewBuffer() { return new TF_Buffer{nullptr, 0, nullptr}; }
+
+TF_Buffer* TF_NewBufferFromString(const void* proto, size_t proto_len) {
+  void* copy = malloc(proto_len);
+  memcpy(copy, proto, proto_len);
+
+  TF_Buffer* buf = new TF_Buffer;
+  buf->data = copy;
+  buf->length = proto_len;
+  buf->data_deallocator = [](void* data, size_t length) { free(data); };
+  return buf;
+}
+
+void TF_DeleteBuffer(TF_Buffer* buffer) {
+  if (buffer->data_deallocator != nullptr) {
+    (*buffer->data_deallocator)(const_cast<void*>(buffer->data),
+                                buffer->length);
+  }
+  delete buffer;
+}
+
+TF_Buffer TF_GetBuffer(TF_Buffer* buffer) { return *buffer; }
+>>>>>>> tensorflow/master
 
 // --------------------------------------------------------------------------
 struct TF_Session {
@@ -289,6 +387,7 @@ static TF_Tensor* EmptyTensor(TF_DataType dtype, const TensorShape& shape) {
                       [](void*, size_t, void*) {}, nullptr);
 }
 
+<<<<<<< HEAD
 }  // namespace tensorflow
 
 extern "C" {
@@ -301,6 +400,25 @@ void TF_Run(TF_Session* s,
             int noutputs,
             // Target nodes
             const char** c_target_node_names, int ntargets, TF_Status* status) {
+=======
+// Helpers for loading a TensorFlow plugin (a .so file).
+Status LoadLibrary(const char* library_filename, void** result,
+                   const void** buf, size_t* len);
+
+}  // namespace tensorflow
+
+void TF_Run_Helper(TF_Session* s, const char* handle,
+                   const TF_Buffer* run_options,
+                   // Input tensors
+                   const char** c_input_names, TF_Tensor** c_inputs,
+                   int ninputs,
+                   // Output tensors
+                   const char** c_output_tensor_names, TF_Tensor** c_outputs,
+                   int noutputs,
+                   // Target nodes
+                   const char** c_target_node_names, int ntargets,
+                   TF_Buffer* run_metadata, TF_Status* status) {
+>>>>>>> tensorflow/master
   status->status = Status::OK();
   for (int i = 0; i < noutputs; i++) {
     c_outputs[i] = NULL;
@@ -340,8 +458,50 @@ void TF_Run(TF_Session* s,
   for (int i = 0; i < ntargets; i++) {
     target_node_names[i] = c_target_node_names[i];
   }
+<<<<<<< HEAD
   Status result =
       s->session->Run(inputs, output_tensor_names, target_node_names, &outputs);
+=======
+  Status result;
+
+  if (handle == nullptr) {
+    if (run_options == nullptr) {
+      result = s->session->Run(inputs, output_tensor_names, target_node_names,
+                               &outputs);
+    } else {
+      // Prepares (input) RunOptions and (output) RunMetadata params
+      RunOptions run_options_proto;
+      if (!run_options_proto.ParseFromArray(run_options->data,
+                                            run_options->length)) {
+        status->status =
+            tensorflow::errors::InvalidArgument("Unparseable RunOptions proto");
+        return;
+      }
+      if (run_metadata != nullptr && run_metadata->data != nullptr) {
+        status->status = tensorflow::errors::InvalidArgument(
+            "Passing non-empty run_metadata is invalid.");
+        return;
+      }
+
+      RunMetadata run_metadata_proto;
+      result =
+          s->session->Run(run_options_proto, inputs, output_tensor_names,
+                          target_node_names, &outputs, &run_metadata_proto);
+
+      // Serialize back to upstream client, who now owns the new buffer
+      if (run_metadata != nullptr) {
+        int proto_size = run_metadata_proto.ByteSize();
+        void* str_buf = reinterpret_cast<void*>(operator new(proto_size));
+        run_metadata_proto.SerializeToArray(str_buf, proto_size);
+        run_metadata->data = str_buf;
+        run_metadata->length = proto_size;
+      }
+    }
+  } else {
+    // NOTE(zongheng): PRun does not support RunOptions yet.
+    result = s->session->PRun(handle, inputs, output_tensor_names, &outputs);
+  }
+>>>>>>> tensorflow/master
   if (!result.ok()) {
     status->status = result;
     return;
@@ -367,4 +527,85 @@ void TF_Run(TF_Session* s,
   }
 }
 
+<<<<<<< HEAD
+=======
+extern "C" {
+
+void TF_Run(TF_Session* s, const TF_Buffer* run_options,
+            // Input tensors
+            const char** c_input_names, TF_Tensor** c_inputs, int ninputs,
+            // Output tensors
+            const char** c_output_tensor_names, TF_Tensor** c_outputs,
+            int noutputs,
+            // Target nodes
+            const char** c_target_node_names, int ntargets,
+            TF_Buffer* run_metadata, TF_Status* status) {
+  TF_Run_Helper(s, nullptr, run_options, c_input_names, c_inputs, ninputs,
+                c_output_tensor_names, c_outputs, noutputs, c_target_node_names,
+                ntargets, run_metadata, status);
+}
+
+void TF_PRunSetup(TF_Session* s,
+                  // Input names
+                  const char** c_input_names, int ninputs,
+                  // Output names
+                  const char** c_output_tensor_names, int noutputs,
+                  // Target nodes
+                  const char** c_target_node_names, int ntargets, char** handle,
+                  TF_Status* status) {
+  status->status = Status::OK();
+
+  std::vector<tensorflow::string> input_names(ninputs);
+  std::vector<tensorflow::string> output_tensor_names(noutputs);
+  std::vector<tensorflow::string> target_node_names(ntargets);
+  for (int i = 0; i < ninputs; i++) {
+    input_names[i] = c_input_names[i];
+  }
+  for (int i = 0; i < noutputs; i++) {
+    output_tensor_names[i] = c_output_tensor_names[i];
+  }
+  for (int i = 0; i < ntargets; i++) {
+    target_node_names[i] = c_target_node_names[i];
+  }
+  tensorflow::string new_handle;
+  Status result;
+  result = s->session->PRunSetup(input_names, output_tensor_names,
+                                 target_node_names, &new_handle);
+  if (result.ok()) {
+    *handle = new char[new_handle.size() + 1];
+    memcpy(*handle, new_handle.c_str(), new_handle.size() + 1);
+  } else {
+    status->status = result;
+  }
+}
+
+void TF_PRun(TF_Session* s, const char* handle,
+             // Input tensors
+             const char** c_input_names, TF_Tensor** c_inputs, int ninputs,
+             // Output tensors
+             const char** c_output_tensor_names, TF_Tensor** c_outputs,
+             int noutputs,
+             // Target nodes
+             const char** c_target_node_names, int ntargets,
+             TF_Status* status) {
+  TF_Run_Helper(s, handle, nullptr, c_input_names, c_inputs, ninputs,
+                c_output_tensor_names, c_outputs, noutputs, c_target_node_names,
+                ntargets, nullptr, status);
+}
+
+TF_Library* TF_LoadLibrary(const char* library_filename, TF_Status* status) {
+  TF_Library* lib_handle = new TF_Library;
+  status->status = tensorflow::LoadLibrary(
+      library_filename, &lib_handle->lib_handle, &lib_handle->op_list.data,
+      &lib_handle->op_list.length);
+  if (!status->status.ok()) {
+    delete lib_handle;
+    return nullptr;
+  }
+  return lib_handle;
+}
+
+TF_Buffer TF_GetOpList(TF_Library* lib_handle) { return lib_handle->op_list; }
+
+>>>>>>> tensorflow/master
 }  // end extern "C"

@@ -1,18 +1,44 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.kernels.edit_distance_op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
 
 def ConstantOf(x):
   x = np.asarray(x)
+<<<<<<< HEAD
   # Convert to int64 if it's not a string
   if x.dtype.char != "S": x = np.asarray(x, dtype=np.int64)
+=======
+  # Convert to int64 if it's not a string or unicode
+  if x.dtype.char not in "SU": x = np.asarray(x, dtype=np.int64)
+>>>>>>> tensorflow/master
   return tf.constant(x)
 
 
@@ -29,8 +55,14 @@ class EditDistanceTest(tf.test.TestCase):
     with self.test_session():
       if expected_err_re is None:
         # Shape inference figures out the shape from the shape variables
+<<<<<<< HEAD
         expected_shape = [
             max(h, t) for h, t in zip(hypothesis[2], truth[2])[:-1]]
+=======
+        # Explicit tuple() needed since zip returns an iterator in Python 3.
+        expected_shape = [
+            max(h, t) for h, t in tuple(zip(hypothesis[2], truth[2]))[:-1]]
+>>>>>>> tensorflow/master
         self.assertEqual(edit_distance.get_shape(), expected_shape)
         output = edit_distance.eval()
         self.assertAllClose(output, expected_output)

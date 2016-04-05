@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/paper-styles/paper-styles.html">
+=======
+<link rel="import" href="../paper-styles/paper-styles.html">
+>>>>>>> tensorflow/master
 <link rel="import" href="../tf-dashboard-common/tensorboard-color.html">
 
 <dom-module id="dashboard-style">
@@ -9,10 +13,15 @@
         width: 300px;
         display: flex;
         flex-direction: column;
+<<<<<<< HEAD
         margin: 5px 5px;
         padding: 5px;
         border: 1px solid var(--paper-grey-500);
         border-radius: 3px;
+=======
+        margin: 5px;
+        padding: 0 30px 30px 0;
+>>>>>>> tensorflow/master
         -webkit-user-select: none;
         -moz-user-select: none;
         position: relative;
@@ -21,9 +30,14 @@
       .card .card-title {
         flex-grow: 0;
         flex-shrink: 0;
+<<<<<<< HEAD
         margin-bottom: 2px;
         font-size: 14px;
         font-weight: bold;
+=======
+        margin-bottom: 10px;
+        font-size: 14px;
+>>>>>>> tensorflow/master
         text-overflow: ellipsis;
         overflow: hidden;
       }
@@ -52,7 +66,11 @@
       .expand-button {
         position: absolute;
         left: 0px;
+<<<<<<< HEAD
         bottom: 0px;
+=======
+        bottom: 20px;
+>>>>>>> tensorflow/master
         color: #2196F3;
         display: block;
       }
@@ -65,6 +83,10 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+<<<<<<< HEAD
+=======
+        margin-right: 20px;
+>>>>>>> tensorflow/master
       }
 
       #categorizer {
@@ -81,6 +103,7 @@
         flex-grow: 1;
       }
 
+<<<<<<< HEAD
       #download-option {
         padding-left: 55px;
         color: var(--paper-grey-700);
@@ -92,6 +115,28 @@
         --paper-toggle-button-checked-bar-color: var(--tb-orange-weak);
 
       }
+=======
+      .sidebar-section {
+        border-top: solid 1px rgba(0, 0, 0, 0.12);
+        padding: 20px 0px 20px 30px;
+      }
+
+      .sidebar-section:first-child {
+        border: none;
+      }
+
+      .sidebar-section:last-child {
+        flex-grow: 1;
+        display: flex;
+      }
+
+      paper-checkbox {
+        --paper-checkbox-checked-color: var(--tb-ui-dark-accent);
+        --paper-checkbox-unchecked-color: var(--tb-ui-dark-accent);
+        font-size: 14px;
+      }
+
+>>>>>>> tensorflow/master
     </style>
   </template>
 </dom-module>

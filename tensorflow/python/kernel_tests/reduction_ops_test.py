@@ -1,15 +1,39 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for reduction ops."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.framework import tensor_shape
+<<<<<<< HEAD
 from tensorflow.python.kernel_tests import gradient_checker
+=======
+>>>>>>> tensorflow/master
 
 
 class SumReductionTest(tf.test.TestCase):
@@ -101,6 +125,7 @@ class SumReductionTest(tf.test.TestCase):
     self._compareAll(np_arr, [1, 2, 3, 4])
     self._compareAll(np_arr, [0, 1, 2, 3, 4])
 
+<<<<<<< HEAD
   # Simple tests for various tf.
   def testDoubleReduce1D(self):
     np_arr = np.arange(1, 6).reshape([5]).astype(np.float64)
@@ -109,6 +134,21 @@ class SumReductionTest(tf.test.TestCase):
 
   def testInt32Reduce1D(self):
     np_arr = np.arange(1, 6).reshape([5]).astype(np.int32)
+=======
+  # Simple tests for various types.
+  def testDoubleReduce1D(self):
+    np_arr = np.arange(1, 6).reshape([5]).astype(np.float64)
+    self._compareAll(np_arr, [])
+    self._compareAll(np_arr, [0])
+
+  def testInt32Reduce1D(self):
+    np_arr = np.arange(1, 6).reshape([5]).astype(np.int32)
+    self._compareAll(np_arr, [])
+    self._compareAll(np_arr, [0])
+
+  def testComplex64Reduce1D(self):
+    np_arr = np.arange(1, 6).reshape([5]).astype(np.complex64)
+>>>>>>> tensorflow/master
     self._compare(np_arr, [], False)
     self._compare(np_arr, [0], False)
 
@@ -116,6 +156,7 @@ class SumReductionTest(tf.test.TestCase):
     np_arr = np.arange(0, 10).reshape([2, 5]).astype(np.float32)
     input_tensor = tf.convert_to_tensor(np_arr)
     with self.assertRaisesWithPredicateMatch(
+<<<<<<< HEAD
         ValueError, lambda e: "Invalid reduction dimension" in e.message):
       tf.reduce_sum(input_tensor, [-1])
     with self.assertRaisesWithPredicateMatch(
@@ -123,6 +164,15 @@ class SumReductionTest(tf.test.TestCase):
       tf.reduce_sum(input_tensor, [2])
     with self.assertRaisesWithPredicateMatch(
         ValueError, lambda e: "Invalid reduction dimension" in e.message):
+=======
+        ValueError, lambda e: "Invalid reduction dimension" in str(e)):
+      tf.reduce_sum(input_tensor, [-1])
+    with self.assertRaisesWithPredicateMatch(
+        ValueError, lambda e: "Invalid reduction dimension" in str(e)):
+      tf.reduce_sum(input_tensor, [2])
+    with self.assertRaisesWithPredicateMatch(
+        ValueError, lambda e: "Invalid reduction dimension" in str(e)):
+>>>>>>> tensorflow/master
       tf.reduce_sum(input_tensor, [0, 2])
 
   # Int64??
@@ -135,6 +185,7 @@ class SumReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_sum(t, reduction_axes)
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t,
           shape,
@@ -142,6 +193,14 @@ class SumReductionTest(tf.test.TestCase):
           sum_shape,
           x_init_value=x,
           delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  shape,
+                                                  su,
+                                                  sum_shape,
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient(self):
@@ -156,17 +215,50 @@ class SumReductionTest(tf.test.TestCase):
   def testGradient4(self):
     self._compareGradient([2, 3, 4, 2], [], None)
 
+<<<<<<< HEAD
 
 class MeanReductionTest(tf.test.TestCase):
 
   def _compare(self, x, reduction_axes, keep_dims):
+=======
+  def testHighRank(self):
+    # Do a bunch of random high dimensional reductions
+    np.random.seed(42)
+    for _ in range(20):
+      rank = np.random.randint(4, 10 + 1)
+      axes, = np.nonzero(np.random.randint(2, size=rank))
+      shape = tuple(np.random.randint(1, 3 + 1, size=rank))
+      data = np.random.randint(1024, size=shape)
+      self._compareAll(data, axes)
+    # Check some particular axis patterns
+    for rank in 4, 7, 10:
+      shape = tuple(np.random.randint(1, 3 + 1, size=rank))
+      data = np.random.randint(1024, size=shape)
+      for axes in ([], np.arange(rank), np.arange(0, rank, 2),
+                   np.arange(1, rank, 2)):
+        self._compareAll(data, axes)
+
+  def testExpand(self):
+    # Reduce an empty tensor to a nonempty tensor
+    x = np.zeros((5, 0))
+    self._compareAll(x, [1])
+
+
+class MeanReductionTest(tf.test.TestCase):
+
+  def _compare(self, x, reduction_axes, keep_dims, use_gpu=False):
+>>>>>>> tensorflow/master
     np_sum = x
     count = 1
     for ra in reduction_axes[::-1]:
       np_sum = np.sum(np_sum, axis=ra, keepdims=keep_dims)
       count *= x.shape[ra]
     np_ans = np_sum / count
+<<<<<<< HEAD
     with self.test_session():
+=======
+    with self.test_session(use_gpu=use_gpu):
+>>>>>>> tensorflow/master
       reduction_axes = np.array(reduction_axes).astype(np.int32)
       tf_ans = tf.reduce_mean(x, reduction_axes, keep_dims)
       out = tf_ans.eval()
@@ -174,8 +266,15 @@ class MeanReductionTest(tf.test.TestCase):
     self.assertShapeEqual(np_ans, tf_ans)
 
   def _compareAll(self, x, reduction_axes):
+<<<<<<< HEAD
     self._compare(x, reduction_axes, False)
     self._compare(x, reduction_axes, True)
+=======
+    self._compare(x, reduction_axes, False, use_gpu=True)
+    self._compare(x, reduction_axes, True, use_gpu=True)
+    self._compare(x, reduction_axes, False, use_gpu=False)
+    self._compare(x, reduction_axes, True, use_gpu=False)
+>>>>>>> tensorflow/master
 
   def testFloatReduce3D(self):
     # Create a 3D array of floats and reduce across all possible
@@ -190,12 +289,29 @@ class MeanReductionTest(tf.test.TestCase):
     self._compareAll(np_arr, [0, 2])
     self._compareAll(np_arr, [0, 1, 2])
 
+<<<<<<< HEAD
+=======
+  def testDoubleReduce3D(self):
+    # Create a 3D array of doubles and reduce across all possible
+    # dimensions
+    np_arr = np.arange(0, 30).reshape([2, 3, 5]).astype(np.float64)
+    self._compareAll(np_arr, [])
+    self._compareAll(np_arr, [0])
+    self._compareAll(np_arr, [1])
+    self._compareAll(np_arr, [2])
+    self._compareAll(np_arr, [0, 1])
+    self._compareAll(np_arr, [1, 2])
+    self._compareAll(np_arr, [0, 2])
+    self._compareAll(np_arr, [0, 1, 2])
+
+>>>>>>> tensorflow/master
   def testGradient(self):
     s = [2, 3, 4, 2]
     x = np.arange(1.0, 49.0).reshape(s).astype(np.float32)
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_mean(t, [1, 2])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 2], x_init_value=x, delta=1)
       self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
@@ -208,6 +324,32 @@ class MeanReductionTest(tf.test.TestCase):
       su = tf.reduce_mean(t, [])
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 3, 4, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+      self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
+
+      su = tf.reduce_mean(t, [0, 1, 2, 3])
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [1],
+                                                  x_init_value=x,
+                                                  delta=1)
+      self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
+
+      su = tf.reduce_mean(t, [])
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 3, 4, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
       self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
 
 
@@ -254,6 +396,7 @@ class ProdReductionTest(tf.test.TestCase):
       t = tf.convert_to_tensor(x)
 
       su = tf.reduce_prod(t, [])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 3, 4, 2], x_init_value=x, delta=1)
       self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
@@ -266,6 +409,32 @@ class ProdReductionTest(tf.test.TestCase):
       su = tf.reduce_prod(t, [0, 1, 2, 3])
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [1], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 3, 4, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+      self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
+
+      su = tf.reduce_prod(t, [1, 2])
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+      self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
+
+      su = tf.reduce_prod(t, [0, 1, 2, 3])
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [1],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
       self.assertAllClose(jacob_t, jacob_n, rtol=1e-3, atol=1e-3)
 
     # NOTE(kearnes): the current gradient calculation gives NaNs for 0 inputs
@@ -273,8 +442,17 @@ class ProdReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_prod(t, [])
+<<<<<<< HEAD
       jacob_t, _ = gradient_checker.ComputeGradient(
           t, s, su, [2, 3, 4, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, _ = tf.test.compute_gradient(t,
+                                            s,
+                                            su,
+                                            [2, 3, 4, 2],
+                                            x_init_value=x,
+                                            delta=1)
+>>>>>>> tensorflow/master
       with self.assertRaisesOpError("Tensor had NaN values"):
         tf.check_numerics(jacob_t, message="_ProdGrad NaN test").op.run()
 
@@ -315,14 +493,39 @@ class MinReductionTest(tf.test.TestCase):
     self._compareAll(np_arr, [0, 2])
     self._compareAll(np_arr, [0, 1, 2])
 
+<<<<<<< HEAD
+=======
+  def testDoubleReduce3D(self):
+    # Create a 3D array of doubles and reduce across all possible
+    # dimensions
+    np_arr = np.arange(0, 30).reshape([2, 3, 5]).astype(np.float64)
+    self._compareAll(np_arr, [])
+    self._compareAll(np_arr, [0])
+    self._compareAll(np_arr, [1])
+    self._compareAll(np_arr, [2])
+    self._compareAll(np_arr, [0, 1])
+    self._compareAll(np_arr, [1, 2])
+    self._compareAll(np_arr, [0, 2])
+    self._compareAll(np_arr, [0, 1, 2])
+
+>>>>>>> tensorflow/master
   def testGradient(self):
     s = [2, 3, 4, 2]
     x = np.arange(1.0, 49.0).reshape(s).astype(np.float64)
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_min(t, [1, 2])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient2(self):
@@ -331,8 +534,17 @@ class MinReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_min(t, [1])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 4, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 4, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient3(self):
@@ -341,8 +553,17 @@ class MinReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_min(t, [2])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 3, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 3, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient4(self):
@@ -351,8 +572,17 @@ class MinReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_min(t)
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [1], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [1],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
 
@@ -393,14 +623,40 @@ class MaxReductionTest(tf.test.TestCase):
     self._compareAll(np_arr, [0, 2])
     self._compareAll(np_arr, [0, 1, 2])
 
+<<<<<<< HEAD
+=======
+  def testDoubleReduce3D(self):
+    # Create a 3D array of doubles and reduce across all possible
+    # dimensions
+    np_arr = np.arange(0, 30).reshape([2, 3, 5]).astype(np.float64)
+    self._compareAll(np_arr, None)
+    self._compareAll(np_arr, [])
+    self._compareAll(np_arr, [0])
+    self._compareAll(np_arr, [1])
+    self._compareAll(np_arr, [2])
+    self._compareAll(np_arr, [0, 1])
+    self._compareAll(np_arr, [1, 2])
+    self._compareAll(np_arr, [0, 2])
+    self._compareAll(np_arr, [0, 1, 2])
+
+>>>>>>> tensorflow/master
   def testGradient(self):
     s = [2, 3, 4, 2]
     x = np.arange(1.0, 49.0).reshape(s).astype(np.float64)
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_max(t, [1, 2])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient2(self):
@@ -409,8 +665,17 @@ class MaxReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_max(t, [1])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 4, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 4, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient3(self):
@@ -419,8 +684,17 @@ class MaxReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_max(t, [2])
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [2, 3, 2], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [2, 3, 2],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
   def testGradient4(self):
@@ -429,8 +703,17 @@ class MaxReductionTest(tf.test.TestCase):
     with self.test_session():
       t = tf.convert_to_tensor(x)
       su = tf.reduce_max(t)
+<<<<<<< HEAD
       jacob_t, jacob_n = gradient_checker.ComputeGradient(
           t, s, su, [1], x_init_value=x, delta=1)
+=======
+      jacob_t, jacob_n = tf.test.compute_gradient(t,
+                                                  s,
+                                                  su,
+                                                  [1],
+                                                  x_init_value=x,
+                                                  delta=1)
+>>>>>>> tensorflow/master
     self.assertAllClose(jacob_t, jacob_n, rtol=1e-8, atol=1e-8)
 
 

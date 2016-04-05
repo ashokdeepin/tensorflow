@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/graph/subgraph.h"
 
 #include <algorithm>
@@ -15,9 +33,15 @@
 #include "tensorflow/core/graph/graph_constructor.h"
 #include "tensorflow/core/graph/node_builder.h"
 #include "tensorflow/core/graph/tensor_id.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -29,8 +53,11 @@ namespace tensorflow {
 
 namespace {
 
+<<<<<<< HEAD
 typedef std::unordered_map<StringPiece, Node*, StringPiece::Hasher> NameIndex;
 
+=======
+>>>>>>> tensorflow/master
 // Rewrite graph by replacing the output tensors specified in
 // "fed_outputs" with special feed nodes for each specified output
 // tensor, and removing any nodes that are now disconnected from the
@@ -41,8 +68,13 @@ typedef std::unordered_map<StringPiece, Node*, StringPiece::Hasher> NameIndex;
 // an appropriate error message (and *g is left in an indeterminate
 // state).
 static Status FeedInputs(Graph* g, const DeviceAttributes& device_info,
+<<<<<<< HEAD
                               const gtl::ArraySlice<string>& fed_outputs,
                               NameIndex* name_index) {
+=======
+                         const gtl::ArraySlice<string>& fed_outputs,
+                         subgraph::NameIndex* name_index) {
+>>>>>>> tensorflow/master
   for (const string& t : fed_outputs) {
     TensorId id(ParseTensorName(t));
 
@@ -106,6 +138,7 @@ static Status FeedInputs(Graph* g, const DeviceAttributes& device_info,
   return Status::OK();
 }
 
+<<<<<<< HEAD
 // Augment "*g" by adding special "fetch" nodes that connect to the
 // tensor outputs specified in "fetch_outputs" to retrieve the output
 // of the tensors.  The new nodes added are set up to execute on
@@ -118,6 +151,56 @@ static Status FetchOutputs(Graph* g, const DeviceAttributes& device_info,
                            const gtl::ArraySlice<string>& fetch_outputs,
                            NameIndex* name_index,
                            std::vector<Node*>* fetch_nodes) {
+=======
+static bool AddNodeToTargets(const string& node_or_tensor_name,
+                             const subgraph::NameIndex& name_index,
+                             std::unordered_set<const Node*>* targets) {
+  TensorId id = ParseTensorName(node_or_tensor_name);
+  auto iter = name_index.find(id.first);
+  if (iter == name_index.end()) {
+    return false;
+  }
+  const Node* n = iter->second;
+  if (n->name() != node_or_tensor_name) {
+    return false;
+  }
+
+  targets->insert(n);
+  return true;
+}
+
+static Status PruneForTargets(Graph* g, const subgraph::NameIndex& name_index,
+                              const std::vector<Node*>& fetch_nodes,
+                              const gtl::ArraySlice<string>& target_nodes) {
+  string not_found;
+  std::unordered_set<const Node*> targets;
+  for (Node* n : fetch_nodes) {
+    if (!AddNodeToTargets(n->name(), name_index, &targets)) {
+      strings::StrAppend(&not_found, n->name(), " ");
+    }
+  }
+  for (const string& s : target_nodes) {
+    if (!AddNodeToTargets(s, name_index, &targets)) {
+      strings::StrAppend(&not_found, s, " ");
+    }
+  }
+  if (!not_found.empty()) {
+    return errors::NotFound("PruneForTargets: Some target nodes not found: ",
+                            not_found);
+  }
+  PruneForReverseReachability(g, targets);
+
+  return Status::OK();
+}
+
+}  // namespace
+
+namespace subgraph {
+
+Status FetchOutputs(Graph* g, const DeviceAttributes& device_info,
+                    const gtl::ArraySlice<string>& fetch_outputs,
+                    NameIndex* name_index, std::vector<Node*>* fetch_nodes) {
+>>>>>>> tensorflow/master
   fetch_nodes->clear();
   for (const string& t : fetch_outputs) {
     // Parse t into node_name and output_index.
@@ -133,7 +216,19 @@ static Status FetchOutputs(Graph* g, const DeviceAttributes& device_info,
     VLOG(2) << "Found fetch node for " << t;
 
     // Validate output_index
+<<<<<<< HEAD
     if (id.second >= n->num_outputs()) {
+=======
+    if (n->num_outputs() == 0) {
+      return errors::InvalidArgument(
+          "Tried to fetch data for '", t,
+          "', which produces no output.  To run to a node but not fetch any "
+          "data, pass '",
+          t,
+          "' as an argument to the 'target_node_names' argument of the "
+          "Session::Run API.");
+    } else if (id.second >= n->num_outputs()) {
+>>>>>>> tensorflow/master
       return errors::InvalidArgument("FetchOutputs ", t,
                                      ": output index too large, must be < ",
                                      n->num_outputs());
@@ -165,6 +260,7 @@ static Status FetchOutputs(Graph* g, const DeviceAttributes& device_info,
   return Status::OK();
 }
 
+<<<<<<< HEAD
 static bool AddNodeToTargets(const string& node_or_tensor_name,
                              const NameIndex& name_index,
                              std::unordered_set<const Node*>* targets) {
@@ -210,6 +306,8 @@ static Status PruneForTargets(Graph* g, const NameIndex& name_index,
 
 namespace subgraph {
 
+=======
+>>>>>>> tensorflow/master
 Status RewriteGraphForExecution(
     Graph* g, const gtl::ArraySlice<string>& fed_outputs,
     const gtl::ArraySlice<string>& fetch_outputs,

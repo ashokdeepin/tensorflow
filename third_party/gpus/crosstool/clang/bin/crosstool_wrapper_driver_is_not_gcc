@@ -1,4 +1,21 @@
 #!/usr/bin/env python2
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+>>>>>>> tensorflow/master
 
 """Crosstool wrapper for compiling CUDA programs.
 
@@ -29,6 +46,7 @@ import re
 import sys
 import pipes
 
+<<<<<<< HEAD
 CURRENT_DIR = os.path.dirname(sys.argv[0])
 CPU_COMPILER = ('/usr/bin/gcc')
 NVCC_PATH = CURRENT_DIR + '/../../../cuda/bin/nvcc'
@@ -37,6 +55,18 @@ LLVM_HOST_COMPILER_PATH = ('/usr/bin/gcc')
 PREFIX_DIR = os.path.dirname(GCC_HOST_COMPILER_PATH)
 
 
+=======
+# "configure" uses the specific format to substitute the following string.
+# If you change it, make sure you modify "configure" as well.
+CPU_COMPILER = ('/usr/bin/gcc')
+GCC_HOST_COMPILER_PATH = ('/usr/bin/gcc')
+
+CURRENT_DIR = os.path.dirname(sys.argv[0])
+NVCC_PATH = CURRENT_DIR + '/../../../cuda/bin/nvcc'
+LLVM_HOST_COMPILER_PATH = ('/usr/bin/gcc')
+PREFIX_DIR = os.path.dirname(GCC_HOST_COMPILER_PATH)
+
+>>>>>>> tensorflow/master
 def Log(s):
   print 'gpus/crosstool: {0}'.format(s)
 

@@ -1,13 +1,39 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for Concat Op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
 import tensorflow as tf
 
+=======
+import numpy as np
+import tensorflow as tf
+
+from tensorflow.python.ops import gen_array_ops
+
+>>>>>>> tensorflow/master
 
 class ConcatOpTest(tf.test.TestCase):
 
@@ -54,6 +80,7 @@ class ConcatOpTest(tf.test.TestCase):
 
   def testRefType(self):
     with self.test_session():
+<<<<<<< HEAD
       p1 = tf.placeholder(tf.float32_ref, shape=[4, 4])
       p2 = tf.placeholder(tf.float32_ref, shape=[4, 4])
       c = tf.concat(0, [p1, p2])
@@ -66,6 +93,19 @@ class ConcatOpTest(tf.test.TestCase):
     self.assertEqual(result.shape, c.get_shape())
     self.assertAllEqual(result[:4, :], params[p1])
     self.assertAllEqual(result[4:, :], params[p2])
+=======
+      p1 = np.random.rand(4, 4).astype("f")
+      p2 = np.random.rand(4, 4).astype("f")
+      v1 = tf.Variable(p1)
+      v2 = tf.Variable(p2)
+      c = tf.concat(0, [v1, v2])
+      tf.initialize_all_variables().run()
+      result = c.eval()
+
+    self.assertEqual(result.shape, c.get_shape())
+    self.assertAllEqual(result[:4, :], p1)
+    self.assertAllEqual(result[4:, :], p2)
+>>>>>>> tensorflow/master
 
   def _testRandom(self, dtype, use_gpu=False):
     # Random dims of rank 5
@@ -122,6 +162,25 @@ class ConcatOpTest(tf.test.TestCase):
     self._testRandom(tf.bfloat16)
     self._testRandom(tf.bfloat16, use_gpu=True)
 
+<<<<<<< HEAD
+=======
+  def testInvalidConcatDimTypeAndShape(self):
+    a = tf.Variable(tf.constant(1.0, shape=[1]))
+    b = tf.Variable(tf.constant(2.0, shape=[1]))
+    with self.assertRaises(TypeError):
+      tf.concat(a, b)
+    with self.assertRaises(TypeError):
+      tf.concat(4.2, 1)
+    with self.assertRaises(TypeError):
+      tf.concat(a, 1)
+    with self.assertRaises(TypeError):
+      tf.concat(a, [a, b])
+    with self.assertRaises(ValueError):
+      tf.concat([3], [a, b])
+    with self.assertRaises(ValueError):
+      tf.concat(0, [])
+
+>>>>>>> tensorflow/master
   def _testGradientsSimple(self, use_gpu):
     with self.test_session(use_gpu=use_gpu):
       inp = []
@@ -141,12 +200,20 @@ class ConcatOpTest(tf.test.TestCase):
       grad = tf.gradients([c], inp_tensors, [grad_tensor])
       concated_grad = tf.concat(1, grad)
       result = concated_grad.eval()
+<<<<<<< HEAD
 
     self.assertAllEqual(result, grad_inp)
 
   def testGradientsSimpleAll(self):
     self._testGradientsSimple(use_gpu=False)
     self._testGradientsSimple(use_gpu=True)
+=======
+    self.assertAllEqual(result, grad_inp)
+
+  def testGradientsSimpleAll(self):
+    self._testGradientsSimple(use_gpu=True)
+    self._testGradientsSimple(use_gpu=False)
+>>>>>>> tensorflow/master
 
   def _testGradientsFirstDim(self, use_gpu):
     with self.test_session(use_gpu=use_gpu):
@@ -261,6 +328,13 @@ class ConcatOpTest(tf.test.TestCase):
     concat = tf.concat(dim, [p1, c1, p2, c2])
     self.assertEqual(4, concat.get_shape().ndims)
 
+<<<<<<< HEAD
+=======
+    # All dimensions unknown.
+    concat2 = tf.concat(dim, [p1, p2])
+    self.assertEqual(None, concat2.get_shape())
+
+>>>>>>> tensorflow/master
     # Rank doesn't match.
     c3 = tf.constant(30.0, shape=[4, 4, 4])
     with self.assertRaises(ValueError):
@@ -279,7 +353,12 @@ class ConcatOpTest(tf.test.TestCase):
                 x0 = np.random.randn(*(shape0 + (n0,) + shape1))
                 x1 = np.random.randn(*(shape0 + (n1,) + shape1))
                 correct = np.concatenate([x0, x1], axis=axis)
+<<<<<<< HEAD
                 xs = map(tf.constant, [x0, x1])
+=======
+                # TODO(irving): Make tf.concat handle map, then drop list().
+                xs = list(map(tf.constant, [x0, x1]))
+>>>>>>> tensorflow/master
                 c = tf.concat(axis, xs)
                 self.assertAllEqual(c.eval(), correct)
                 # Check gradients
@@ -287,6 +366,148 @@ class ConcatOpTest(tf.test.TestCase):
                 dxs = sess.run(tf.gradients(c, xs, dc))
                 self.assertAllEqual(dc, np.concatenate(dxs, axis=axis))
 
+<<<<<<< HEAD
+=======
+  def testTensorConcatDim0Grad(self):
+    x_shapes = [[20, 7, 3], [10, 7, 3], [14, 7, 3]]
+    output_shape = [44, 7, 3]
+    x_vals = [np.random.random_sample(x_shape).astype(
+        np.float64) for x_shape in x_shapes]
+    with self.test_session():
+      xs = [tf.constant(x_val) for x_val in x_vals]
+      output = tf.concat(0, xs)
+      err = tf.test.compute_gradient_error(xs, x_shapes, output, output_shape)
+    self.assertLess(err, 1e-11)
+
+  def testTensorConcatDim1Grad(self):
+    x_shapes = [[20, 7, 3], [20, 3, 3], [20, 1, 3]]
+    output_shape = [20, 11, 3]
+    x_vals = [np.random.random_sample(x_shape).astype(
+        np.float64) for x_shape in x_shapes]
+    with self.test_session():
+      xs = [tf.constant(x_val) for x_val in x_vals]
+      output = tf.concat(1, xs)
+      err = tf.test.compute_gradient_error(xs, x_shapes, output, output_shape)
+    self.assertLess(err, 1e-11)
+
+  def testIndexedSlicesConcatDim0Grad(self):
+    x_shapes = [[20, 7, 3], [10, 7, 3], [14, 7, 3]]
+    output_shape = [4, 7, 3]
+    x_vals = [np.random.random_sample(x_shape).astype(
+        np.float64) for x_shape in x_shapes]
+    with self.test_session():
+      xs = [tf.constant(x_val) for x_val in x_vals]
+      x_concat = tf.concat(0, xs)
+      output = tf.gather(x_concat, [1, 2, 0, 5])
+      err = tf.test.compute_gradient_error(xs, x_shapes, output, output_shape)
+    self.assertLess(err, 1e-11)
+
+  def testIndexedSlicesConcatDim1Grad(self):
+    x_shapes = [[20, 7, 3], [20, 3, 3], [20, 1, 3]]
+    output_shape = [4, 11, 3]
+    x_vals = [np.random.random_sample(x_shape).astype(
+        np.float64) for x_shape in x_shapes]
+    with self.test_session():
+      xs = [tf.constant(x_val) for x_val in x_vals]
+      x_concat = tf.concat(1, xs)
+      output = tf.gather(x_concat, [1, 2, 0, 5])
+      err = tf.test.compute_gradient_error(xs, x_shapes, output, output_shape)
+    self.assertLess(err, 1e-11)
+
+  def testIndexedSlicesConcatDim2Grad(self):
+    x_shapes = [[20, 7, 3], [20, 7, 1], [20, 7, 2]]
+    output_shape = [4, 7, 6]
+    x_vals = [np.random.random_sample(x_shape).astype(
+        np.float64) for x_shape in x_shapes]
+    with self.test_session():
+      xs = [tf.constant(x_val) for x_val in x_vals]
+      x_concat = tf.concat(2, xs)
+      output = tf.gather(x_concat, [1, 2, 0, 5])
+      err = tf.test.compute_gradient_error(xs, x_shapes, output, output_shape)
+    self.assertLess(err, 1e-11)
+
+  def testConcatTuple(self):
+    c1 = np.random.rand(4, 4)
+    c2 = np.random.rand(4, 4)
+    with self.test_session():
+      concat_list_t = tf.concat(0, [c1, c2])
+      concat_tuple_t = tf.concat(0, (c1, c2))
+      self.assertAllEqual(concat_list_t.eval(), concat_tuple_t.eval())
+
+  def testConcatNoScalars(self):
+    with self.test_session():
+      scalar = tf.constant(7)
+      dim = tf.placeholder(tf.int32)
+      with self.assertRaisesRegexp(
+          ValueError, r"Can't concatenate scalars \(use tf\.pack instead\)"):
+        tf.concat(dim, [scalar, scalar, scalar])
+
+  def testConcatGradNumNodes(self):
+    g = tf.Graph()
+    n = 10
+    with g.as_default():
+      x = tf.constant([1, 1])
+      y = tf.concat(0, [x] * n)
+      before = len(g.get_operations())
+      _ = tf.gradients([y], [x], [y])
+      after = len(g.get_operations())
+      self.assertEqual(n + 3, after - before)
+      print("graph = ", [x.name for x in g.get_operations()])
+
+
+class ConcatOffsetTest(tf.test.TestCase):
+
+  def testBasic(self):
+    for use_gpu in [False, True]:
+      with self.test_session(use_gpu=use_gpu) as sess:
+        cdim = tf.constant(1, tf.int32)
+        s0 = tf.constant([2, 3, 5], tf.int32)
+        s1 = tf.constant([2, 7, 5], tf.int32)
+        s2 = tf.constant([2, 20, 5], tf.int32)
+        off = gen_array_ops._concat_offset(cdim, [s0, s1, s2])
+        ans = sess.run(off)
+        self.assertAllEqual(ans, [[0, 0, 0], [0, 3, 0], [0, 10, 0]])
+
+  def testNotVector(self):
+    with self.test_session() as sess:
+      cdim = tf.constant(1, tf.int32)
+      s0 = tf.constant([[2, 3, 5]], tf.int32)
+      s1 = tf.constant([[2, 7, 5]], tf.int32)
+      off = gen_array_ops._concat_offset(cdim, [s0, s1])
+      with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+                                   r"should be a vector"):
+        sess.run(off)
+
+  def testConcatDimOutOfRange(self):
+    with self.test_session() as sess:
+      cdim = tf.constant(4, tf.int32)
+      s0 = tf.constant([2, 3, 5], tf.int32)
+      s1 = tf.constant([2, 7, 5], tf.int32)
+      off = gen_array_ops._concat_offset(cdim, [s0, s1])
+      with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+                                   r"Concat dim is out of range: 4 vs. 3"):
+        sess.run(off)
+
+  def testDimMismatch(self):
+    with self.test_session() as sess:
+      cdim = tf.constant(1, tf.int32)
+      s0 = tf.constant([2, 3, 5], tf.int32)
+      s1 = tf.constant([2, 7, 5, 10], tf.int32)
+      off = gen_array_ops._concat_offset(cdim, [s0, s1])
+      with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+                                   r"should contain 3 elem"):
+        sess.run(off)
+
+  def testSizeMismatch(self):
+    with self.test_session() as sess:
+      cdim = tf.constant(1, tf.int32)
+      s0 = tf.constant([2, 3, 5], tf.int32)
+      s1 = tf.constant([2, 7, 10], tf.int32)
+      off = gen_array_ops._concat_offset(cdim, [s0, s1])
+      with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+                                   r"mismatch: 5 vs. 10"):
+        sess.run(off)
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

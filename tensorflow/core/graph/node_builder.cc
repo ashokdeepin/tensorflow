@@ -1,15 +1,57 @@
+<<<<<<< HEAD
 #include "tensorflow/core/graph/node_builder.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/graph/node_builder.h"
+
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/lib/core/errors.h"
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 NodeBuilder::NodeBuilder(const string& name, const string& op_name,
                          const OpRegistryInterface* op_registry)
     : def_builder_(name, op_name, op_registry) {}
 
 NodeBuilder::NodeBuilder(const string& name, const OpDef* op_def)
+=======
+NodeBuilder::NodeOut::NodeOut(Node* n, int i)  // NOLINT(runtime/explicit)
+    : node(n),
+      error(false),
+      name(node != nullptr ? node->name() : (error = true, "")),
+      index(i),
+      dt(SafeGetOutput(node, i, &error)) {}
+
+NodeBuilder::NodeOut::NodeOut(StringPiece n, int i, DataType t)
+    : node(nullptr), error(false), name(n.ToString()), index(i), dt(t) {}
+
+NodeBuilder::NodeOut::NodeOut()
+    : node(nullptr), error(true), index(0), dt(DT_FLOAT) {}
+
+NodeBuilder::NodeBuilder(StringPiece name, StringPiece op_name,
+                         const OpRegistryInterface* op_registry)
+    : def_builder_(name, op_name, op_registry) {}
+
+NodeBuilder::NodeBuilder(StringPiece name, const OpDef* op_def)
+>>>>>>> tensorflow/master
     : def_builder_(name, op_def) {}
 
 NodeBuilder& NodeBuilder::Input(Node* src_node, int src_index) {
@@ -61,7 +103,11 @@ NodeBuilder& NodeBuilder::ControlInputs(gtl::ArraySlice<Node*> src_nodes) {
   return *this;
 }
 
+<<<<<<< HEAD
 NodeBuilder& NodeBuilder::Device(const string& device_spec) {
+=======
+NodeBuilder& NodeBuilder::Device(StringPiece device_spec) {
+>>>>>>> tensorflow/master
   def_builder_.Device(device_spec);
   return *this;
 }

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tf.py."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,6 +23,7 @@ from __future__ import print_function
 
 import operator
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -12,6 +31,12 @@ import numpy as np
 import tensorflow.python.platform
 
 import tensorflow as tf
+=======
+import numpy as np
+import tensorflow as tf
+
+from tensorflow.python.ops import control_flow_ops
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import random_ops
 
 
@@ -67,6 +92,17 @@ class VariablesTestCase(tf.test.TestCase):
       self.assertAllClose(rnd.eval() + dep.eval() + 2.0,
                           depdep.eval())
 
+<<<<<<< HEAD
+=======
+  def testIterable(self):
+    with self.assertRaisesRegexp(TypeError, "not iterable"):
+      for _ in tf.Variable(0.0):
+        pass
+    with self.assertRaisesRegexp(TypeError, "not iterable"):
+      for _ in tf.Variable([0.0, 1.0]):
+        pass
+
+>>>>>>> tensorflow/master
   def testAssignments(self):
     with self.test_session():
       var = tf.Variable(0.0)
@@ -117,6 +153,59 @@ class VariablesTestCase(tf.test.TestCase):
   def testCountUpToInt64(self):
     self._countUpToTest(tf.int64)
 
+<<<<<<< HEAD
+=======
+  def testControlDepsNone(self):
+    with self.test_session():
+      c = tf.constant(1.0)
+      with tf.control_dependencies([c]):
+        # d get the control dep.
+        d = tf.constant(2.0)
+        # variables do not.
+        var_x = tf.Variable(2.0)
+        # initialized_value do not either.
+        inited_x = var_x.initialized_value()
+      self.assertEqual([c.op], d.op.control_inputs)
+      self.assertEqual([], var_x.initializer.control_inputs)
+      self.assertEqual([], var_x.value().op.control_inputs)
+      self.assertEqual([], var_x.ref().op.control_inputs)
+      self.assertEqual([var_x.initializer], inited_x.op.control_inputs)
+
+  def testControlFlow(self):
+    with self.test_session() as sess:
+      v0 = tf.Variable(0, name="v0")
+      var_dict = {}
+      # Call get_variable in each of the cond clauses.
+      def var_in_then_clause():
+        v1 = tf.Variable(1, name="v1")
+        var_dict["v1"] = v1
+        return v1 + v0
+      def var_in_else_clause():
+        v2 = tf.Variable(2, name="v2")
+        var_dict["v2"] = v2
+        return v2 + v0
+      add = control_flow_ops.cond(tf.less(v0, 10),
+                                  var_in_then_clause,
+                                  var_in_else_clause)
+      v1 = var_dict["v1"]
+      v2 = var_dict["v2"]
+      # We should be able to initialize and run v1 and v2 without initializing
+      # v0, even if the variable was created with a control dep on v0.
+      sess.run(v1.initializer)
+      self.assertEqual([1], sess.run(v1))
+      sess.run(v2.initializer)
+      self.assertEqual([2], sess.run(v2))
+      # v0 should still be uninitialized.
+      with self.assertRaisesRegexp(tf.OpError, "uninitialized"):
+        sess.run(v0)
+      # We should not be able to run 'add' yet.
+      with self.assertRaisesRegexp(tf.OpError, "uninitialized"):
+        sess.run(add)
+      # If we initialize v0 we should be able to run 'add'.
+      sess.run(v0.initializer)
+      sess.run(add)
+
+>>>>>>> tensorflow/master
   def testUseVariableAsTensor(self):
     with self.test_session():
       var_x = tf.Variable(2.0)
@@ -126,6 +215,21 @@ class VariablesTestCase(tf.test.TestCase):
       self.assertAllClose(3.0, var_y.eval())
       self.assertAllClose(5.0, tf.add(var_x, var_y).eval())
 
+<<<<<<< HEAD
+=======
+  def testCachingDevice(self):
+    with self.test_session():
+      var = tf.Variable(2.0)
+      self.assertEqual(var.device, var.value().device)
+      self.assertEqual(var.device, var.initialized_value().device)
+
+      var_cached = tf.Variable(2.0, caching_device="/job:foo")
+      self.assertFalse(var_cached.device.startswith("/job:foo"))
+      self.assertTrue(var_cached.value().device.startswith("/job:foo"))
+      self.assertTrue(
+          var_cached.initialized_value().device.startswith("/job:foo"))
+
+>>>>>>> tensorflow/master
   def testCollections(self):
     with self.test_session():
       var_x = tf.Variable(2.0)
@@ -210,6 +314,19 @@ class VariablesTestCase(tf.test.TestCase):
       tf.initialize_all_variables().run()
       self.assertAllClose([1, 12], sess.run(var))
 
+<<<<<<< HEAD
+=======
+  def testDevicePlacement(self):
+    with self.test_session() as sess:
+      with tf.device("/cpu:0"):
+        var = tf.Variable([1, 12])
+      init_value = var.initialized_value()
+      init_op = tf.initialize_all_variables()
+      self.assertEqual(var.op.device, init_value.device)
+      self.assertEqual(var.op.device, init_op.device)
+      sess.run(init_op)
+
+>>>>>>> tensorflow/master
 
 class IsInitializedTest(tf.test.TestCase):
 

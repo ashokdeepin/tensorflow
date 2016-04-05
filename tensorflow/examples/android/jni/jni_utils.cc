@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/examples/android/jni/jni_utils.h"
 
 #include <android/asset_manager.h>
@@ -10,11 +28,19 @@
 #include <fstream>
 #include <sstream>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "google/protobuf/src/google/protobuf/io/zero_copy_stream_impl.h"
 #include "google/protobuf/src/google/protobuf/io/zero_copy_stream_impl_lite.h"
 #include "google/protobuf/src/google/protobuf/io/coded_stream.h"
 #include "google/protobuf/src/google/protobuf/message_lite.h"
+=======
+#include "google/protobuf/io/coded_stream.h"
+#include "google/protobuf/io/zero_copy_stream_impl.h"
+#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#include "google/protobuf/message_lite.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 static const char* const ASSET_PREFIX = "file:///android_asset/";
 
@@ -142,3 +168,20 @@ void ReadFileToVector(AAssetManager* const asset_manager,
   VLOG(0) << "Read " << str_vector->size() << " values from " << filename;
 }
 
+<<<<<<< HEAD
+=======
+void WriteProtoToFile(const char* const filename,
+                      const google::protobuf::MessageLite& message) {
+  std::fstream outfile;
+  outfile.open(filename, std::fstream::binary | std::fstream::out);
+  if (outfile.fail()) {
+    LOG(WARNING) << "Failed to write proto to " << filename;
+    return;
+  } else {
+    google::protobuf::io::OstreamOutputStream raw_out(&outfile);
+    google::protobuf::io::CodedOutputStream coded_out(&raw_out);
+    message.SerializeToCodedStream(&coded_out);
+  }
+  VLOG(0) << "Wrote proto to " << filename;
+}
+>>>>>>> tensorflow/master

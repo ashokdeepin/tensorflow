@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/lib/io/inputbuffer.h"
 
 #include "tensorflow/core/public/env.h"
@@ -8,6 +9,33 @@
 #include <gtest/gtest.h>
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/lib/io/inputbuffer.h"
+
+#include <vector>
+#include "tensorflow/core/platform/env.h"
+
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/core/status_test_util.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/platform/test.h"
 
 namespace tensorflow {
@@ -101,6 +129,35 @@ TEST(InputBuffer, ReadLine_EmptyLines) {
   }
 }
 
+<<<<<<< HEAD
+=======
+TEST(InputBuffer, ReadLine_CRLF) {
+  Env* env = Env::Default();
+  string fname = testing::TmpDir() + "/inputbuffer_test";
+  WriteStringToFile(env, fname, "line one\r\n\r\n\r\nline two\r\nline three");
+
+  for (auto buf_size : BufferSizes()) {
+    RandomAccessFile* file;
+    TF_CHECK_OK(env->NewRandomAccessFile(fname, &file));
+    string line;
+    io::InputBuffer in(file, buf_size);
+    TF_CHECK_OK(in.ReadLine(&line));
+    EXPECT_EQ(line, "line one");
+    TF_CHECK_OK(in.ReadLine(&line));
+    EXPECT_EQ(line, "");
+    TF_CHECK_OK(in.ReadLine(&line));
+    EXPECT_EQ(line, "");
+    TF_CHECK_OK(in.ReadLine(&line));
+    EXPECT_EQ(line, "line two");
+    TF_CHECK_OK(in.ReadLine(&line));
+    EXPECT_EQ(line, "line three");
+    EXPECT_TRUE(errors::IsOutOfRange(in.ReadLine(&line)));
+    // A second call should also return end of file
+    EXPECT_TRUE(errors::IsOutOfRange(in.ReadLine(&line)));
+  }
+}
+
+>>>>>>> tensorflow/master
 TEST(InputBuffer, ReadNBytes) {
   Env* env = Env::Default();
   string fname = testing::TmpDir() + "/inputbuffer_test";

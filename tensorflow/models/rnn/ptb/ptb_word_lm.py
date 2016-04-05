@@ -1,14 +1,35 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Example / benchmark for building a PTB LSTM model.
 
 Trains the model described in:
 (Zaremba, et. al.) Recurrent Neural Network Regularization
 http://arxiv.org/abs/1409.2329
 
+<<<<<<< HEAD
 The data required for this example is in the data/ dir of the
 PTB dataset from Tomas Mikolov's webpage:
 
 http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz
 
+=======
+>>>>>>> tensorflow/master
 There are 3 supported model configurations:
 ===========================================
 | config | epochs | train | valid  | test
@@ -31,6 +52,7 @@ The hyperparameters used in the model:
 - lr_decay - the decay of the learning rate for each epoch after "max_epoch"
 - batch_size - the batch size
 
+<<<<<<< HEAD
 To compile on CPU:
   bazel build -c opt tensorflow/models/rnn/ptb:ptb_word_lm
 To compile on GPU:
@@ -39,6 +61,17 @@ To compile on GPU:
 To run:
   ./bazel-bin/.../ptb_word_lm \
     --data_path=/tmp/simple-examples/data/ --alsologtostderr
+=======
+The data required for this example is in the data/ dir of the
+PTB dataset from Tomas Mikolov's webpage:
+
+$ wget http://www.fit.vutbr.cz/~imikolov/rnnlm/simple-examples.tgz
+$ tar xvf simple-examples.tgz
+
+To run:
+
+$ python ptb_word_lm.py --data_path=simple-examples/data/
+>>>>>>> tensorflow/master
 
 """
 from __future__ import absolute_import
@@ -47,6 +80,7 @@ from __future__ import print_function
 
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -54,6 +88,11 @@ import tensorflow as tf
 
 from tensorflow.models.rnn import rnn_cell
 from tensorflow.models.rnn import seq2seq
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 from tensorflow.models.rnn.ptb import reader
 
 flags = tf.flags
@@ -82,22 +121,37 @@ class PTBModel(object):
     # Slightly better results can be obtained with forget gate biases
     # initialized to 1 but the hyperparameters of the model would need to be
     # different than reported in the paper.
+<<<<<<< HEAD
     lstm_cell = rnn_cell.BasicLSTMCell(size, forget_bias=0.0)
     if is_training and config.keep_prob < 1:
       lstm_cell = rnn_cell.DropoutWrapper(
           lstm_cell, output_keep_prob=config.keep_prob)
     cell = rnn_cell.MultiRNNCell([lstm_cell] * config.num_layers)
+=======
+    lstm_cell = tf.nn.rnn_cell.BasicLSTMCell(size, forget_bias=0.0)
+    if is_training and config.keep_prob < 1:
+      lstm_cell = tf.nn.rnn_cell.DropoutWrapper(
+          lstm_cell, output_keep_prob=config.keep_prob)
+    cell = tf.nn.rnn_cell.MultiRNNCell([lstm_cell] * config.num_layers)
+>>>>>>> tensorflow/master
 
     self._initial_state = cell.zero_state(batch_size, tf.float32)
 
     with tf.device("/cpu:0"):
       embedding = tf.get_variable("embedding", [vocab_size, size])
+<<<<<<< HEAD
       inputs = tf.split(
           1, num_steps, tf.nn.embedding_lookup(embedding, self._input_data))
       inputs = [tf.squeeze(input_, [1]) for input_ in inputs]
 
     if is_training and config.keep_prob < 1:
       inputs = [tf.nn.dropout(input_, config.keep_prob) for input_ in inputs]
+=======
+      inputs = tf.nn.embedding_lookup(embedding, self._input_data)
+
+    if is_training and config.keep_prob < 1:
+      inputs = tf.nn.dropout(inputs, config.keep_prob)
+>>>>>>> tensorflow/master
 
     # Simplified version of tensorflow.models.rnn.rnn.py's rnn().
     # This builds an unrolled LSTM for tutorial purposes only.
@@ -106,6 +160,7 @@ class PTBModel(object):
     # The alternative version of the code below is:
     #
     # from tensorflow.models.rnn import rnn
+<<<<<<< HEAD
     # outputs, states = rnn.rnn(cell, inputs, initial_state=self._initial_state)
     outputs = []
     states = []
@@ -127,6 +182,29 @@ class PTBModel(object):
                                             vocab_size)
     self._cost = cost = tf.reduce_sum(loss) / batch_size
     self._final_state = states[-1]
+=======
+    # inputs = [tf.squeeze(input_, [1])
+    #           for input_ in tf.split(1, num_steps, inputs)]
+    # outputs, state = rnn.rnn(cell, inputs, initial_state=self._initial_state)
+    outputs = []
+    state = self._initial_state
+    with tf.variable_scope("RNN"):
+      for time_step in range(num_steps):
+        if time_step > 0: tf.get_variable_scope().reuse_variables()
+        (cell_output, state) = cell(inputs[:, time_step, :], state)
+        outputs.append(cell_output)
+
+    output = tf.reshape(tf.concat(1, outputs), [-1, size])
+    softmax_w = tf.get_variable("softmax_w", [size, vocab_size])
+    softmax_b = tf.get_variable("softmax_b", [vocab_size])
+    logits = tf.matmul(output, softmax_w) + softmax_b
+    loss = tf.nn.seq2seq.sequence_loss_by_example(
+        [logits],
+        [tf.reshape(self._targets, [-1])],
+        [tf.ones([batch_size * num_steps])])
+    self._cost = cost = tf.reduce_sum(loss) / batch_size
+    self._final_state = state
+>>>>>>> tensorflow/master
 
     if not is_training:
       return
@@ -218,6 +296,25 @@ class LargeConfig(object):
   vocab_size = 10000
 
 
+<<<<<<< HEAD
+=======
+class TestConfig(object):
+  """Tiny config, for testing."""
+  init_scale = 0.1
+  learning_rate = 1.0
+  max_grad_norm = 1
+  num_layers = 1
+  num_steps = 2
+  hidden_size = 2
+  max_epoch = 1
+  max_max_epoch = 1
+  keep_prob = 1.0
+  lr_decay = 0.5
+  batch_size = 20
+  vocab_size = 10000
+
+
+>>>>>>> tensorflow/master
 def run_epoch(session, m, data, eval_op, verbose=False):
   """Runs the model on the given data."""
   epoch_size = ((len(data) // m.batch_size) - 1) // m.num_steps
@@ -249,11 +346,20 @@ def get_config():
     return MediumConfig()
   elif FLAGS.model == "large":
     return LargeConfig()
+<<<<<<< HEAD
+=======
+  elif FLAGS.model == "test":
+    return TestConfig()
+>>>>>>> tensorflow/master
   else:
     raise ValueError("Invalid model: %s", FLAGS.model)
 
 
+<<<<<<< HEAD
 def main(unused_args):
+=======
+def main(_):
+>>>>>>> tensorflow/master
   if not FLAGS.data_path:
     raise ValueError("Must set --data_path to PTB data directory")
 

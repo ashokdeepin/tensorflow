@@ -1,10 +1,34 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/image_ops.cc.
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/random/simple_philox.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/random/simple_philox.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/guarded_philox_random.h"
 
 namespace tensorflow {
@@ -13,6 +37,10 @@ template <typename T>
 class RandomCropOp : public OpKernel {
  public:
   explicit RandomCropOp(OpKernelConstruction* context) : OpKernel(context) {
+<<<<<<< HEAD
+=======
+    OP_DEPRECATED(context, 8, "Random crop is now pure Python");
+>>>>>>> tensorflow/master
     OP_REQUIRES_OK(context, generator_.Init(context));
   }
 
@@ -20,6 +48,7 @@ class RandomCropOp : public OpKernel {
     const Tensor& input = context->input(0);
     OP_REQUIRES(context, input.dims() == 3,
                 errors::InvalidArgument("input must be 3-dimensional",
+<<<<<<< HEAD
                                         input.shape().ShortDebugString()));
     const Tensor& shape_t = context->input(1);
     OP_REQUIRES(context, shape_t.dims() == 1,
@@ -28,6 +57,16 @@ class RandomCropOp : public OpKernel {
     OP_REQUIRES(context, shape_t.NumElements() == 2,
                 errors::InvalidArgument("shape_t must have two elements",
                                         shape_t.shape().ShortDebugString()));
+=======
+                                        input.shape().DebugString()));
+    const Tensor& shape_t = context->input(1);
+    OP_REQUIRES(context, shape_t.dims() == 1,
+                errors::InvalidArgument("shape_t must be 1-dimensional",
+                                        shape_t.shape().DebugString()));
+    OP_REQUIRES(context, shape_t.NumElements() == 2,
+                errors::InvalidArgument("shape_t must have two elements",
+                                        shape_t.shape().DebugString()));
+>>>>>>> tensorflow/master
 
     auto shape_vec = shape_t.vec<int64>();
     const int32 target_height = shape_vec(0);
@@ -53,12 +92,23 @@ class RandomCropOp : public OpKernel {
     // Edge case. The target dimensions are larger then the image, so
     // zero-pad the image. This guarantees that the image will *always*
     // be [target_height, target_width] in size.
+<<<<<<< HEAD
     OP_REQUIRES(context, width >= target_width, errors::FailedPrecondition(
         "width must be >= target_width: width = ", width,
         ", target_width = ", target_width));
     OP_REQUIRES(context, height >= target_height, errors::FailedPrecondition(
         "height must be >= target_height: height = ", height,
         ", target_height = ", target_height));
+=======
+    OP_REQUIRES(
+        context, width >= target_width,
+        errors::FailedPrecondition("width must be >= target_width: width = ",
+                                   width, ", target_width = ", target_width));
+    OP_REQUIRES(context, height >= target_height,
+                errors::FailedPrecondition(
+                    "height must be >= target_height: height = ", height,
+                    ", target_height = ", target_height));
+>>>>>>> tensorflow/master
 
     int32 offset_height = 0;
     int32 offset_width = 0;
@@ -92,10 +142,17 @@ class RandomCropOp : public OpKernel {
   GuardedPhiloxRandom generator_;
 };
 
+<<<<<<< HEAD
 #define REGISTER_KERNELS(type)                                       \
   REGISTER_KERNEL_BUILDER(                                           \
     Name("RandomCrop").Device(DEVICE_CPU).TypeConstraint<type>("T"), \
     RandomCropOp<type>)
+=======
+#define REGISTER_KERNELS(type)                                         \
+  REGISTER_KERNEL_BUILDER(                                             \
+      Name("RandomCrop").Device(DEVICE_CPU).TypeConstraint<type>("T"), \
+      RandomCropOp<type>)
+>>>>>>> tensorflow/master
 
 TF_CALL_REAL_NUMBER_TYPES(REGISTER_KERNELS);
 #undef REGISTER_KERNELS

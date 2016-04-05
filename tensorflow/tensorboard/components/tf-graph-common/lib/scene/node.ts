@@ -1,7 +1,24 @@
+<<<<<<< HEAD
 /// <reference path="../graph.ts" />
 /// <reference path="scene.ts" />
 /// <reference path="annotation.ts" />
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+>>>>>>> tensorflow/master
 module tf.graph.scene.node {
 
 /**
@@ -45,11 +62,19 @@ module tf.graph.scene.node {
  *
  * @param sceneGroup selection of the container
  * @param nodeData array of render node information to map
+<<<<<<< HEAD
  * @param sceneBehavior parent scene module
  * @return selection of the created nodeGroups
  */
 export function buildGroup(sceneGroup,
     nodeData: render.RenderNodeInformation[], sceneBehavior) {
+=======
+ * @param sceneElement <tf-graph-scene> polymer element
+ * @return selection of the created nodeGroups
+ */
+export function buildGroup(sceneGroup,
+    nodeData: render.RenderNodeInfo[], sceneElement) {
+>>>>>>> tensorflow/master
   let container = scene.selectOrCreateChild(sceneGroup, "g",
     Class.Node.CONTAINER);
   // Select all children and join with data.
@@ -60,7 +85,11 @@ export function buildGroup(sceneGroup,
     // (It's not listed in the d3 wiki.)
     return this.childNodes; // this here refers to container.node()
   })
+<<<<<<< HEAD
     .data(nodeData, (d: any) => {
+=======
+    .data(nodeData, (d) => {
+>>>>>>> tensorflow/master
       // make sure that we don't have to swap shape type
       return d.node.name + ":" + d.node.type;
     });
@@ -72,7 +101,11 @@ export function buildGroup(sceneGroup,
     .each(function(d) {
       let nodeGroup = d3.select(this);
       // index node group for quick stylizing
+<<<<<<< HEAD
       sceneBehavior.addNodeGroup(d.node.name, nodeGroup);
+=======
+      sceneElement.addNodeGroup(d.node.name, nodeGroup);
+>>>>>>> tensorflow/master
     });
 
   // UPDATE
@@ -82,6 +115,7 @@ export function buildGroup(sceneGroup,
     })
     .each(function(d) {
       let nodeGroup = d3.select(this);
+<<<<<<< HEAD
       // add g.in-annotations (always add -- to keep layer order consistent.)
       let inAnnotationBox = scene.selectOrCreateChild(nodeGroup, "g",
         Class.Annotation.INBOX);
@@ -112,27 +146,72 @@ export function buildGroup(sceneGroup,
 
       stylize(nodeGroup, d, sceneBehavior);
       position(nodeGroup, d, sceneBehavior);
+=======
+      // Add g.in-annotations (always add -- to keep layer order consistent.)
+      let inAnnotationBox = scene.selectOrCreateChild(nodeGroup, "g",
+        Class.Annotation.INBOX);
+      annotation.buildGroup(inAnnotationBox, d.inAnnotations, d,
+        sceneElement);
+
+      // Add g.out-annotations  (always add -- to keep layer order consistent.)
+      let outAnnotationBox = scene.selectOrCreateChild(nodeGroup, "g",
+        Class.Annotation.OUTBOX);
+      annotation.buildGroup(outAnnotationBox, d.outAnnotations, d,
+        sceneElement);
+
+      // Build .shape first (background of the node).
+      let shape = buildShape(nodeGroup, d, Class.Node.SHAPE);
+      if (d.node.isGroupNode) {
+        addButton(shape, d, sceneElement);
+      }
+      addInteraction(shape, d, sceneElement);
+
+      // Build subscene on the top.
+      subsceneBuild(nodeGroup, <render.RenderGroupNodeInfo> d,
+          sceneElement);
+
+      // Build label last. Should be on top of everything else.
+      let label = labelBuild(nodeGroup, d, sceneElement);
+      // Do not add interaction to metanode labels as they live inside the
+      // metanode shape which already has the same interactions.
+      addInteraction(label, d, sceneElement, d.node.type === NodeType.META);
+
+      stylize(nodeGroup, d, sceneElement);
+      position(nodeGroup, d);
+>>>>>>> tensorflow/master
     });
 
   // EXIT
   nodeGroups.exit()
     .each(function(d) {
       // remove all indices on remove
+<<<<<<< HEAD
       sceneBehavior.removeNodeGroup(d.node.name);
+=======
+      sceneElement.removeNodeGroup(d.node.name);
+>>>>>>> tensorflow/master
 
       let nodeGroup = d3.select(this);
       if (d.inAnnotations.list.length > 0) {
         nodeGroup.select("." + Class.Annotation.INBOX)
           .selectAll("." + Class.Annotation.GROUP)
           .each(a => {
+<<<<<<< HEAD
             sceneBehavior.removeAnnotationGroup(a, d);
+=======
+            sceneElement.removeAnnotationGroup(a, d);
+>>>>>>> tensorflow/master
           });
       }
       if (d.outAnnotations.list.length > 0) {
         nodeGroup.select("." + Class.Annotation.OUTBOX)
           .selectAll("." + Class.Annotation.GROUP)
           .each(a => {
+<<<<<<< HEAD
             sceneBehavior.removeAnnotationGroup(a, d);
+=======
+            sceneElement.removeAnnotationGroup(a, d);
+>>>>>>> tensorflow/master
           });
       }
     })
@@ -146,17 +225,29 @@ export function buildGroup(sceneGroup,
  *
  * @param nodeGroup selection of the container
  * @param renderNodeInfo the render information for the node.
+<<<<<<< HEAD
  * @param sceneBehavior parent scene module
+=======
+ * @param sceneElement <tf-graph-scene> polymer element.
+>>>>>>> tensorflow/master
  * @return Selection of the subscene group, or null if node group does not have
  *        a subscene. Op nodes, bridge nodes and unexpanded group nodes will
  *        not have a subscene.
  */
 function subsceneBuild(nodeGroup,
+<<<<<<< HEAD
     renderNodeInfo: render.RenderGroupNodeInformation, sceneBehavior) {
   if (renderNodeInfo.node.isGroupNode) {
     if (renderNodeInfo.expanded) {
       // Recursively build the subscene.
       return scene.buildGroup(nodeGroup, renderNodeInfo, sceneBehavior,
+=======
+    renderNodeInfo: render.RenderGroupNodeInfo, sceneElement) {
+  if (renderNodeInfo.node.isGroupNode) {
+    if (renderNodeInfo.expanded) {
+      // Recursively build the subscene.
+      return scene.buildGroup(nodeGroup, renderNodeInfo, sceneElement,
+>>>>>>> tensorflow/master
         Class.Subscene.GROUP);
     }
     // Clean out existing subscene if the node is not expanded.
@@ -168,7 +259,11 @@ function subsceneBuild(nodeGroup,
 /**
  * Translate the subscene of the given node group
  */
+<<<<<<< HEAD
 function subscenePosition(nodeGroup, d: render.RenderNodeInformation) {
+=======
+function subscenePosition(nodeGroup, d: render.RenderNodeInfo) {
+>>>>>>> tensorflow/master
   let x0 = d.x - d.width / 2.0 + d.paddingLeft;
   let y0 = d.y - d.height / 2.0 + d.paddingTop;
 
@@ -181,9 +276,15 @@ function subscenePosition(nodeGroup, d: render.RenderNodeInformation) {
  *
  * @param selection The group node selection.
  * @param d Info about the node being rendered.
+<<<<<<< HEAD
  * @param sceneBehavior parent scene module.
  */
 function addButton(selection, d: render.RenderNodeInformation, sceneBehavior) {
+=======
+ * @param sceneElement <tf-graph-scene> polymer element.
+ */
+function addButton(selection, d: render.RenderNodeInfo, sceneElement) {
+>>>>>>> tensorflow/master
   let group = scene.selectOrCreateChild(
     selection, "g", Class.Node.BUTTON_CONTAINER);
   scene.selectOrCreateChild(group, "circle", Class.Node.BUTTON_CIRCLE);
@@ -195,7 +296,11 @@ function addButton(selection, d: render.RenderNodeInformation, sceneBehavior) {
     // Stop this event's propagation so that it isn't also considered a
     // node-select.
     (<Event>d3.event).stopPropagation();
+<<<<<<< HEAD
     sceneBehavior.fire("node-toggle-expand", { name: d.node.name });
+=======
+    sceneElement.fire("node-toggle-expand", { name: d.node.name });
+>>>>>>> tensorflow/master
   });
   scene.positionButton(group, d);
 };
@@ -208,38 +313,72 @@ function addButton(selection, d: render.RenderNodeInformation, sceneBehavior) {
  * don't need interaction as their surrounding shape has interaction, and if
  * given interaction would cause conflicts with the expand/collapse button.
  */
+<<<<<<< HEAD
 function addInteraction(selection, d: render.RenderNodeInformation,
     sceneBehavior, disableInteraction?: boolean) {
+=======
+function addInteraction(selection, d: render.RenderNodeInfo,
+    sceneElement, disableInteraction?: boolean) {
+>>>>>>> tensorflow/master
   if (disableInteraction) {
     selection.attr("pointer-events", "none");
     return;
   }
+<<<<<<< HEAD
   selection.on("dblclick", d => {
   sceneBehavior.fire("node-toggle-expand", { name: d.node.name });
+=======
+
+  let contextMenuFunction = contextmenu.getMenu(
+    getContextMenu(d.node, sceneElement));
+  selection.on("dblclick", d => {
+    sceneElement.fire("node-toggle-expand", { name: d.node.name });
+>>>>>>> tensorflow/master
   })
     .on("mouseover", d => {
       // don't send mouseover over expanded group,
       // otherwise it is causing too much glitches
+<<<<<<< HEAD
     if (sceneBehavior.isNodeExpanded(d)) { return; }
 
       sceneBehavior.fire("node-highlight", { name: d.node.name });
+=======
+      if (sceneElement.isNodeExpanded(d)) { return; }
+
+      sceneElement.fire("node-highlight", { name: d.node.name });
+>>>>>>> tensorflow/master
     })
     .on("mouseout", d => {
       // don't send mouseover over expanded group,
       // otherwise it is causing too much glitches
+<<<<<<< HEAD
     if (sceneBehavior.isNodeExpanded(d)) { return; }
 
     sceneBehavior.fire("node-unhighlight", { name: d.node.name });
+=======
+      if (sceneElement.isNodeExpanded(d)) { return; }
+
+      sceneElement.fire("node-unhighlight", { name: d.node.name });
+>>>>>>> tensorflow/master
     })
     .on("click", d => {
       // Stop this event's propagation so that it isn't also considered
       // a graph-select.
       (<Event>d3.event).stopPropagation();
+<<<<<<< HEAD
       sceneBehavior.fire("node-select", { name: d.node.name });
+=======
+      sceneElement.fire("node-select", { name: d.node.name });
+    })
+    .on("contextmenu", (d, i) => {
+      sceneElement.fire("node-select", { name: d.node.name });
+      contextMenuFunction.call(d, i);
+>>>>>>> tensorflow/master
     });
 };
 
 /**
+<<<<<<< HEAD
  * Append svg text for label and assign data.
  * @param nodeGroup
  * @param renderNodeInfo The render node information for the label.
@@ -247,6 +386,91 @@ function addInteraction(selection, d: render.RenderNodeInformation,
  */
 function labelBuild(nodeGroup, renderNodeInfo: render.RenderNodeInformation,
     sceneBehavior) {
+=======
+ * Returns the d3 context menu specification for the provided node.
+ */
+export function getContextMenu(node: Node, sceneElement) {
+  let menu = [{
+    title: d => {
+      return getIncludeNodeButtonString(node.include);
+    },
+    action: (elm, d, i) => {
+      sceneElement.fire("node-toggle-extract", { name: node.name });
+    }
+  }];
+  if (canBeInSeries(node)) {
+    menu.push({
+      title: d => {
+        return getGroupSettingLabel(node);
+      },
+      action: (elm, d, i) => {
+        sceneElement.fire("node-toggle-seriesgroup",
+          { name: getSeriesName(node) });
+      }
+    });
+  }
+  return menu;
+}
+
+/** Returns if a node can be part of a grouped series */
+export function canBeInSeries(node: Node) {
+  return getSeriesName(node) !== null;
+}
+
+/**
+ * Returns the name of the possible grouped series containing this node.
+ * Returns null if the node cannot be part of a grouped series of nodes.
+ */
+export function getSeriesName(node: Node) {
+  if (!node) {
+    return null;
+  }
+  if (node.type === NodeType.SERIES) {
+    return node.name;
+  }
+  if (node.type === NodeType.OP) {
+    let op = <OpNode>node;
+    return op.owningSeries;
+  }
+  return null;
+}
+
+/**
+ * Returns the SeriesNode that represents the series that the provided node
+ * is contained in (or itself if the provided node is itself a SeriesNode).
+ * Returns null if the node is not rendered as part of a series.
+ */
+function getContainingSeries(node: Node) {
+  let s: SeriesNode = null;
+  if (!node) {
+    return null;
+  } else if (node.type === NodeType.SERIES) {
+    s = <SeriesNode>node;
+  } else if (node.parentNode && node.parentNode.type === NodeType.SERIES) {
+    s = <SeriesNode>node.parentNode;
+  }
+  return s;
+}
+
+/**
+ * Returns the label for a button to toggle the group setting of the provided
+ * node.
+ */
+export function getGroupSettingLabel(node: Node) {
+  return tf.graph.getGroupSeriesNodeButtonString(
+    getContainingSeries(node) !== null ? tf.graph.SeriesGroupingType.GROUP :
+     tf.graph.SeriesGroupingType.UNGROUP);
+}
+
+/**
+ * Append svg text for label and assign data.
+ * @param nodeGroup
+ * @param renderNodeInfo The render node information for the label.
+ * @param sceneElement <tf-graph-scene> polymer element.
+ */
+function labelBuild(nodeGroup, renderNodeInfo: render.RenderNodeInfo,
+    sceneElement) {
+>>>>>>> tensorflow/master
   let namePath = renderNodeInfo.node.name.split("/");
   let text = namePath[namePath.length - 1];
 
@@ -255,6 +479,7 @@ function labelBuild(nodeGroup, renderNodeInfo: render.RenderNodeInformation,
     !renderNodeInfo.expanded;
 
   let label = scene.selectOrCreateChild(nodeGroup, "text", Class.Node.LABEL);
+<<<<<<< HEAD
   label.attr("dy", ".35em")
     .attr("text-anchor", "middle");
   if (useFontScale) {
@@ -262,6 +487,20 @@ function labelBuild(nodeGroup, renderNodeInfo: render.RenderNodeInformation,
       text = text.substr(0, sceneBehavior.maxMetanodeLabelLength - 2) + "...";
     }
     let scale = getLabelFontScale(sceneBehavior);
+=======
+
+  // Make sure the label is visually on top among its siblings.
+  let labelNode = <HTMLElement> label.node();
+  labelNode.parentNode.appendChild(labelNode);
+
+  label.attr("dy", ".35em")
+    .attr("text-anchor", "middle");
+  if (useFontScale) {
+    if (text.length > sceneElement.maxMetanodeLabelLength) {
+      text = text.substr(0, sceneElement.maxMetanodeLabelLength - 2) + "...";
+    }
+    let scale = getLabelFontScale(sceneElement);
+>>>>>>> tensorflow/master
     label.attr("font-size", scale(text.length) + "px");
   }
   label.text(text);
@@ -273,6 +512,7 @@ function labelBuild(nodeGroup, renderNodeInfo: render.RenderNodeInformation,
  * initialized once by getLabelFontScale.
  */
 let fontScale = null;
+<<<<<<< HEAD
 function getLabelFontScale(sceneBehavior) {
   if (!fontScale) {
     fontScale = d3.scale.linear()
@@ -291,6 +531,27 @@ function labelPosition(nodeGroup, d: render.RenderNodeInformation,
   scene.selectChild(nodeGroup, "text", Class.Node.LABEL).transition()
     .attr("x", d.x)
     .attr("y", d.y + yOffset);
+=======
+function getLabelFontScale(sceneElement) {
+  if (!fontScale) {
+    fontScale = d3.scale.linear()
+      .domain([sceneElement.maxMetanodeLabelLengthLargeFont,
+        sceneElement.maxMetanodeLabelLength])
+      .range([sceneElement.maxMetanodeLabelLengthFontSize,
+        sceneElement.minMetanodeLabelLengthFontSize]).clamp(true);
+  }
+  return fontScale;
+}
+
+/**
+ * Set label position of a given node group
+ */
+function labelPosition(nodeGroup, cx: number, cy: number,
+    yOffset: number) {
+  scene.selectChild(nodeGroup, "text", Class.Node.LABEL).transition()
+    .attr("x", cx)
+    .attr("y", cy + yOffset);
+>>>>>>> tensorflow/master
 };
 
 /**
@@ -298,6 +559,7 @@ function labelPosition(nodeGroup, d: render.RenderNodeInformation,
  * as the shape's data.
  *
  * @param nodeGroup
+<<<<<<< HEAD
  * @param d RenderNodeInformation
  * @param nodeClass class for the element.
  * @param before Reference DOM node for insertion.
@@ -307,6 +569,15 @@ export function buildShape(nodeGroup, d, nodeClass: string, before?) {
   // Create a group to house the underlying visual elements.
   let shapeGroup = scene.selectOrCreateChild(nodeGroup, "g", nodeClass,
     before);
+=======
+ * @param d Render node information.
+ * @param nodeClass class for the element.
+ * @return Selection of the shape.
+ */
+export function buildShape(nodeGroup, d, nodeClass: string) {
+  // Create a group to house the underlying visual elements.
+  let shapeGroup = scene.selectOrCreateChild(nodeGroup, "g", nodeClass);
+>>>>>>> tensorflow/master
   // TODO(jimbo): DOM structure should be templated in HTML somewhere, not JS.
   switch (d.node.type) {
     case NodeType.OP:
@@ -316,7 +587,11 @@ export function buildShape(nodeGroup, d, nodeClass: string, before?) {
     case NodeType.SERIES:
       // Choose the correct stamp to use to represent this series.
       let stampType = "annotation";
+<<<<<<< HEAD
       let groupNodeInfo = <render.RenderGroupNodeInformation>d;
+=======
+      let groupNodeInfo = <render.RenderGroupNodeInfo>d;
+>>>>>>> tensorflow/master
       if (groupNodeInfo.coreGraph) {
         stampType = groupNodeInfo.node.hasNonControlEdges
           ? "vertical" : "horizontal";
@@ -340,7 +615,11 @@ export function buildShape(nodeGroup, d, nodeClass: string, before?) {
   return shapeGroup;
 };
 
+<<<<<<< HEAD
 export function nodeClass(d: render.RenderNodeInformation) {
+=======
+export function nodeClass(d: render.RenderNodeInfo) {
+>>>>>>> tensorflow/master
   switch (d.node.type) {
     case NodeType.OP:
       return Class.OPNODE;
@@ -357,19 +636,31 @@ export function nodeClass(d: render.RenderNodeInformation) {
 };
 
 /** Modify node and its subscene and its label's positional attributes */
+<<<<<<< HEAD
 function position(nodeGroup, d: render.RenderNodeInformation, sceneBehavior) {
   let shapeGroup = scene.selectChild(nodeGroup, "g", Class.Node.SHAPE);
+=======
+function position(nodeGroup, d: render.RenderNodeInfo) {
+  let shapeGroup = scene.selectChild(nodeGroup, "g", Class.Node.SHAPE);
+  let cx = layout.computeCXPositionOfNodeShape(d);
+>>>>>>> tensorflow/master
   switch (d.node.type) {
     case NodeType.OP: {
       // position shape
       let shape = scene.selectChild(shapeGroup, "ellipse");
+<<<<<<< HEAD
       scene.positionEllipse(shape, d.x, d.y, d.width, d.height);
       labelPosition(nodeGroup, d, d.labelOffset);
+=======
+      scene.positionEllipse(shape, cx, d.y, d.coreBox.width, d.coreBox.height);
+      labelPosition(nodeGroup, cx, d.y, d.labelOffset);
+>>>>>>> tensorflow/master
       break;
     }
     case NodeType.META: {
       // position shape
       let shape = scene.selectChild(shapeGroup, "rect");
+<<<<<<< HEAD
       scene.positionRect(shape, d.x, d.y, d.width, d.height);
 
       if (d.expanded) {
@@ -380,11 +671,23 @@ function position(nodeGroup, d: render.RenderNodeInformation, sceneBehavior) {
           - d.height / 2 + d.labelHeight / 2);
       } else {
         labelPosition(nodeGroup, d, 0);
+=======
+      if (d.expanded) {
+        scene.positionRect(shape, d.x, d.y, d.width, d.height);
+        subscenePosition(nodeGroup, d);
+        // put label on top
+        labelPosition(nodeGroup, cx, d.y,
+          - d.height / 2 + d.labelHeight / 2);
+      } else {
+        scene.positionRect(shape, cx, d.y, d.coreBox.width, d.coreBox.height);
+        labelPosition(nodeGroup, cx, d.y, 0);
+>>>>>>> tensorflow/master
       }
       break;
     }
     case NodeType.SERIES: {
       let shape = scene.selectChild(shapeGroup, "use");
+<<<<<<< HEAD
       scene.positionRect(shape, d.x, d.y, d.width, d.height);
       if (d.expanded) {
       subscenePosition(nodeGroup, d);
@@ -395,6 +698,19 @@ function position(nodeGroup, d: render.RenderNodeInformation, sceneBehavior) {
       } else {
         labelPosition(nodeGroup, d, d.labelOffset);
       }
+=======
+      if (d.expanded) {
+        scene.positionRect(shape, d.x, d.y, d.width, d.height);
+        subscenePosition(nodeGroup, d);
+        // put label on top
+        labelPosition(nodeGroup, cx, d.y,
+          - d.height / 2 + d.labelHeight / 2);
+      } else {
+        scene.positionRect(shape, cx, d.y, d.coreBox.width, d.coreBox.height);
+        labelPosition(nodeGroup, cx, d.y, d.labelOffset);
+      }
+      break;
+>>>>>>> tensorflow/master
     }
     case NodeType.BRIDGE: {
       // position shape
@@ -418,16 +734,28 @@ export enum ColorBy { STRUCTURE, DEVICE, COMPUTE_TIME, MEMORY };
  * option.
  */
 export function getFillForNode(templateIndex, colorBy,
+<<<<<<< HEAD
     renderInfo: render.RenderNodeInformation, isExpanded: boolean): string {
   let colorParams = tf.graph.render.MetanodeColors;
   switch (colorBy) {
     case ColorBy.STRUCTURE:
       if (renderInfo.node.type === tf.graph.NodeType.META) {
+=======
+    renderInfo: render.RenderNodeInfo, isExpanded: boolean): string {
+  let colorParams = render.MetanodeColors;
+  switch (colorBy) {
+    case ColorBy.STRUCTURE:
+      if (renderInfo.node.type === NodeType.META) {
+>>>>>>> tensorflow/master
         let tid = (<Metanode>renderInfo.node).templateId;
         return tid === null ?
           colorParams.UNKNOWN :
           colorParams.STRUCTURE_PALETTE(templateIndex(tid), isExpanded);
+<<<<<<< HEAD
       } else if (renderInfo.node.type === tf.graph.NodeType.SERIES) {
+=======
+      } else if (renderInfo.node.type === NodeType.SERIES) {
+>>>>>>> tensorflow/master
         // If expanded, we're showing the background rect, which we want to
         // appear gray. Otherwise we're showing a stack of ellipses which we
         // want to show white.
@@ -456,7 +784,11 @@ export function getFillForNode(templateIndex, colorBy,
         linearGradient.selectAll("*").remove();
         let cumulativeProportion = 0;
         // For each device, create a stop using the proportion of that device.
+<<<<<<< HEAD
         _.each(renderInfo.deviceColors, (d: any) => {
+=======
+        _.each(renderInfo.deviceColors, d => {
+>>>>>>> tensorflow/master
           let color = d.color;
           linearGradient.append("stop")
             .attr("offset", cumulativeProportion)
@@ -485,11 +817,19 @@ export function getFillForNode(templateIndex, colorBy,
  * Modify node style by toggling class and assign attributes (only for things
  * that can't be done in css).
  */
+<<<<<<< HEAD
 export function stylize(nodeGroup, renderInfo: render.RenderNodeInformation,
     sceneBehavior, nodeClass?) {
   nodeClass = nodeClass || Class.Node.SHAPE;
   let isHighlighted = sceneBehavior.isNodeHighlighted(renderInfo.node.name);
   let isSelected = sceneBehavior.isNodeSelected(renderInfo.node.name);
+=======
+export function stylize(nodeGroup, renderInfo: render.RenderNodeInfo,
+    sceneElement, nodeClass?) {
+  nodeClass = nodeClass || Class.Node.SHAPE;
+  let isHighlighted = sceneElement.isNodeHighlighted(renderInfo.node.name);
+  let isSelected = sceneElement.isNodeSelected(renderInfo.node.name);
+>>>>>>> tensorflow/master
   let isExtract = renderInfo.isInExtract || renderInfo.isOutExtract;
   let isExpanded = renderInfo.expanded;
   nodeGroup.classed("highlighted", isHighlighted);
@@ -500,8 +840,13 @@ export function stylize(nodeGroup, renderInfo: render.RenderNodeInformation,
   // Main node always exists here and it will be reached before subscene,
   // so d3 selection is fine here.
   let node = nodeGroup.select("." + nodeClass + " ." + Class.Node.COLOR_TARGET);
+<<<<<<< HEAD
   let fillColor = getFillForNode(sceneBehavior.templateIndex,
     ColorBy[sceneBehavior.colorBy.toUpperCase()],
+=======
+  let fillColor = getFillForNode(sceneElement.templateIndex,
+    ColorBy[sceneElement.colorBy.toUpperCase()],
+>>>>>>> tensorflow/master
     renderInfo, isExpanded);
   node.style("fill", fillColor);
 
@@ -516,7 +861,11 @@ export function stylize(nodeGroup, renderInfo: render.RenderNodeInformation,
 export function getStrokeForFill(fill: string) {
   // If node is colored by a gradient, then use a dark gray outline.
   return fill.substring(0, 3) === "url" ?
+<<<<<<< HEAD
     tf.graph.render.MetanodeColors.GRADIENT_OUTLINE :
+=======
+    render.MetanodeColors.GRADIENT_OUTLINE :
+>>>>>>> tensorflow/master
     d3.rgb(fill).darker().toString();
 }
 

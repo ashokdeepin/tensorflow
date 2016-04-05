@@ -1,11 +1,32 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for DecodeCSV op from parsing_ops."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -66,7 +87,11 @@ class DecodeCSVOpTest(tf.test.TestCase):
         "record_defaults": [["1"]]
     }
 
+<<<<<<< HEAD
     expected_out = [["1.0", "ab , c", "a\nbc", 'ab"c', " abc "]]
+=======
+    expected_out = [[b"1.0", b"ab , c", b"a\nbc", b'ab"c', b" abc "]]
+>>>>>>> tensorflow/master
 
     self._test(args, expected_out)
 
@@ -76,7 +101,11 @@ class DecodeCSVOpTest(tf.test.TestCase):
         "record_defaults": [[1.0], [1], ["aa"]]
     }
 
+<<<<<<< HEAD
     expected_out = [[1.0, 0.2, 3], [4, 5, 6], ["aa", "bb", "cc"]]
+=======
+    expected_out = [[1.0, 0.2, 3], [4, 5, 6], [b"aa", b"bb", b"cc"]]
+>>>>>>> tensorflow/master
 
     self._test(args, expected_out)
 
@@ -86,7 +115,11 @@ class DecodeCSVOpTest(tf.test.TestCase):
         "record_defaults": [[1.0], [0], ["a"]]
     }
 
+<<<<<<< HEAD
     expected_out = [[1.0, 0.2, 3.0], [1, 3, 0], ["a", "bcd", "a"]]
+=======
+    expected_out = [[1.0, 0.2, 3.0], [1, 3, 0], [b"a", b"bcd", b"a"]]
+>>>>>>> tensorflow/master
 
     self._test(args, expected_out)
 
@@ -147,6 +180,24 @@ class DecodeCSVOpTest(tf.test.TestCase):
         args,
         expected_err_re="Unquoted fields cannot have quotes/CRLFs inside")
 
+<<<<<<< HEAD
+=======
+  def testWrongDefaults(self):
+    args = {
+        "records": [",1", "0.2,2", "3.0adf,3"],
+        "record_defaults": [[1.0]]
+    }
+
+    self._test(args,
+               expected_err_re="Expect 1 fields but have 2 in record 0")
+
+  def testShortQuotedString(self):
+    args = {"records": ["\""], "record_defaults": [["default"]],}
+
+    self._test(args,
+               expected_err_re="Quoted field has to end with quote followed.*")
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

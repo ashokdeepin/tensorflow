@@ -1,8 +1,30 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/math_ops.cc.
 
 #define EIGEN_USE_THREADS
 
 #include "tensorflow/core/kernels/aggregate_ops.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/kernels/aggregate_ops_cpu.h"
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/register_types.h"
@@ -34,8 +56,13 @@ class AddNOp : public OpKernel {
 
 #define I(IDX) ctx->input(IDX).flat<T>()
 
+<<<<<<< HEAD
 #if defined(__ANDROID__)
     // On Android, we only support additions of two arguments, so we
+=======
+#if defined(__ANDROID_TYPES_SLIM__)
+    // On Android by default,we only support additions of two arguments, so we
+>>>>>>> tensorflow/master
     // can reduce the number of template instantiations.
     OP_REQUIRES(ctx, num == 2,
                 errors::InvalidArgument("Only additions of two arguments "
@@ -103,12 +130,17 @@ class AddNOp : public OpKernel {
       functor8p(ctx->template eigen_device<Device>(), To, I(r), I(r + 1),
                 I(r + 2), I(r + 3), I(r + 4), I(r + 5), I(r + 6), I(r + 7));
     }
+<<<<<<< HEAD
 #endif  // defined(__ANDROID__)
+=======
+#endif  // defined(__ANDROID_TYPES_SLIM__)
+>>>>>>> tensorflow/master
 
 #undef I
   }
 };
 
+<<<<<<< HEAD
 // Partial specializations for a CPUDevice, that uses the Eigen implementation
 // from AddNEigenImpl.
 namespace functor {
@@ -219,6 +251,8 @@ struct Add9Functor<CPUDevice, T> {
 
 }  // namespace functor
 
+=======
+>>>>>>> tensorflow/master
 #define REGISTER_ADDN(type, dev)                                   \
   REGISTER_KERNEL_BUILDER(                                         \
       Name("AddN").Device(DEVICE_##dev).TypeConstraint<type>("T"), \
@@ -231,6 +265,19 @@ TF_CALL_NUMBER_TYPES(REGISTER_ADDN_CPU);
 
 #if GOOGLE_CUDA
 REGISTER_ADDN(float, GPU);
+<<<<<<< HEAD
+=======
+
+// A special GPU kernel for int32.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+REGISTER_KERNEL_BUILDER(Name("AddN")
+                            .Device(DEVICE_GPU)
+                            .TypeConstraint<int32>("T")
+                            .HostMemory("inputs")
+                            .HostMemory("sum"),
+                        AddNOp<CPUDevice, int32>);
+>>>>>>> tensorflow/master
 #endif  // GOOGLE_CUDA
 
 #undef REGISTER_ADDN

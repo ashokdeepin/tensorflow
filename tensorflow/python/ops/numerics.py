@@ -1,11 +1,34 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Connects all float and double tensors to CheckNumericsOp."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import types
+=======
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import control_flow_ops
 
@@ -23,14 +46,22 @@ def verify_tensor_all_finite(t, msg, name=None):
   """
   with ops.op_scope([t], name, "VerifyFinite") as name:
     t = ops.convert_to_tensor(t, name="t")
+<<<<<<< HEAD
     with ops.device(t.device or t.graph.get_default_device()):
+=======
+    with ops.colocate_with(t):
+>>>>>>> tensorflow/master
       verify_input = array_ops.check_numerics(t, message=msg)
       out = control_flow_ops.with_dependencies([verify_input], t)
   return out
 
 
 def add_check_numerics_ops():
+<<<<<<< HEAD
   """Connect a check_numerics to every floating point tensor.
+=======
+  """Connect a `check_numerics` to every floating point tensor.
+>>>>>>> tensorflow/master
 
   `check_numerics` operations themselves are added for each `float` or `double`
   tensor in the graph. For all ops in the graph, the `check_numerics` op for
@@ -47,7 +78,11 @@ def add_check_numerics_ops():
   # added, and ops can only be added once its inputs are added.
   for op in ops.get_default_graph().get_operations():
     for output in op.outputs:
+<<<<<<< HEAD
       if output.dtype in [types.float32, types.float64]:
+=======
+      if output.dtype in [dtypes.float32, dtypes.float64]:
+>>>>>>> tensorflow/master
         message = op.name + ":" + str(output.value_index)
         with ops.control_dependencies(check_op):
           check_op = [array_ops.check_numerics(output, message=message)]

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-flex-layout/iron-flex-layout.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
@@ -7,12 +8,27 @@
 <link rel="import" href="../tf-graph-common/tf-graph-common.html">
 <link rel="import" href="tf-graph-scene.html">
 <link rel="import" href="tf-graph-params.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-flex-layout/iron-flex-layout.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../tf-graph-common/tf-graph-common.html">
+<link rel="import" href="tf-graph-scene.html">
+>>>>>>> tensorflow/master
 <dom-module id="tf-graph">
 <template>
 <style>
 .container {
   width: 100%;
   height: 100%;
+<<<<<<< HEAD
+=======
+  background: white;
+  box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+>>>>>>> tensorflow/master
 }
 
 .vertical {
@@ -35,7 +51,10 @@ paper-button {
 }
 </style>
 <div class="container">
+<<<<<<< HEAD
   <tf-graph-params id="graphParams"></tf-graph-params>
+=======
+>>>>>>> tensorflow/master
   <div class="vertical">
     <h2>[[title]]</h2>
     <tf-graph-scene id="scene" class="auto"
@@ -62,6 +81,15 @@ Polymer({
       notify: true,
       observer: '_graphChanged'
     },
+<<<<<<< HEAD
+=======
+    basicGraph: Object,
+    hierarchyParams: Object,
+    progress: {
+      type: Object,
+      notify: true,
+    },
+>>>>>>> tensorflow/master
     title: String,
     selectedNode: {
       type: String,
@@ -82,6 +110,7 @@ Polymer({
       type: Object,
       readOnly: true,
       notify: true,
+<<<<<<< HEAD
       computed: '_buildRenderHierarchy(graphHierarchy, _graphParams)'
     },
     // internal properties
@@ -90,6 +119,8 @@ Polymer({
       value: function() {
         return this.$.graphParams;
       }
+=======
+>>>>>>> tensorflow/master
     },
     _renderDepth: {
       type: Number,
@@ -98,18 +129,32 @@ Polymer({
     _allowGraphSelect: {
       type: Boolean,
       value: true
+<<<<<<< HEAD
     }
   },
   _buildRenderHierarchy: function(graphHierarchy, params) {
     return tf.time('new tf.graph.render.Hierarchy', function() {
+=======
+    },
+  },
+  observers: [
+    '_buildRenderHierarchy(graphHierarchy)'
+  ],
+  _buildRenderHierarchy: function(graphHierarchy) {
+    tf.time('new tf.graph.render.Hierarchy', function() {
+>>>>>>> tensorflow/master
       if (graphHierarchy.root.type !== tf.graph.NodeType.META) {
         // root must be metanode but sometimes Polymer's dom-if has not
         // remove tf-graph element yet in <tf-node-info>
         // and thus mistakenly pass non-metanode to this module.
         return;
       }
+<<<<<<< HEAD
       var renderGraph = new tf.graph.render.RenderGraphInformation(
           graphHierarchy, params);
+=======
+      var renderGraph = new tf.graph.render.RenderGraphInfo(graphHierarchy);
+>>>>>>> tensorflow/master
       // Producing the 'color by' parameters to be consumed
       // by the tf-graph-controls panel. It contains information about the
       // min and max values and their respective colors, as well as list
@@ -135,7 +180,14 @@ Polymer({
           };
         })
       });
+<<<<<<< HEAD
       return renderGraph;
+=======
+      this._setRenderHierarchy(renderGraph);
+      this.async(function() {
+        this.fire("rendered");
+      });
+>>>>>>> tensorflow/master
     }.bind(this));
   },
   _getVisible: function(name) {
@@ -153,6 +205,11 @@ Polymer({
     'node-select': '_nodeSelected',
     'node-highlight': '_nodeHighlighted',
     'node-unhighlight': '_nodeUnhighlighted',
+<<<<<<< HEAD
+=======
+    'node-toggle-extract': '_nodeToggleExtract',
+    'node-toggle-seriesgroup': '_nodeToggleSeriesGroup',
+>>>>>>> tensorflow/master
 
     // Annotations
 
@@ -202,6 +259,13 @@ Polymer({
     this.set('highlightedNode', null);
   },
   _nodeToggleExpand: function(event) {
+<<<<<<< HEAD
+=======
+    // Immediately select the node that is about to be expanded.
+    this._nodeSelected(event);
+
+    // Compute the sub-hierarchy scene.
+>>>>>>> tensorflow/master
     var nodeName = event.detail.name;
     var renderNode = this.renderHierarchy.getRenderNodeByName(nodeName);
     // Op nodes are not expandable.
@@ -210,9 +274,55 @@ Polymer({
     }
     this.renderHierarchy.buildSubhierarchy(nodeName);
     renderNode.expanded = !renderNode.expanded;
+<<<<<<< HEAD
     this.querySelector('#scene').setNodeExpanded(renderNode);
     // Also select the expanded node.
     this._nodeSelected(event);
+=======
+
+    // Expand the node with some delay so that the user can immediately see
+    // the visual effect of selecting that node, before the expansion is
+    // done.
+    this.async(function() {
+      this.querySelector('#scene').setNodeExpanded(renderNode);
+    }, 75);
+  },
+  _nodeToggleExtract: function(event) {
+    // Toggle the include setting of the specified node appropriately.
+    var nodeName = event.detail.name;
+    var renderNode = this.renderHierarchy.getRenderNodeByName(nodeName);
+    if (renderNode.node.include == tf.graph.InclusionType.INCLUDE) {
+      renderNode.node.include = tf.graph.InclusionType.EXCLUDE;
+    } else if (renderNode.node.include == tf.graph.InclusionType.EXCLUDE) {
+      renderNode.node.include = tf.graph.InclusionType.INCLUDE;
+    } else {
+      renderNode.node.include =
+       this.renderHierarchy.isNodeAuxiliary(renderNode)
+          ? tf.graph.InclusionType.INCLUDE : tf.graph.InclusionType.EXCLUDE;
+    }
+
+    // Rebuild the render hierarchy.
+    this._buildRenderHierarchy(this.graphHierarchy);
+  },
+  _nodeToggleSeriesGroup: function(event) {
+    // Toggle the group setting of the specified node appropriately.
+    var nodeName = event.detail.name;
+    tf.graph.toggleNodeSeriesGroup(this.hierarchyParams.seriesMap, nodeName);
+
+    // Rebuild the render hierarchy with the updated series grouping map.
+    this.set('progress', {
+      value: 0,
+      msg: ''
+    });
+    var tracker = tf.getTracker(this);
+    var hierarchyTracker = tf.getSubtaskTracker(tracker, 100,
+          'Namespace hierarchy');
+    tf.graph.hierarchy.build(this.basicGraph, this.hierarchyParams, hierarchyTracker)
+    .then(function(graphHierarchy) {
+      this.set('graphHierarchy', graphHierarchy);
+      this._buildRenderHierarchy(this.graphHierarchy);
+    }.bind(this));
+>>>>>>> tensorflow/master
   },
   not: function(x) {
     return !x;

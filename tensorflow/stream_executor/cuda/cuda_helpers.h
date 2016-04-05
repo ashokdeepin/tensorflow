@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Common helper functions used for dealing with CUDA API datatypes.
 //
 // These are typically placed here for use by multiple source components (for
@@ -15,7 +33,10 @@
 namespace perftools {
 namespace gputools {
 
+<<<<<<< HEAD
 class Stream;
+=======
+>>>>>>> tensorflow/master
 template <typename ElemT>
 class DeviceMemory;
 
@@ -36,8 +57,11 @@ T *CUDAMemoryMutable(DeviceMemory<T> *mem) {
   return static_cast<T *>(mem->opaque());
 }
 
+<<<<<<< HEAD
 CUstream AsCUDAStreamValue(Stream *stream);
 
+=======
+>>>>>>> tensorflow/master
 static_assert(sizeof(std::complex<float>) == sizeof(cuComplex),
               "std::complex<float> and cuComplex should have the same size");
 static_assert(offsetof(cuComplex, x) == 0,

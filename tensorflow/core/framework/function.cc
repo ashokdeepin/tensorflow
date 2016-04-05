@@ -1,6 +1,28 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/function.h"
 
 #include <unordered_set>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/function.h"
+
+#include <unordered_set>
+#include <vector>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op.h"
@@ -10,6 +32,7 @@
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 REGISTER_OP("_Arg")
     .Output("output: T")
     .Attr("T: type")
@@ -52,10 +75,13 @@ REGISTER_OP("_ArrayToList")
 Converts an array of tensors to a list of tensors.
 )doc");
 
+=======
+>>>>>>> tensorflow/master
 namespace {
 
 // Extracts the actual type from "attr_values" based on its definition
 // "arg_def".
+<<<<<<< HEAD
 Status ArgNumType(const InstantiateAttrValueMap& attrs,
                   const OpDef::ArgDef& arg_def, int* num, DataType* dtype) {
   if (!arg_def.type_list_attr().empty()) {
@@ -65,10 +91,44 @@ Status ArgNumType(const InstantiateAttrValueMap& attrs,
   if (arg_def.number_attr().empty()) {
     *num = 1;
   } else {
+=======
+//
+// If "arg_def" is a N*T type, *is_type_list is set to false, and
+// *dtypes is set to be a vector of size N and each element is T.
+//
+// If "arg_def" is a list(type), *is_type_list is set to true, and
+// *dtypes is set to be a vector of types specified in attrs for
+// arg_def.
+//
+// Otherwise (arg_def is a simple type T), *is_type_list is set to
+// false, and *dtypes is set to a single element vector, whose only
+// element is T.
+Status ArgNumType(const InstantiateAttrValueMap& attrs,
+                  const OpDef::ArgDef& arg_def, bool* is_type_list,
+                  DataTypeVector* dtypes) {
+  dtypes->clear();
+  if (!arg_def.type_list_attr().empty()) {
+    const AttrValue* v = gtl::FindOrNull(attrs, arg_def.type_list_attr());
+    if (v == nullptr) {
+      return errors::NotFound("type attr not found: ",
+                              arg_def.type_list_attr());
+    }
+    *is_type_list = true;
+    for (int i = 0; i < v->list().type_size(); ++i) {
+      dtypes->push_back(v->list().type(i));
+    }
+    return Status::OK();
+  }
+
+  *is_type_list = false;
+  int num = 1;
+  if (!arg_def.number_attr().empty()) {
+>>>>>>> tensorflow/master
     const AttrValue* v = gtl::FindOrNull(attrs, arg_def.number_attr());
     if (v == nullptr) {
       return errors::NotFound("type attr not found: ", arg_def.type_attr());
     }
+<<<<<<< HEAD
     *num = v->i();
   }
 
@@ -76,13 +136,29 @@ Status ArgNumType(const InstantiateAttrValueMap& attrs,
     *dtype = arg_def.type();
   } else if (arg_def.type_attr().empty()) {
     *dtype = DT_INVALID;
+=======
+    num = v->i();
+  }
+
+  DataType dtype;
+  if (arg_def.type() != DT_INVALID) {
+    dtype = arg_def.type();
+  } else if (arg_def.type_attr().empty()) {
+    dtype = DT_INVALID;
+>>>>>>> tensorflow/master
   } else {
     const AttrValue* v = gtl::FindOrNull(attrs, arg_def.type_attr());
     if (v == nullptr) {
       return errors::NotFound("type attr not found: ", arg_def.type_attr());
     }
+<<<<<<< HEAD
     *dtype = v->type();
   }
+=======
+    dtype = v->type();
+  }
+  dtypes->resize(num, dtype);
+>>>>>>> tensorflow/master
   return Status::OK();
 }
 
@@ -127,7 +203,11 @@ Status ValidateSignatureWithAttrs(const OpDef& sig,
 //
 // If is_func_arg is true, the name is a function's argument.  In
 // this case, the produced graph def has gdef.node[nid ... nid +
+<<<<<<< HEAD
 // num).
+=======
+// dtype.size()).
+>>>>>>> tensorflow/master
 //
 // Otherwise, the name is a function body's node return value.  In
 // this case, the produced graph def has one node gdef.node[nid] and
@@ -139,15 +219,32 @@ struct NameInfoItem {
   bool is_func_arg;
   int nid;
   int idx;
+<<<<<<< HEAD
   int num;
   DataType dtype;
 };
 typedef std::unordered_map<string, NameInfoItem> NameInfoIndex;
 
+=======
+  bool is_type_list;
+  DataTypeVector dtypes;
+};
+typedef std::unordered_map<string, NameInfoItem> NameInfoIndex;
+
+Status AddArgName(NameInfoIndex* name_info, const string& arg,
+                  const NameInfoItem& item) {
+  if (!name_info->insert({arg, item}).second) {
+    return errors::InvalidArgument("Duplicated arg name.");
+  }
+  return Status::OK();
+}
+
+>>>>>>> tensorflow/master
 Status BuildInputArgIndex(const OpDef::ArgDef& arg_def,
                           const InstantiateAttrValueMap& attr_values,
                           NameInfoIndex* name_info,
                           InstantiationResult* result) {
+<<<<<<< HEAD
   int num;
   DataType dtype;
   TF_RETURN_IF_ERROR(ArgNumType(attr_values, arg_def, &num, &dtype));
@@ -160,18 +257,50 @@ Status BuildInputArgIndex(const OpDef::ArgDef& arg_def,
   }
   // Creates "num" nodes in the gdef.
   for (int i = 0; i < num; ++i) {
+=======
+  bool is_type_list;
+  DataTypeVector dtypes;
+  TF_RETURN_IF_ERROR(ArgNumType(attr_values, arg_def, &is_type_list, &dtypes));
+  CHECK_GE(dtypes.size(), size_t{1});
+  GraphDef* gdef = &result->gdef;
+  int arg_index = gdef->node_size();
+  TF_RETURN_IF_ERROR(AddArgName(name_info, arg_def.name(),
+                                {true, arg_index, 0, is_type_list, dtypes}));
+  // Creates dtypes.size() nodes in the gdef.
+  for (size_t i = 0; i < dtypes.size(); ++i) {
+    TF_RETURN_IF_ERROR(AddArgName(name_info,
+                                  strings::StrCat(arg_def.name(), ":", i),
+                                  {true, arg_index, 0, false, {dtypes[i]}}));
+>>>>>>> tensorflow/master
     DCHECK_EQ(arg_index, gdef->node_size());
     NodeDef* gnode = gdef->add_node();
     gnode->set_name(Name(arg_index));
     gnode->set_op("_Arg");
+<<<<<<< HEAD
     AddAttr("T", dtype, gnode);
     AddAttr("index", arg_index, gnode);
     result->arg_types.push_back(dtype);
+=======
+    AddAttr("T", dtypes[i], gnode);
+    AddAttr("index", arg_index, gnode);
+    result->arg_types.push_back(dtypes[i]);
+>>>>>>> tensorflow/master
     ++arg_index;
   }
   return Status::OK();
 }
 
+<<<<<<< HEAD
+=======
+Status AddRetName(NameInfoIndex* name_info, const string& ret,
+                  const NameInfoItem& item) {
+  if (!name_info->insert({ret, item}).second) {
+    return errors::InvalidArgument("Duplicated ret name.");
+  }
+  return Status::OK();
+}
+
+>>>>>>> tensorflow/master
 Status BuildNodeOutputIndex(const FunctionDef::Node& node,
                             const InstantiateAttrValueMap& attrs,
                             GetFunctionSignature get_function,
@@ -183,6 +312,7 @@ Status BuildNodeOutputIndex(const FunctionDef::Node& node,
     if (node.ret_size() != 1) {
       return errors::InvalidArgument("Expect one ret name.");
     }
+<<<<<<< HEAD
     if (!name_info->insert({node.ret(0), {false, arg_index, 0, 0, DT_INVALID}})
              .second) {
       return errors::InvalidArgument("Duplicated ret name.");
@@ -237,6 +367,30 @@ Status BuildNodeOutputIndex(const FunctionDef::Node& node,
       }
       ++start;
     }
+=======
+    return AddRetName(name_info, node.ret(0), {false, arg_index, 0, false, {}});
+  }
+  const int num_retval = node_sig->output_arg_size();
+  if (num_retval != node.ret_size()) {
+    return errors::InvalidArgument("Malformed function node (#ret): ",
+                                   num_retval, " vs. ", node.ret_size());
+  }
+  int start = 0;
+  bool is_type_list;
+  DataTypeVector dtypes;
+  for (int i = 0; i < num_retval; ++i) {
+    TF_RETURN_IF_ERROR(
+        ArgNumType(attrs, node_sig->output_arg(i), &is_type_list, &dtypes));
+    TF_RETURN_IF_ERROR(
+        AddRetName(name_info, node.ret(i),
+                   {false, arg_index, start, is_type_list, dtypes}));
+    for (int j = 0; j < static_cast<int>(dtypes.size()); ++j) {
+      TF_RETURN_IF_ERROR(
+          AddRetName(name_info, strings::StrCat(node.ret(i), ":", j),
+                     {false, arg_index, start + j, false, {dtypes[j]}}));
+    }
+    start += dtypes.size();
+>>>>>>> tensorflow/master
   }
   return Status::OK();
 }
@@ -252,6 +406,7 @@ Status InstantiateNode(const FunctionDef::Node& fnode,
   gnode->set_op(fnode.op());
 
   // Input
+<<<<<<< HEAD
   //
   // When the signature says the last argument is of list(type),
   // i.e., it's variadic, we need to consult
@@ -299,11 +454,35 @@ Status InstantiateNode(const FunctionDef::Node& fnode,
         return errors::InvalidArgument("arg[", i, "] is not found.");
       }
       for (int j = 0; j < item->num; ++j) {
+=======
+  const int num_args = fnode_sig->input_arg_size();
+  bool is_type_list;
+  DataTypeVector dtypes;
+  int fnode_arg_index = 0;
+  for (int i = 0; i < num_args; ++i) {
+    TF_RETURN_IF_ERROR(
+        ArgNumType(attrs, fnode_sig->input_arg(i), &is_type_list, &dtypes));
+    if (!is_type_list) {
+      const NameInfoItem* item =
+          gtl::FindOrNull(name_info, fnode.arg(fnode_arg_index));
+      if (item == nullptr) {
+        return errors::InvalidArgument("arg[", i, "] is not found: ",
+                                       fnode.ShortDebugString());
+      }
+      if (dtypes != item->dtypes) {
+        return errors::InvalidArgument("Invalid arg(", i,
+                                       ") for function arg: ", " ",
+                                       DataTypeSliceString(dtypes), " vs. ",
+                                       DataTypeSliceString(item->dtypes), ".");
+      }
+      for (size_t j = 0; j < dtypes.size(); ++j) {
+>>>>>>> tensorflow/master
         if (item->is_func_arg) {
           gnode->add_input(Name(item->nid + j));
         } else {
           gnode->add_input(Name(item->nid, item->idx + j));
         }
+<<<<<<< HEAD
         typelist.mutable_list()->add_type(item->dtype);
       }
     }
@@ -313,6 +492,33 @@ Status InstantiateNode(const FunctionDef::Node& fnode,
     gnode->mutable_attr()->insert({last_arg.type_list_attr(), typelist});
   }
 
+=======
+      }
+      ++fnode_arg_index;
+    } else {
+      for (size_t j = 0; j < dtypes.size(); ++j) {
+        const NameInfoItem* item =
+            gtl::FindOrNull(name_info, fnode.arg(fnode_arg_index + j));
+        if (item == nullptr) {
+          return errors::InvalidArgument("arg[", i + j, "] is not found: ",
+                                         fnode.ShortDebugString());
+        }
+        if (item->dtypes.size() != 1 || (item->dtypes[0] != dtypes[j])) {
+          return errors::InvalidArgument(
+              "Invalid typelist arg(", i + j, ") for function arg: ", " ",
+              DataTypeSliceString(dtypes), " vs. ",
+              DataTypeSliceString(item->dtypes), ".");
+        }
+        if (item->is_func_arg) {
+          gnode->add_input(Name(item->nid));
+        } else {
+          gnode->add_input(Name(item->nid, item->idx));
+        }
+      }
+      fnode_arg_index += dtypes.size();
+    }
+  }
+>>>>>>> tensorflow/master
   // Control deps.
   for (int i = 0; i < fnode.dep_size(); ++i) {
     const NameInfoItem* item = gtl::FindOrNull(name_info, fnode.dep(i));
@@ -327,6 +533,11 @@ Status InstantiateNode(const FunctionDef::Node& fnode,
     (*gnode->mutable_attr())[p.first] = p.second;
   }
 
+<<<<<<< HEAD
+=======
+  AddDefaultsToNodeDef(*fnode_sig, gnode);
+
+>>>>>>> tensorflow/master
   return Status::OK();
 }
 
@@ -334,26 +545,49 @@ Status AddReturnNode(const OpDef::ArgDef& ret_def,
                      const InstantiateAttrValueMap& attrs,
                      const NameInfoIndex& name_info, int* ret_index,
                      InstantiationResult* result) {
+<<<<<<< HEAD
   int num;
   DataType dtype;
   TF_RETURN_IF_ERROR(ArgNumType(attrs, ret_def, &num, &dtype));
   CHECK_GE(num, 1);
+=======
+  bool is_type_list;
+  DataTypeVector dtypes;
+  TF_RETURN_IF_ERROR(ArgNumType(attrs, ret_def, &is_type_list, &dtypes));
+  CHECK_GE(dtypes.size(), size_t{1});
+>>>>>>> tensorflow/master
   const NameInfoItem* item = gtl::FindOrNull(name_info, ret_def.name());
   if (item == nullptr) {
     return errors::InvalidArgument("ret is not found.");
   }
+<<<<<<< HEAD
   if (num != item->num || dtype != item->dtype) {
     return errors::InvalidArgument("Invalid ret name.");
   }
   GraphDef* gdef = &result->gdef;
   for (int i = 0; i < num; ++i) {
+=======
+  if (dtypes != item->dtypes) {
+    return errors::InvalidArgument("Invalid ret types ", ret_def.name(), " : ",
+                                   DataTypeVectorString(dtypes), " vs. ",
+                                   DataTypeVectorString(item->dtypes));
+  }
+  GraphDef* gdef = &result->gdef;
+  for (size_t i = 0; i < dtypes.size(); ++i) {
+>>>>>>> tensorflow/master
     NodeDef* gnode = gdef->add_node();
     gnode->set_name(Name(gdef->node_size() - 1));
     gnode->set_op("_Retval");
     gnode->add_input(Name(item->nid, item->idx + i));
+<<<<<<< HEAD
     AddAttr("T", dtype, gnode);
     AddAttr("index", (*ret_index)++, gnode);
     result->ret_types.push_back(dtype);
+=======
+    AddAttr("T", dtypes[i], gnode);
+    AddAttr("index", (*ret_index)++, gnode);
+    result->ret_types.push_back(dtypes[i]);
+>>>>>>> tensorflow/master
   }
   return Status::OK();
 }
@@ -731,10 +965,20 @@ Status FunctionCallFrame::SetRetval(int index, const Tensor& val) {
 FunctionLibraryDefinition::FunctionLibraryDefinition(
     const FunctionDefLibrary& def_lib)
     : function_defs_(def_lib.function_size()) {
+<<<<<<< HEAD
   for (auto fdef : def_lib.function()) {
     // The latter function definition wins.
     function_defs_[fdef.signature().name()] = fdef;
   }
+=======
+  for (const auto& fdef : def_lib.function()) {
+    // The latter function definition wins.
+    function_defs_[fdef.signature().name()] = fdef;
+  }
+  for (const auto& grad : def_lib.gradient()) {
+    func_grad_[grad.function_name()] = grad.gradient_func();
+  }
+>>>>>>> tensorflow/master
 }
 
 FunctionLibraryDefinition::~FunctionLibraryDefinition() {}
@@ -748,6 +992,13 @@ const FunctionDef* FunctionLibraryDefinition::Find(const string& name) const {
   }
 }
 
+<<<<<<< HEAD
+=======
+string FunctionLibraryDefinition::FindGradient(const string& func) const {
+  return gtl::FindWithDefault(func_grad_, func, "");
+}
+
+>>>>>>> tensorflow/master
 const OpDef* FunctionLibraryDefinition::LookUp(const string& op,
                                                Status* status) const {
   auto fdef = Find(op);

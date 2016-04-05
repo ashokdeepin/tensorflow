@@ -1,8 +1,31 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/data_flow_ops.cc.
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/kernels/bounds_check.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -36,10 +59,20 @@ class DynamicStitchOp : public OpKernel {
 
     int32 max_index = -1;
     for (const Tensor& indices : indices_inputs) {
+<<<<<<< HEAD
       Eigen::Tensor<int32, 0, Eigen::RowMajor> m =
           indices.flat<int32>().maximum();
       max_index = std::max(m(), max_index);
     }
+=======
+      if (indices.NumElements() > 0) {
+        Eigen::Tensor<int32, 0, Eigen::RowMajor> m =
+            indices.flat<int32>().maximum();
+        max_index = std::max(m(), max_index);
+      }
+    }
+
+>>>>>>> tensorflow/master
     const int first_dim_size = max_index + 1;
 
     // Validate that data[i].shape = indices[i].shape + constant
@@ -52,20 +85,34 @@ class DynamicStitchOp : public OpKernel {
       const Tensor& data = data_inputs[input_num];
       OP_REQUIRES(
           c, TensorShapeUtils::StartsWith(data.shape(), indices.shape()),
+<<<<<<< HEAD
           errors::InvalidArgument(
               "data[", input_num, "].shape = ", data.shape().ShortDebugString(),
               " does not start with indices[", input_num, "].shape = ",
               indices.shape().ShortDebugString()));
+=======
+          errors::InvalidArgument("data[", input_num, "].shape = ",
+                                  data.shape().DebugString(),
+                                  " does not start with indices[", input_num,
+                                  "].shape = ", indices.shape().DebugString()));
+>>>>>>> tensorflow/master
       OP_REQUIRES(
           c, input_num == 0 || SameExtraShape(data0, indices0, data, indices),
           errors::InvalidArgument(
               "Need data[0].shape[", indices0.dims(), ":] = data[", input_num,
               "].shape[", indices.dims(), ":], got data[0].shape = ",
+<<<<<<< HEAD
               data0.shape().ShortDebugString(), ", data[", input_num,
               "].shape = ", data.shape().ShortDebugString(),
               ", indices[0].shape = ", indices0.shape().ShortDebugString(),
               ", indices[", input_num, "].shape = ",
               indices.shape().ShortDebugString()));
+=======
+              data0.shape().DebugString(), ", data[", input_num, "].shape = ",
+              data.shape().DebugString(), ", indices[0].shape = ",
+              indices0.shape().DebugString(), ", indices[", input_num,
+              "].shape = ", indices.shape().DebugString()));
+>>>>>>> tensorflow/master
     }
 
     // Allocate result tensor of shape
@@ -95,16 +142,33 @@ class DynamicStitchOp : public OpKernel {
           const T* data_base = &data_flat(0, 0);
           const size_t slice_bytes = slice_size * sizeof(T);
           for (int i = 0; i < indices_vec.size(); i++) {
+<<<<<<< HEAD
             memcpy(merged_base + indices_vec(i) * slice_size,
                    data_base + i * slice_size, slice_bytes);
+=======
+            int32 index = internal::SubtleMustCopy(indices_vec(i));
+            OP_REQUIRES(
+                c, FastBoundsCheck(index, first_dim_size),
+                errors::InvalidArgument("indices[", i, "] is out of range"));
+            memcpy(merged_base + index * slice_size, data_base + i * slice_size,
+                   slice_bytes);
+>>>>>>> tensorflow/master
           }
         } else {
           Eigen::DSizes<Eigen::DenseIndex, 2> sizes(1, slice_size);
           for (int i = 0; i < indices_vec.size(); i++) {
             // Copy slice data[i] to merged[indices[i]]
             Eigen::DSizes<Eigen::DenseIndex, 2> data_indices(i, 0);
+<<<<<<< HEAD
             Eigen::DSizes<Eigen::DenseIndex, 2> merged_indices(indices_vec(i),
                                                                0);
+=======
+            int32 index = internal::SubtleMustCopy(indices_vec(i));
+            OP_REQUIRES(
+                c, FastBoundsCheck(index, first_dim_size),
+                errors::InvalidArgument("indices[", i, "] is out of range"));
+            Eigen::DSizes<Eigen::DenseIndex, 2> merged_indices(index, 0);
+>>>>>>> tensorflow/master
             merged_flat.slice(merged_indices, sizes) =
                 data_flat.slice(data_indices, sizes);
           }

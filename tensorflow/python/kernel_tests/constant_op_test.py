@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for ConstantOp."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -10,6 +29,11 @@ import tensorflow as tf
 
 from tensorflow.python.ops import gen_array_ops
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 class ConstantTest(tf.test.TestCase):
 
@@ -69,12 +93,18 @@ class ConstantTest(tf.test.TestCase):
     self._testAll(np.empty((2, 0, 5)).astype(np.complex64))
 
   def testString(self):
+<<<<<<< HEAD
     self._testCpu(np.array([str(x) for x in np.arange(-15, 15)]).reshape(
         [2, 3, 5]))
+=======
+    self._testCpu(np.array([tf.compat.as_bytes(str(x))
+                            for x in np.arange(-15, 15)]).reshape([2, 3, 5]))
+>>>>>>> tensorflow/master
     self._testCpu(np.empty((2, 0, 5)).astype(np.str_))
 
   def testStringWithNulls(self):
     with self.test_session():
+<<<<<<< HEAD
       val = tf.convert_to_tensor("\0\0\0\0").eval()
     self.assertEqual(len(val), 4)
     self.assertEqual(val, "\0\0\0\0")
@@ -84,6 +114,17 @@ class ConstantTest(tf.test.TestCase):
     self.assertEqual(len(val), 5)
     self.assertAllEqual(val, "xx\0xx")
     nested = [["\0\0\0\0", "xx\0xx"], ["\0_\0_\0_\0", "\0"]]
+=======
+      val = tf.convert_to_tensor(b"\0\0\0\0").eval()
+    self.assertEqual(len(val), 4)
+    self.assertEqual(val, b"\0\0\0\0")
+
+    with self.test_session():
+      val = tf.convert_to_tensor(b"xx\0xx").eval()
+    self.assertEqual(len(val), 5)
+    self.assertAllEqual(val, b"xx\0xx")
+    nested = [[b"\0\0\0\0", b"xx\0xx"], [b"\0_\0_\0_\0", b"\0"]]
+>>>>>>> tensorflow/master
 
     with self.test_session():
       val = tf.convert_to_tensor(nested).eval()
@@ -144,7 +185,11 @@ class ConstantTest(tf.test.TestCase):
       large_array = np.zeros((512, 1024, 1024), dtype=np.float32)
       with self.assertRaisesRegexp(
           ValueError,
+<<<<<<< HEAD
           "Cannot create an Operation with a NodeDef larger than 2GB."):
+=======
+          "Cannot create a tensor proto whose content is larger than 2GB."):
+>>>>>>> tensorflow/master
         c = tf.constant(large_array)
 
   def testTooLargeGraph(self):
@@ -269,25 +314,41 @@ class ZerosTest(tf.test.TestCase):
       self.assertEqual(d.get_shape(), [2, 3])
       # Test default type for both constant size and dynamic size
       z = tf.zeros([2, 3])
+<<<<<<< HEAD
       self.assertEquals(z.dtype, tf.float32)
       self.assertEqual([2, 3], z.get_shape())
       z = tf.zeros(tf.shape(d))
       self.assertEquals(z.dtype, tf.float32)
+=======
+      self.assertEqual(z.dtype, tf.float32)
+      self.assertEqual([2, 3], z.get_shape())
+      z = tf.zeros(tf.shape(d))
+      self.assertEqual(z.dtype, tf.float32)
+>>>>>>> tensorflow/master
       self.assertEqual([2, 3], z.get_shape())
       # Test explicit type control
       for dtype in [tf.float32, tf.float64, tf.int32,
                     tf.uint8, tf.int16, tf.int8,
                     tf.complex64, tf.int64]:
         z = tf.zeros([2, 3], dtype=dtype)
+<<<<<<< HEAD
         self.assertEquals(z.dtype, dtype)
         self.assertEquals([2, 3], z.get_shape())
         z = tf.zeros(tf.shape(d), dtype=dtype)
         self.assertEquals(z.dtype, dtype)
         self.assertEquals([2, 3], z.get_shape())
+=======
+        self.assertEqual(z.dtype, dtype)
+        self.assertEqual([2, 3], z.get_shape())
+        z = tf.zeros(tf.shape(d), dtype=dtype)
+        self.assertEqual(z.dtype, dtype)
+        self.assertEqual([2, 3], z.get_shape())
+>>>>>>> tensorflow/master
 
 
 class ZerosLikeTest(tf.test.TestCase):
 
+<<<<<<< HEAD
   def testZerosLike(self):
     for dtype in [tf.float32, tf.float64, tf.int32,
                   tf.uint8, tf.int16, tf.int8,
@@ -301,11 +362,24 @@ class ZerosLikeTest(tf.test.TestCase):
         # Test that the type is correct
         self.assertEquals(z_var.dtype, dtype)
         z_value = z_var.eval()
+=======
+  def _compareZeros(self, dtype, use_gpu):
+    with self.test_session(use_gpu=False):
+      # Creates a tensor of non-zero values with shape 2 x 3.
+      numpy_dtype = dtype.as_numpy_dtype
+      d = tf.constant(np.ones((2, 3), dtype=numpy_dtype), dtype=dtype)
+      # Constructs a tensor of zeros of the same dimensions and type as "d".
+      z_var = tf.zeros_like(d)
+      # Test that the type is correct
+      self.assertEqual(z_var.dtype, dtype)
+      z_value = z_var.eval()
+>>>>>>> tensorflow/master
 
       # Test that the value is correct
       self.assertTrue(np.array_equal(z_value, np.array([[0] * 3] * 2)))
       self.assertEqual([2, 3], z_var.get_shape())
 
+<<<<<<< HEAD
   def testGenZerosLike(self):
     for dtype in [tf.float32, tf.float64, tf.int32,
                   tf.uint8, tf.int16, tf.int8,
@@ -323,6 +397,34 @@ class ZerosLikeTest(tf.test.TestCase):
       # Test that the value is correct
       self.assertTrue(np.array_equal(z_value, np.array([[0] * 3] * 2)))
       self.assertEqual([2, 3], z_var.get_shape())
+=======
+  def testZerosLikeCPU(self):
+    for dtype in [tf.float32, tf.float64, tf.int32, tf.uint8, tf.int16, tf.int8,
+                  tf.complex64, tf.int64]:
+      self._compareZeros(dtype, False)
+
+  def testZerosLikeGPU(self):
+    for dtype in [tf.float32, tf.float64, tf.int32]:
+      self._compareZeros(dtype, True)
+
+  def testZerosLikePartialShape(self):
+    d = tf.placeholder(tf.float32, shape=[None, 4, None])
+    z = tf.zeros_like(d)
+    self.assertEqual(d.get_shape().as_list(), z.get_shape().as_list())
+
+  def testZerosLikeDtype(self):
+    # Make sure zeros_like works even for dtypes that cannot be cast between
+    with self.test_session():
+      shape = (3, 5)
+      dtypes = np.float32, np.complex64
+      for in_type in dtypes:
+        x = np.arange(15).astype(in_type).reshape(*shape)
+        for out_type in dtypes:
+          y = tf.zeros_like(x, dtype=out_type).eval()
+          self.assertEqual(y.dtype, out_type)
+          self.assertEqual(y.shape, shape)
+          self.assertAllEqual(y, np.zeros(shape, dtype=out_type))
+>>>>>>> tensorflow/master
 
 
 class OnesTest(tf.test.TestCase):
@@ -354,20 +456,34 @@ class OnesTest(tf.test.TestCase):
       self.assertEqual(d.get_shape(), [2, 3])
       # Test default type for both constant size and dynamic size
       z = tf.ones([2, 3])
+<<<<<<< HEAD
       self.assertEquals(z.dtype, tf.float32)
       self.assertEqual([2, 3], z.get_shape())
       z = tf.ones(tf.shape(d))
       self.assertEquals(z.dtype, tf.float32)
+=======
+      self.assertEqual(z.dtype, tf.float32)
+      self.assertEqual([2, 3], z.get_shape())
+      z = tf.ones(tf.shape(d))
+      self.assertEqual(z.dtype, tf.float32)
+>>>>>>> tensorflow/master
       self.assertEqual([2, 3], z.get_shape())
       # Test explicit type control
       for dtype in [tf.float32, tf.float64, tf.int32,
                     tf.uint8, tf.int16, tf.int8,
                     tf.complex64, tf.int64]:
         z = tf.ones([2, 3], dtype=dtype)
+<<<<<<< HEAD
         self.assertEquals(z.dtype, dtype)
         self.assertEqual([2, 3], z.get_shape())
         z = tf.ones(tf.shape(d), dtype=dtype)
         self.assertEquals(z.dtype, dtype)
+=======
+        self.assertEqual(z.dtype, dtype)
+        self.assertEqual([2, 3], z.get_shape())
+        z = tf.ones(tf.shape(d), dtype=dtype)
+        self.assertEqual(z.dtype, dtype)
+>>>>>>> tensorflow/master
         self.assertEqual([2, 3], z.get_shape())
 
 
@@ -384,13 +500,18 @@ class OnesLikeTest(tf.test.TestCase):
         # Constructs a tensor of zeros of the same dimensions and type as "d".
         z_var = tf.ones_like(d)
         # Test that the type is correct
+<<<<<<< HEAD
         self.assertEquals(z_var.dtype, dtype)
+=======
+        self.assertEqual(z_var.dtype, dtype)
+>>>>>>> tensorflow/master
         z_value = z_var.eval()
 
       # Test that the value is correct
       self.assertTrue(np.array_equal(z_value, np.array([[1] * 3] * 2)))
       self.assertEqual([2, 3], z_var.get_shape())
 
+<<<<<<< HEAD
   def testGenOnesLike(self):
     for dtype in [tf.float32, tf.float64, tf.int32,
                   tf.uint8, tf.int16, tf.int8,
@@ -408,6 +529,12 @@ class OnesLikeTest(tf.test.TestCase):
       # Test that the value is correct
       self.assertTrue(np.array_equal(z_value, np.array([[1] * 3] * 2)))
       self.assertEqual([2, 3], z_var.get_shape())
+=======
+  def testOnesLikePartialShape(self):
+    d = tf.placeholder(tf.float32, shape=[None, 4, None])
+    z = tf.ones_like(d)
+    self.assertEqual(d.get_shape().as_list(), z.get_shape().as_list())
+>>>>>>> tensorflow/master
 
 
 class FillTest(tf.test.TestCase):
@@ -445,11 +572,31 @@ class FillTest(tf.test.TestCase):
     self._compare([2, 3], np_ans[0][0], np_ans, use_gpu=False)
 
   def testFillString(self):
+<<<<<<< HEAD
     np_ans = np.array([["yolo"] * 3] * 2)
+=======
+    np_ans = np.array([[b"yolo"] * 3] * 2)
+>>>>>>> tensorflow/master
     with self.test_session(use_gpu=False):
       tf_ans = tf.fill([2, 3], np_ans[0][0], name="fill").eval()
     self.assertAllEqual(np_ans, tf_ans)
 
+<<<<<<< HEAD
+=======
+  def testFillNegative(self):
+    with self.test_session():
+      for shape in (-1,), (2, -1), (-1, 2):
+        with self.assertRaises(ValueError):
+          tf.fill(shape, 7)
+
+      # Using a placeholder so this won't be caught in Python.
+      dims = tf.placeholder(tf.int32)
+      fill_t = tf.fill(dims, 3.0)
+      for shape in (-1,), (2, -1), (-1, 2):
+        with self.assertRaises(tf.errors.InvalidArgumentError):
+          fill_t.eval({dims: shape})
+
+>>>>>>> tensorflow/master
   def testShapeFunctionEdgeCases(self):
     # Non-vector dimensions.
     with self.assertRaises(ValueError):
@@ -464,6 +611,18 @@ class FillTest(tf.test.TestCase):
         tf.placeholder(tf.int32, shape=(4,)), 3.0)
     self.assertEqual([None, None, None, None], f.get_shape().as_list())
 
+<<<<<<< HEAD
+=======
+  def testGradient(self):
+    with self.test_session():
+      in_v = tf.constant(5.0)
+      out_shape = [3, 2]
+      out_filled = tf.fill(out_shape, in_v)
+      err = tf.test.compute_gradient_error(in_v, [],
+                                           out_filled, out_shape)
+    self.assertLess(err, 1e-3)
+
+>>>>>>> tensorflow/master
 
 class PlaceholderTest(tf.test.TestCase):
 
@@ -489,11 +648,19 @@ class PlaceholderTest(tf.test.TestCase):
 
       with self.assertRaisesOpError(
           "must feed a value for placeholder tensor 'p' with dtype float and "
+<<<<<<< HEAD
           "shape dim { size: 10 } dim { size: 10 }"):
         p_identity.eval()
 
       with self.assertRaisesWithPredicateMatch(
           ValueError, lambda e: "Cannot feed value of shape" in e.message):
+=======
+          r"shape \[10,10\]"):
+        p_identity.eval()
+
+      with self.assertRaisesWithPredicateMatch(
+          ValueError, lambda e: "Cannot feed value of shape" in str(e)):
+>>>>>>> tensorflow/master
         p_identity.eval(feed_dict={p: feed_array[:5, :5]})
 
   def testPartialShape(self):
@@ -505,7 +672,11 @@ class PlaceholderTest(tf.test.TestCase):
                           feed_array)
 
       with self.assertRaisesWithPredicateMatch(
+<<<<<<< HEAD
           ValueError, lambda e: "Cannot feed value of shape" in e.message):
+=======
+          ValueError, lambda e: "Cannot feed value of shape" in str(e)):
+>>>>>>> tensorflow/master
         p_identity.eval(feed_dict={p: feed_array[:5, :2]})
 
   def testControlDependency(self):
@@ -516,12 +687,65 @@ class PlaceholderTest(tf.test.TestCase):
       d = tf.mul(p, c)
       self.assertEqual(10, d.eval(feed_dict={p: 2}))
 
+<<<<<<< HEAD
   def testFillNegative(self):
     with self.test_session():
       for shape in (-1,), (2, -1), (-1, 2):
         with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
                                      " must be nonnegative"):
           tf.fill(shape, 7).eval()
+=======
+  def testBadShape(self):
+    with self.assertRaises(ValueError):
+      tf.placeholder(tf.float32, shape=(-1, 10))
+
+  def testTensorStr(self):
+    a = tf.placeholder(tf.float32, name="a")
+    self.assertEqual("<tf.Tensor 'a:0' shape=<unknown> dtype=float32>", repr(a))
+
+    b = tf.placeholder(tf.int32, shape=(32, 40), name="b")
+    self.assertEqual(
+        "<tf.Tensor 'b:0' shape=(32, 40) dtype=int32>",
+        repr(b))
+
+    c = tf.placeholder(tf.qint32, shape=(32, None, 2), name="c")
+    self.assertEqual(
+        "<tf.Tensor 'c:0' shape=(32, ?, 2) dtype=qint32>",
+        repr(c))
+
+
+class PlaceholderWithDefaultTest(tf.test.TestCase):
+
+  def testFullShape(self):
+    with self.test_session():
+      p = tf.placeholder_with_default([[2, 2], [2, 2]], shape=[2, 2])
+      a = tf.identity(p)
+      self.assertAllEqual([[2, 2], [2, 2]], a.eval())
+      self.assertAllEqual([[3, 3], [3, 3]],
+                          a.eval(feed_dict={p: [[3, 3], [3, 3]]}))
+
+      with self.assertRaises(ValueError):
+        a.eval(feed_dict={p: [[6, 6, 6], [6, 6, 6]]})
+
+  def testPartialShape(self):
+    with self.test_session():
+      p = tf.placeholder_with_default([1, 2, 3], shape=[None])
+      a = tf.identity(p)
+      self.assertAllEqual([1, 2, 3], a.eval())
+      self.assertAllEqual([3, 37], a.eval(feed_dict={p: [3, 37]}))
+
+      with self.assertRaises(ValueError):
+        a.eval(feed_dict={p: [[2, 2], [2, 2]]})
+
+  def testNoShape(self):
+    with self.test_session():
+      p = tf.placeholder_with_default([17], shape=None)
+      a = tf.identity(p)
+      self.assertAllEqual([17], a.eval())
+      self.assertAllEqual([3, 37], a.eval(feed_dict={p: [3, 37]}))
+      self.assertAllEqual([[3, 3], [3, 3]],
+                          a.eval(feed_dict={p: [[3, 3], [3, 3]]}))
+>>>>>>> tensorflow/master
 
 
 if __name__ == "__main__":

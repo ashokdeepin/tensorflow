@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for PrecisionOp."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -35,6 +56,27 @@ class InTopKTest(tf.test.TestCase):
     target = [2, 3]
     self._validateInTopK(predictions, target, 2, [True, True])
 
+<<<<<<< HEAD
+=======
+  def testInTop2_int64Target(self):
+    predictions = [[0.1, 0.3, 0.2, 0.4], [0.1, 0.2, 0.3, 0.4]]
+    target = np.asarray([0, 2]).astype(np.int64)
+    self._validateInTopK(predictions, target, 2, [False, True])
+
+  def testInTopNan(self):
+    predictions = [[0.1, float("nan"), 0.2, 0.4], [0.1, 0.2, 0.3, float("inf")]]
+    target = [0, 2]
+    self._validateInTopK(predictions, target, 2, [False, False])
+
+  def testBadTarget(self):
+    predictions = [[0.1, 0.3, 0.2, 0.4], [0.1, 0.2, 0.3, 0.4]]
+    target = [0, 80000]
+    with self.test_session():
+      with self.assertRaisesRegexp(tf.errors.InvalidArgumentError,
+                                   "target.*out of range"):
+        tf.nn.in_top_k(predictions, target, 2).eval()
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

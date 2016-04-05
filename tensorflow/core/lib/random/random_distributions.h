@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_LIB_RANDOM_RANDOM_DISTRIBUTIONS_H_
 #define TENSORFLOW_LIB_RANDOM_RANDOM_DISTRIBUTIONS_H_
 
@@ -19,10 +37,17 @@ PHILOX_DEVICE_INLINE double Uint64ToDouble(uint32 x0, uint32 x1);
 // underlying random integer generator.
 // Arguments:
 //   Generator: a generator type that returns a number of uint32 upon each
+<<<<<<< HEAD
 //              each invocation. It needs to define kResultElementCount for the
 //              sample count for each invocation, and ResultType for actual
 //              returned sample type.
 //   RealType: the data type of the real numberes that will be returned by the
+=======
+//              invocation. It needs to define kResultElementCount for the
+//              sample count for each invocation, and ResultType for the
+//              actual returned sample type.
+//   RealType: the data type of the real numbers that will be returned by the
+>>>>>>> tensorflow/master
 //             distribution. This could be either float or double for now.
 // This class is meant to be implemented through specialization. The default
 // is not defined by design.
@@ -73,6 +98,74 @@ class UniformDistribution<Generator, double> {
   }
 };
 
+<<<<<<< HEAD
+=======
+template <class Generator>
+class UniformDistribution<Generator, int32> {
+ public:
+  // The number of elements that will be returned.
+  static const int kResultElementCount = Generator::kResultElementCount;
+  // Indicate that this distribution may take variable number of samples
+  // during the runtime.
+  static const bool kVariableSamplesPerOutput = false;
+  typedef Array<int32, kResultElementCount> ResultType;
+  typedef int32 ResultElementType;
+
+  // Must have lo < hi
+  UniformDistribution(int32 lo, int32 hi) : lo_(lo), range_(hi - lo) {}
+
+  PHILOX_DEVICE_INLINE
+  ResultType operator()(Generator* gen) {
+    typename Generator::ResultType sample = (*gen)();
+    ResultType result;
+    for (int i = 0; i < kResultElementCount; ++i) {
+      result[i] = lo_ + static_cast<int32>(sample[i] % range_);
+    }
+    return result;
+  }
+
+ private:
+  // Note that lo_ is intentionally signed while range_ is intentionally
+  // unsigned.  This is because hi - lo can overflow signed integers if
+  // lo < 0 < hi, but always fits in unsigned.
+  int32 lo_;
+  uint32 range_;
+};
+
+template <class Generator>
+class UniformDistribution<Generator, int64> {
+ public:
+  // The number of elements that will be returned.
+  static const int kResultElementCount = Generator::kResultElementCount / 2;
+  // Indicate that this distribution may take variable number of samples
+  // during the runtime.
+  static const bool kVariableSamplesPerOutput = false;
+  typedef Array<int64, kResultElementCount> ResultType;
+  typedef int64 ResultElementType;
+
+  // Must have lo < hi
+  UniformDistribution(int64 lo, int64 hi) : lo_(lo), range_(hi - lo) {}
+
+  PHILOX_DEVICE_INLINE
+  ResultType operator()(Generator* gen) {
+    typename Generator::ResultType sample = (*gen)();
+    ResultType result;
+    for (int i = 0; i < kResultElementCount; ++i) {
+      auto bits = sample[2 * i] | static_cast<uint64>(sample[2 * i + 1]) << 32;
+      result[i] = lo_ + static_cast<int64>(bits % range_);
+    }
+    return result;
+  }
+
+ private:
+  // Note that lo_ is intentionally signed while range_ is intentionally
+  // unsigned.  This is because hi - lo can overflow signed integers if
+  // lo < 0 < hi, but always fits in unsigned.
+  int64 lo_;
+  uint64 range_;
+};
+
+>>>>>>> tensorflow/master
 // A class that adapts the underlying native multiple samples to return a single
 // sample at a time.
 template <class Generator>
@@ -112,7 +205,11 @@ class SingleSampleAdapter {
 //              each invocation. It needs to define kResultElementCount for the
 //              sample count for each invocation, and ResultType for actual
 //              returned sample type.
+<<<<<<< HEAD
 //   RealType: the data type of the real numberes that will be returned by the
+=======
+//   RealType: the data type of the real numbers that will be returned by the
+>>>>>>> tensorflow/master
 //             distribution. This could be either float or double for now.
 // This class is meant to be implemented through specialization. The default
 // is not defined by design.
@@ -179,7 +276,11 @@ class NormalDistribution<Generator, double> {
 //              each invocation. It needs to define kResultElementCount for the
 //              sample count for each invocation, and ResultType for actual
 //              returned sample type.
+<<<<<<< HEAD
 //   RealType: the data type of the real numberes that will be returned by the
+=======
+//   RealType: the data type of the real numbers that will be returned by the
+>>>>>>> tensorflow/master
 //             distribution. This could be either float or double for now.
 // This class is meant to be implemented through specialization. The default
 // is not defined by design.

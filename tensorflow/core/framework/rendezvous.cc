@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/rendezvous.h"
 
 #include <unordered_map>
 #include <utility>
+<<<<<<< HEAD
 
 #include "tensorflow/core/platform/thread_annotations.h"
 #include "tensorflow/core/platform/logging.h"
@@ -9,6 +28,18 @@
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/notification.h"
 #include "tensorflow/core/lib/strings/str_util.h"
+=======
+#include <vector>
+
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/notification.h"
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/thread_annotations.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -23,13 +54,38 @@ string Rendezvous::CreateKey(const string& src_device, uint64 src_incarnation,
   //
   // "src_incarnation" is used to distinguish a worker when it
   // restarts.
+<<<<<<< HEAD
   return strings::StrCat(src_device, ";", strings::FpToString(src_incarnation),
                          ";", dst_device, ";", name, ";", frame_iter.frame_id,
                          ":", frame_iter.iter_id);
+=======
+  char buf[strings::kFastToBufferSize];
+  return strings::StrCat(
+      src_device, ";", strings::Uint64ToHexString(src_incarnation, buf), ";",
+      dst_device, ";", name, ";", frame_iter.frame_id, ":", frame_iter.iter_id);
+}
+
+// Return the prefix of "*s" up to the next occurrence of "delim", or
+// the whole remaining string if "delim" is not found.  "*s" is advanced
+// past the string returned plus the delimiter (if found).
+static StringPiece ConsumeNextPart(StringPiece* s, char delim) {
+  for (size_t offset = 0; offset < s->size(); offset++) {
+    if ((*s)[offset] == delim) {
+      StringPiece result(s->data(), offset);
+      s->remove_prefix(offset + 1);  // +1: remove delim, as well
+      return result;
+    }
+  }
+  // No delimiter found: return rest of string
+  StringPiece result(s->data(), s->size());
+  s->remove_prefix(s->size());
+  return result;
+>>>>>>> tensorflow/master
 }
 
 /* static */
 Status Rendezvous::ParseKey(const string& key, ParsedKey* out) {
+<<<<<<< HEAD
   // TODO(zhifengc): This code is not fast enough.
   std::vector<string> parts = str_util::Split(key, ';');
   if (parts.size() == 5 &&
@@ -40,6 +96,22 @@ Status Rendezvous::ParseKey(const string& key, ParsedKey* out) {
     out->src_device = parts[0];
     out->dst_device = parts[2];
     out->edge_name = parts[3];
+=======
+  StringPiece s(key);
+  StringPiece parts[5];
+  for (int i = 0; i < 5; i++) {
+    parts[i] = ConsumeNextPart(&s, ';');
+  }
+  if (s.empty() &&          // Consumed the whole string
+      !parts[4].empty() &&  // Exactly five parts
+      DeviceNameUtils::ParseFullName(parts[0], &out->src) &&
+      strings::HexStringToUint64(parts[1], &out->src_incarnation) &&
+      DeviceNameUtils::ParseFullName(parts[2], &out->dst) &&
+      !parts[3].empty()) {
+    out->src_device.assign(parts[0].data(), parts[0].size());
+    out->dst_device.assign(parts[2].data(), parts[2].size());
+    out->edge_name.assign(parts[3].data(), parts[3].size());
+>>>>>>> tensorflow/master
     return Status::OK();
   }
   return errors::InvalidArgument("Invalid rendezvous key: ", key);

@@ -1,10 +1,32 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Operations often used for initializing tensors."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import math
+<<<<<<< HEAD
 from tensorflow.python.framework import types
+=======
+from tensorflow.python.framework import dtypes
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import constant_op
 from tensorflow.python.ops import math_ops
@@ -12,13 +34,47 @@ from tensorflow.python.ops import nn_ops
 from tensorflow.python.ops import random_ops
 
 
+<<<<<<< HEAD
 # TODO(mrry): PEP8 these.
 def constant_initializer(value=0.0):
   """Returns an initializer that generates Tensors with a single value.
+=======
+def _assert_float_dtype(dtype):
+  """Validate and return floating point type based on `dtype`.
+
+  `dtype` must be a floating point type.
+
+  Args:
+    dtype: The data type to validate.
+
+  Returns:
+    Validated type.
+
+  Raises:
+    ValueError: if `dtype` is not a floating point type.
+  """
+  if not dtype.is_floating:
+    raise ValueError("Expected floating point type, got %s." % dtype)
+  return dtype
+
+
+# TODO(irving) Move array_ops.zeros_initializer here.
+zeros_initializer = array_ops.zeros_initializer
+
+
+def ones_initializer(shape, dtype=dtypes.float32):
+  """An adaptor for ones() to match the Initializer spec."""
+  return array_ops.ones(shape, dtype)
+
+
+def constant_initializer(value=0.0, dtype=dtypes.float32):
+  """Returns an initializer that generates tensors with a single value.
+>>>>>>> tensorflow/master
 
   Args:
     value: A Python scalar. All elements of the initialized variable
       will be set to this value.
+<<<<<<< HEAD
 
   Returns:
     An initializer that generates Tensors with a single value.
@@ -29,6 +85,24 @@ def constant_initializer(value=0.0):
 
 def random_uniform_initializer(minval=0.0, maxval=1.0, seed=None):
   """Returns an initializer that generates Tensors with a uniform distribution.
+=======
+    dtype: The data type. Only floating point types are supported.
+
+  Returns:
+    An initializer that generates tensors with a single value.
+
+  Raises:
+    ValueError: if `dtype` is not a floating point type.
+  """
+  def _initializer(shape, dtype=_assert_float_dtype(dtype)):
+    return constant_op.constant(value, dtype=dtype, shape=shape)
+  return _initializer
+
+
+def random_uniform_initializer(minval=0.0, maxval=1.0, seed=None,
+                               dtype=dtypes.float32):
+  """Returns an initializer that generates tensors with a uniform distribution.
+>>>>>>> tensorflow/master
 
   Args:
     minval: a python scalar or a scalar tensor. lower bound of the range
@@ -38,6 +112,7 @@ def random_uniform_initializer(minval=0.0, maxval=1.0, seed=None):
     seed: A Python integer. Used to create random seeds. See
       [`set_random_seed`](../../api_docs/python/constant_op.md#set_random_seed)
       for behavior.
+<<<<<<< HEAD
 
   Returns:
     An initializer that generates Tensors with a uniform distribution.
@@ -48,6 +123,24 @@ def random_uniform_initializer(minval=0.0, maxval=1.0, seed=None):
 
 def random_normal_initializer(mean=0.0, stddev=1.0, seed=None):
   """Returns an initializer that generates Tensors with a normal distribution.
+=======
+    dtype: The data type. Only floating point types are supported.
+
+  Returns:
+    An initializer that generates tensors with a uniform distribution.
+
+  Raises:
+    ValueError: if `dtype` is not a floating point type.
+  """
+  def _initializer(shape, dtype=_assert_float_dtype(dtype)):
+    return random_ops.random_uniform(shape, minval, maxval, dtype, seed=seed)
+  return _initializer
+
+
+def random_normal_initializer(mean=0.0, stddev=1.0, seed=None,
+                              dtype=dtypes.float32):
+  """Returns an initializer that generates tensors with a normal distribution.
+>>>>>>> tensorflow/master
 
   Args:
     mean: a python scalar or a scalar tensor. Mean of the random values
@@ -57,6 +150,7 @@ def random_normal_initializer(mean=0.0, stddev=1.0, seed=None):
     seed: A Python integer. Used to create random seeds. See
       [`set_random_seed`](../../api_docs/python/constant_op.md#set_random_seed)
       for behavior.
+<<<<<<< HEAD
 
   Returns:
     An initializer that generates Tensors with a normal distribution.
@@ -69,6 +163,26 @@ def truncated_normal_initializer(mean=0.0, stddev=1.0, seed=None):
   """Returns an initializer that generates a truncated normal distribution.
 
   These values are similar to values from a random_normal_initializer
+=======
+    dtype: The data type. Only floating point types are supported.
+
+  Returns:
+    An initializer that generates tensors with a normal distribution.
+
+  Raises:
+    ValueError: if `dtype` is not a floating point type.
+  """
+  def _initializer(shape, dtype=_assert_float_dtype(dtype)):
+    return random_ops.random_normal(shape, mean, stddev, dtype, seed=seed)
+  return _initializer
+
+
+def truncated_normal_initializer(mean=0.0, stddev=1.0, seed=None,
+                                 dtype=dtypes.float32):
+  """Returns an initializer that generates a truncated normal distribution.
+
+  These values are similar to values from a `random_normal_initializer`
+>>>>>>> tensorflow/master
   except that values more than two standard deviations from the mean
   are discarded and re-drawn. This is the recommended initializer for
   neural network weights and filters.
@@ -81,6 +195,7 @@ def truncated_normal_initializer(mean=0.0, stddev=1.0, seed=None):
     seed: A Python integer. Used to create random seeds. See
       [`set_random_seed`](../../api_docs/python/constant_op.md#set_random_seed)
       for behavior.
+<<<<<<< HEAD
 
   Returns:
     An initializer that generates Tensors with a truncated normal
@@ -91,6 +206,24 @@ def truncated_normal_initializer(mean=0.0, stddev=1.0, seed=None):
   return _initializer
 
 def uniform_unit_scaling_initializer(factor=1.0, seed=None):
+=======
+    dtype: The data type. Only floating point types are supported.
+
+  Returns:
+    An initializer that generates tensors with a truncated normal
+    distribution.
+
+  Raises:
+    ValueError: if `dtype` is not a floating point type.
+  """
+  def _initializer(shape, dtype=_assert_float_dtype(dtype)):
+    return random_ops.truncated_normal(shape, mean, stddev, dtype, seed=seed)
+  return _initializer
+
+
+def uniform_unit_scaling_initializer(factor=1.0, seed=None,
+                                     dtype=dtypes.float32):
+>>>>>>> tensorflow/master
   """Returns an initializer that generates tensors without scaling variance.
 
   When initializing a deep network, it is in principle advantageous to keep
@@ -104,7 +237,12 @@ def uniform_unit_scaling_initializer(factor=1.0, seed=None):
   A similar calculation for convolutional networks gives an analogous result
   with `dim` equal to the product of the first 3 dimensions.  When
   nonlinearities are present, we need to multiply this by a constant `factor`.
+<<<<<<< HEAD
   See <https://arxiv.org/pdf/1412.6558v3.pdf> for deeper motivation, experiments
+=======
+  See [Sussillo et al., 2014](https://arxiv.org/abs/1412.6558)
+  ([pdf](http://arxiv.org/pdf/1412.6558.pdf)) for deeper motivation, experiments
+>>>>>>> tensorflow/master
   and the calculation of constants. In section 2.3 there, the constants were
   numerically computed: for a linear layer it's 1.0, relu: ~1.43, tanh: ~1.15.
 
@@ -113,11 +251,23 @@ def uniform_unit_scaling_initializer(factor=1.0, seed=None):
     seed: A Python integer. Used to create random seeds. See
       [`set_random_seed`](../../api_docs/python/constant_op.md#set_random_seed)
       for behavior.
+<<<<<<< HEAD
 
   Returns:
     An initializer that generates tensors with unit variance.
   """
   def _initializer(shape, dtype=types.float32):
+=======
+    dtype: The data type. Only floating point types are supported.
+
+  Returns:
+    An initializer that generates tensors with unit variance.
+
+  Raises:
+    ValueError: if `dtype` is not a floating point type.
+  """
+  def _initializer(shape, dtype=_assert_float_dtype(dtype)):
+>>>>>>> tensorflow/master
     input_size = 1.0
     # Estimating input size is not possible to do perfectly, but we try.
     # The estimate, obtained by multiplying all dimensions but the last one,
@@ -131,7 +281,11 @@ def uniform_unit_scaling_initializer(factor=1.0, seed=None):
 
 
 # TODO(vrv): Unhide when we are ready to expose this publicly.
+<<<<<<< HEAD
 def _random_walk(shape, nonlinearity, dtype=types.float32, seed=None,
+=======
+def _random_walk(shape, nonlinearity, dtype=dtypes.float32, seed=None,
+>>>>>>> tensorflow/master
                  name="random_walk"):
   """Create a random tensor such that backprop neither vanishes nor explodes.
 
@@ -185,7 +339,11 @@ class _RandomWalkInitializer(object):
     self._nonlinearity = nonlinearity
     self._seed = seed
 
+<<<<<<< HEAD
   def __call__(self, shape, dtype=types.float32):
+=======
+  def __call__(self, shape, dtype=dtypes.float32):
+>>>>>>> tensorflow/master
     """Generate a tensor used to initialize a variable."""
     return random_ops._random_walk(shape, self._nonlinearity, dtype,
                                    seed=self._seed)

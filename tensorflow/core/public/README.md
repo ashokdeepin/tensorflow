@@ -10,6 +10,7 @@ The following is an example python code to do a simple matrix multiply
 of two constants and get the result from a locally-running TensorFlow
 process.
 
+<<<<<<< HEAD
 First, bring in the following dependency:
 
 //third_party/tensorflow/core/public:tensorflow_py
@@ -20,14 +21,29 @@ the same process, link in the following to the same binary:
 //third_party/tensorflow/core/public:tensorflow_std_ops
 
 to get the standard set of op implementations.  Then:
+=======
+First, bring in tensorflow python dependency
+
+//third_party/py/tensorflow
+
+to get the python TensorFlow API.
+
+Then:
+>>>>>>> tensorflow/master
 
 ```python
 import tensorflow as tf
 
 with tf.Session("local"):
+<<<<<<< HEAD
   input1 = tf.Constant(1.0, shape=[1, 1], name="input1")
   input2 = tf.Constant(2.0, shape=[1, 1], name="input2")
   output = tf.MatMul(input1, input2)
+=======
+  input1 = tf.constant(1.0, shape=[1, 1], name="input1")
+  input2 = tf.constant(2.0, shape=[1, 1], name="input2")
+  output = tf.matmul(input1, input2)
+>>>>>>> tensorflow/master
 
   # Run graph and fetch the output
   result = output.eval()
@@ -38,11 +54,19 @@ with tf.Session("local"):
 
 If you are running TensorFlow locally, link your binary with
 
+<<<<<<< HEAD
 //third_party/tensorflow/core/public:tensorflow_local
 
 and link in the operation implementations you want to supported, e.g.,
 
 //third_party/tensorflow/core/public:tensorflow_std_ops
+=======
+//third_party/tensorflow/core
+
+and link in the operation implementations you want to supported, e.g.,
+
+//third_party/tensorflow/core:kernels
+>>>>>>> tensorflow/master
 
 An example program to take a GraphDef and run it using TensorFlow
 using the C++ Session API:
@@ -54,7 +78,11 @@ using the C++ Session API:
 
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/public/session.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+>>>>>>> tensorflow/master
 
 int main(int argc, char** argv) {
   // Construct your graph.

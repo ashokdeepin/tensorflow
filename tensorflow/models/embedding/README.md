@@ -12,6 +12,7 @@ tutorials. Brief instructions are below.
 To download the example text and evaluation data:
 
 ```shell
+<<<<<<< HEAD
 wget http://mattmahoney.net/dc/text8.zip -O text8.gz
 gzip -d text8.gz -f
 wget https://word2vec.googlecode.com/svn/trunk/questions-words.txt
@@ -27,12 +28,29 @@ To run the code manually:
 
 ```shell
 bazel-bin/tensorflow/models/embedding/word2vec_optimized \
+=======
+wget http://mattmahoney.net/dc/text8.zip -O text8.zip
+unzip text8.zip
+wget https://word2vec.googlecode.com/svn/trunk/questions-words.txt
+```
+
+Assuming you are using the pip package install and have cloned the git
+repository, navigate into this directory and run using:
+
+```shell
+cd tensorflow/models/embedding
+python word2vec_optimized.py \
+>>>>>>> tensorflow/master
   --train_data=text8 \
   --eval_data=questions-words.txt \
   --save_path=/tmp/
 ```
 
+<<<<<<< HEAD
 To run the code via bazel:
+=======
+To run the code from sources using bazel:
+>>>>>>> tensorflow/master
 
 ```shell
 bazel run -c opt tensorflow/models/embedding/word2vec_optimized -- \

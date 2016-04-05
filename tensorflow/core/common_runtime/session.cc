@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include <string>
 
 #include "tensorflow/core/common_runtime/session_factory.h"
@@ -7,6 +25,7 @@
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 namespace {
 Status GetFactory(const SessionOptions& options, SessionFactory** ret) {
   string runtime_type = "DIRECT_SESSION";
@@ -26,6 +45,40 @@ Status GetFactory(const SessionOptions& options, SessionFactory** ret) {
 Session* NewSession(const SessionOptions& options) {
   SessionFactory* factory;
   Status s = GetFactory(options, &factory);
+=======
+Session::Session() {}
+
+Session::~Session() {}
+
+Status Session::Run(const RunOptions& run_options,
+                    const std::vector<std::pair<string, Tensor> >& inputs,
+                    const std::vector<string>& output_tensor_names,
+                    const std::vector<string>& target_node_names,
+                    std::vector<Tensor>* outputs, RunMetadata* run_metadata) {
+  return errors::Unimplemented(
+      "Run with options is not supported for this session.");
+}
+
+Status Session::PRunSetup(const std::vector<string>& input_names,
+                          const std::vector<string>& output_names,
+                          const std::vector<string>& target_nodes,
+                          string* handle) {
+  return errors::Unimplemented(
+      "Partial run is not supported for this session.");
+}
+
+Status Session::PRun(const string& handle,
+                     const std::vector<std::pair<string, Tensor> >& inputs,
+                     const std::vector<string>& output_names,
+                     std::vector<Tensor>* outputs) {
+  return errors::Unimplemented(
+      "Partial run is not supported for this session.");
+}
+
+Session* NewSession(const SessionOptions& options) {
+  SessionFactory* factory;
+  Status s = SessionFactory::GetFactory(options, &factory);
+>>>>>>> tensorflow/master
   if (!s.ok()) {
     LOG(ERROR) << s;
     return nullptr;
@@ -35,7 +88,11 @@ Session* NewSession(const SessionOptions& options) {
 
 Status NewSession(const SessionOptions& options, Session** out_session) {
   SessionFactory* factory;
+<<<<<<< HEAD
   Status s = GetFactory(options, &factory);
+=======
+  Status s = SessionFactory::GetFactory(options, &factory);
+>>>>>>> tensorflow/master
   if (!s.ok()) {
     *out_session = nullptr;
     LOG(ERROR) << s;

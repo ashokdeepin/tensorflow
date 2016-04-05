@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
@@ -10,6 +29,15 @@ from tensorflow.python.summary.impl import reservoir
 
 
 class ReservoirTest(googletest.TestCase):
+=======
+from six.moves import xrange  # pylint: disable=redefined-builtin
+import tensorflow as tf
+
+from tensorflow.python.summary.impl import reservoir
+
+
+class ReservoirTest(tf.test.TestCase):
+>>>>>>> tensorflow/master
 
   def testEmptyReservoir(self):
     r = reservoir.Reservoir(1)
@@ -78,8 +106,30 @@ class ReservoirTest(googletest.TestCase):
       r2.AddItem('key', i)
     self.assertNotEqual(r1.Items(key), r2.Items(key))
 
+<<<<<<< HEAD
 
 class ReservoirBucketTest(googletest.TestCase):
+=======
+  def testFilterItemsByKey(self):
+    r = reservoir.Reservoir(100, seed=0)
+    for i in xrange(10):
+      r.AddItem('key1', i)
+      r.AddItem('key2', i)
+
+    self.assertEqual(len(r.Items('key1')), 10)
+    self.assertEqual(len(r.Items('key2')), 10)
+
+    self.assertEqual(r.FilterItems(lambda x: x <= 7, 'key2'), 2)
+    self.assertEqual(len(r.Items('key2')), 8)
+    self.assertEqual(len(r.Items('key1')), 10)
+
+    self.assertEqual(r.FilterItems(lambda x: x <= 3, 'key1'), 6)
+    self.assertEqual(len(r.Items('key1')), 4)
+    self.assertEqual(len(r.Items('key2')), 8)
+
+
+class ReservoirBucketTest(tf.test.TestCase):
+>>>>>>> tensorflow/master
 
   def testEmptyBucket(self):
     b = reservoir._ReservoirBucket(1)
@@ -90,19 +140,31 @@ class ReservoirBucketTest(googletest.TestCase):
     for i in xrange(100):
       b.AddItem(i)
     self.assertEqual(b.Items(), list(xrange(100)))
+<<<<<<< HEAD
+=======
+    self.assertEqual(b._num_items_seen, 100)
+>>>>>>> tensorflow/master
 
   def testDoesntOverfill(self):
     b = reservoir._ReservoirBucket(10)
     for i in xrange(1000):
       b.AddItem(i)
     self.assertEqual(len(b.Items()), 10)
+<<<<<<< HEAD
+=======
+    self.assertEqual(b._num_items_seen, 1000)
+>>>>>>> tensorflow/master
 
   def testMaintainsOrder(self):
     b = reservoir._ReservoirBucket(100)
     for i in xrange(10000):
       b.AddItem(i)
     items = b.Items()
+<<<<<<< HEAD
     prev = None
+=======
+    prev = -1
+>>>>>>> tensorflow/master
     for item in items:
       self.assertTrue(item > prev)
       prev = item
@@ -119,12 +181,20 @@ class ReservoirBucketTest(googletest.TestCase):
     for i in xrange(20):
       b.AddItem(i)
       self.assertEqual(b.Items(), [i])
+<<<<<<< HEAD
+=======
+    self.assertEqual(b._num_items_seen, 20)
+>>>>>>> tensorflow/master
 
   def testSizeZeroBucket(self):
     b = reservoir._ReservoirBucket(0)
     for i in xrange(20):
       b.AddItem(i)
       self.assertEqual(b.Items(), list(range(i + 1)))
+<<<<<<< HEAD
+=======
+    self.assertEqual(b._num_items_seen, 20)
+>>>>>>> tensorflow/master
 
   def testSizeRequirement(self):
     with self.assertRaises(ValueError):
@@ -132,8 +202,36 @@ class ReservoirBucketTest(googletest.TestCase):
     with self.assertRaises(ValueError):
       reservoir._ReservoirBucket(10.3)
 
+<<<<<<< HEAD
 
 class ReservoirBucketStatisticalDistributionTest(googletest.TestCase):
+=======
+  def testRemovesItems(self):
+    b = reservoir._ReservoirBucket(100)
+    for i in xrange(10):
+      b.AddItem(i)
+    self.assertEqual(len(b.Items()), 10)
+    self.assertEqual(b._num_items_seen, 10)
+    self.assertEqual(b.FilterItems(lambda x: x <= 7), 2)
+    self.assertEqual(len(b.Items()), 8)
+    self.assertEqual(b._num_items_seen, 8)
+
+  def testRemovesItemsWhenItemsAreReplaced(self):
+    b = reservoir._ReservoirBucket(100)
+    for i in xrange(10000):
+      b.AddItem(i)
+    self.assertEqual(b._num_items_seen, 10000)
+
+    # Remove items
+    num_removed = b.FilterItems(lambda x: x <= 7)
+    self.assertGreater(num_removed, 92)
+    self.assertEqual([], [item for item in b.Items() if item > 7])
+    self.assertEqual(b._num_items_seen,
+                     int(round(10000 * (1 - float(num_removed) / 100))))
+
+
+class ReservoirBucketStatisticalDistributionTest(tf.test.TestCase):
+>>>>>>> tensorflow/master
 
   def setUp(self):
     self.total = 1000000
@@ -180,4 +278,8 @@ class ReservoirBucketStatisticalDistributionTest(googletest.TestCase):
 
 
 if __name__ == '__main__':
+<<<<<<< HEAD
   googletest.main()
+=======
+  tf.test.main()
+>>>>>>> tensorflow/master

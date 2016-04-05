@@ -1,16 +1,43 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 # pylint: disable=g-short-docstring-punctuation
 """## Encoding and Decoding
 
 TensorFlow provides Ops to decode and encode JPEG and PNG formats.  Encoded
 images are represented by scalar string Tensors, decoded images by 3-D uint8
+<<<<<<< HEAD
 tensors of shape `[height, width, channels]`.
+=======
+tensors of shape `[height, width, channels]`. (PNG also supports uint16.)
+>>>>>>> tensorflow/master
 
 The encode and decode Ops apply to one image at a time.  Their input and output
 are all of variable size.  If you need fixed size images, pass the output of
 the decode Ops to one of the cropping and resizing Ops.
 
 Note: The PNG encode and decode Ops support RGBA, but the conversions Ops
+<<<<<<< HEAD
 presently only support RGB, HSV, and GrayScale.
+=======
+presently only support RGB, HSV, and GrayScale. Presently, the alpha channel has
+to be stripped from the image and re-attached using slicing ops.
+>>>>>>> tensorflow/master
 
 @@decode_jpeg
 @@encode_jpeg
@@ -23,6 +50,7 @@ presently only support RGB, HSV, and GrayScale.
 The resizing Ops accept input images as tensors of several types.  They always
 output resized images as float32 tensors.
 
+<<<<<<< HEAD
 The convenience function [resize_images()](#resize_images) supports both 4-D
 and 3-D tensors as input and output.  4-D tensors are for batches of images,
 3-D tensors for individual images.
@@ -31,10 +59,21 @@ Other resizing Ops only support 3-D individual images as input:
 [resize_area](#resize_area), [resize_bicubic](#resize_bicubic),
 [resize_bilinear](#resize_bilinear),
 [resize_nearest_neighbor](#resize_nearest_neighbor).
+=======
+The convenience function [`resize_images()`](#resize_images) supports both 4-D
+and 3-D tensors as input and output.  4-D tensors are for batches of images,
+3-D tensors for individual images.
+
+Other resizing Ops only support 4-D batches of images as input:
+[`resize_area`](#resize_area), [`resize_bicubic`](#resize_bicubic),
+[`resize_bilinear`](#resize_bilinear),
+[`resize_nearest_neighbor`](#resize_nearest_neighbor).
+>>>>>>> tensorflow/master
 
 Example:
 
 ```python
+<<<<<<< HEAD
 # Decode a JPG image and resize it to 299 by 299.
 image = tf.image.decode_jpeg(...)
 resized_image = tf.image.resize_bilinear(image, [299, 299])
@@ -44,6 +83,13 @@ resized_image = tf.image.resize_bilinear(image, [299, 299])
 after resizing them to a fixed size, and how to dequeue batches of resized
 images from the Queue.</i>
 
+=======
+# Decode a JPG image and resize it to 299 by 299 using default method.
+image = tf.image.decode_jpeg(...)
+resized_image = tf.image.resize_images(image, 299, 299)
+```
+
+>>>>>>> tensorflow/master
 @@resize_images
 
 @@resize_area
@@ -56,9 +102,15 @@ images from the Queue.</i>
 
 @@resize_image_with_crop_or_pad
 
+<<<<<<< HEAD
 @@pad_to_bounding_box
 @@crop_to_bounding_box
 @@random_crop
+=======
+@@central_crop
+@@pad_to_bounding_box
+@@crop_to_bounding_box
+>>>>>>> tensorflow/master
 @@extract_glimpse
 
 ## Flipping and Transposing
@@ -71,25 +123,94 @@ images from the Queue.</i>
 
 @@transpose_image
 
+<<<<<<< HEAD
+=======
+## Converting Between Colorspaces.
+
+Image ops work either on individual images or on batches of images, depending on
+the shape of their input Tensor.
+
+If 3-D, the shape is `[height, width, channels]`, and the Tensor represents one
+image. If 4-D, the shape is `[batch_size, height, width, channels]`, and the
+Tensor represents `batch_size` images.
+
+Currently, `channels` can usefully be 1, 2, 3, or 4. Single-channel images are
+grayscale, images with 3 channels are encoded as either RGB or HSV. Images
+with 2 or 4 channels include an alpha channel, which has to be stripped from the
+image before passing the image to most image processing functions (and can be
+re-attached later).
+
+Internally, images are either stored in as one `float32` per channel per pixel
+(implicitly, values are assumed to lie in `[0,1)`) or one `uint8` per channel
+per pixel (values are assumed to lie in `[0,255]`).
+
+Tensorflow can convert between images in RGB or HSV. The conversion functions
+work only on float images, so you need to convert images in other formats using
+[`convert_image_dtype`](#convert-image-dtype).
+
+Example:
+
+```python
+# Decode an image and convert it to HSV.
+rgb_image = tf.image.decode_png(...,  channels=3)
+rgb_image_float = tf.image.convert_image_dtype(rgb_image, tf.float32)
+hsv_image = tf.image.rgb_to_hsv(rgb_image)
+```
+
+@@rgb_to_grayscale
+@@grayscale_to_rgb
+
+@@hsv_to_rgb
+@@rgb_to_hsv
+
+@@convert_image_dtype
+
+>>>>>>> tensorflow/master
 ## Image Adjustments
 
 TensorFlow provides functions to adjust images in various ways: brightness,
 contrast, hue, and saturation.  Each adjustment can be done with predefined
+<<<<<<< HEAD
 parameters or with random parameters picked from predefined intervals.  Random
 adjustments are often useful to expand a training set and reduce overfitting.
 
+=======
+parameters or with random parameters picked from predefined intervals. Random
+adjustments are often useful to expand a training set and reduce overfitting.
+
+If several adjustments are chained it is advisable to minimize the number of
+redundant conversions by first converting the images to the most natural data
+type and representation (RGB or HSV).
+
+>>>>>>> tensorflow/master
 @@adjust_brightness
 @@random_brightness
 
 @@adjust_contrast
 @@random_contrast
 
+<<<<<<< HEAD
 @@per_image_whitening
+=======
+@@adjust_hue
+@@random_hue
+
+@@adjust_saturation
+@@random_saturation
+
+@@per_image_whitening
+
+## Working with Bounding Boxes
+
+@@draw_bounding_boxes
+@@sample_distorted_bounding_box
+>>>>>>> tensorflow/master
 """
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import math
 
 import tensorflow.python.platform
@@ -115,6 +236,36 @@ from tensorflow.python.ops.gen_attention_ops import *
 
 ops.NoGradient('ResizeBilinear')
 ops.NoGradient('RandomCrop')
+=======
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import clip_ops
+from tensorflow.python.ops import common_shapes
+from tensorflow.python.ops import gen_image_ops
+from tensorflow.python.ops import gen_nn_ops
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import random_ops
+
+# go/tf-wildcard-import
+# pylint: disable=wildcard-import
+from tensorflow.python.ops.gen_image_ops import *
+# pylint: enable=wildcard-import
+
+from tensorflow.python.util.all_util import make_all
+
+
+
+ops.NoGradient('RandomCrop')
+ops.NoGradient('RGBToHSV')
+ops.NoGradient('HSVToRGB')
+ops.NoGradient('DrawBoundingBoxes')
+ops.NoGradient('SampleDistortedBoundingBox')
+# TODO(bsteiner): Implement the gradient function for extract_glimpse
+ops.NoGradient("ExtractGlimpse")
+>>>>>>> tensorflow/master
 
 
 def _ImageDimensions(images):
@@ -132,15 +283,25 @@ def _ImageDimensions(images):
   return images.get_shape().as_list()
 
 
+<<<<<<< HEAD
 def _Check3DImage(image):
+=======
+def _Check3DImage(image, require_static=True):
+>>>>>>> tensorflow/master
   """Assert that we are working with properly shaped image.
 
   Args:
     image: 3-D Tensor of shape [height, width, channels]
+<<<<<<< HEAD
+=======
+    require_static: If `True`, requires that all dimensions of `image` are
+      known and non-zero.
+>>>>>>> tensorflow/master
 
   Raises:
     ValueError: if image.shape is not a [3] vector.
   """
+<<<<<<< HEAD
   if not image.get_shape().is_fully_defined():
     raise ValueError('\'image\' must be fully defined.')
   if image.get_shape().ndims != 3:
@@ -148,6 +309,17 @@ def _Check3DImage(image):
   if not all(x > 0 for x in image.get_shape()):
     raise ValueError('all dims of \'image.shape\' must be > 0: %s' %
                      image.get_shape())
+=======
+  try:
+    image_shape = image.get_shape().with_rank(3)
+  except ValueError:
+    raise ValueError('\'image\' must be three-dimensional.')
+  if require_static and not image_shape.is_fully_defined():
+    raise ValueError('\'image\' must be fully defined.')
+  if any(x == 0 for x in image_shape):
+    raise ValueError('all dims of \'image.shape\' must be > 0: %s' %
+                     image_shape)
+>>>>>>> tensorflow/master
 
 
 def _CheckAtLeast3DImage(image):
@@ -186,7 +358,12 @@ def random_flip_up_down(image, seed=None):
   Raises:
     ValueError: if the shape of `image` not supported.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+>>>>>>> tensorflow/master
   uniform_random = random_ops.random_uniform([], 0, 1.0, seed=seed)
   mirror = math_ops.less(array_ops.pack([uniform_random, 1.0, 1.0]), 0.5)
   return array_ops.reverse(image, mirror)
@@ -210,7 +387,12 @@ def random_flip_left_right(image, seed=None):
   Raises:
     ValueError: if the shape of `image` not supported.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+>>>>>>> tensorflow/master
   uniform_random = random_ops.random_uniform([], 0, 1.0, seed=seed)
   mirror = math_ops.less(array_ops.pack([1.0, uniform_random, 1.0]), 0.5)
   return array_ops.reverse(image, mirror)
@@ -233,7 +415,12 @@ def flip_left_right(image):
   Raises:
     ValueError: if the shape of `image` not supported.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+>>>>>>> tensorflow/master
   return array_ops.reverse(image, [False, True, False])
 
 
@@ -254,7 +441,12 @@ def flip_up_down(image):
   Raises:
     ValueError: if the shape of `image` not supported.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+>>>>>>> tensorflow/master
   return array_ops.reverse(image, [True, False, False])
 
 
@@ -272,10 +464,67 @@ def transpose_image(image):
   Raises:
     ValueError: if the shape of `image` not supported.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
   return array_ops.transpose(image, [1, 0, 2], name='transpose_image')
 
 
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+  return array_ops.transpose(image, [1, 0, 2], name='transpose_image')
+
+
+def central_crop(image, central_fraction):
+  """Crop the central region of the image.
+
+  Remove the outer parts of an image but retain the central region of the image
+  along each dimension. If we specify central_fraction = 0.5, this function
+  returns the region marked with "X" in the below diagram.
+
+       --------
+      |        |
+      |  XXXX  |
+      |  XXXX  |
+      |        |   where "X" is the central 50% of the image.
+       --------
+
+  Args:
+    image: 3-D float Tensor of shape [height, width, depth]
+    central_fraction: float (0, 1], fraction of size to crop
+
+  Raises:
+    ValueError: if central_crop_fraction is not within (0, 1].
+
+  Returns:
+    3-D float Tensor
+  """
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+  if central_fraction <= 0.0 or central_fraction > 1.0:
+    raise ValueError('central_fraction must be within (0, 1]')
+  if central_fraction == 1.0:
+    return image
+
+  img_shape = array_ops.shape(image)
+  depth = image.get_shape()[2]
+  fraction_offset = int(1 / ((1 - central_fraction) / 2.0))
+  bbox_h_start = math_ops.div(img_shape[0], fraction_offset)
+  bbox_w_start = math_ops.div(img_shape[1], fraction_offset)
+
+  bbox_h_size = img_shape[0] - bbox_h_start * 2
+  bbox_w_size = img_shape[1] - bbox_w_start * 2
+
+  bbox_begin = array_ops.pack([bbox_h_start, bbox_w_start, 0])
+  bbox_size = array_ops.pack([bbox_h_size, bbox_w_size, -1])
+  image = array_ops.slice(image, bbox_begin, bbox_size)
+
+  # The first two dimensions are dynamic and unknown.
+  image.set_shape([None, None, depth])
+  return image
+
+
+>>>>>>> tensorflow/master
 def pad_to_bounding_box(image, offset_height, offset_width, target_height,
                         target_width):
   """Pad `image` with zeros to the specified `height` and `width`.
@@ -301,7 +550,12 @@ def pad_to_bounding_box(image, offset_height, offset_width, target_height,
     ValueError: If the shape of `image` is incompatible with the `offset_*` or
       `target_*` arguments
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=True)
+>>>>>>> tensorflow/master
   height, width, depth = _ImageDimensions(image)
 
   if target_width < width:
@@ -339,7 +593,11 @@ def crop_to_bounding_box(image, offset_height, offset_width, target_height,
   This op cuts a rectangular part out of `image`. The top-left corner of the
   returned image is at `offset_height, offset_width` in `image`, and its
   lower-right corner is at
+<<<<<<< HEAD
   `offset_height + target_height, offset_width + target_width'.
+=======
+  `offset_height + target_height, offset_width + target_width`.
+>>>>>>> tensorflow/master
 
   Args:
     image: 3-D tensor with shape `[height, width, channels]`
@@ -357,7 +615,12 @@ def crop_to_bounding_box(image, offset_height, offset_width, target_height,
     ValueError: If the shape of `image` is incompatible with the `offset_*` or
     `target_*` arguments
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=True)
+>>>>>>> tensorflow/master
   height, width, _ = _ImageDimensions(image)
 
   if offset_width < 0:
@@ -400,7 +663,12 @@ def resize_image_with_crop_or_pad(image, target_height, target_width):
     Cropped and/or padded image of shape
     `[target_height, target_width, channels]`
   """
+<<<<<<< HEAD
   _Check3DImage(image)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=True)
+>>>>>>> tensorflow/master
   original_height, original_width, _ = _ImageDimensions(image)
 
   if target_width <= 0:
@@ -447,11 +715,20 @@ class ResizeMethod(object):
   AREA = 3
 
 
+<<<<<<< HEAD
 def resize_images(images, new_height, new_width, method=ResizeMethod.BILINEAR):
+=======
+def resize_images(images,
+                  new_height,
+                  new_width,
+                  method=ResizeMethod.BILINEAR,
+                  align_corners=False):
+>>>>>>> tensorflow/master
   """Resize `images` to `new_width`, `new_height` using the specified `method`.
 
   Resized images will be distorted if their original aspect ratio is not
   the same as `new_width`, `new_height`.  To avoid distortions see
+<<<<<<< HEAD
   [resize_image_with_crop_or_pad](#resize_image_with_crop_or_pad).
 
   `method` can be one of:
@@ -463,6 +740,19 @@ def resize_images(images, new_height, new_width, method=ResizeMethod.BILINEAR):
   *   <b>ResizeMethod.BICUBIC</b>: [Bicubic interpolation.]
       (https://en.wikipedia.org/wiki/Bicubic_interpolation)
   *   <b>ResizeMethod.AREA</b>: Area interpolation.
+=======
+  [`resize_image_with_crop_or_pad`](#resize_image_with_crop_or_pad).
+
+  `method` can be one of:
+
+  *   <b>`ResizeMethod.BILINEAR`</b>: [Bilinear interpolation.]
+      (https://en.wikipedia.org/wiki/Bilinear_interpolation)
+  *   <b>`ResizeMethod.NEAREST_NEIGHBOR`</b>: [Nearest neighbor interpolation.]
+      (https://en.wikipedia.org/wiki/Nearest-neighbor_interpolation)
+  *   <b>`ResizeMethod.BICUBIC`</b>: [Bicubic interpolation.]
+      (https://en.wikipedia.org/wiki/Bicubic_interpolation)
+  *   <b>`ResizeMethod.AREA`</b>: Area interpolation.
+>>>>>>> tensorflow/master
 
   Args:
     images: 4-D Tensor of shape `[batch, height, width, channels]` or
@@ -470,6 +760,11 @@ def resize_images(images, new_height, new_width, method=ResizeMethod.BILINEAR):
     new_height: integer.
     new_width: integer.
     method: ResizeMethod.  Defaults to `ResizeMethod.BILINEAR`.
+<<<<<<< HEAD
+=======
+    align_corners: bool. If true, exactly align all 4 cornets of the input and
+                   output. Defaults to `false`.
+>>>>>>> tensorflow/master
 
   Raises:
     ValueError: if the shape of `images` is incompatible with the
@@ -482,6 +777,10 @@ def resize_images(images, new_height, new_width, method=ResizeMethod.BILINEAR):
     If `images` was 3-D, a 3-D float Tensor of shape
     `[new_height, new_width, channels]`.
   """
+<<<<<<< HEAD
+=======
+  images = ops.convert_to_tensor(images, name='images')
+>>>>>>> tensorflow/master
   if images.get_shape().ndims is None:
     raise ValueError('\'images\' contains no shape.')
   # TODO(shlens): Migrate this functionality to the underlying Op's.
@@ -492,6 +791,7 @@ def resize_images(images, new_height, new_width, method=ResizeMethod.BILINEAR):
 
   _, height, width, depth = _ImageDimensions(images)
 
+<<<<<<< HEAD
   if width == new_width and height == new_height:
     return images
 
@@ -509,6 +809,61 @@ def resize_images(images, new_height, new_width, method=ResizeMethod.BILINEAR):
 
   if not is_batch:
     images = array_ops.reshape(images, [new_height, new_width, depth])
+=======
+  # Handle tensor-valued sizes as well as Python integers.
+  try:
+    new_width = ops.convert_to_tensor(new_width, dtypes.int32,
+                                      name='new_width')
+    new_width.get_shape().assert_has_rank(0)
+  except (TypeError, ValueError):
+    raise ValueError('new_width must be a scalar integer')
+  try:
+    new_height = ops.convert_to_tensor(new_height, dtypes.int32,
+                                       name='new_height')
+    new_height.get_shape().assert_has_rank(0)
+  except (TypeError, ValueError):
+    raise ValueError('new_height must be a scalar integer')
+
+  new_width_const = tensor_util.constant_value(new_width)
+  new_height_const = tensor_util.constant_value(new_height)
+
+  # If we can determine that the height and width will be unmodified by this
+  # transformation, we avoid performing the resize.
+  if all(x is not None
+         for x in [new_width_const, width, new_height_const, height]) and (
+             width == new_width_const and height == new_height_const):
+    if not is_batch:
+      images = array_ops.squeeze(images, squeeze_dims=[0])
+    return images
+
+  new_size = array_ops.pack([new_height, new_width])
+
+  if method == ResizeMethod.BILINEAR:
+    images = gen_image_ops.resize_bilinear(images,
+                                           new_size,
+                                           align_corners=align_corners)
+  elif method == ResizeMethod.NEAREST_NEIGHBOR:
+    images = gen_image_ops.resize_nearest_neighbor(images,
+                                                   new_size,
+                                                   align_corners=align_corners)
+  elif method == ResizeMethod.BICUBIC:
+    images = gen_image_ops.resize_bicubic(images,
+                                          new_size,
+                                          align_corners=align_corners)
+  elif method == ResizeMethod.AREA:
+    images = gen_image_ops.resize_area(images,
+                                       new_size,
+                                       align_corners=align_corners)
+  else:
+    raise ValueError('Resize method is not implemented.')
+
+  # NOTE(mrry): The shape functions for the resize ops cannot unpack
+  # the packed values in `new_size`, so set the shape here.
+  images.set_shape([None, new_height_const, new_width_const, None])
+
+  if not is_batch:
+    images = array_ops.squeeze(images, squeeze_dims=[0])
+>>>>>>> tensorflow/master
   return images
 
 
@@ -517,7 +872,11 @@ def per_image_whitening(image):
 
   This op computes `(x - mean) / adjusted_stddev`, where `mean` is the average
   of all values in image, and
+<<<<<<< HEAD
   `adjusted_stddev = max(stddev, 1.0/srqt(image.NumElements()))`.
+=======
+  `adjusted_stddev = max(stddev, 1.0/sqrt(image.NumElements()))`.
+>>>>>>> tensorflow/master
 
   `stddev` is the standard deviation of all values in `image`. It is capped
   away from zero to protect against division by 0 when handling uniform images.
@@ -535,19 +894,36 @@ def per_image_whitening(image):
   Raises:
     ValueError: if the shape of 'image' is incompatible with this function.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
   height, width, depth = _ImageDimensions(image)
   num_pixels = height * width * depth
 
   image = math_ops.cast(image, dtype=types.float32)
+=======
+  image = ops.convert_to_tensor(image, name='image')
+  _Check3DImage(image, require_static=False)
+  num_pixels = math_ops.reduce_prod(array_ops.shape(image))
+
+  image = math_ops.cast(image, dtype=dtypes.float32)
+>>>>>>> tensorflow/master
   image_mean = math_ops.reduce_mean(image)
 
   variance = (math_ops.reduce_mean(math_ops.square(image)) -
               math_ops.square(image_mean))
+<<<<<<< HEAD
   stddev = math_ops.sqrt(variance)
 
   # Apply a minimum normalization that protects us against uniform images.
   min_stddev = constant_op.constant(1.0 / math.sqrt(num_pixels))
+=======
+  variance = gen_nn_ops.relu(variance)
+  stddev = math_ops.sqrt(variance)
+
+  # Apply a minimum normalization that protects us against uniform images.
+  min_stddev = math_ops.inv(
+      math_ops.sqrt(math_ops.cast(num_pixels, dtypes.float32)))
+>>>>>>> tensorflow/master
   pixel_value_scale = math_ops.maximum(stddev, min_stddev)
   pixel_value_offset = image_mean
 
@@ -562,18 +938,24 @@ def random_brightness(image, max_delta, seed=None):
   Equivalent to `adjust_brightness()` using a `delta` randomly picked in the
   interval `[-max_delta, max_delta)`.
 
+<<<<<<< HEAD
   Note that `delta` is picked as a float. Because for integer type images,
   the brightness adjusted result is rounded before casting, integer images may
   have modifications in the range `[-max_delta,max_delta]`.
 
   Args:
     image: 3-D tensor of shape `[height, width, channels]`.
+=======
+  Args:
+    image: An image.
+>>>>>>> tensorflow/master
     max_delta: float, must be non-negative.
     seed: A Python integer. Used to create a random seed. See
       [`set_random_seed`](../../api_docs/python/constant_op.md#set_random_seed)
       for behavior.
 
   Returns:
+<<<<<<< HEAD
     3-D tensor of images of shape `[height, width, channels]`
 
   Raises:
@@ -581,6 +963,13 @@ def random_brightness(image, max_delta, seed=None):
   """
   _Check3DImage(image)
 
+=======
+    The brightness-adjusted image.
+
+  Raises:
+    ValueError: if `max_delta` is negative.
+  """
+>>>>>>> tensorflow/master
   if max_delta < 0:
     raise ValueError('max_delta must be non-negative.')
 
@@ -589,6 +978,7 @@ def random_brightness(image, max_delta, seed=None):
 
 
 def random_contrast(image, lower, upper, seed=None):
+<<<<<<< HEAD
   """Adjust the contrase of an image by a random factor.
 
   Equivalent to `adjust_constrast()` but uses a `contrast_factor` randomly
@@ -596,6 +986,15 @@ def random_contrast(image, lower, upper, seed=None):
 
   Args:
     image: 3-D tensor of shape `[height, width, channels]`.
+=======
+  """Adjust the contrast of an image by a random factor.
+
+  Equivalent to `adjust_contrast()` but uses a `contrast_factor` randomly
+  picked in the interval `[lower, upper]`.
+
+  Args:
+    image: An image tensor with 3 or more dimensions.
+>>>>>>> tensorflow/master
     lower: float.  Lower bound for the random contrast factor.
     upper: float.  Upper bound for the random contrast factor.
     seed: A Python integer. Used to create a random seed. See
@@ -603,13 +1002,20 @@ def random_contrast(image, lower, upper, seed=None):
       for behavior.
 
   Returns:
+<<<<<<< HEAD
     3-D tensor of shape `[height, width, channels]`.
+=======
+    The contrast-adjusted tensor.
+>>>>>>> tensorflow/master
 
   Raises:
     ValueError: if `upper <= lower` or if `lower < 0`.
   """
+<<<<<<< HEAD
   _Check3DImage(image)
 
+=======
+>>>>>>> tensorflow/master
   if upper <= lower:
     raise ValueError('upper must be > lower.')
 
@@ -621,6 +1027,7 @@ def random_contrast(image, lower, upper, seed=None):
   return adjust_contrast(image, contrast_factor)
 
 
+<<<<<<< HEAD
 def adjust_brightness(image, delta, min_value=None, max_value=None):
   """Adjust the brightness of RGB or Grayscale images.
 
@@ -631,10 +1038,26 @@ def adjust_brightness(image, delta, min_value=None, max_value=None):
 
   If `min_value` or `max_value` are not given, they are set to the minimum and
   maximum allowed values for `image.dtype` respectively.
+=======
+def adjust_brightness(image, delta):
+  """Adjust the brightness of RGB or Grayscale images.
+
+  This is a convenience method that converts an RGB image to float
+  representation, adjusts its brightness, and then converts it back to the
+  original data type. If several adjustments are chained it is advisable to
+  minimize the number of redundant conversions.
+
+  The value `delta` is added to all components of the tensor `image`. Both
+  `image` and `delta` are converted to `float` before adding (and `image` is
+  scaled appropriately if it is in fixed-point representation). For regular
+  images, `delta` should be in the range `[0,1)`, as it is added to the image in
+  floating point representation, where pixel values are in the `[0,1)` range.
+>>>>>>> tensorflow/master
 
   Args:
     image: A tensor.
     delta: A scalar. Amount to add to the pixel values.
+<<<<<<< HEAD
     min_value: Minimum value for output.
     max_value: Maximum value for output.
 
@@ -665,12 +1088,40 @@ def adjust_brightness(image, delta, min_value=None, max_value=None):
 def adjust_contrast(images, contrast_factor, min_value=None, max_value=None):
   """Adjust contrast of RGB or grayscale images.
 
+=======
+
+  Returns:
+    A brightness-adjusted tensor of the same shape and type as `image`.
+  """
+  with ops.op_scope([image, delta], None, 'adjust_brightness') as name:
+    image = ops.convert_to_tensor(image, name='image')
+    # Remember original dtype to so we can convert back if needed
+    orig_dtype = image.dtype
+    flt_image = convert_image_dtype(image, dtypes.float32)
+
+    adjusted = math_ops.add(flt_image,
+                            math_ops.cast(delta, dtypes.float32),
+                            name=name)
+
+    return convert_image_dtype(adjusted, orig_dtype, saturate=True)
+
+
+def adjust_contrast(images, contrast_factor):
+  """Adjust contrast of RGB or grayscale images.
+
+  This is a convenience method that converts an RGB image to float
+  representation, adjusts its contrast, and then converts it back to the
+  original data type. If several adjustments are chained it is advisable to
+  minimize the number of redundant conversions.
+
+>>>>>>> tensorflow/master
   `images` is a tensor of at least 3 dimensions.  The last 3 dimensions are
   interpreted as `[height, width, channels]`.  The other dimensions only
   represent a collection of images, such as `[batch, height, width, channels].`
 
   Contrast is adjusted independently for each channel of each image.
 
+<<<<<<< HEAD
   For each channel, this Op first computes the mean of the image pixels in the
   channel and then adjusts each component `x` of each pixel to
   `(x - mean) * contrast_factor + mean`.
@@ -715,10 +1166,51 @@ def adjust_contrast(images, contrast_factor, min_value=None, max_value=None):
       return math_ops.cast(math_ops.round(adjusted), images.dtype)
     else:
       return math_ops.cast(adjusted, images.dtype)
+=======
+  For each channel, this Op computes the mean of the image pixels in the
+  channel and then adjusts each component `x` of each pixel to
+  `(x - mean) * contrast_factor + mean`.
+
+  Args:
+    images: Images to adjust.  At least 3-D.
+    contrast_factor: A float multiplier for adjusting contrast.
+
+  Returns:
+    The contrast-adjusted image or images.
+  """
+  with ops.op_scope([images, contrast_factor], None, 'adjust_contrast') as name:
+    images = ops.convert_to_tensor(images, name='images')
+    # Remember original dtype to so we can convert back if needed
+    orig_dtype = images.dtype
+    flt_images = convert_image_dtype(images, dtypes.float32)
+
+    # pylint: disable=protected-access
+    adjusted = gen_image_ops._adjust_contrastv2(flt_images,
+                                                contrast_factor=contrast_factor,
+                                                name=name)
+    # pylint: enable=protected-access
+
+    return convert_image_dtype(adjusted, orig_dtype, saturate=True)
+>>>>>>> tensorflow/master
 
 
 ops.RegisterShape('AdjustContrast')(
     common_shapes.unchanged_shape_with_rank_at_least(3))
+<<<<<<< HEAD
+=======
+ops.RegisterShape('AdjustContrastv2')(
+    common_shapes.unchanged_shape_with_rank_at_least(3))
+ops.RegisterShape('DrawBoundingBoxes')(
+    common_shapes.unchanged_shape_with_rank_at_least(3))
+
+
+@ops.RegisterShape('SampleDistortedBoundingBox')
+def _SampleDistortedBoundingBoxShape(unused_op):  # pylint: disable=invalid-name
+  """Shape function for the sample distorted bounding box."""
+  return [tensor_shape.TensorShape([3]),
+          tensor_shape.TensorShape([3]),
+          tensor_shape.TensorShape([1, 1, 4])]
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterShape('ResizeBilinear')
@@ -728,7 +1220,12 @@ ops.RegisterShape('AdjustContrast')(
 def _ResizeShape(op):
   """Shape function for the resize_bilinear and resize_nearest_neighbor ops."""
   input_shape = op.inputs[0].get_shape().with_rank(4)
+<<<<<<< HEAD
   size = tensor_util.ConstantValue(op.inputs[1])
+=======
+  unused_size_shape = op.inputs[1].get_shape().merge_with([2])
+  size = tensor_util.constant_value(op.inputs[1])
+>>>>>>> tensorflow/master
   if size is not None:
     height = size[0]
     width = size[1]
@@ -757,6 +1254,7 @@ def _ImageEncodeShape(op):
   return [tensor_shape.scalar()]
 
 
+<<<<<<< HEAD
 @ops.RegisterShape('RandomCrop')
 def _random_cropShape(op):
   """Shape function for the random_crop op."""
@@ -794,3 +1292,347 @@ def random_crop(image, size, seed=None, name=None):
   seed1, seed2 = random_seed.get_seed(seed)
   return gen_image_ops.random_crop(image, size, seed=seed1, seed2=seed2,
                                    name=name)
+=======
+def convert_image_dtype(image, dtype, saturate=False, name=None):
+  """Convert `image` to `dtype`, scaling its values if needed.
+
+  Images that are represented using floating point values are expected to have
+  values in the range [0,1). Image data stored in integer data types are
+  expected to have values in the range `[0,MAX]`, where `MAX` is the largest
+  positive representable number for the data type.
+
+  This op converts between data types, scaling the values appropriately before
+  casting.
+
+  Note that converting from floating point inputs to integer types may lead to
+  over/underflow problems. Set saturate to `True` to avoid such problem in
+  problematic conversions. If enabled, saturation will clip the output into the
+  allowed range before performing a potentially dangerous cast (and only before
+  performing such a cast, i.e., when casting from a floating point to an integer
+  type, and when casting from a signed to an unsigned type; `saturate` has no
+  effect on casts between floats, or on casts that increase the type's range).
+
+  Args:
+    image: An image.
+    dtype: A `DType` to convert `image` to.
+    saturate: If `True`, clip the input before casting (if necessary).
+    name: A name for this operation (optional).
+
+  Returns:
+    `image`, converted to `dtype`.
+  """
+  image = ops.convert_to_tensor(image, name='image')
+  if dtype == image.dtype:
+    return array_ops.identity(image, name=name)
+
+  with ops.op_scope([image], name, 'convert_image') as name:
+    # Both integer: use integer multiplication in the larger range
+    if image.dtype.is_integer and dtype.is_integer:
+      scale_in = image.dtype.max
+      scale_out = dtype.max
+      if scale_in > scale_out:
+        # Scaling down, scale first, then cast. The scaling factor will
+        # cause in.max to be mapped to above out.max but below out.max+1,
+        # so that the output is safely in the supported range.
+        scale = (scale_in + 1) // (scale_out + 1)
+        scaled = math_ops.div(image, scale)
+
+        if saturate:
+          return math_ops.saturate_cast(scaled, dtype, name=name)
+        else:
+          return math_ops.cast(scaled, dtype, name=name)
+      else:
+        # Scaling up, cast first, then scale. The scale will not map in.max to
+        # out.max, but converting back and forth should result in no change.
+        if saturate:
+          cast = math_ops.saturate_cast(scaled, dtype)
+        else:
+          cast = math_ops.cast(image, dtype)
+        scale = (scale_out + 1) // (scale_in + 1)
+        return math_ops.mul(cast, scale, name=name)
+    elif image.dtype.is_floating and dtype.is_floating:
+      # Both float: Just cast, no possible overflows in the allowed ranges.
+      # Note: We're ignoreing float overflows. If your image dynamic range
+      # exceeds float range you're on your own.
+      return math_ops.cast(image, dtype, name=name)
+    else:
+      if image.dtype.is_integer:
+        # Converting to float: first cast, then scale. No saturation possible.
+        cast = math_ops.cast(image, dtype)
+        scale = 1. / image.dtype.max
+        return math_ops.mul(cast, scale, name=name)
+      else:
+        # Converting from float: first scale, then cast
+        scale = dtype.max + 0.5  # avoid rounding problems in the cast
+        scaled = math_ops.mul(image, scale)
+        if saturate:
+          return math_ops.saturate_cast(scaled, dtype, name=name)
+        else:
+          return math_ops.cast(scaled, dtype, name=name)
+
+
+def rgb_to_grayscale(images, name=None):
+  """Converts one or more images from RGB to Grayscale.
+
+  Outputs a tensor of the same `DType` and rank as `images`.  The size of the
+  last dimension of the output is 1, containing the Grayscale value of the
+  pixels.
+
+  Args:
+    images: The RGB tensor to convert. Last dimension must have size 3 and
+      should contain RGB values.
+    name: A name for the operation (optional).
+
+  Returns:
+    The converted grayscale image(s).
+  """
+  with ops.op_scope([images], name, 'rgb_to_grayscale') as name:
+    images = ops.convert_to_tensor(images, name='images')
+    # Remember original dtype to so we can convert back if needed
+    orig_dtype = images.dtype
+    flt_image = convert_image_dtype(images, dtypes.float32)
+
+    # Reference for converting between RGB and grayscale.
+    # https://en.wikipedia.org/wiki/Luma_%28video%29
+    rgb_weights = [0.2989, 0.5870, 0.1140]
+    rank_1 = array_ops.expand_dims(array_ops.rank(images) - 1, 0)
+    gray_float = math_ops.reduce_sum(flt_image * rgb_weights,
+                                     rank_1,
+                                     keep_dims=True)
+    gray_float.set_shape(images.get_shape()[:-1].concatenate([1]))
+    return convert_image_dtype(gray_float, orig_dtype, name=name)
+
+
+def grayscale_to_rgb(images, name=None):
+  """Converts one or more images from Grayscale to RGB.
+
+  Outputs a tensor of the same `DType` and rank as `images`.  The size of the
+  last dimension of the output is 3, containing the RGB value of the pixels.
+
+  Args:
+    images: The Grayscale tensor to convert. Last dimension must be size 1.
+    name: A name for the operation (optional).
+
+  Returns:
+    The converted grayscale image(s).
+  """
+  with ops.op_scope([images], name, 'grayscale_to_rgb') as name:
+    images = ops.convert_to_tensor(images, name='images')
+    rank_1 = array_ops.expand_dims(array_ops.rank(images) - 1, 0)
+    shape_list = (
+        [array_ops.ones(rank_1,
+                        dtype=dtypes.int32)] + [array_ops.expand_dims(3, 0)])
+    multiples = array_ops.concat(0, shape_list)
+    rgb = array_ops.tile(images, multiples, name=name)
+    rgb.set_shape(images.get_shape()[:-1].concatenate([3]))
+    return rgb
+
+
+# pylint: disable=invalid-name
+@ops.RegisterShape('HSVToRGB')
+@ops.RegisterShape('RGBToHSV')
+def _ColorspaceShape(op):
+  """Shape function for colorspace ops."""
+  input_shape = op.inputs[0].get_shape().with_rank_at_least(1)
+  input_rank = input_shape.ndims
+  if input_rank is not None:
+    input_shape = input_shape.merge_with([None] * (input_rank - 1) + [3])
+  return [input_shape]
+# pylint: enable=invalid-name
+
+
+def random_hue(image, max_delta, seed=None):
+  """Adjust the hue of an RGB image by a random factor.
+
+  Equivalent to `adjust_hue()` but uses a `delta` randomly
+  picked in the interval `[-max_delta, max_delta]`.
+
+  `max_delta` must be in the interval `[0, 0.5]`.
+
+  Args:
+    image: RGB image or images. Size of the last dimension must be 3.
+    max_delta: float.  Maximum value for the random delta.
+    seed: An operation-specific seed. It will be used in conjunction
+      with the graph-level seed to determine the real seeds that will be
+      used in this operation. Please see the documentation of
+      set_random_seed for its interaction with the graph-level random seed.
+
+  Returns:
+    3-D float tensor of shape `[height, width, channels]`.
+
+  Raises:
+    ValueError: if `max_delta` is invalid.
+  """
+  if max_delta > 0.5:
+    raise ValueError('max_delta must be <= 0.5.')
+
+  if max_delta < 0:
+    raise ValueError('max_delta must be non-negative.')
+
+  delta = random_ops.random_uniform([], -max_delta, max_delta, seed=seed)
+  return adjust_hue(image, delta)
+
+
+def adjust_hue(image, delta, name=None):
+  """Adjust hue of an RGB image.
+
+  This is a convenience method that converts an RGB image to float
+  representation, converts it to HSV, add an offset to the hue channel, converts
+  back to RGB and then back to the original data type. If several adjustments
+  are chained it is advisable to minimize the number of redundant conversions.
+
+  `image` is an RGB image.  The image hue is adjusted by converting the
+  image to HSV and rotating the hue channel (H) by
+  `delta`.  The image is then converted back to RGB.
+
+  `delta` must be in the interval `[-1, 1]`.
+
+  Args:
+    image: RGB image or images. Size of the last dimension must be 3.
+    delta: float.  How much to add to the hue channel.
+    name: A name for this operation (optional).
+
+  Returns:
+    Adjusted image(s), same shape and DType as `image`.
+  """
+  with ops.op_scope([image], name, 'adjust_hue') as name:
+    image = ops.convert_to_tensor(image, name='image')
+    # Remember original dtype to so we can convert back if needed
+    orig_dtype = image.dtype
+    flt_image = convert_image_dtype(image, dtypes.float32)
+
+    hsv = gen_image_ops.rgb_to_hsv(flt_image)
+
+    hue = array_ops.slice(hsv, [0, 0, 0], [-1, -1, 1])
+    saturation = array_ops.slice(hsv, [0, 0, 1], [-1, -1, 1])
+    value = array_ops.slice(hsv, [0, 0, 2], [-1, -1, 1])
+
+    # Note that we add 2*pi to guarantee that the resulting hue is a positive
+    # floating point number since delta is [-0.5, 0.5].
+    hue = math_ops.mod(hue + (delta + 1.), 1.)
+
+    hsv_altered = array_ops.concat(2, [hue, saturation, value])
+    rgb_altered = gen_image_ops.hsv_to_rgb(hsv_altered)
+
+    return convert_image_dtype(rgb_altered, orig_dtype)
+
+
+def random_saturation(image, lower, upper, seed=None):
+  """Adjust the saturation of an RGB image by a random factor.
+
+  Equivalent to `adjust_saturation()` but uses a `saturation_factor` randomly
+  picked in the interval `[lower, upper]`.
+
+  Args:
+    image: RGB image or images. Size of the last dimension must be 3.
+    lower: float.  Lower bound for the random saturation factor.
+    upper: float.  Upper bound for the random saturation factor.
+    seed: An operation-specific seed. It will be used in conjunction
+      with the graph-level seed to determine the real seeds that will be
+      used in this operation. Please see the documentation of
+      set_random_seed for its interaction with the graph-level random seed.
+
+  Returns:
+    Adjusted image(s), same shape and DType as `image`.
+
+  Raises:
+    ValueError: if `upper <= lower` or if `lower < 0`.
+  """
+  if upper <= lower:
+    raise ValueError('upper must be > lower.')
+
+  if lower < 0:
+    raise ValueError('lower must be non-negative.')
+
+  # Pick a float in [lower, upper]
+  saturation_factor = random_ops.random_uniform([], lower, upper, seed=seed)
+  return adjust_saturation(image, saturation_factor)
+
+
+def adjust_saturation(image, saturation_factor, name=None):
+  """Adjust saturation of an RGB image.
+
+  This is a convenience method that converts an RGB image to float
+  representation, converts it to HSV, add an offset to the saturation channel,
+  converts back to RGB and then back to the original data type. If several
+  adjustments are chained it is advisable to minimize the number of redundant
+  conversions.
+
+  `image` is an RGB image.  The image saturation is adjusted by converting the
+  image to HSV and multiplying the saturation (S) channel by
+  `saturation_factor` and clipping. The image is then converted back to RGB.
+
+  Args:
+    image: RGB image or images. Size of the last dimension must be 3.
+    saturation_factor: float. Factor to multiply the saturation by.
+    name: A name for this operation (optional).
+
+  Returns:
+    Adjusted image(s), same shape and DType as `image`.
+  """
+  with ops.op_scope([image], name, 'adjust_saturation') as name:
+    image = ops.convert_to_tensor(image, name='image')
+    # Remember original dtype to so we can convert back if needed
+    orig_dtype = image.dtype
+    flt_image = convert_image_dtype(image, dtypes.float32)
+
+    hsv = gen_image_ops.rgb_to_hsv(flt_image)
+
+    hue = array_ops.slice(hsv, [0, 0, 0], [-1, -1, 1])
+    saturation = array_ops.slice(hsv, [0, 0, 1], [-1, -1, 1])
+    value = array_ops.slice(hsv, [0, 0, 2], [-1, -1, 1])
+
+    saturation *= saturation_factor
+    saturation = clip_ops.clip_by_value(saturation, 0.0, 1.0)
+
+    hsv_altered = array_ops.concat(2, [hue, saturation, value])
+    rgb_altered = gen_image_ops.hsv_to_rgb(hsv_altered)
+
+    return convert_image_dtype(rgb_altered, orig_dtype)
+
+
+# TODO(irving): Remove once the C++ RandomCrop op is deprecated.
+@ops.RegisterShape('RandomCrop')
+def _random_crop_shape(op):
+  """Shape function for RandomCrop op."""
+  image_shape = op.inputs[0].get_shape().with_rank(3)
+  if image_shape.ndims is not None:
+    channels = image_shape[-1].value
+  else:
+    channels = None
+
+  size = tensor_util.constant_value(op.inputs[1])
+  if size is None:
+    output_shape = [None, None, channels]
+  elif size.shape == (2,):
+    output_shape = [size[0], size[1], channels]
+  else:
+    raise ValueError('Input "size" must be a vector of two elements.')
+
+  return [tensor_shape.TensorShape(output_shape)]
+
+
+@ops.RegisterShape("ExtractGlimpse")
+def _ExtractGlimpseShape(op):
+  """Shape function for ExtractGlimpse op."""
+  input_shape = op.inputs[0].get_shape().with_rank(4)
+  unused_size_shape = op.inputs[1].get_shape().merge_with(
+      tensor_shape.vector(2))
+  offsets_shape = op.inputs[2].get_shape().merge_with(
+      input_shape[:1].concatenate([2]))
+  offsets_shape = offsets_shape
+  size_value = tensor_util.constant_value(op.inputs[1])
+  if size_value is not None:
+    height = size_value[0]
+    width = size_value[1]
+  else:
+    height = None
+    width = None
+  return [tensor_shape.TensorShape(
+      [input_shape[0], height, width, input_shape[3]])]
+
+
+__all__ = make_all(__name__)
+# ResizeMethod is not documented, but is documented in functions that use it.
+__all__.append('ResizeMethod')
+>>>>>>> tensorflow/master

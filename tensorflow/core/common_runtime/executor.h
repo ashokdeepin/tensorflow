@@ -1,13 +1,40 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_COMMON_RUNTIME_EXECUTOR_H_
 #define TENSORFLOW_COMMON_RUNTIME_EXECUTOR_H_
 
 #include "tensorflow/core/common_runtime/device.h"
 #include "tensorflow/core/framework/rendezvous.h"
+<<<<<<< HEAD
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/lib/core/notification.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/graph/graph.h"
+#include "tensorflow/core/lib/core/notification.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -39,6 +66,14 @@ class Executor {
   // are alive at least until done is invoked. All pointers to the
   // argument objects can be nullptr.
   //
+<<<<<<< HEAD
+=======
+  // "step_id" is a process-wide unique identifier for the step being
+  // run. Executors on different devices may receive the same step_id
+  // in the case that a step runs Ops on more than one device. The
+  // step_id is used for tracking resource usage of a given step.
+  //
+>>>>>>> tensorflow/master
   // RunAsync() uses the given "rendezvous", if not null, as the
   // mechanism to communicate inputs and outputs of the underlying
   // graph computation.
@@ -59,6 +94,10 @@ class Executor {
   // RunAsync() dispatches closures to "runner". Typically, "runner"
   // is backed up by a bounded threadpool.
   struct Args {
+<<<<<<< HEAD
+=======
+    int64 step_id = 0;
+>>>>>>> tensorflow/master
     Rendezvous* rendezvous = nullptr;
     StepStatsCollector* stats_collector = nullptr;
     FunctionCallFrame* call_frame = nullptr;
@@ -98,9 +137,12 @@ struct LocalExecutorParams {
   // The library runtime support.
   FunctionLibraryRuntime* function_library;
 
+<<<<<<< HEAD
   // True iff the computation contains control flow nodes.
   bool has_control_flow;
 
+=======
+>>>>>>> tensorflow/master
   // create_kernel returns an instance of op kernel based on NodeDef.
   // delete_kernel is called for every kernel used by the executor
   // when the executor is deleted.
@@ -148,6 +190,10 @@ class ExecutorBarrier {
 
   void WhenDone(const Status& s) {
     bool error = false;
+<<<<<<< HEAD
+=======
+    Rendezvous* error_rendez = nullptr;
+>>>>>>> tensorflow/master
     StatusCallback done = nullptr;
     Status status;
     {
@@ -157,6 +203,11 @@ class ExecutorBarrier {
       // object by this thread only.
       if (status_.ok() && !s.ok()) {
         error = true;
+<<<<<<< HEAD
+=======
+        error_rendez = rendez_;
+        error_rendez->Ref();
+>>>>>>> tensorflow/master
         status_ = s;
       }
 
@@ -167,10 +218,20 @@ class ExecutorBarrier {
         done = done_cb_;
         done_cb_ = nullptr;
       }
+<<<<<<< HEAD
       status = status_;
     }
     if (error) {
       rendez_->StartAbort(status);
+=======
+
+      status = status_;
+    }
+
+    if (error) {
+      error_rendez->StartAbort(status);
+      error_rendez->Unref();
+>>>>>>> tensorflow/master
     }
     if (done != nullptr) {
       delete this;
@@ -187,11 +248,17 @@ class ExecutorBarrier {
 // access the functions in the "flib". The caller takes ownership of
 // returned "*kernel".
 Status CreateNonCachedKernel(Device* device, FunctionLibraryRuntime* flib,
+<<<<<<< HEAD
                              const NodeDef& ndef, OpKernel** kernel);
+=======
+                             const NodeDef& ndef, int graph_def_version,
+                             OpKernel** kernel);
+>>>>>>> tensorflow/master
 
 // Deletes "kernel" returned by CreateKernel.
 void DeleteNonCachedKernel(OpKernel* kernel);
 
+<<<<<<< HEAD
 // Creates a kernel based on "ndef" on device "device". The kernel can
 // access the functions in the "flib". The caller does not take
 // ownership of returned "*kernel". If a kernel has been created for
@@ -204,6 +271,8 @@ Status CreateCachedKernel(Device* device, const string& session,
 void DeleteCachedKernel(Device* device, const string& session,
                         OpKernel* kernel);
 
+=======
+>>>>>>> tensorflow/master
 }  // end namespace tensorflow
 
 #endif  // TENSORFLOW_COMMON_RUNTIME_EXECUTOR_H_

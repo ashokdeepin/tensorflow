@@ -1,9 +1,33 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/resource_mgr.h"
 
 #include <gtest/gtest.h>
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/resource_mgr.h"
+
+#include "tensorflow/core/framework/node_def_util.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -146,6 +170,11 @@ TEST(ContainerInfo, Basic) {
   EXPECT_EQ(Policy("cat", "", true), "[cat,foo,public]");
   EXPECT_EQ(Policy("cat", "bar", false), "[cat,bar,public]");
   EXPECT_EQ(Policy("cat", "bar", true), "[cat,bar,public]");
+<<<<<<< HEAD
+=======
+  EXPECT_EQ(Policy("cat.0-dog", "bar", true), "[cat.0-dog,bar,public]");
+  EXPECT_EQ(Policy(".cat", "bar", true), "[.cat,bar,public]");
+>>>>>>> tensorflow/master
 }
 
 Status WrongPolicy(const string& attr_container, const string& attr_shared_name,
@@ -165,6 +194,10 @@ TEST(ContainerInfo, Error) {
 
   // Invalid container.
   HasError(WrongPolicy("12$%", "", false), "container contains invalid char");
+<<<<<<< HEAD
+=======
+  HasError(WrongPolicy("-cat", "", false), "container contains invalid char");
+>>>>>>> tensorflow/master
 
   // Invalid shared name.
   HasError(WrongPolicy("", "_foo", false), "shared_name cannot start with '_'");

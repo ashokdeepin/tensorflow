@@ -1,13 +1,39 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // LRN = Local Response Normalization
 // See docs in ../ops/nn_ops.cc.
 
 #define EIGEN_USE_THREADS
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/public/tensor.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/lib/core/errors.h"
+>>>>>>> tensorflow/master
 
 #if !defined(__ANDROID__)
 #include "tensorflow/core/util/work_sharder.h"
@@ -15,10 +41,24 @@
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 // Create a depth-by-depth band matrix with 1s along a swath of size (2 *
 // depth_radius + 1) around the diagonal.
 static void GetBandMatrix(int depth, int64 depth_radius,
                           Eigen::Tensor<float, 2, Eigen::RowMajor>* result) {
+=======
+namespace {
+
+// When the depth is large and beta_ is 0.5 or 1.0, MognetLRN is faster than the
+// main band matrix approach used below. Benchmarks suggest switching to
+// MognetLRN when depth > 384.
+const int kMognetLRNDepthCutoff = 384;
+
+// Create a depth-by-depth band matrix with 1s along a swath of size (2 *
+// depth_radius + 1) around the diagonal.
+void GetBandMatrix(int depth, int64 depth_radius,
+                   Eigen::Tensor<float, 2, Eigen::RowMajor>* result) {
+>>>>>>> tensorflow/master
   result->setZero();
   for (int row = 0; row < depth; ++row) {
     const int begin = std::max<int>(0, row - depth_radius);
@@ -29,6 +69,11 @@ static void GetBandMatrix(int depth, int64 depth_radius,
   }
 }
 
+<<<<<<< HEAD
+=======
+}  // namespace
+
+>>>>>>> tensorflow/master
 class LRNOp : public OpKernel {
  public:
   explicit LRNOp(OpKernelConstruction* context) : OpKernel(context) {
@@ -51,9 +96,20 @@ class LRNOp : public OpKernel {
                    context->allocate_output(
                        0, TensorShape({batch, rows, cols, depth}), &output));
 
+<<<<<<< HEAD
 #if !defined(__ANDROID__)
     MognetLRN(in, batch, rows, cols, depth, output);
 #else
+=======
+#if defined(__ANDROID__)
+    MognetLRN(in, batch, rows, cols, depth, output);
+#else
+    if (depth > kMognetLRNDepthCutoff && (beta_ == 0.5f || beta_ == 1.0f)) {
+      MognetLRN(in, batch, rows, cols, depth, output);
+      return;
+    }
+
+>>>>>>> tensorflow/master
     const int nodes = cols * rows;
     auto in_shaped = in.shaped<float, 2>({nodes * batch, depth});
 
@@ -64,6 +120,7 @@ class LRNOp : public OpKernel {
 
     auto out_shaped = output->shaped<float, 2>({nodes * batch, depth});
     Eigen::array<DimPair, 1> dims = {{DimPair(1, 0)}};
+<<<<<<< HEAD
     /// TODO(keveman): Optimize for beta in {0, 1, 0.5}
     out_shaped.device(context->eigen_cpu_device()) =
         in_shaped /
@@ -71,6 +128,18 @@ class LRNOp : public OpKernel {
             .contract(multiplier, dims)
             .unaryExpr([this](float x) { return bias_ + alpha_ * x; })
             .pow(beta_);
+=======
+    auto tmp = in_shaped.square().contract(multiplier, dims) * alpha_ + bias_;
+    if (beta_ == 1.0f) {
+      out_shaped.device(context->eigen_cpu_device()) =
+          in_shaped * tmp.inverse();
+    } else if (beta_ == 0.5f) {
+      out_shaped.device(context->eigen_cpu_device()) = in_shaped * tmp.rsqrt();
+    } else {
+      out_shaped.device(context->eigen_cpu_device()) =
+          in_shaped * (tmp.log() * -beta_).exp();
+    }
+>>>>>>> tensorflow/master
 #endif
   }
 
@@ -89,11 +158,19 @@ class LRNOp : public OpKernel {
     Eigen::VectorXf padded_square(data_in.rows() + double_depth_radius);
     padded_square.setZero();
     for (int r = 0; r < data_in.cols(); ++r) {
+<<<<<<< HEAD
       // Do local response normalization for data_in(:, r)
       // first, compute the square and store them in buffer for repeated use
       padded_square.block(depth_radius_, 0, data_out.rows(), 1) =
           data_in.col(r).cwiseProduct(data_in.col(r)) * alpha_;
       // Then, compute the scale and writes them to data_out
+=======
+      // Do local response normalization for data_in(:, r). First, compute the
+      // square and store them in buffer for repeated use.
+      padded_square.block(depth_radius_, 0, data_out.rows(), 1) =
+          data_in.col(r).cwiseProduct(data_in.col(r)) * alpha_;
+      // Then, compute the scale and write it to data_out.
+>>>>>>> tensorflow/master
       float accumulated_scale = 0;
       for (int i = 0; i < double_depth_radius; ++i) {
         accumulated_scale += padded_square(i);
@@ -105,6 +182,7 @@ class LRNOp : public OpKernel {
       }
     }
 
+<<<<<<< HEAD
     // In a few cases, the pow computation could benefit from speedups.
     if (beta_ == 1) {
       data_out.array() = data_in.array() * data_out.array().inverse();
@@ -112,6 +190,15 @@ class LRNOp : public OpKernel {
       data_out.array() = data_in.array() * data_out.array().sqrt().inverse();
     } else {
       data_out.array() = data_in.array() * data_out.array().pow(-beta_);
+=======
+    if (beta_ == 1) {
+      data_out.array() = data_in.array() * data_out.array().inverse();
+    } else if (beta_ == 0.5) {
+      data_out.array() = data_in.array() * data_out.array().rsqrt();
+    } else {
+      data_out.array() =
+          data_in.array() * (data_out.array().log() * -beta_).exp();
+>>>>>>> tensorflow/master
     }
   }
 

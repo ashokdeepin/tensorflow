@@ -1,14 +1,43 @@
+<<<<<<< HEAD
 #include "tensorflow/core/util/tensor_slice_reader.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/util/tensor_slice_reader.h"
+
+#include <vector>
+#include "tensorflow/core/framework/versions.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/gtl/stl_util.h"
 #include "tensorflow/core/lib/io/iterator.h"
 #include "tensorflow/core/lib/io/match.h"
 #include "tensorflow/core/lib/io/table.h"
 #include "tensorflow/core/lib/io/table_options.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/public/env.h"
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/saved_tensor_slice_util.h"
 #include "tensorflow/core/util/tensor_slice_util.h"
 
@@ -77,6 +106,13 @@ Status OpenTableTensorSliceReader(const string& fname,
   return s;
 }
 
+<<<<<<< HEAD
+=======
+TensorSliceReader::TensorSliceReader(const string& filepattern)
+    : TensorSliceReader(filepattern, OpenTableTensorSliceReader,
+                        kLoadAllShards) {}
+
+>>>>>>> tensorflow/master
 TensorSliceReader::TensorSliceReader(const string& filepattern,
                                      OpenTableFunction open_function)
     : TensorSliceReader(filepattern, open_function, kLoadAllShards) {}
@@ -139,6 +175,13 @@ void TensorSliceReader::LoadShard(int shard) const {
         fname);
     return;
   }
+<<<<<<< HEAD
+=======
+  status_ = CheckVersions(sts.meta().versions(), TF_CHECKPOINT_VERSION,
+                          TF_CHECKPOINT_VERSION_MIN_PRODUCER, "Checkpoint",
+                          "checkpoint");
+  if (!status_.ok()) return;
+>>>>>>> tensorflow/master
   for (const SavedSliceMeta& ssm : sts.meta().tensor()) {
     TensorShape ssm_shape(ssm.shape());
     for (const TensorSliceProto& tsp : ssm.slice()) {
@@ -225,6 +268,82 @@ bool TensorSliceReader::HasTensor(const string& name, TensorShape* shape,
   }
 }
 
+<<<<<<< HEAD
+=======
+Status TensorSliceReader::GetTensor(
+    const string& name, std::unique_ptr<tensorflow::Tensor>* out_tensor) const {
+  DataType type;
+  TensorShape shape;
+  TensorSlice slice;
+  {
+    mutex_lock l(mu_);
+    const TensorSliceSet* tss = gtl::FindPtrOrNull(tensors_, name);
+    if (tss == nullptr) {
+      return errors::NotFound(name, " not found in checkpoint file");
+    }
+
+    if (tss->Slices().size() > 1) {
+      // TODO(sherrym): Support multi-slice checkpoints.
+      return errors::Unimplemented("Sliced checkpoints are not supported");
+    }
+
+    type = tss->type();
+    shape = tss->shape();
+    slice = tss->Slices().begin()->second.slice;
+  }
+
+  std::unique_ptr<tensorflow::Tensor> t(new tensorflow::Tensor(type, shape));
+  bool success = false;
+
+#define READER_COPY(dt)                                                  \
+  case dt:                                                               \
+    success = CopySliceData(name, slice,                                 \
+                            t->flat<EnumToDataType<dt>::Type>().data()); \
+    break;
+
+  switch (type) {
+    READER_COPY(DT_FLOAT);
+    READER_COPY(DT_DOUBLE);
+    READER_COPY(DT_INT32);
+    READER_COPY(DT_UINT8);
+    READER_COPY(DT_INT16);
+    READER_COPY(DT_INT8);
+    READER_COPY(DT_INT64);
+    default:
+      return errors::Unimplemented("Data type not supported");
+  }
+
+  if (!success) {
+    return errors::NotFound(name, " not found in checkpoint file");
+  }
+  std::swap(*out_tensor, t);
+
+  return Status::OK();
+}
+
+TensorSliceReader::VarToShapeMap TensorSliceReader::GetVariableToShapeMap()
+    const {
+  VarToShapeMap name_to_shape;
+  if (status().ok()) {
+    for (auto e : Tensors()) {
+      name_to_shape[e.first] = e.second->shape();
+    }
+  }
+  return name_to_shape;
+}
+
+const string TensorSliceReader::DebugString() const {
+  string shape_str;
+  if (status().ok()) {
+    for (auto e : Tensors()) {
+      strings::StrAppend(&shape_str, e.first, " ",
+                         e.second->shape().DebugString(), "\n");
+    }
+  }
+  return shape_str;
+}
+
+>>>>>>> tensorflow/master
 }  // namespace checkpoint
 
 }  // namespace tensorflow

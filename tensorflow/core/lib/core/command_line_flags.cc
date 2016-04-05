@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/core/command_line_flags.h"
 
 #include "tensorflow/core/lib/strings/str_util.h"
@@ -17,17 +35,34 @@ bool StringToValue<int32>(const string& content, int* value) {
   return str_util::NumericParse32(content, value);
 }
 
+<<<<<<< HEAD
+=======
+template <>
+bool StringToValue<string>(const string& content, string* value) {
+  *value = content;
+  return true;
+}
+
+>>>>>>> tensorflow/master
 // Parse a single argument by linearly searching through the command table.
 // The input format is: --argument=value.
 // Return OK if the argument is used. It store the extracted value into the
 // matching flag.
 // Return NOT_FOUND if the argument is not recognized.
+<<<<<<< HEAD
 // Retrun INVALID_ARGUMENT if the command is recognized, but fails to extract
+=======
+// Return INVALID_ARGUMENT if the command is recognized, but fails to extract
+>>>>>>> tensorflow/master
 // its value.
 template <typename T>
 Status ParseArgument(const string& argument) {
   for (auto& command :
+<<<<<<< HEAD
        internal::CommandLineFlagRegistry<int>::Instance()->commands) {
+=======
+       internal::CommandLineFlagRegistry<T>::Instance()->commands) {
+>>>>>>> tensorflow/master
     string prefix = strings::StrCat("--", command.name, "=");
     if (tensorflow::StringPiece(argument).starts_with(prefix)) {
       string content = argument.substr(prefix.length());
@@ -62,6 +97,10 @@ Status ParseArgument<bool>(const string& argument) {
   return Status(error::NOT_FOUND,
                 strings::StrCat("Unknown command: ", argument));
 }
+<<<<<<< HEAD
+=======
+
+>>>>>>> tensorflow/master
 }  // namespace
 
 Status ParseCommandLineFlags(int* argc, char* argv[]) {
@@ -81,6 +120,14 @@ Status ParseCommandLineFlags(int* argc, char* argv[]) {
     if (s.ok()) {
       continue;
     }
+<<<<<<< HEAD
+=======
+    // Search string commands.
+    s = ParseArgument<string>(argv[index]);
+    if (s.ok()) {
+      continue;
+    }
+>>>>>>> tensorflow/master
     if (s.code() != error::NOT_FOUND) {
       return s;
     }

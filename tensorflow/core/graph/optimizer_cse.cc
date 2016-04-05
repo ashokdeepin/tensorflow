@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // This module implements a common subexpression elimination pass.  We
 // process the nodes in the graph in reverse postorder
 // (i.e. inputs before their downstream dependencies).  The rough algorithm is
@@ -24,6 +42,10 @@
 #include "tensorflow/core/graph/optimizer_cse.h"
 
 #include <unordered_map>
+<<<<<<< HEAD
+=======
+#include <vector>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/graph/algorithm.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
@@ -36,7 +58,11 @@ class OptimizerCSE {
  public:
   explicit OptimizerCSE(Graph* g) : g_(g) {}
 
+<<<<<<< HEAD
   void Optimize(std::function<bool(const Node*)> consider_fn);
+=======
+  bool Optimize(std::function<bool(const Node*)> consider_fn);
+>>>>>>> tensorflow/master
 
  private:
   struct Scratch;
@@ -164,7 +190,11 @@ bool OptimizerCSE::Equivalent(const Node* a, const Node* b, Scratch* scratch) {
   return true;
 }
 
+<<<<<<< HEAD
 void OptimizerCSE::Optimize(std::function<bool(const Node*)> consider_fn) {
+=======
+bool OptimizerCSE::Optimize(std::function<bool(const Node*)> consider_fn) {
+>>>>>>> tensorflow/master
   // This very simple implementation works if the whole graph is one
   // giant basic block (because we just traverse nodes in a
   // topological order).  We'll need to do something more
@@ -186,6 +216,10 @@ void OptimizerCSE::Optimize(std::function<bool(const Node*)> consider_fn) {
 
   // Scratch space for Equivalent calls.  Allocated here and passed in to
   // Equivalent to avoid allocation inside the loop below.
+<<<<<<< HEAD
+=======
+  bool changed = false;
+>>>>>>> tensorflow/master
   Scratch scratch;
   for (Node* n : order) {
     if (!n->IsOp()) continue;
@@ -208,6 +242,7 @@ void OptimizerCSE::Optimize(std::function<bool(const Node*)> consider_fn) {
         g_->AddEdge(*candidate, e->src_output(), e->dst(), e->dst_input());
       }
       g_->RemoveNode(n);
+<<<<<<< HEAD
     }
   }
 }
@@ -215,6 +250,17 @@ void OptimizerCSE::Optimize(std::function<bool(const Node*)> consider_fn) {
 void OptimizeCSE(Graph* g, std::function<bool(const Node*)> consider_fn) {
   OptimizerCSE opt(g);
   opt.Optimize(consider_fn);
+=======
+      changed = true;
+    }
+  }
+  return changed;
+}
+
+bool OptimizeCSE(Graph* g, std::function<bool(const Node*)> consider_fn) {
+  OptimizerCSE opt(g);
+  return opt.Optimize(consider_fn);
+>>>>>>> tensorflow/master
 }
 
 }  // namespace tensorflow

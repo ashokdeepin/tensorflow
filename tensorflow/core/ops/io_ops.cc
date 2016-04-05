@@ -1,5 +1,24 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/platform/port.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/op.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -7,7 +26,11 @@ REGISTER_OP("Save")
     .Input("filename: string")
     .Input("tensor_names: string")
     .Input("data: T")
+<<<<<<< HEAD
     .Attr("T: list({float, double, int32, int64, quint8, qint8, qint32})")
+=======
+    .Attr("T: list(type)")
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Saves the input tensors to disk.
 
@@ -17,7 +40,11 @@ is written to `filename` with name `tensor_names[i]`.
 See also `SaveSlices`.
 
 filename: Must have a single element. The name of the file to which we write
+<<<<<<< HEAD
 the tensor.
+=======
+  the tensor.
+>>>>>>> tensorflow/master
 tensor_names: Shape `[N]`. The names of the tensors to be saved.
 data: `N` tensors to save.
 )doc");
@@ -27,7 +54,11 @@ REGISTER_OP("SaveSlices")
     .Input("tensor_names: string")
     .Input("shapes_and_slices: string")
     .Input("data: T")
+<<<<<<< HEAD
     .Attr("T: list({float, double, int32, int64, quint8, qint8, qint32})")
+=======
+    .Attr("T: list(type)")
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Saves input tensors slices to disk.
 
@@ -54,10 +85,17 @@ where each `sliceI` is either:
 See also `Save`.
 
 filename: Must have a single element. The name of the file to which we write the
+<<<<<<< HEAD
 tensor.
 tensor_names: Shape `[N]`. The names of the tensors to be saved.
 shapes_and_slices: Shape `[N]`.  The shapes and slice specifications to use when
 saving the tensors.
+=======
+  tensor.
+tensor_names: Shape `[N]`. The names of the tensors to be saved.
+shapes_and_slices: Shape `[N]`.  The shapes and slice specifications to use when
+  saving the tensors.
+>>>>>>> tensorflow/master
 data: `N` tensors to save.
 )doc");
 
@@ -132,7 +170,11 @@ REGISTER_OP("ShardedFilename")
     .Input("num_shards: int32")
     .Output("filename: string")
     .Doc(R"doc(
+<<<<<<< HEAD
 Generate a sharded filename. The filename is printf formated as
+=======
+Generate a sharded filename. The filename is printf formatted as
+>>>>>>> tensorflow/master
    %s-%05d-of-%05d, basename, shard, num_shards.
 )doc");
 

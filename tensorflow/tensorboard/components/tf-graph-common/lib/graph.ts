@@ -1,12 +1,42 @@
+<<<<<<< HEAD
 /// <reference path="../../../typings/tsd.d.ts" />
 /// <reference path="common.ts" />
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+>>>>>>> tensorflow/master
 module tf.graph {
 
 /** Delimiter used in node names to denote namespaces. */
 export const NAMESPACE_DELIM = "/";
+<<<<<<< HEAD
 const FULL_GRAPH_NAME = "fullGraph";
 export const ROOT_NAME = "__root__";
 
+=======
+export const ROOT_NAME = "__root__";
+
+/** Attribute key used for storing attributes that are too large. */
+export const LARGE_ATTRS_KEY = "_too_large_attrs";
+/**
+ * Maximum allowed size in bytes, before the attribute is considered large
+ * and filtered out of the graph.
+ */
+export const LIMIT_ATTR_SIZE = 1024;
+
+>>>>>>> tensorflow/master
 // Separator between the source and the destination name of the edge.
 export const EDGE_KEY_DELIM = "--";
 
@@ -14,6 +44,18 @@ export enum GraphType {FULL, EMBEDDED, META, SERIES, CORE, SHADOW, BRIDGE,
     EDGE};
 export enum NodeType {META, OP, SERIES, BRIDGE, ELLIPSIS};
 
+<<<<<<< HEAD
+=======
+/** Indicates if a node is to be included in the main graph when rendered. */
+export enum InclusionType {INCLUDE, EXCLUDE, UNSPECIFIED};
+
+/** Indicates if a series is to be grouped in the graph when rendered. */
+export enum SeriesGroupingType {GROUP, UNGROUP};
+
+/** Attribute key reserved for the shapes of the output tensors. */
+const OUTPUT_SHAPES_KEY = "_output_shapes";
+
+>>>>>>> tensorflow/master
 /**
  * A BaseEdge is the label object (in the graphlib sense) for an edge in the
  * original, full graph produced after parsing. Subsequent graphs, like those
@@ -39,13 +81,21 @@ export class SlimGraph {
   }
 }
 
+<<<<<<< HEAD
 interface NormalizedInput {
+=======
+export interface NormalizedInput {
+>>>>>>> tensorflow/master
   name: string;
   hasNumberPart: boolean;
   isControlDependency: boolean;
 }
 
+<<<<<<< HEAD
 interface BuildParams {
+=======
+export interface BuildParams {
+>>>>>>> tensorflow/master
   enableEmbedding: boolean;
   inEmbeddingTypes: string[];
   outEmbeddingTypes: string[];
@@ -83,6 +133,7 @@ export interface Node {
   parentNode: Node;
   /** Runtime execution stats for this node, if available */
   stats: NodeStats;
+<<<<<<< HEAD
 }
 
 export interface OpNode extends Node {
@@ -92,6 +143,41 @@ export interface OpNode extends Node {
   inputs: NormalizedInput[];
   inEmbeddings: OpNode[];
   outEmbeddings: OpNode[];
+=======
+  /** If the node is to be included or excluded from the main graph when
+   *  rendered. Defaults to UNSPECIFIED, which means that the rendering
+   *  algorithm determines if it will be included or not. Then can be set to
+   *  INCLUDE or EXCLUDE manually by the user.
+   */
+  include: InclusionType;
+}
+
+export type TensorShape = number[];
+
+export interface OpNode extends Node {
+  op: string;
+  device: string;
+  attr: {key: string, value: any}[];
+  inputs: NormalizedInput[];
+  inEmbeddings: OpNode[];
+  outEmbeddings: OpNode[];
+  // The name of the SeriesNode that can contain this node in its series.
+  // If there is no such node, then this is null.
+  owningSeries: string;
+  /**
+   * Array of tensor shapes. Null if the number of output tensors is unknown,
+   * otherwise the length will equal the number of output tensors.
+   *
+   * Each tensor shape is an array of numbers, or null. Details:
+   * - null means unknown rank, and therefore entire shape is unknown.
+   * - [4, 2, 1] means rank-3 tensor of size 4x2x1.
+   * - [] means a scalar (rank-0 tensor).
+   * - [1] means rank-1 tensor of size 1 (not the same as scalar).
+   * - [5, -1, 3] means rank-3 tensor of shape is 5x?x3. The size
+   *       of the middle dimension is unknown (encoded as -1).
+   */
+  outputShapes: TensorShape[];
+>>>>>>> tensorflow/master
 }
 
 export interface BridgeNode extends Node {
@@ -193,7 +279,11 @@ export interface GroupNode extends Node {
    *   + A->Z/Y/X in GroupNode Z/Y's bridgegraph.
    *
    * Considering any BaseEdge then, if N is the number of path segments in the
+<<<<<<< HEAD
    * source and M is the number of path semgents in the destination, then the
+=======
+   * source and M is the number of path segments in the destination, then the
+>>>>>>> tensorflow/master
    * total number of bridgegraph edges you could create would be (N-1)(M-1).
    *
    * For this reason, it is computationally expensive to generate all the
@@ -243,6 +333,10 @@ export class EllipsisNodeImpl implements EllipsisNode {
   isGroupNode: boolean;
   cardinality: number;
   parentNode: Node;
+<<<<<<< HEAD
+=======
+  include: InclusionType;
+>>>>>>> tensorflow/master
 
   /**
    * Constructs a new ellipsis annotation node.
@@ -256,6 +350,10 @@ export class EllipsisNodeImpl implements EllipsisNode {
     this.parentNode = null;
     this.stats = null;
     this.setNumMoreNodes(numNodes);
+<<<<<<< HEAD
+=======
+    this.include = InclusionType.UNSPECIFIED;
+>>>>>>> tensorflow/master
   }
 
   setNumMoreNodes(numNodes: number) {
@@ -273,7 +371,11 @@ class OpNodeImpl implements OpNode {
   op: string;
   device: string;
   stats: NodeStats;
+<<<<<<< HEAD
   attr: {key: string, value: Object}[];
+=======
+  attr: {key: string, value: any}[];
+>>>>>>> tensorflow/master
   inputs: NormalizedInput[];
   type: NodeType;
   isGroupNode: boolean;
@@ -281,22 +383,42 @@ class OpNodeImpl implements OpNode {
   inEmbeddings: OpNode[];
   outEmbeddings: OpNode[];
   parentNode: Node;
+<<<<<<< HEAD
+=======
+  include: InclusionType;
+  owningSeries: string;
+  outputShapes: TensorShape[];
+>>>>>>> tensorflow/master
 
   /**
    * Constructs a new Op node.
    *
    * @param rawNode The raw node.
+<<<<<<< HEAD
    * @param normalizedInputs An array of normalized
    *     inputs that denote the incoming edges to the current node. Each input
    *     contains the normalized name of the source node, whether it has a number
    *     part and whether it is a control dependency.
    */
   constructor(rawNode: tf.TFNode, normalizedInputs: NormalizedInput[]) {
+=======
+   */
+  constructor(rawNode: tf.TFNode) {
+>>>>>>> tensorflow/master
     this.op = rawNode.op;
     this.name = rawNode.name;
     this.device = rawNode.device;
     this.attr = rawNode.attr;
+<<<<<<< HEAD
     this.inputs = normalizedInputs;
+=======
+    // An array of normalized inputs that denote the incoming edges to
+    // the current node. Each input contains the normalized name of the
+    // source node, whether it has a number part and whether it is a
+    // control dependency.
+    this.inputs = normalizeInputs(rawNode.input);
+    this.outputShapes = extractOutputShapes(rawNode.attr);
+>>>>>>> tensorflow/master
     // additional properties
     this.type = NodeType.OP;
     this.isGroupNode = false;
@@ -304,6 +426,11 @@ class OpNodeImpl implements OpNode {
     this.inEmbeddings = [];
     this.outEmbeddings = [];
     this.parentNode = null;
+<<<<<<< HEAD
+=======
+    this.include = InclusionType.UNSPECIFIED;
+    this.owningSeries = null;
+>>>>>>> tensorflow/master
   }
 };
 
@@ -312,8 +439,13 @@ export function createMetanode(name: string, opt = {}): Metanode {
 }
 
 /**
+<<<<<<< HEAD
  * Joins the information from the stats file (memory, compute time) with the graph
  * information.
+=======
+ * Joins the information from the stats file (memory, compute time) with the
+ * graph information.
+>>>>>>> tensorflow/master
  */
 export function joinStatsInfoWithGraph(graph: SlimGraph,
     statsJson: TFStats): void {
@@ -352,7 +484,11 @@ export function joinStatsInfoWithGraph(graph: SlimGraph,
 /**
  * Execution stats for the node.
  */
+<<<<<<< HEAD
 class NodeStats {
+=======
+export class NodeStats {
+>>>>>>> tensorflow/master
   constructor(totalBytes: number, totalMicros: number, outputSize: number[][]) {
     this.totalBytes = totalBytes;
     this.totalMicros = totalMicros;
@@ -360,7 +496,11 @@ class NodeStats {
   }
 
   /**
+<<<<<<< HEAD
    * Total number of bytes used for the node. Sum of all childen
+=======
+   * Total number of bytes used for the node. Sum of all children
+>>>>>>> tensorflow/master
    * if it is a Group node.
    */
   totalBytes: number;
@@ -377,7 +517,11 @@ class NodeStats {
 
   /**
    * Combines the specified stats with the current stats.
+<<<<<<< HEAD
    * Modifies the current object. This methos is used to
+=======
+   * Modifies the current object. This method is used to
+>>>>>>> tensorflow/master
    * compute aggregate stats for group nodes.
    */
   combine(stats: NodeStats): void {
@@ -404,6 +548,10 @@ class MetanodeImpl implements Metanode {
   deviceHistogram: {[op: string]: number};
   parentNode: Node;
   hasNonControlEdges: boolean;
+<<<<<<< HEAD
+=======
+  include: InclusionType;
+>>>>>>> tensorflow/master
 
   /** A label object for meta-nodes in the graph hierarchy */
   constructor(name: string, opt = {}) {
@@ -433,6 +581,10 @@ class MetanodeImpl implements Metanode {
     this.parentNode = null;
     this.stats = new NodeStats(0, 0, null);
     this.hasNonControlEdges = false;
+<<<<<<< HEAD
+=======
+    this.include = InclusionType.UNSPECIFIED;
+>>>>>>> tensorflow/master
   }
 
   getFirstChild(): GroupNode|OpNode {
@@ -511,7 +663,16 @@ export interface Metaedge extends graphlib.EdgeObject {
    */
   numRefEdges: number;
 
+<<<<<<< HEAD
   addBaseEdge(edge: BaseEdge): void;
+=======
+  /**
+   * Total size (number of units) of all the tensors flowing through this edge.
+   */
+  totalSize: number;
+
+  addBaseEdge(edge: BaseEdge, h: hierarchy.Hierarchy): void;
+>>>>>>> tensorflow/master
 }
 
 export function createMetaedge(v: string, w: string): Metaedge {
@@ -529,6 +690,10 @@ class MetaedgeImpl implements Metaedge {
   numRegularEdges: number;
   numControlEdges: number;
   numRefEdges: number;
+<<<<<<< HEAD
+=======
+  totalSize: number;
+>>>>>>> tensorflow/master
 
   constructor(v: string, w: string) {
     this.v = v;
@@ -538,9 +703,16 @@ class MetaedgeImpl implements Metaedge {
     this.numRegularEdges = 0;
     this.numControlEdges = 0;
     this.numRefEdges = 0;
+<<<<<<< HEAD
   }
 
   addBaseEdge(edge: BaseEdge): void {
+=======
+    this.totalSize = 0;
+  }
+
+  addBaseEdge(edge: BaseEdge, h: hierarchy.Hierarchy): void {
+>>>>>>> tensorflow/master
     this.baseEdgeList.push(edge);
     if (edge.isControlDependency) {
       this.numControlEdges += 1;
@@ -550,6 +722,41 @@ class MetaedgeImpl implements Metaedge {
     if (edge.isReferenceEdge) {
       this.numRefEdges += 1;
     }
+<<<<<<< HEAD
+=======
+    // Compute the size of the tensor flowing through this
+    // base edge.
+    this.totalSize += MetaedgeImpl.computeSizeOfEdge(edge, h);
+  }
+
+  private static computeSizeOfEdge(edge: BaseEdge, h: hierarchy.Hierarchy):
+      number {
+    let opNode = <OpNode> h.node(edge.v);
+    if (opNode.outputShapes == null) {
+      // No shape information. Asssume a single number. This gives
+      // a lower bound for the total size.
+      return 1;
+    }
+    // Sum the sizes of all output tensors.
+    return _(opNode.outputShapes).map(shape => {
+      // If the shape is unknown, treat it as 1 when computing
+      // total size. This gives a lower bound for the total size.
+      if (shape == null) {
+        return 1;
+      }
+      // Multiply all shapes to get the total size of the tensor.
+      // E.g. The total size of [4, 2, 1] is 4 * 2 * 1.
+      return _(shape).reduce((accumulated, currSize) => {
+        // If this particular dimension is unknown, treat
+        // it as 1 when computing total size. This gives a lower bound
+        // for the total size.
+        if (currSize === -1) {
+          currSize = 1;
+        }
+        return accumulated * currSize;
+      }, 1);
+    }).sum();
+>>>>>>> tensorflow/master
   }
 }
 
@@ -584,6 +791,10 @@ class SeriesNodeImpl implements SeriesNode {
   parentNode: Node;
   deviceHistogram: {[op: string]: number};
   hasNonControlEdges: boolean;
+<<<<<<< HEAD
+=======
+  include: InclusionType;
+>>>>>>> tensorflow/master
 
   constructor(prefix: string, suffix: string, parent: string,
       clusterId: number, name: string) {
@@ -604,10 +815,60 @@ class SeriesNodeImpl implements SeriesNode {
     this.deviceHistogram = {};
     this.hasNonControlEdges = false;
     this.stats = new NodeStats(0, 0, null);
+<<<<<<< HEAD
+=======
+    this.include = InclusionType.UNSPECIFIED;
+>>>>>>> tensorflow/master
   }
 }
 
 /**
+<<<<<<< HEAD
+=======
+ * Extracts the shapes of the output tensors from the attr property in the
+ * node proto.
+ */
+function extractOutputShapes(attr: {key: string, value: any}[]): TensorShape[] {
+  let result = null;
+  // We don't know anything about the output tensors.
+  if (!attr) {
+    return null;
+  }
+  for (let i = 0; i < attr.length; i++) {
+    let {key, value} = attr[i];
+    if (key === OUTPUT_SHAPES_KEY) {
+     // Map all output tensors into array of numbers denoting their shape.
+     let result = value.list.shape.map(shape => {
+       if (shape.unknown_rank) {
+         // This output tensor is of unknown rank. We don't know if it is a
+         // scalar, or a tensor, or of what shape it is.
+         return null;
+       }
+       if (shape.dim == null ||
+           (shape.dim.length === 1 && shape.dim[0].size == null)) {
+         // This output tensor is a scalar.
+         return [];
+       }
+       // This output tensor has a known rank. Map each dimension size
+       // into a number.
+       return shape.dim.map(dim => {
+         // Size can be -1 if this particular dimension is unknown.
+         return dim.size;
+       });
+     });
+     // Since we already processed it, remove the entry from the attribute
+     // list (saves memory).
+     attr.splice(i, 1);
+     return result;
+    }
+  }
+  // We didn't find OUTPUT_SHAPES_KEY in attributes, so we don't know anything
+  // about the output tensors.
+  return result;
+}
+
+/**
+>>>>>>> tensorflow/master
  * Normalizes the inputs and extracts associated metadata:
  * 1) Inputs can contain a colon followed by a number at the end
  *    (e.g. inputName:1) and we remove this from the input name, and take note
@@ -637,14 +898,47 @@ function normalizeInputs(inputs: string[]): NormalizedInput[] {
   }, []);
 }
 
+<<<<<<< HEAD
 export function build(rawNodes: tf.TFNode[], params: BuildParams,
     tracker: ProgressTracker): Promise<SlimGraph|void> {
   /**
    * A dictionary that maps each in-embedding node name to its host node label
+=======
+function addEdgeToGraph(graph: SlimGraph, inputName: string,
+    outputNode: OpNode, isControlDependency: boolean, params: BuildParams,
+    index: number) {
+  // Don't allow loops in the graph.
+  if (inputName === outputNode.name) {
+    return;
+  }
+  // Check if this op type and input number corresponds to a
+  // reference edge using the refEdges dictionary in the params.
+  let isRefEdge = params.refEdges[outputNode.op + " " + index] === true;
+  graph.edges.push({
+    v: inputName,
+    w: outputNode.name,
+    isControlDependency: isControlDependency,
+    isReferenceEdge: isRefEdge
+  });
+}
+
+export function build(rawNodes: tf.TFNode[], params: BuildParams,
+    tracker: ProgressTracker): Promise<SlimGraph|void> {
+  /**
+   * A dictionary that maps each in-embedding node name to the node
+>>>>>>> tensorflow/master
    * object.
    */
   let inEmbedding: {[nodeName: string]: OpNode} = {};
   /**
+<<<<<<< HEAD
+=======
+   * A dictionary that maps each out-embedding node name to the node
+   * object.
+   */
+  let outEmbedding: {[nodeName: string]: OpNode} = {};
+  /**
+>>>>>>> tensorflow/master
    * A dictionary that maps each node name to an array of the node's
    * out-embedding node label objects.
    */
@@ -667,8 +961,12 @@ export function build(rawNodes: tf.TFNode[], params: BuildParams,
     let opNodes = new Array<OpNode>(rawNodes.length);
     let index = 0;
     _.each(rawNodes, rawNode => {
+<<<<<<< HEAD
       let normalizedInputs = normalizeInputs(rawNode.input);
       let opNode = new OpNodeImpl(rawNode, normalizedInputs);
+=======
+      let opNode = new OpNodeImpl(rawNode);
+>>>>>>> tensorflow/master
       if (isInEmbeddedPred(opNode)) {
         embeddingNodeNames.push(opNode.name);
         inEmbedding[opNode.name] = opNode;
@@ -677,6 +975,10 @@ export function build(rawNodes: tf.TFNode[], params: BuildParams,
 
       if (isOutEmbeddedPred(opNode)) {
         embeddingNodeNames.push(opNode.name);
+<<<<<<< HEAD
+=======
+        outEmbedding[opNode.name] = opNode;
+>>>>>>> tensorflow/master
         _.each(opNode.inputs, input => {
           let inputName = input.name;
           outEmbeddings[inputName] = outEmbeddings[inputName] || [];
@@ -723,6 +1025,7 @@ export function build(rawNodes: tf.TFNode[], params: BuildParams,
         _.each(opNode.inputs, (input, i) => {
           let inputName = input.name;
           if (inputName in inEmbedding) {
+<<<<<<< HEAD
             opNode.inEmbeddings.push(inEmbedding[inputName]);
           } else {
             graph.edges.push({
@@ -733,6 +1036,30 @@ export function build(rawNodes: tf.TFNode[], params: BuildParams,
               // reference edge using the refEdges dictionary in the params.
               isReferenceEdge: (params.refEdges[opNode.op + " " + i] === true)
             });
+=======
+            let inEmbedNode = inEmbedding[inputName];
+            opNode.inEmbeddings.push(inEmbedNode);
+            // Move the inputs of the in-embedding node into incoming edges of
+            // the main node. E.g. the control dependency of a constant node
+            // should be moved to the op node where the constant is embedded.
+            for (let embedInput of inEmbedNode.inputs) {
+              addEdgeToGraph(graph,
+                  normalizedNameDict[embedInput.name] || embedInput.name,
+                  opNode, embedInput.isControlDependency, params, i);
+            }
+          } else if (inputName in outEmbedding) {
+            // Move the inputs of the out-embedding node into inputs of
+            // the main node where the out-embedding points to.
+            let outEmbedNode = outEmbedding[inputName];
+            for (let embedInput of outEmbedNode.inputs) {
+              addEdgeToGraph(graph,
+                  normalizedNameDict[embedInput.name] || embedInput.name,
+                  opNode, input.isControlDependency, params, i);
+            }
+          } else {
+            addEdgeToGraph(graph, normalizedNameDict[inputName] || inputName,
+                opNode, input.isControlDependency, params, i);
+>>>>>>> tensorflow/master
           }
         });
       });
@@ -744,9 +1071,12 @@ export function build(rawNodes: tf.TFNode[], params: BuildParams,
 
       return graph;
     }, tracker);
+<<<<<<< HEAD
   })
   .catch(function(reason) {
     throw new Error("Failure creating graph");
+=======
+>>>>>>> tensorflow/master
   });
 };
 
@@ -769,7 +1099,11 @@ export function createGraph<N, E>(name: string, type, opt = {}):
  * the specified types.
  */
 function getEmbedPredicate(types: string[]) {
+<<<<<<< HEAD
   return function(node) {
+=======
+  return function(node: OpNode) {
+>>>>>>> tensorflow/master
     // check types
     for (let i = 0; i < types.length; i++) {
       let regExp = new RegExp(types[i]);
@@ -862,7 +1196,12 @@ export function hasSimilarDegreeSequence(graph1: graphlib.Graph<any, any>,
 
 /**
  * Returns the hierarchical path of the current node, based on the node's name.
+<<<<<<< HEAD
  * For example, if the name is 'a/b/c', the returned path is ['a', 'a/b', 'a/b/c'].
+=======
+ * For example, if the name is 'a/b/c', the returned path is
+ * ['a', 'a/b', 'a/b/c'].
+>>>>>>> tensorflow/master
  */
 export function getHierarchicalPath(name: string,
   seriesNames?: { [name: string]: string }): string[] {
@@ -886,4 +1225,44 @@ export function getHierarchicalPath(name: string,
   return path;
 };
 
+<<<<<<< HEAD
+=======
+/**
+ * Returns the string for the node inclusion toggle button, dependant
+ * on the provided current InclusionType.
+ */
+export function getIncludeNodeButtonString(include: InclusionType) {
+  if (include === tf.graph.InclusionType.EXCLUDE) {
+    return "Add to main graph";
+  } else {
+    return "Remove from main graph";
+  }
+};
+
+/**
+ * Returns the string for the series node grouping toggle button, dependant
+ * on the provided current SeriesGroupingType.
+ */
+export function getGroupSeriesNodeButtonString(group: SeriesGroupingType) {
+  if (group === tf.graph.SeriesGroupingType.GROUP) {
+    return "Ungroup this series of nodes";
+  } else {
+    return "Group this series of nodes";
+  }
+};
+
+/**
+ * Toggle the node series grouping option in the provided map, setting it
+ * to ungroup if the series is not already in the map.
+ */
+export function toggleNodeSeriesGroup(
+  map: { [name: string]: tf.graph.SeriesGroupingType }, name: string) {
+  if (!(name in map) || map[name] === tf.graph.SeriesGroupingType.GROUP) {
+    map[name] = tf.graph.SeriesGroupingType.UNGROUP;
+  } else {
+    map[name] = tf.graph.SeriesGroupingType.GROUP;
+  }
+};
+
+>>>>>>> tensorflow/master
 } // close module tf.graph

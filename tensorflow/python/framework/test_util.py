@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 # pylint: disable=invalid-name
 """Test utils for tensorflow."""
 from __future__ import absolute_import
@@ -7,6 +25,7 @@ from __future__ import print_function
 import contextlib
 import math
 import re
+<<<<<<< HEAD
 import threading
 
 import tensorflow.python.platform
@@ -26,12 +45,95 @@ from tensorflow.python.platform import logging
 from tensorflow.python.util.protobuf import compare
 
 
+=======
+import sys
+import threading
+
+import numpy as np
+import six
+
+from google.protobuf import text_format
+
+from tensorflow.core.framework import graph_pb2
+from tensorflow.core.protobuf import config_pb2
+from tensorflow.python import pywrap_tensorflow
+from tensorflow.python.client import session
+from tensorflow.python.framework import device as pydev
+from tensorflow.python.framework import errors
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import versions
+from tensorflow.python.platform import googletest
+from tensorflow.python.platform import logging
+from tensorflow.python.util import compat
+from tensorflow.python.util.protobuf import compare
+
+
+def assert_ops_in_graph(expected_ops, graph):
+  """Assert all expected operations are found.
+
+  Args:
+    expected_ops: `dict<string, string>` of op name to op type.
+    graph: Graph to check.
+  Returns:
+    `dict<string, node>` of node name to node.
+
+  Raises:
+    ValueError: If the expected ops are not present in the graph.
+  """
+  actual_ops = {}
+  gd = graph.as_graph_def()
+  for node in gd.node:
+    if node.name in expected_ops:
+      if expected_ops[node.name] != node.op:
+        raise ValueError(
+            "Expected op for node %s is different. %s vs %s" % (
+                node.name, expected_ops[node.name], node.op))
+      actual_ops[node.name] = node
+  if set(expected_ops.keys()) != set(actual_ops.keys()):
+    raise ValueError(
+        "Not all expected ops are present. Expected %s, found %s" % (
+            expected_ops.keys(), actual_ops.keys()))
+  return actual_ops
+
+
+def assert_equal_graph_def(actual, expected):
+  """Asserts that two `GraphDef`s are (mostly) the same.
+
+  Compares two `GraphDef` protos for equality, ignoring versions and ordering of
+  nodes, attrs, and control inputs.  Node names are used to match up nodes
+  between the graphs, so the naming of nodes must be consistent.
+
+  Args:
+    actual: The `GraphDef` we have.
+    expected: The `GraphDef` we expected.
+
+  Raises:
+    AssertionError: If the `GraphDef`s do not match.
+    TypeError: If either argument is not a `GraphDef`.
+  """
+  if not isinstance(actual, graph_pb2.GraphDef):
+    raise TypeError("Expected tf.GraphDef for actual, got %s" %
+                    type(actual).__name__)
+  if not isinstance(expected, graph_pb2.GraphDef):
+    raise TypeError("Expected tf.GraphDef for expected, got %s" %
+                    type(expected).__name__)
+  diff = pywrap_tensorflow.EqualGraphDefWrapper(actual.SerializeToString(),
+                                                expected.SerializeToString())
+  if diff:
+    raise AssertionError(compat.as_str(diff))
+
+
+>>>>>>> tensorflow/master
 def IsGoogleCudaEnabled():
   return pywrap_tensorflow.IsGoogleCudaEnabled()
 
 
 class TensorFlowTestCase(googletest.TestCase):
+<<<<<<< HEAD
   """Root class for tests that need to test tensor flow.
+=======
+  """Base class for tests that need to test TensorFlow.
+>>>>>>> tensorflow/master
   """
 
   def __init__(self, methodName="runTest"):
@@ -62,16 +164,26 @@ class TensorFlowTestCase(googletest.TestCase):
   def _AssertProtoEquals(self, a, b):
     """Asserts that a and b are the same proto.
 
+<<<<<<< HEAD
     Uses Proto2Cmp() first, as it returns correct results
     for floating point attributes, and then use assertProto2Equal()
+=======
+    Uses ProtoEq() first, as it returns correct results
+    for floating point attributes, and then use assertProtoEqual()
+>>>>>>> tensorflow/master
     in case of failure as it provides good error messages.
 
     Args:
       a: a proto.
       b: another proto.
     """
+<<<<<<< HEAD
     if compare.Proto2Cmp(a, b) != 0:
       compare.assertProto2Equal(self, a, b, normalize_numbers=True)
+=======
+    if not compare.ProtoEq(a, b):
+      compare.assertProtoEqual(self, a, b, normalize_numbers=True)
+>>>>>>> tensorflow/master
 
   def assertProtoEquals(self, expected_message_maybe_ascii, message):
     """Asserts that message is same as parsed expected_message_ascii.
@@ -92,9 +204,21 @@ class TensorFlowTestCase(googletest.TestCase):
       text_format.Merge(expected_message_maybe_ascii, expected_message)
       self._AssertProtoEquals(expected_message, message)
     else:
+<<<<<<< HEAD
       assert False, ("Can't compare protos of type " +
                      type(expected_message_maybe_ascii) + " and " +
                      type(message))
+=======
+      assert False, ("Can't compare protos of type %s and %s" %
+                     (type(expected_message_maybe_ascii), type(message)))
+
+  def assertProtoEqualsVersion(
+      self, expected, actual, producer=versions.GRAPH_DEF_VERSION,
+      min_consumer=versions.GRAPH_DEF_VERSION_MIN_CONSUMER):
+    expected = "versions { producer: %d min_consumer: %d };\n%s" % (
+        producer, min_consumer, expected)
+    self.assertProtoEquals(expected, actual)
+>>>>>>> tensorflow/master
 
   def assertStartsWith(self, actual, expected_start, msg=None):
     """Assert that actual.startswith(expected_start) is True.
@@ -148,6 +272,11 @@ class TensorFlowTestCase(googletest.TestCase):
       A Session object that should be used as a context manager to surround
       the graph building and execution code in a test case.
     """
+<<<<<<< HEAD
+=======
+    if self.id().endswith(".test_session"):
+      self.skipTest("Not a test.")
+>>>>>>> tensorflow/master
     def prepare_config(config):
       if config is None:
         config = config_pb2.ConfigProto()
@@ -156,6 +285,12 @@ class TensorFlowTestCase(googletest.TestCase):
       elif force_gpu and config.allow_soft_placement:
         config = config_pb2.ConfigProto().CopyFrom(config)
         config.allow_soft_placement = False
+<<<<<<< HEAD
+=======
+      # Don't perform optimizations for tests so we don't inadvertently run
+      # gpu ops on cpu
+      config.graph_options.optimizer_options.opt_level = -1
+>>>>>>> tensorflow/master
       return config
 
     if graph is None:
@@ -170,7 +305,11 @@ class TensorFlowTestCase(googletest.TestCase):
         elif use_gpu:
           yield sess
         else:
+<<<<<<< HEAD
           with sess.graph.device(graph_util.pin_to_cpu):
+=======
+          with sess.graph.device("/cpu:0"):
+>>>>>>> tensorflow/master
             yield sess
     else:
       with session.Session(graph=graph, config=prepare_config(config)) as sess:
@@ -180,7 +319,11 @@ class TensorFlowTestCase(googletest.TestCase):
         elif use_gpu:
           yield sess
         else:
+<<<<<<< HEAD
           with sess.graph.device(graph_util.pin_to_cpu):
+=======
+          with sess.graph.device("/cpu:0"):
+>>>>>>> tensorflow/master
             yield sess
   # pylint: enable=g-doc-return-or-yield
 
@@ -212,9 +355,13 @@ class TensorFlowTestCase(googletest.TestCase):
       """Target for the wrapper thread. Sets self._exception on failure."""
       try:
         self._target(*self._args, **self._kwargs)
+<<<<<<< HEAD
 # pylint: disable=broad-except
       except Exception as e:
         # pylint: enable=broad-except
+=======
+      except Exception as e:  # pylint: disable=broad-except
+>>>>>>> tensorflow/master
         self._exception = e
 
     def start(self):
@@ -269,18 +416,33 @@ class TensorFlowTestCase(googletest.TestCase):
     return ret
 # pylint: enable=invalid-name
 
+<<<<<<< HEAD
   def assertNear(self, f1, f2, err):
+=======
+  def assertNear(self, f1, f2, err, msg=None):
+>>>>>>> tensorflow/master
     """Asserts that two floats are near each other.
 
     Checks that |f1 - f2| < err and asserts a test failure
     if not.
 
     Args:
+<<<<<<< HEAD
       f1: a float value.
       f2: a float value.
       err: a float value.
     """
     self.assertTrue(math.fabs(f1 - f2) < err)
+=======
+      f1: A float value.
+      f2: A float value.
+      err: A float value.
+      msg: An optional string message to append to the failure message.
+    """
+    self.assertTrue(math.fabs(f1 - f2) <= err,
+                    "%f != %f +/- %f%s" % (
+                        f1, f2, err, " (%s)" % msg if msg is not None else ""))
+>>>>>>> tensorflow/master
 
   def assertArrayNear(self, farray1, farray2, err):
     """Asserts that two float arrays are near each other.
@@ -293,8 +455,14 @@ class TensorFlowTestCase(googletest.TestCase):
       farray2: a list of float values.
       err: a float value.
     """
+<<<<<<< HEAD
     for f1, f2 in zip(farray1, farray2):
       self.assertNear(f1, f2, err)
+=======
+    self.assertEqual(len(farray1), len(farray2))
+    for f1, f2 in zip(farray1, farray2):
+      self.assertNear(float(f1), float(f2), err)
+>>>>>>> tensorflow/master
 
   def _NDArrayNear(self, ndarray1, ndarray2, err):
     return np.linalg.norm(ndarray1 - ndarray2) < err
@@ -413,9 +581,13 @@ class TensorFlowTestCase(googletest.TestCase):
     try:
       yield
       self.fail(exception_type.__name__ + " not raised")
+<<<<<<< HEAD
 # pylint: disable=broad-except
     except Exception as e:
       # pylint: enable=broad-except
+=======
+    except Exception as e:  # pylint: disable=broad-except
+>>>>>>> tensorflow/master
       if not isinstance(e, exception_type) or not predicate(e):
         raise AssertionError(e)
   # pylint: enable=g-doc-return-or-yield
@@ -439,3 +611,26 @@ class TensorFlowTestCase(googletest.TestCase):
     if not isinstance(tf_tensor, ops.Tensor):
       raise TypeError("tf_tensor must be a Tensor")
     self.assertAllEqual(np_array.shape, tf_tensor.get_shape().as_list())
+<<<<<<< HEAD
+=======
+
+  def assertDeviceEqual(self, device1, device2):
+    """Asserts that the two given devices are the same.
+
+    Args:
+      device1: A string device name or TensorFlow `Device` object.
+      device2: A string device name or TensorFlow `Device` object.
+    """
+    device1 = pydev.canonical_name(device1)
+    device2 = pydev.canonical_name(device2)
+    self.assertEqual(device1, device2,
+                     "Devices %s and %s are not equal" % (device1, device2))
+
+  # Fix Python 3 compatibility issues
+  if six.PY3:
+    # Silence a deprecation warning
+    assertRaisesRegexp = googletest.TestCase.assertRaisesRegex
+
+    # assertItemsEqual is assertCountEqual as of 3.2.
+    assertItemsEqual = googletest.TestCase.assertCountEqual
+>>>>>>> tensorflow/master

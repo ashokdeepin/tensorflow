@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Operations for clipping (gradient, weight) tensors to min/max values."""
 from __future__ import absolute_import
 from __future__ import division
@@ -7,11 +25,20 @@ import collections
 
 import six
 
+<<<<<<< HEAD
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import types
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import constant_op
 from tensorflow.python.ops import math_ops
+=======
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import constant_op
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import nn_ops
+>>>>>>> tensorflow/master
 
 
 def clip_by_value(t, clip_value_min, clip_value_max,
@@ -37,11 +64,16 @@ def clip_by_value(t, clip_value_min, clip_value_max,
     t = ops.convert_to_tensor(t, name="t")
 
     # Go through list of tensors, for each value in each tensor clip
+<<<<<<< HEAD
     t_min = math_ops.minimum(
         t, array_ops.fill(array_ops.shape(t), clip_value_max))
     t_max = math_ops.maximum(
         t_min, array_ops.fill(array_ops.shape(t), clip_value_min),
         name=name)
+=======
+    t_min = math_ops.minimum(t, clip_value_max)
+    t_max = math_ops.maximum(t_min, clip_value_min, name=name)
+>>>>>>> tensorflow/master
 
   return t_max
 
@@ -50,7 +82,11 @@ def clip_by_norm(t, clip_norm, name=None):
   """Clips tensor values to a maximum L2-norm.
 
   Given a tensor `t`, and a maximum clip value `clip_norm`, this operation
+<<<<<<< HEAD
   normalizes `t` so that its L2-norm is less than or equal to `clip_norm'.
+=======
+  normalizes `t` so that its L2-norm is less than or equal to `clip_norm`.
+>>>>>>> tensorflow/master
   Specifically, if the L2-norm is already less than or equal to `clip_norm`,
   then `t` is not modified. If the L2-norm is greater than `clip_norm`, then
   this operation returns a tensor of the same type and shape as `t` with its
@@ -114,11 +150,26 @@ def global_norm(t_list, name=None):
             name="t_%d" % i)
         if t is not None else t
         for i, t in enumerate(t_list)]
+<<<<<<< HEAD
     squared_norms = array_ops.pack(
         [math_ops.reduce_sum(v * v) for v in values if v])
 
     norm = math_ops.sqrt(
         math_ops.reduce_sum(squared_norms), name="global_norm")
+=======
+    half_squared_norms = []
+    for v in values:
+      if v is not None:
+        with ops.colocate_with(v):
+          half_squared_norms.append(nn_ops.l2_loss(v))
+
+    half_squared_norm = math_ops.reduce_sum(array_ops.pack(half_squared_norms))
+
+    norm = math_ops.sqrt(
+        half_squared_norm *
+        constant_op.constant(2.0, dtype=half_squared_norm.dtype),
+        name="global_norm")
+>>>>>>> tensorflow/master
 
   return norm
 
@@ -131,6 +182,7 @@ def clip_by_global_norm(t_list, clip_norm, use_norm=None, name=None):
   if you've already computed the global norm for `t_list`, you can specify
   the global norm with `use_norm`.
 
+<<<<<<< HEAD
   To perform the clipping, the values t_list[i] are set to:
 
   `t_list[i] * clip_norm / max(global_norm, clip_norm)`
@@ -138,15 +190,32 @@ def clip_by_global_norm(t_list, clip_norm, use_norm=None, name=None):
   where:
 
   `global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))`
+=======
+  To perform the clipping, the values `t_list[i]` are set to:
+
+      t_list[i] * clip_norm / max(global_norm, clip_norm)
+
+  where:
+
+      global_norm = sqrt(sum([l2norm(t)**2 for t in t_list]))
+>>>>>>> tensorflow/master
 
   If `clip_norm > global_norm` then the entries in `t_list` remain as they are,
   otherwise they're all shrunk by the global ratio.
 
+<<<<<<< HEAD
   Any of the entries of `t_list` that are of type None are ignored.
 
   This is the correct way to perform gradient clipping (for example, see
   R. Pascanu, T. Mikolov, and Y. Bengio, "On the difficulty of training
   Recurrent Neural Networks".  http://arxiv.org/abs/1211.5063)
+=======
+  Any of the entries of `t_list` that are of type `None` are ignored.
+
+  This is the correct way to perform gradient clipping (for example, see
+  [Pascanu et al., 2012](http://arxiv.org/abs/1211.5063)
+  ([pdf](http://arxiv.org/pdf/1211.5063.pdf))).
+>>>>>>> tensorflow/master
 
   However, it is slower than `clip_by_norm()` because all the parameters must be
   ready before the clipping operation can be performed.
@@ -175,7 +244,12 @@ def clip_by_global_norm(t_list, clip_norm, use_norm=None, name=None):
   with ops.op_scope(t_list + [clip_norm], name, "clip_by_global_norm") as name:
     # Calculate L2-norm, clip elements by ratio of clip_norm to L2-norm
     scale = clip_norm * math_ops.minimum(
+<<<<<<< HEAD
         1.0 / use_norm, constant_op.constant(1.0 / clip_norm))
+=======
+        1.0 / use_norm,
+        constant_op.constant(1.0 / clip_norm, dtype=use_norm.dtype))
+>>>>>>> tensorflow/master
 
     values = [
         ops.convert_to_tensor(
@@ -184,10 +258,21 @@ def clip_by_global_norm(t_list, clip_norm, use_norm=None, name=None):
         if t is not None else t
         for i, t in enumerate(t_list)]
 
+<<<<<<< HEAD
     values_clipped = [
         array_ops.identity(v * scale, name="%s_%d" % (name, i))
         if v is not None else None
         for i, v in enumerate(values)]
+=======
+    values_clipped = []
+    for i, v in enumerate(values):
+      if v is None:
+        values_clipped.append(None)
+      else:
+        with ops.colocate_with(v):
+          values_clipped.append(
+              array_ops.identity(v * scale, name="%s_%d" % (name, i)))
+>>>>>>> tensorflow/master
 
     list_clipped = [
         ops.IndexedSlices(c_v, t.indices)
@@ -203,7 +288,11 @@ def clip_by_average_norm(t, clip_norm, name=None):
 
   Given a tensor `t`, and a maximum clip value `clip_norm`, this operation
   normalizes `t` so that its average L2-norm is less than or equal to
+<<<<<<< HEAD
   `clip_norm'. Specifically, if the average L2-norm is already less than or
+=======
+  `clip_norm`. Specifically, if the average L2-norm is already less than or
+>>>>>>> tensorflow/master
   equal to `clip_norm`, then `t` is not modified. If the average L2-norm is
   greater than `clip_norm`, then this operation returns a tensor of the same
   type and shape as `t` with its values set to:
@@ -228,7 +317,11 @@ def clip_by_average_norm(t, clip_norm, name=None):
 
     # Calculate L2-norm per element, clip elements by ratio of clip_norm to
     # L2-norm per element
+<<<<<<< HEAD
     n_element = math_ops.cast(array_ops.size(t), types.float32)
+=======
+    n_element = math_ops.cast(array_ops.size(t), dtypes.float32)
+>>>>>>> tensorflow/master
     l2norm_inv = math_ops.rsqrt(
         math_ops.reduce_sum(t * t, math_ops.range(array_ops.rank(t))))
     tclip = array_ops.identity(

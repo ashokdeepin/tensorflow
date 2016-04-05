@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // This file binds the native image utility code to the Java class
 // which exposes them.
 
@@ -5,7 +23,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
+=======
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/examples/android/jni/rgb2yuv.h"
 #include "tensorflow/examples/android/jni/yuv2rgb.h"
 
@@ -23,10 +45,21 @@ IMAGEUTILS_METHOD(convertYUV420SPToARGB8888)(
     JNIEnv* env, jclass clazz, jbyteArray input, jintArray output,
     jint width, jint height, jboolean halfSize);
 
+<<<<<<< HEAD
 JNIEXPORT void JNICALL
 IMAGEUTILS_METHOD(convertYUV420SPToRGB565)(
     JNIEnv* env, jclass clazz, jbyteArray input, jbyteArray output,
     jint width, jint height);
+=======
+JNIEXPORT void JNICALL IMAGEUTILS_METHOD(convertYUV420ToARGB8888)(
+    JNIEnv* env, jclass clazz, jbyteArray y, jbyteArray u, jbyteArray v,
+    jintArray output, jint width, jint height, jint y_row_stride,
+    jint uv_row_stride, jint uv_pixel_stride, jboolean halfSize);
+
+JNIEXPORT void JNICALL IMAGEUTILS_METHOD(convertYUV420SPToRGB565)(
+    JNIEnv* env, jclass clazz, jbyteArray input, jbyteArray output, jint width,
+    jint height);
+>>>>>>> tensorflow/master
 
 JNIEXPORT void JNICALL
 IMAGEUTILS_METHOD(convertARGB8888ToYUV420SP)(
@@ -67,10 +100,46 @@ IMAGEUTILS_METHOD(convertYUV420SPToARGB8888)(
   env->ReleaseIntArrayElements(output, o, 0);
 }
 
+<<<<<<< HEAD
 JNIEXPORT void JNICALL
 IMAGEUTILS_METHOD(convertYUV420SPToRGB565)(
     JNIEnv* env, jclass clazz, jbyteArray input, jbyteArray output,
     jint width, jint height) {
+=======
+JNIEXPORT void JNICALL IMAGEUTILS_METHOD(convertYUV420ToARGB8888)(
+    JNIEnv* env, jclass clazz, jbyteArray y, jbyteArray u, jbyteArray v,
+    jintArray output, jint width, jint height, jint y_row_stride,
+    jint uv_row_stride, jint uv_pixel_stride, jboolean halfSize) {
+  jboolean inputCopy = JNI_FALSE;
+  jbyte* const y_buff = env->GetByteArrayElements(y, &inputCopy);
+  jboolean outputCopy = JNI_FALSE;
+  jint* const o = env->GetIntArrayElements(output, &outputCopy);
+
+  if (halfSize) {
+    ConvertYUV420SPToARGB8888HalfSize(reinterpret_cast<uint8*>(y_buff),
+                                      reinterpret_cast<uint32*>(o), width,
+                                      height);
+  } else {
+    jbyte* const u_buff = env->GetByteArrayElements(u, &inputCopy);
+    jbyte* const v_buff = env->GetByteArrayElements(v, &inputCopy);
+
+    ConvertYUV420ToARGB8888(
+        reinterpret_cast<uint8*>(y_buff), reinterpret_cast<uint8*>(u_buff),
+        reinterpret_cast<uint8*>(v_buff), reinterpret_cast<uint32*>(o), width,
+        height, y_row_stride, uv_row_stride, uv_pixel_stride);
+
+    env->ReleaseByteArrayElements(u, u_buff, JNI_ABORT);
+    env->ReleaseByteArrayElements(v, v_buff, JNI_ABORT);
+  }
+
+  env->ReleaseByteArrayElements(y, y_buff, JNI_ABORT);
+  env->ReleaseIntArrayElements(output, o, 0);
+}
+
+JNIEXPORT void JNICALL IMAGEUTILS_METHOD(convertYUV420SPToRGB565)(
+    JNIEnv* env, jclass clazz, jbyteArray input, jbyteArray output, jint width,
+    jint height) {
+>>>>>>> tensorflow/master
   jboolean inputCopy = JNI_FALSE;
   jbyte* const i = env->GetByteArrayElements(input, &inputCopy);
 

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op.h"
 
@@ -163,7 +181,11 @@ Computes exponential of x element-wise.  \\(y = e^x\\).
 REGISTER_OP("Log")
     .UNARY()
     .Doc(R"doc(
+<<<<<<< HEAD
 Computes natural logrithm of x element-wise.
+=======
+Computes natural logarithm of x element-wise.
+>>>>>>> tensorflow/master
 I.e., \\(y = \log_e x\\).
 )doc");
 
@@ -173,6 +195,34 @@ REGISTER_OP("Tanh")
 Computes hyperbolic tangent of `x` element-wise.
 )doc");
 
+<<<<<<< HEAD
+=======
+REGISTER_OP("Lgamma")
+    .UNARY()
+    .Doc(R"doc(
+Computes the log of the absolute value of `Gamma(x)` element-wise.
+)doc");
+
+REGISTER_OP("Digamma")
+    .UNARY()
+    .Doc(R"doc(
+Computes Psi, the derivative of Lgamma (the log of the absolute value of
+`Gamma(x)`), element-wise.
+)doc");
+
+REGISTER_OP("Erf")
+    .UNARY()
+    .Doc(R"doc(
+Computes the Gauss error function of `x` element-wise.
+)doc");
+
+REGISTER_OP("Erfc")
+    .UNARY()
+    .Doc(R"doc(
+Computes the complementary error function of `x` element-wise.
+)doc");
+
+>>>>>>> tensorflow/master
 REGISTER_OP("Sigmoid")
     .UNARY()
     .Doc(R"doc(
@@ -222,11 +272,21 @@ Returns which elements of x are finite.
 REGISTER_OP("Sign")
     .Input("x: T")
     .Output("y: T")
+<<<<<<< HEAD
     .Attr("T: {float, double, int32, int64}")
     .Doc(R"doc(
 Returns an element-wise indication of the sign of a number.
 
 y = sign(x) = -1 if x < 0; 0 if x == 0; 1 if x > 0.
+=======
+    .Attr("T: {float, double, int32, int64, complex64}")
+    .Doc(R"doc(
+Returns an element-wise indication of the sign of a number.
+
+`y = sign(x) = -1` if `x < 0`; 0 if `x == 0`; 1 if `x > 0`.
+
+For complex numbers, `y = sign(x) = x / |x|` if `x != 0`, otherwise `y = 0`.
+>>>>>>> tensorflow/master
 )doc");
 
 REGISTER_OP("Floor")
@@ -249,15 +309,30 @@ Returns element-wise smallest integer in not less than x.
 
 #define BINARY_MORE()                              \
   Input("x: T").Input("y: T").Output("z: T").Attr( \
+<<<<<<< HEAD
       "T: {float, double, int8, int16, int32, complex64, int64}")
+=======
+      "T: {float, double, uint8, int8, int16, int32, int64, complex64}")
+>>>>>>> tensorflow/master
 
 #define BINARY_FEWER()                             \
   Input("x: T").Input("y: T").Output("z: T").Attr( \
       "T: {float, double, int32, complex64, int64}")
 
+<<<<<<< HEAD
 REGISTER_OP("Add")
     .BINARY_MORE()
     .SetIsCommutative()
+=======
+// TODO(mrry): Restore `SetIsCommutative()` for non-string types.
+REGISTER_OP("Add")
+    .Input("x: T")
+    .Input("y: T")
+    .Output("z: T")
+    .Attr(
+        "T: {float, double, uint8, int8, int16, int32, int64, complex64, "
+        "string}")
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Returns x + y element-wise.
 
@@ -278,11 +353,25 @@ Returns x * y element-wise.
 )doc");
 
 REGISTER_OP("Div")
+<<<<<<< HEAD
     .BINARY_FEWER()
+=======
+    .BINARY_MORE()
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Returns x / y element-wise.
 )doc");
 
+<<<<<<< HEAD
+=======
+REGISTER_OP("SquaredDifference")
+    .BINARY_FEWER()
+    .SetIsCommutative()
+    .Doc(R"doc(
+Returns (x - y)(x - y) element-wise.
+)doc");
+
+>>>>>>> tensorflow/master
 #undef BINARY_FEWER
 #undef BINARY_MORE
 
@@ -333,13 +422,67 @@ tf.pow(x, y) ==> [[256, 65536], [9, 27]]
 ```
 )doc");
 
+<<<<<<< HEAD
+=======
+REGISTER_OP("Igammac")
+    .Input("a: T")
+    .Input("x: T")
+    .Output("z: T")
+    .Attr("T: {float, double}")
+    .Doc(R"doc(
+Compute the upper regularized incomplete Gamma function `Q(a, x)`.
+
+The upper regularized incomplete Gamma function is defined as:
+
+```
+Q(a, x) = Gamma(a, x) / Gamma(x) = 1 - P(a, x)
+```
+where
+```
+Gamma(a, x) = int_{x}^{\infty} t^{a-1} exp(-t) dt
+```
+is the upper incomplete Gama function.
+
+Note, above `P(a, x)` (`Igamma`) is the lower regularized complete
+Gamma function.
+)doc");
+
+REGISTER_OP("Igamma")
+    .Input("a: T")
+    .Input("x: T")
+    .Output("z: T")
+    .Attr("T: {float, double}")
+    .Doc(R"doc(
+Compute the lower regularized incomplete Gamma function `Q(a, x)`.
+
+The lower regularized incomplete Gamma function is defined as:
+
+```
+P(a, x) = gamma(a, x) / Gamma(x) = 1 - Q(a, x)
+```
+where
+```
+gamma(a, x) = int_{0}^{x} t^{a-1} exp(-t) dt
+```
+is the lower incomplete Gamma function.
+
+Note, above `Q(a, x)` (`Igammac`) is the upper regularized complete
+Gamma function.
+)doc");
+
+>>>>>>> tensorflow/master
 // --------------------------------------------------------------------------
 
 // Declares cwise binary comparison operations signature: 't, 't -> bool,
 // where 't has a natural total order.
+<<<<<<< HEAD
 #define COMPARISON()                                  \
   Input("x: T").Input("y: T").Output("z: bool").Attr( \
       "T: {float, double, int32, int64}")
+=======
+#define COMPARISON() \
+  Input("x: T").Input("y: T").Output("z: bool").Attr("T: realnumbertype")
+>>>>>>> tensorflow/master
 
 REGISTER_OP("Less")
     .COMPARISON()
@@ -371,7 +514,12 @@ Returns the truth value of (x >= y) element-wise.
 
 #define COMPARISON()                                                     \
   Input("x: T").Input("y: T").Output("z: bool").SetIsCommutative().Attr( \
+<<<<<<< HEAD
       "T: {float, double, int32, int64, complex64, quint8, qint8, qint32}")
+=======
+      "T: {float, double, uint8, int8, int16, int32, int64, complex64, " \
+      "quint8, qint8, qint32, string}")
+>>>>>>> tensorflow/master
 
 REGISTER_OP("Equal")
     .COMPARISON()
@@ -424,15 +572,33 @@ REGISTER_OP("Select")
     .Doc(R"doc(
 Selects elements from `t` or `e`, depending on `condition`.
 
+<<<<<<< HEAD
 The `condition`, `t`, and `e` tensors must all have the same shape,
 and the output will also have that shape. The `condition` tensor acts
 as an element-wise mask that chooses, based on the value at each
 element, whether the corresponding element in the output should be
 taken from `t` (if true) or `e` (if false). For example:
+=======
+The `t`, and `e` tensors must all have the same shape,
+and the output will also have that shape.  The `condition` tensor
+must be a scalar if `t` and `e` are scalars.  If `t` and `e` are vectors
+or higher rank, then `condition` must be either a vector with size
+matching the first dimension of `t`, or must have the same shape as `t`.
+
+The `condition` tensor acts as a mask that chooses, based on the value at each
+element, whether the corresponding element / row in the output should be
+taken from `t` (if true) or `e` (if false).
+
+If `condition` is a vector and `t` and `e` are higher rank matrices, then
+it chooses which row (outer dimension) to copy from `t` and `e`.
+If `condition` has the same shape as `t` and `e`, then it chooses which
+element to copy from `t` and `e`.
+>>>>>>> tensorflow/master
 
 For example:
 
 ```prettyprint
+<<<<<<< HEAD
 # 'condition' tensor is [[True, False]
 #                        [True, False]]
 # 't' is [[1, 1],
@@ -444,6 +610,31 @@ select(condition, t, e) ==> [[1, 2],
 ```
 
 t:= A `Tensor` with the same shape as `condition`.
+=======
+# 'condition' tensor is [[True,  False]
+#                        [False, True]]
+# 't' is [[1, 2],
+#         [3, 4]]
+# 'e' is [[5, 6],
+#         [7, 8]]
+select(condition, t, e) ==> [[1, 6],
+                             [7, 4]]
+
+
+# 'condition' tensor is [True, False]
+# 't' is [[1, 2],
+#         [3, 4]]
+# 'e' is [[5, 6],
+#         [7, 8]]
+select(condition, t, e) ==> [[1, 2],
+                             [7, 8]]
+
+```
+
+t:= A `Tensor` which may have the same shape as `condition`.
+    If `condition` is rank 1, `t` may have higher rank,
+    but its first dimension must match the size of `condition`.
+>>>>>>> tensorflow/master
 e:= A `Tensor` with the same type and shape as `t`.
 out:= A `Tensor` with the same type and shape as `t` and `e`.
 )doc");
@@ -634,13 +825,21 @@ Computes a tensor such that
 that `segment_ids[j] == i`.
 
 <div style="width:70%; margin:auto; margin-bottom:10px; margin-top:20px;">
+<<<<<<< HEAD
 <img style="width:100%" src="../images/SegmentSum.png" alt>
+=======
+<img style="width:100%" src="../../images/SegmentSum.png" alt>
+>>>>>>> tensorflow/master
 </div>
 
 segment_ids: A 1-D tensor whose rank is equal to the rank of `data`'s
 first dimension.  Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 )doc");
 
@@ -663,13 +862,21 @@ over `j` such that `segment_ids[j] == i` and `N` is the total number of
 values summed.
 
 <div style="width:70%; margin:auto; margin-bottom:10px; margin-top:20px;">
+<<<<<<< HEAD
 <img style="width:100%" src="../images/SegmentMean.png" alt>
+=======
+<img style="width:100%" src="../../images/SegmentMean.png" alt>
+>>>>>>> tensorflow/master
 </div>
 
 segment_ids: A 1-D tensor whose rank is equal to the rank of `data`'s
 first dimension.  Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 )doc");
 
@@ -691,13 +898,21 @@ Computes a tensor such that
 that `segment_ids[j] == i`.
 
 <div style="width:70%; margin:auto; margin-bottom:10px; margin-top:20px;">
+<<<<<<< HEAD
 <img style="width:100%" src="../images/SegmentProd.png" alt>
+=======
+<img style="width:100%" src="../../images/SegmentProd.png" alt>
+>>>>>>> tensorflow/master
 </div>
 
 segment_ids: A 1-D tensor whose rank is equal to the rank of `data`'s
 first dimension.  Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 )doc");
 
@@ -719,13 +934,21 @@ Computes a tensor such that
 that `segment_ids[j] == i`.
 
 <div style="width:70%; margin:auto; margin-bottom:10px; margin-top:20px;">
+<<<<<<< HEAD
 <img style="width:100%" src="../images/SegmentMin.png" alt>
+=======
+<img style="width:100%" src="../../images/SegmentMin.png" alt>
+>>>>>>> tensorflow/master
 </div>
 
 segment_ids: A 1-D tensor whose rank is equal to the rank of `data`'s
 first dimension.  Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 )doc");
 
@@ -746,13 +969,21 @@ Computes a tensor such that
 that `segment_ids[j] == i`.
 
 <div style="width:70%; margin:auto; margin-bottom:10px; margin-top:20px;">
+<<<<<<< HEAD
 <img style="width:100%" src="../images/SegmentMax.png" alt>
+=======
+<img style="width:100%" src="../../images/SegmentMax.png" alt>
+>>>>>>> tensorflow/master
 </div>
 
 segment_ids: A 1-D tensor whose rank is equal to the rank of `data`'s
 first dimension.  Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 )doc");
 
@@ -781,13 +1012,21 @@ If the sum is empty for a given segment ID `i`, `output[i] = 0`.
 `num_segments` should equal the number of distinct segment IDs.
 
 <div style="width:70%; margin:auto; margin-bottom:10px; margin-top:20px;">
+<<<<<<< HEAD
 <img style="width:100%" src="../images/UnsortedSegmentSum.png" alt>
+=======
+<img style="width:100%" src="../../images/UnsortedSegmentSum.png" alt>
+>>>>>>> tensorflow/master
 </div>
 
 segment_ids: A 1-D tensor whose rank is equal to the rank of `data`'s
 first dimension.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `num_segments`.
 
 )doc");
@@ -806,7 +1045,11 @@ Segmentation](../../api_docs/python/math_ops.md#segmentation) for an explanation
 of segments.
 
 Like `SegmentSum`, but `segment_ids` can have rank less than `data`'s first
+<<<<<<< HEAD
 dimension, selecting a subset of dimension_0, specified by `indices`.
+=======
+dimension, selecting a subset of dimension 0, specified by `indices`.
+>>>>>>> tensorflow/master
 
 For example:
 
@@ -835,7 +1078,11 @@ indices: A 1-D tensor. Has same rank as `segment_ids`.
 
 segment_ids: A 1-D tensor. Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 )doc");
 
@@ -853,13 +1100,21 @@ Segmentation](../../api_docs/python/math_ops.md#segmentation) for an explanation
 of segments.
 
 Like `SegmentMean`, but `segment_ids` can have rank less than `data`'s first
+<<<<<<< HEAD
 dimension, selecting a subset of dimension_0, specified by `indices`.
+=======
+dimension, selecting a subset of dimension 0, specified by `indices`.
+>>>>>>> tensorflow/master
 
 indices: A 1-D tensor. Has same rank as `segment_ids`.
 
 segment_ids: A 1-D tensor. Values should be sorted and can be repeated.
 
+<<<<<<< HEAD
 output: Has same shape as data, except for dimension_0 which
+=======
+output: Has same shape as data, except for dimension 0 which
+>>>>>>> tensorflow/master
 has size `k`, the number of segments.
 
 )doc");
@@ -874,13 +1129,64 @@ REGISTER_OP("SparseSegmentMeanGrad")
     .Doc(R"doc(
 Computes gradients for SparseSegmentMean.
 
+<<<<<<< HEAD
 Returns tensor "output" with same shape as grad, except for dimension_0 whose
+=======
+Returns tensor "output" with same shape as grad, except for dimension 0 whose
+>>>>>>> tensorflow/master
 value is output_dim0.
 
 grad: gradient propagated to the SparseSegmentMean op.
 indices: indices passed to the corresponding SparseSegmentMean op.
 segment_ids: segment_ids passed to the corresponding SparseSegmentMean op.
+<<<<<<< HEAD
 output_dim0: dimension_0 of "data" passed to SparseSegmentMean op.
+=======
+output_dim0: dimension 0 of "data" passed to SparseSegmentMean op.
+)doc");
+
+REGISTER_OP("SparseSegmentSqrtN")
+    .Input("data: T")
+    .Input("indices: int32")
+    .Input("segment_ids: int32")
+    .Output("output: T")
+    .Attr("T: {float, double}")
+    .Doc(R"doc(
+Computes the sum along sparse segments of a tensor divided by the sqrt of N.
+
+N is the size of the segment being reduced.
+
+Read [the section on
+Segmentation](../../api_docs/python/math_ops.md#segmentation) for an explanation
+of segments.
+
+indices: A 1-D tensor. Has same rank as `segment_ids`.
+
+segment_ids: A 1-D tensor. Values should be sorted and can be repeated.
+
+output: Has same shape as data, except for dimension 0 which
+has size `k`, the number of segments.
+
+)doc");
+
+REGISTER_OP("SparseSegmentSqrtNGrad")
+    .Input("grad: T")
+    .Input("indices: int32")
+    .Input("segment_ids: int32")
+    .Input("output_dim0: int32")
+    .Output("output: T")
+    .Attr("T: {float, double}")
+    .Doc(R"doc(
+Computes gradients for SparseSegmentSqrtN.
+
+Returns tensor "output" with same shape as grad, except for dimension 0 whose
+value is output_dim0.
+
+grad: gradient propagated to the SparseSegmentSqrtN op.
+indices: indices passed to the corresponding SparseSegmentSqrtN op.
+segment_ids: segment_ids passed to the corresponding SparseSegmentSqrtN op.
+output_dim0: dimension 0 of "data" passed to SparseSegmentSqrtN op.
+>>>>>>> tensorflow/master
 )doc");
 
 REGISTER_OP("All")
@@ -1056,4 +1362,158 @@ tf.conj(in) ==> [-2.25 - 4.75j, 3.25 - 5.75j]
 ```
 )doc");
 
+<<<<<<< HEAD
+=======
+REGISTER_OP("FFT")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the 1-dimensional discrete Fourier Transform.
+
+in: A complex64 vector.
+out: The 1D Fourier Transform of `in`.
+)doc");
+
+REGISTER_OP("IFFT")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the inverse 1-dimensional discrete Fourier Transform.
+
+in: A complex64 vector.
+out: The inverse 1D Fourier Transform of `in`.
+)doc");
+
+REGISTER_OP("FFT2D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the 2-dimensional discrete Fourier Transform.
+
+in: A complex64 matrix.
+out: The 2D Fourier Transform of `in`.
+)doc");
+
+REGISTER_OP("IFFT2D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the inverse 2-dimensional discrete Fourier Transform.
+
+in: A complex64 matrix.
+out: The inverse 2D Fourier Transform of `in`.
+)doc");
+
+REGISTER_OP("FFT3D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the 3-dimensional discrete Fourier Transform.
+
+in: A complex64 3-D tensor.
+out: The 3D Fourier Transform of `in`.
+)doc");
+
+REGISTER_OP("IFFT3D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the inverse 3-dimensional discrete Fourier Transform.
+
+in: A complex64 3-D tensor.
+out: The inverse 3D Fourier Transform of `in`.
+)doc");
+
+REGISTER_OP("BatchFFT")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the 1-dimensional discrete Fourier Transform over the inner-most
+dimension of `in`.
+
+in: A complex64 tensor.
+out: A complex64 tensor of the same shape as `in`. The inner-most dimension of
+  `in` is replaced with its 1D Fourier Transform.
+)doc");
+
+REGISTER_OP("BatchIFFT")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the inverse 1-dimensional discrete Fourier Transform over the inner-most
+dimension of `in`.
+
+in: A complex64 tensor.
+out: A complex64 tensor of the same shape as `in`. The inner-most dimension of
+  `in` is replaced with its inverse 1D Fourier Transform.
+)doc");
+
+REGISTER_OP("BatchFFT2D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the 2-dimensional discrete Fourier Transform over the inner-most
+2 dimensions of `in`.
+
+in: A complex64 tensor.
+out: A complex64 tensor of the same shape as `in`. The inner-most 2 dimensions
+  of `in` are replaced with their 2D Fourier Transform.
+)doc");
+
+REGISTER_OP("BatchIFFT2D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the inverse 2-dimensional discrete Fourier Transform over the inner-most
+2 dimensions of `in`.
+
+in: A complex64 tensor.
+out: A complex64 tensor of the same shape as `in`. The inner-most 2 dimensions
+  of `in` are replaced with their inverse 2D Fourier Transform.
+)doc");
+
+REGISTER_OP("BatchFFT3D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the 3-dimensional discrete Fourier Transform over the inner-most 3
+dimensions of `in`.
+
+in: A complex64 tensor.
+out: A complex64 tensor of the same shape as `in`. The inner-most 3 dimensions
+  of `in` are replaced with their 3D Fourier Transform.
+)doc");
+
+REGISTER_OP("BatchIFFT3D")
+    .Input("in: complex64")
+    .Output("out: complex64")
+    .Doc(R"doc(
+Compute the inverse 3-dimensional discrete Fourier Transform over the inner-most
+3 dimensions of `in`.
+
+in: A complex64 tensor.
+out: A complex64 tensor of the same shape as `in`. The inner-most 3 dimensions
+  of `in` are replaced with their inverse 3D Fourier Transform.
+)doc");
+
+// --------------------------------------------------------------------------
+
+REGISTER_OP("Cross")
+    .Input("a: T")
+    .Input("b: T")
+    .Output("product: T")
+    .Attr("T: realnumbertype")
+    .Doc(R"doc(
+Compute the pairwise cross product.
+
+`a` and `b` must be the same shape; they can either be simple 3-element vectors,
+or any shape where the innermost dimension is 3. In the latter case, each pair
+of corresponding 3-element vectors is cross-multiplied independently.
+
+a: A tensor containing 3-element vectors.
+b: Another tensor, of same type and shape as `a`.
+product: Pairwise cross product of the vectors in `a` and `b`.
+)doc");
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

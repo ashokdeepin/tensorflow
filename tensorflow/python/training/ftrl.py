@@ -1,9 +1,29 @@
+<<<<<<< HEAD
 """FTRL-Proximal for Tensor Flow."""
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+"""Ftrl-proximal for TensorFlow."""
+>>>>>>> tensorflow/master
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 from tensorflow.python.framework import ops
+<<<<<<< HEAD
 from tensorflow.python.framework import types
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import constant_op
@@ -180,11 +200,22 @@ def _SparseUpdate(variable, gradients, accum, linear, base_lr,
     group_op = control_flow_ops.group(linear_update_op, accum_update_op,
                                       variable_update_op, name=scope)
     return group_op
+=======
+from tensorflow.python.ops import constant_op
+from tensorflow.python.training import optimizer
+from tensorflow.python.training import training_ops
+>>>>>>> tensorflow/master
 
 
 class FtrlOptimizer(optimizer.Optimizer):
   """Optimizer that implements the FTRL algorithm.
 
+<<<<<<< HEAD
+=======
+  See this [paper](
+  https://www.eecs.tufts.edu/~dsculley/papers/ad-click-prediction.pdf).
+
+>>>>>>> tensorflow/master
   @@__init__
   """
 
@@ -196,6 +227,7 @@ class FtrlOptimizer(optimizer.Optimizer):
                use_locking=False, name="Ftrl"):
     """Construct a new FTRL optimizer.
 
+<<<<<<< HEAD
     The Ftrl-proximal algorithm, abbreviated for Follow-the-regularized-leader,
     is described in the paper [Ad Click Prediction: a View from the Trenches](
     https://www.eecs.tufts.edu/~dsculley/papers/ad-click-prediction.pdf).
@@ -220,6 +252,8 @@ class FtrlOptimizer(optimizer.Optimizer):
     function is `1 / lambda_2` if specifying `l2 = lambda_2` as argument when
     using this function.
 
+=======
+>>>>>>> tensorflow/master
     Args:
       learning_rate: A float value or a constant float `Tensor`.
       learning_rate_power: A float value, must be less or equal to zero.
@@ -234,7 +268,11 @@ class FtrlOptimizer(optimizer.Optimizer):
         gradients.  Defaults to "Ftrl".
 
     Raises:
+<<<<<<< HEAD
       ValueError: if one of the arguments is invalid.
+=======
+      ValueError: If one of the arguments is invalid.
+>>>>>>> tensorflow/master
     """
     super(FtrlOptimizer, self).__init__(use_locking, name)
 
@@ -258,10 +296,18 @@ class FtrlOptimizer(optimizer.Optimizer):
     self._initial_accumulator_value = initial_accumulator_value
     self._l1_regularization_strength = l1_regularization_strength
     self._l2_regularization_strength = l2_regularization_strength
+<<<<<<< HEAD
+=======
+    self._learning_rate_tensor = None
+    self._learning_rate_power_tensor = None
+    self._l1_regularization_strength_tensor = None
+    self._l2_regularization_strength_tensor = None
+>>>>>>> tensorflow/master
 
   def _create_slots(self, var_list):
     # Create the "accum" and "linear" slots.
     for v in var_list:
+<<<<<<< HEAD
       self._get_or_make_slot(
           v,
           constant_op.constant(self._initial_accumulator_value,
@@ -277,11 +323,51 @@ class FtrlOptimizer(optimizer.Optimizer):
                    self._learning_rate, self._learning_rate_power,
                    self._l1_regularization_strength,
                    self._l2_regularization_strength)
+=======
+      val = constant_op.constant(self._initial_accumulator_value,
+                                 dtype=v.dtype, shape=v.get_shape())
+      self._get_or_make_slot(v, val, "accum", self._name)
+      self._zeros_slot(v, "linear", self._name)
+
+  def _prepare(self):
+    self._learning_rate_tensor = ops.convert_to_tensor(
+        self._learning_rate,
+        name="learning_rate")
+    self._l1_regularization_strength_tensor = ops.convert_to_tensor(
+        self._l1_regularization_strength,
+        name="l1_regularization_strength")
+    self._l2_regularization_strength_tensor = ops.convert_to_tensor(
+        self._l2_regularization_strength,
+        name="l2_regularization_strength")
+    self._learning_rate_power_tensor = ops.convert_to_tensor(
+        self._learning_rate_power,
+        name="learning_rate_power")
+
+  def _apply_dense(self, grad, var):
+    accum = self.get_slot(var, "accum")
+    linear = self.get_slot(var, "linear")
+    return training_ops.apply_ftrl(
+        var, accum, linear, grad, self._learning_rate_tensor,
+        self._l1_regularization_strength_tensor,
+        self._l2_regularization_strength_tensor,
+        self._learning_rate_power_tensor,
+        use_locking=self._use_locking)
+>>>>>>> tensorflow/master
 
   def _apply_sparse(self, grad, var):
     accum = self.get_slot(var, "accum")
     linear = self.get_slot(var, "linear")
+<<<<<<< HEAD
     return _SparseUpdate(var, grad, accum, linear,
                          self._learning_rate, self._learning_rate_power,
                          self._l1_regularization_strength,
                          self._l2_regularization_strength)
+=======
+    return training_ops.sparse_apply_ftrl(
+        var, accum, linear, grad.values, grad.indices,
+        self._learning_rate_tensor,
+        self._l1_regularization_strength_tensor,
+        self._l2_regularization_strength_tensor,
+        self._learning_rate_power_tensor,
+        use_locking=self._use_locking)
+>>>>>>> tensorflow/master

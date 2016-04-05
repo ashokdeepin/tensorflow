@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/iron-icons/iron-icons.html">
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
 <link rel="import" href="../../bower_components/paper-input/paper-input.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../iron-icons/iron-icons.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+<link rel="import" href="../paper-input/paper-input.html">
+>>>>>>> tensorflow/master
 
 <!--
 `tf-regex-group` provides an input component for a group of regular expressions.
@@ -30,15 +38,28 @@ more regexes).
     <div class="regex-list">
       <template is="dom-repeat" items="{{rawRegexes}}">
         <div class="regex-line">
+<<<<<<< HEAD
           <paper-input
             id="text-input"
             class="regex-input"
             label="input new regex"
+=======
+          <paper-checkbox
+            class="active-button"
+            checked="{{item.active}}"
+            disabled="[[!item.valid]]"
+          ></paper-checkbox>
+          <paper-input
+            id="text-input"
+            class="regex-input"
+            label="Regex filter"
+>>>>>>> tensorflow/master
             no-label-float
             bind-value="{{item.regex}}"
             invalid="[[!item.valid]]"
             on-keyup="moveFocus"
           ></paper-input>
+<<<<<<< HEAD
           <paper-toggle-button
             class="active-button"
             checked="{{item.active}}"
@@ -47,6 +68,10 @@ more regexes).
 
           <paper-icon-button
             icon="delete"
+=======
+          <paper-icon-button
+            icon="close"
+>>>>>>> tensorflow/master
             class="delete-button"
             aria-label="Delete Regex"
             tabindex="0"
@@ -55,6 +80,7 @@ more regexes).
         </div>
         <style>
           .regex-input {
+<<<<<<< HEAD
             width: 210px;
             display: inline-block;
             padding-left: 8px;
@@ -77,6 +103,37 @@ more regexes).
           }
           paper-input {
             --paper-input-container-focus-color: var(--tb-orange-strong);
+=======
+            width: 230px;
+            display: inline-block;
+            margin-left: -3px;
+          }
+
+          paper-checkbox {
+            --paper-checkbox-checked-color: var(--tb-ui-dark-accent);
+            --paper-checkbox-unchecked-color: var(--tb-ui-dark-accent);
+          }
+
+          .delete-button {
+            color: var(--paper-grey-700);
+            width: 40px;
+            height: 40px;
+            margin-right: -10px;
+          }
+
+          .regex-list {
+            margin-bottom: 10px;
+          }
+          
+          paper-input {
+            --paper-input-container-focus-color: var(--tb-orange-strong);
+            --paper-input-container-input: {
+              font-size: 14px;
+            };
+            --paper-input-container-label: {
+              font-size: 14px;
+            };
+>>>>>>> tensorflow/master
           }
         </style>
       </template>

@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/nn_ops.cc.
 
 #define EIGEN_USE_THREADS
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
@@ -9,6 +28,15 @@
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include "tensorflow/core/kernels/softplus_op.h"
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/numeric_op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/errors.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -33,6 +61,12 @@ class SoftplusGradOp
  public:
   using BinaryElementWiseOp<T, SoftplusGradOp<Device, T>>::BinaryElementWiseOp;
 
+<<<<<<< HEAD
+=======
+  void OperateNoTemplate(OpKernelContext* context, const Tensor& g,
+                         const Tensor& a, Tensor* output);
+
+>>>>>>> tensorflow/master
   // INPUTS:
   //   g (gradients): backpropagated gradients
   //   a (inputs): inputs that were passed to SoftplusOp()
@@ -41,6 +75,7 @@ class SoftplusGradOp
   template <int NDIMS>
   void Operate(OpKernelContext* context, const Tensor& g, const Tensor& a,
                Tensor* output) {
+<<<<<<< HEAD
     OP_REQUIRES(context, a.IsSameSize(g),
                 errors::InvalidArgument("g and a must be the same size"));
     functor::SoftplusGrad<Device, T> functor;
@@ -48,6 +83,22 @@ class SoftplusGradOp
             output->flat<T>());
   }
 };
+=======
+    OperateNoTemplate(context, g, a, output);
+  }
+};
+template <typename Device, typename T>
+void SoftplusGradOp<Device, T>::OperateNoTemplate(OpKernelContext* context,
+                                                  const Tensor& g,
+                                                  const Tensor& a,
+                                                  Tensor* output) {
+  OP_REQUIRES(context, a.IsSameSize(g),
+              errors::InvalidArgument("g and a must be the same size"));
+  functor::SoftplusGrad<Device, T> functor;
+  functor(context->eigen_device<Device>(), g.flat<T>(), a.flat<T>(),
+          output->flat<T>());
+}
+>>>>>>> tensorflow/master
 
 #define REGISTER_KERNELS(type)                                           \
   REGISTER_KERNEL_BUILDER(                                               \

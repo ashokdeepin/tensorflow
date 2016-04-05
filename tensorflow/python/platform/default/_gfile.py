@@ -1,9 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """File processing utilities."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
+=======
+import collections
+>>>>>>> tensorflow/master
 import errno
 import functools
 import glob as _glob
@@ -11,6 +33,7 @@ import os
 import shutil
 import threading
 
+<<<<<<< HEAD
 
 class FileError(IOError):
   """An error occurred while reading or writing a file."""
@@ -40,6 +63,15 @@ class _GFileBase(object):
         raise GOSError(e)
     return wrap
 
+=======
+import six
+
+
+class _GFileBase(six.Iterator):
+  """Base I/O wrapper class.  Similar semantics to Python's file object."""
+
+  # pylint: disable=protected-access
+>>>>>>> tensorflow/master
   def _synchronized(fn):
     """Synchronizes file I/O for methods in GFileBase."""
     @functools.wraps(fn)
@@ -54,7 +86,10 @@ class _GFileBase(object):
     return sync
   # pylint: enable=protected-access
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   def __init__(self, name, mode, locker):
     """Create the GFileBase object with the given filename, mode, and locker.
 
@@ -77,7 +112,10 @@ class _GFileBase(object):
     """Make GFileBase usable with "with" statement."""
     self.close()
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def __del__(self):
     # __del__ is sometimes called before initialization, in which
@@ -85,20 +123,29 @@ class _GFileBase(object):
     # before trying to close the file handle.
     if hasattr(self, '_fp'): self._fp.close()
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def flush(self):
     """Flush the underlying file handle."""
     return self._fp.flush()
 
   @property
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def closed(self):
     """Returns "True" if the file handle is closed.  Otherwise False."""
     return self._fp.closed
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def write(self, data):
     """Write data to the underlying file handle.
@@ -108,13 +155,19 @@ class _GFileBase(object):
     """
     self._fp.write(data)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def writelines(self, seq):
     """Write a sequence of strings to the underlying file handle."""
     self._fp.writelines(seq)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def tell(self):
     """Return the location from the underlying file handle.
@@ -124,7 +177,10 @@ class _GFileBase(object):
     """
     return self._fp.tell()
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def seek(self, offset, whence=0):
     """Seek to offset (conditioned on whence) in the underlying file handle.
@@ -135,7 +191,10 @@ class _GFileBase(object):
     """
     self._fp.seek(offset, whence)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def truncate(self, new_size=None):
     """Truncate the underlying file handle to new_size.
@@ -146,7 +205,10 @@ class _GFileBase(object):
     """
     self._fp.truncate(new_size)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def readline(self, max_length=-1):
     """Read a single line (up to max_length) from the underlying file handle.
@@ -159,7 +221,10 @@ class _GFileBase(object):
     """
     return self._fp.readline(max_length)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def readlines(self, sizehint=None):
     """Read lines from the underlying file handle.
@@ -180,8 +245,12 @@ class _GFileBase(object):
     return self
 
   # Not synchronized
+<<<<<<< HEAD
   @_error_wrapper
   def next(self):
+=======
+  def __next__(self):
+>>>>>>> tensorflow/master
     """Enable line iteration on the underlying handle (not synchronized).
 
     Returns:
@@ -193,7 +262,10 @@ class _GFileBase(object):
     """
     return next(self._fp)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def Size(self):   # pylint: disable=invalid-name
     """Get byte size of the file from the underlying file handle."""
@@ -205,7 +277,10 @@ class _GFileBase(object):
       self.seek(cur)
     return size
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def read(self, n=-1):
     """Read n bytes from the underlying file handle.
@@ -218,7 +293,10 @@ class _GFileBase(object):
     """
     return self._fp.read(n)
 
+<<<<<<< HEAD
   @_error_wrapper
+=======
+>>>>>>> tensorflow/master
   @_synchronized
   def close(self):
     """Close the underlying file handle."""
@@ -226,7 +304,10 @@ class _GFileBase(object):
 
   # Declare wrappers as staticmethods at the end so that we can
   # use them as decorators.
+<<<<<<< HEAD
   _error_wrapper = staticmethod(_error_wrapper)
+=======
+>>>>>>> tensorflow/master
   _synchronized = staticmethod(_synchronized)
 
 
@@ -269,6 +350,7 @@ class _Nulllocker(object):
     pass
 
 
+<<<<<<< HEAD
 def _func_error_wrapper(fn):
   """Decorator wrapping function errors."""
   @functools.wraps(fn)  # Preserve methods' __doc__
@@ -291,18 +373,31 @@ def Exists(path):   # pylint: disable=invalid-name
 
 
 @_func_error_wrapper
+=======
+def Exists(path):   # pylint: disable=invalid-name
+  """Returns True iff "path" exists (as a dir, file, non-broken symlink)."""
+  return os.path.exists(path)
+
+
+>>>>>>> tensorflow/master
 def IsDirectory(path):   # pylint: disable=invalid-name
   """Return True iff "path" exists and is a directory."""
   return os.path.isdir(path)
 
 
+<<<<<<< HEAD
 @_func_error_wrapper
+=======
+>>>>>>> tensorflow/master
 def Glob(glob):   # pylint: disable=invalid-name
   """Return a list of filenames matching the glob "glob"."""
   return _glob.glob(glob)
 
 
+<<<<<<< HEAD
 @_func_error_wrapper
+=======
+>>>>>>> tensorflow/master
 def MkDir(path, mode=0o755):  # pylint: disable=invalid-name
   """Create the directory "path" with the given mode.
 
@@ -314,16 +409,24 @@ def MkDir(path, mode=0o755):  # pylint: disable=invalid-name
     None
 
   Raises:
+<<<<<<< HEAD
     GOSError: if the path already exists
+=======
+    OSError: if the path already exists
+>>>>>>> tensorflow/master
   """
   os.mkdir(path, mode)
 
 
+<<<<<<< HEAD
 @_func_error_wrapper
+=======
+>>>>>>> tensorflow/master
 def MakeDirs(path, mode=0o755):  # pylint: disable=invalid-name
   """Recursively create the directory "path" with the given mode.
 
   Args:
+<<<<<<< HEAD
     path: The directory path
     mode: The file mode for the created directories
 
@@ -338,6 +441,20 @@ def MakeDirs(path, mode=0o755):  # pylint: disable=invalid-name
 
 
 @_func_error_wrapper
+=======
+    path: The directory path.
+    mode: The file mode for the created directories
+
+  Raises:
+    OSError: if the path already exists
+  """
+  # NOTE(mrry): MakeDirs("") should be a no-op to match other
+  # implementations of tf.gfile.
+  if path:
+    os.makedirs(path, mode)
+
+
+>>>>>>> tensorflow/master
 def RmDir(directory):   # pylint: disable=invalid-name
   """Removes the directory "directory" iff the directory is empty.
 
@@ -345,12 +462,19 @@ def RmDir(directory):   # pylint: disable=invalid-name
     directory: The directory to remove.
 
   Raises:
+<<<<<<< HEAD
     GOSError: If the directory does not exist or is not empty.
+=======
+    OSError: If the directory does not exist or is not empty.
+>>>>>>> tensorflow/master
   """
   os.rmdir(directory)
 
 
+<<<<<<< HEAD
 @_func_error_wrapper
+=======
+>>>>>>> tensorflow/master
 def Remove(path):   # pylint: disable=invalid-name
   """Delete the (non-directory) file "path".
 
@@ -358,12 +482,36 @@ def Remove(path):   # pylint: disable=invalid-name
     path: The file to remove.
 
   Raises:
+<<<<<<< HEAD
     GOSError: If "path" does not exist, is a directory, or cannot be deleted.
+=======
+    OSError: If "path" does not exist, is a directory, or cannot be deleted.
+>>>>>>> tensorflow/master
   """
   os.remove(path)
 
 
+<<<<<<< HEAD
 @_func_error_wrapper
+=======
+def Rename(oldpath, newpath, overwrite=False):
+  """Rename or move a file, or a local directory.
+
+  Args:
+    oldpath: string; a pathname of a file.
+    newpath: string; a pathname to which the file will be moved.
+    overwrite: boolean; if false, it is an error for newpath to be
+      occupied by an existing file.
+
+  Raises:
+    OSError: If "newpath" is occupied by an existing file and overwrite=False.
+  """
+  if not overwrite and Exists(newpath) and not IsDirectory(newpath):
+    raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), newpath)
+  os.rename(oldpath, newpath)
+
+
+>>>>>>> tensorflow/master
 def DeleteRecursively(path):   # pylint: disable=invalid-name
   """Delete the file or directory "path" recursively.
 
@@ -371,7 +519,11 @@ def DeleteRecursively(path):   # pylint: disable=invalid-name
     path: The path to remove (may be a non-empty directory).
 
   Raises:
+<<<<<<< HEAD
     GOSError: If the path does not exist or cannot be deleted.
+=======
+    OSError: If the path does not exist or cannot be deleted.
+>>>>>>> tensorflow/master
   """
   if IsDirectory(path):
     shutil.rmtree(path)
@@ -379,7 +531,10 @@ def DeleteRecursively(path):   # pylint: disable=invalid-name
     Remove(path)
 
 
+<<<<<<< HEAD
 @_func_error_wrapper
+=======
+>>>>>>> tensorflow/master
 def ListDirectory(directory, return_dotfiles=False):  # pylint: disable=invalid-name
   """Returns a list of files in dir.
 
@@ -400,9 +555,90 @@ def ListDirectory(directory, return_dotfiles=False):  # pylint: disable=invalid-
     Other entries starting with a dot will only be returned if return_dotfiles
     is True.
   Raises:
+<<<<<<< HEAD
     GOSError: if there is an error retrieving the directory listing.
+=======
+    OSError: if there is an error retrieving the directory listing.
+>>>>>>> tensorflow/master
   """
   files = os.listdir(directory)
   if not return_dotfiles:
     files = [f for f in files if not f.startswith('.')]
   return files
+<<<<<<< HEAD
+=======
+
+
+def Walk(top, topdown=1, onerror=None):
+  """Recursive directory tree generator.
+
+  Args:
+    top: string, a pathname.
+    topdown: bool, should traversal be pre-order (True) or post-order (False)
+    onerror: function, optional callback for errors.
+
+  By default, errors that occur when listing a directory are ignored.
+  (This is the same semantics as Python's os.walk() generator.)  If the
+  optional argument "onerror" is specified, it should be a function.  It
+  will be called with one argument, an os.error instance.  It can return
+  to continue with the walk, or reraise the exception to abort the walk.
+
+  Yields:
+    # Each yield is a 3-tuple:  the pathname of a directory, followed
+    # by lists of all its subdirectories and leaf files.
+    (dirname, [subdirname, subdirname, ...], [filename, filename, ...])
+  """
+  return os.walk(top, topdown=topdown, onerror=onerror)
+
+
+def Stat(path):   # pylint: disable=invalid-name
+  """Gets the status of a file.
+
+  Args:
+    path: The file to call Stat() on.
+
+  Does the equivalent of Stat() on the specified "path" and return file
+  properties.
+
+  Returns:
+    An object whose attributes give information on the file.
+
+  Raises:
+    OSError: If "path" does not exist.
+  """
+  statinfo = os.stat(path)
+  filestat = collections.namedtuple('FileStat', ['mtime'])
+  filestat.mtime = statinfo.st_mtime
+  return filestat
+
+
+def Copy(oldpath, newpath, overwrite=False):
+  """Copy a file.
+
+  Args:
+    oldpath: string; a pathname of a file.
+    newpath: string; a pathname to which the file will be copied.
+    overwrite: boolean; if false, it is an error for newpath to be
+      occupied by an existing file.
+
+  Raises:
+    OSError: If "newpath" is occupied by an existing file and overwrite=False,
+             or any error thrown by shutil.copy.
+  """
+  if not overwrite and Exists(newpath):
+    raise OSError(errno.EEXIST, os.strerror(errno.EEXIST), newpath)
+  shutil.copy(oldpath, newpath)
+
+
+def Open(name, mode='r'):
+  """Exact API match to the standard open.
+
+  Args:
+    name:  a file name, either local or a gfile compatible.
+    mode:  for example "w" to open the file for writing.
+
+  Returns:
+    A threadsafe gfile.GFile object.
+  """
+  return GFile(name, mode=mode)
+>>>>>>> tensorflow/master

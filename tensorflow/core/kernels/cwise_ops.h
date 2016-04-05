@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_CWISE_OPS_H_
 #define TENSORFLOW_KERNELS_CWISE_OPS_H_
 
 #include <cmath>
 #include <functional>
+<<<<<<< HEAD
 #include "tensorflow/core/framework/numeric_types.h"
 #include "tensorflow/core/framework/tensor_types.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
@@ -10,10 +29,16 @@
 // The following functors (sign, tanh, sigmoid, etc.) are not defined
 // by Eigen.  When their equivalent are added into the Eigen, we can
 // replace them using type aliases.
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/numeric_types.h"
+#include "tensorflow/core/framework/tensor_types.h"
+>>>>>>> tensorflow/master
 
 namespace Eigen {
 namespace internal {
 
+<<<<<<< HEAD
 template <typename T>
 struct scalar_sign_op {
   // TODO(zhifengc): this only works for real types. In theory,
@@ -60,11 +85,15 @@ struct functor_traits<scalar_pow2_op<T> > {
   };
 };
 
+=======
+// TODO(rmlarsen): Get rid of fmod2 once fmod is upstreamed to Eigen.
+>>>>>>> tensorflow/master
 template <typename T>
 struct scalar_fmod2_op {
   EIGEN_EMPTY_STRUCT_CTOR(scalar_fmod2_op)
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T operator()(const T& a,
                                                            const T& b) const {
+<<<<<<< HEAD
     return fmod(a, b);
   }
 };
@@ -75,13 +104,22 @@ struct scalar_mod2_op {
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const T
   operator()(const T& a, const T& b) const {
     return a % b;
+=======
+    return std::fmod(a, b);
+>>>>>>> tensorflow/master
   }
 };
 
 template <typename T>
+<<<<<<< HEAD
 struct functor_traits<scalar_mod2_op<T> > {
   enum {
     Cost = 5,  // Roughly the cost of a div
+=======
+struct functor_traits<scalar_fmod2_op<T>> {
+  enum {
+    Cost = 13,  // Reciprocal throughput of FPREM on Haswell.
+>>>>>>> tensorflow/master
     PacketAccess = false,
   };
 };
@@ -179,43 +217,109 @@ struct functor_traits<scalar_right<Tout, Tin, Binary> > {
 // similar to std::equal_to, but with the DEVICE_FUNC qualifier
 template <class T>
 struct equal_to : std::binary_function<T, T, bool> {
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   bool operator()(const T& x, const T& y) const { return x == y; }
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const T& x,
+                                                        const T& y) const {
+    return x == y;
+  }
+>>>>>>> tensorflow/master
 };
 
 // similar to std::not_equal_to, but with the DEVICE_FUNC qualifier
 template <class T>
 struct not_equal_to : std::binary_function<T, T, bool> {
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   bool operator()(const T& x, const T& y) const { return x != y; }
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const T& x,
+                                                        const T& y) const {
+    return x != y;
+  }
+>>>>>>> tensorflow/master
 };
 
 // similar to std::greater, but with the DEVICE_FUNC qualifier
 template <class T>
 struct greater : std::binary_function<T, T, bool> {
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   bool operator()(const T& x, const T& y) const { return x > y; }
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const T& x,
+                                                        const T& y) const {
+    return x > y;
+  }
+>>>>>>> tensorflow/master
 };
 
 // similar to std::less, but with the DEVICE_FUNC qualifier
 template <class T>
 struct less : std::binary_function<T, T, bool> {
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   bool operator()(const T& x, const T& y) const { return x < y; }
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const T& x,
+                                                        const T& y) const {
+    return x < y;
+  }
+>>>>>>> tensorflow/master
 };
 
 // similar to std::greater_equal, but with the DEVICE_FUNC qualifier
 template <class T>
 struct greater_equal : std::binary_function<T, T, bool> {
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   bool operator()(const T& x, const T& y) const { return x >= y; }
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const T& x,
+                                                        const T& y) const {
+    return x >= y;
+  }
+>>>>>>> tensorflow/master
 };
 
 // similar to std::less_equal, but with the DEVICE_FUNC qualifier
 template <class T>
 struct less_equal : std::binary_function<T, T, bool> {
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   bool operator()(const T& x, const T& y) const { return x <= y; }
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE bool operator()(const T& x,
+                                                        const T& y) const {
+    return x <= y;
+  }
+};
+
+// Functor that enables composition of multiple Eigen functors.
+template <typename Scalar, typename UnaryFunctor, typename BinaryFunctor>
+struct scalar_compose_op {
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Scalar
+  operator()(const Scalar& a, const Scalar& b) const {
+    return UnaryFunctor()(BinaryFunctor()(a, b));
+  }
+  template <typename Packet>
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE const Packet
+  packetOp(const Packet& a, const Packet& b) const {
+    return UnaryFunctor().packetOp(BinaryFunctor().packetOp(a, b));
+  }
+};
+
+template <typename Scalar, typename UnaryFunctor, typename BinaryFunctor>
+struct functor_traits<scalar_compose_op<Scalar, UnaryFunctor, BinaryFunctor>> {
+  enum {
+    Cost = functor_traits<UnaryFunctor>::Cost +
+           functor_traits<BinaryFunctor>::Cost,
+    PacketAccess = functor_traits<UnaryFunctor>::PacketAccess &&
+                   functor_traits<BinaryFunctor>::PacketAccess
+  };
+>>>>>>> tensorflow/master
 };
 
 }  // end namespace internal
@@ -285,7 +389,11 @@ struct use_bcast_optimization<double> {
 // sqrt(x) = x^(1/2)
 // rsqrt(x) = x^(-1/2)
 // exp(x) = e^x
+<<<<<<< HEAD
 // log(x) = natural logrithm of x
+=======
+// log(x) = natural logarithm of x
+>>>>>>> tensorflow/master
 // tanh = (exp(x) - exp(-x)) / (exp(x) + exp(-x))
 // sigmoid = 1 / (1 + exp(-x))  // a.k.a, logistic
 //
@@ -325,6 +433,21 @@ template <typename T>
 struct tanh : base<T, Eigen::internal::scalar_tanh_op<T> > {};
 
 template <typename T>
+<<<<<<< HEAD
+=======
+struct lgamma : base<T, Eigen::internal::scalar_lgamma_op<T> > {};
+
+template <typename T>
+struct digamma : base<T, Eigen::internal::scalar_digamma_op<T>> {};
+
+template <typename T>
+struct erf : base<T, Eigen::internal::scalar_erf_op<T> > {};
+
+template <typename T>
+struct erfc : base<T, Eigen::internal::scalar_erfc_op<T> > {};
+
+template <typename T>
+>>>>>>> tensorflow/master
 struct sigmoid : base<T, Eigen::internal::scalar_sigmoid_op<T> > {};
 
 template <typename T>
@@ -333,7 +456,12 @@ struct sin : base<T, Eigen::internal::scalar_sin_op<T> > {};
 template <typename T>
 struct cos : base<T, Eigen::internal::scalar_cos_op<T> > {};
 
+<<<<<<< HEAD
 struct logical_not : base<bool, std::logical_not<bool> > {};
+=======
+struct logical_not : base<bool, Eigen::internal::scalar_boolean_not_op<bool> > {
+};
+>>>>>>> tensorflow/master
 
 namespace impl {
 
@@ -466,6 +594,10 @@ struct ceil : base<T, ceil_func<T> > {};
 // pow(x, y) = x ^ y
 // maximum(x, y) = x > y ? x : y
 // minimum(x, y) = x < y ? x : y
+<<<<<<< HEAD
+=======
+// squared_difference(x, y) = (x - y) * (x - y)
+>>>>>>> tensorflow/master
 
 template <typename T>
 struct add : base<T, Eigen::internal::scalar_sum_op<T> > {
@@ -487,10 +619,17 @@ template <typename T>
 struct fmod : base<T, Eigen::internal::scalar_fmod2_op<T> > {};
 
 template <typename T>
+<<<<<<< HEAD
 struct mod : base<T, Eigen::internal::scalar_mod2_op<T> > {};
 
 template <typename T>
 struct pow : base<T, Eigen::internal::scalar_pow2_op<T> > {};
+=======
+struct mod : base<T, Eigen::internal::scalar_mod2_op<T>> {};
+
+template <typename T>
+struct pow : base<T, Eigen::internal::scalar_binary_pow_op<T, T> > {};
+>>>>>>> tensorflow/master
 
 template <typename T>
 struct maximum : base<T, Eigen::internal::scalar_max_op<T> > {};
@@ -499,6 +638,21 @@ template <typename T>
 struct minimum : base<T, Eigen::internal::scalar_min_op<T> > {};
 
 template <typename T>
+<<<<<<< HEAD
+=======
+struct igamma : base<T, Eigen::internal::scalar_igamma_op<T>> {};
+
+template <typename T>
+struct igammac : base<T, Eigen::internal::scalar_igammac_op<T>> {};
+
+template <typename T>
+struct squared_difference
+    : base<T, Eigen::internal::scalar_compose_op<
+                  T, Eigen::internal::scalar_square_op<T>,
+                  Eigen::internal::scalar_difference_op<T>>> {};
+
+template <typename T>
+>>>>>>> tensorflow/master
 struct less : base<T, Eigen::internal::less<T>, bool> {};
 
 template <typename T>
@@ -523,8 +677,13 @@ struct logical_or : base<bool, Eigen::internal::scalar_boolean_or_op> {};
 template <typename T>
 struct make_complex_func {
   typedef std::complex<T> result_type;
+<<<<<<< HEAD
   EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE
   result_type operator()(T real, T imag) const {
+=======
+  EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE result_type operator()(T real,
+                                                               T imag) const {
+>>>>>>> tensorflow/master
     return std::complex<T>(real, imag);
   }
 };
@@ -573,7 +732,11 @@ struct BinaryFunctor {
              typename Functor::tscalar_type scalar);
 
   // Computes on device "d":
+<<<<<<< HEAD
   //   out = Functor(in0.broadcast(bcast0), in1.broadcast(bcast01))
+=======
+  //   out = Functor(in0.broadcast(bcast0), in1.broadcast(bcast1))
+>>>>>>> tensorflow/master
   //
   // TODO(zhifengc): makes BCast a template member function on NDIMS
   // instead making BinaryFunctor templates on NDIMS.
@@ -587,7 +750,11 @@ struct BinaryFunctor {
 
 template <int NDIMS>
 bool AllOne(const typename Eigen::array<Eigen::DenseIndex, NDIMS>& a) {
+<<<<<<< HEAD
   for (int i = 0; i < a.size(); ++i) {
+=======
+  for (size_t i = 0; i < a.size(); ++i) {
+>>>>>>> tensorflow/master
     if (a[i] != 1) return false;
   }
   return true;
@@ -601,6 +768,18 @@ struct SelectFunctor {
                   typename TTypes<T>::ConstFlat else_flat);
 };
 
+<<<<<<< HEAD
+=======
+template <typename Device, typename T>
+struct BatchSelectFunctor {
+  void operator()(const Device& d,
+                  typename TTypes<T>::Matrix output_flat_outer_dims,
+                  TTypes<bool>::ConstVec cond_vec,
+                  typename TTypes<T>::ConstMatrix then_flat_outer_dims,
+                  typename TTypes<T>::ConstMatrix else_flat_outer_dims);
+};
+
+>>>>>>> tensorflow/master
 }  // end namespace functor
 }  // end namespace tensorflow
 

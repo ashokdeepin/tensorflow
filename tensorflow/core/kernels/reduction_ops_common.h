@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // This is an internal header file intended to only be included as the
 // front-matter in the implementation files of various reduction ops.  It
 // is a header file because we split the various reduction ops into their
@@ -8,6 +26,7 @@
 
 #define EIGEN_USE_THREADS
 
+<<<<<<< HEAD
 #include "tensorflow/core/kernels/reduction_ops.h"
 
 #include "tensorflow/core/framework/numeric_op.h"
@@ -19,6 +38,20 @@
 #include "third_party/eigen3/Eigen/Core"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 #include "tensorflow/core/public/status.h"
+=======
+#include "third_party/eigen3/Eigen/Core"
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/numeric_op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/kernels/reduction_ops.h"
+#include "tensorflow/core/kernels/transpose_functor.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/gtl/inlined_vector.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -52,12 +85,16 @@ struct Constants<CPUDevice> {
 };
 #endif
 
+<<<<<<< HEAD
 namespace {
 
+=======
+>>>>>>> tensorflow/master
 class ReductionHelper {
  public:
   ReductionHelper() : reduce_first_axis_(false) {}
 
+<<<<<<< HEAD
   Status Simplify(const Tensor& data, const Tensor& axis,
                        const bool keep_dims) {
     // bitmap[i] indicates whether to reduce data along i-th axis.
@@ -141,6 +178,9 @@ class ReductionHelper {
     VLOG(1) << "out    shape: " << str_util::Join(out_shape_, ",");
     return Status::OK();
   }
+=======
+  Status Simplify(const Tensor& data, const Tensor& axis, const bool keep_dims);
+>>>>>>> tensorflow/master
 
   // We need to do roughly:
   //   tmp_out = allocate(out_reshape())
@@ -148,6 +188,7 @@ class ReductionHelper {
   //   out = tmp_out.reshape(out_shape)
 
   // The reduction result must be allocated with this shape.
+<<<<<<< HEAD
   TensorShape out_reshape() const {
     TensorShape shape;
     for (auto size : out_reshape_) shape.AddDim(size);
@@ -160,6 +201,12 @@ class ReductionHelper {
     for (auto size : out_shape_) shape.AddDim(size);
     return shape;
   }
+=======
+  TensorShape out_reshape() const;
+
+  // The final output shape must be allocated with this shape.
+  TensorShape out_shape() const;
+>>>>>>> tensorflow/master
 
   // The reduction is on a reshaped tensor of this rank.
   int ndims() const { return data_reshape_.size(); }
@@ -179,6 +226,7 @@ class ReductionHelper {
     return data.shaped<T, N>(data_reshape_);
   }
 
+<<<<<<< HEAD
  private:
   bool reduce_first_axis_;      // True if need to reduce the 0-th dimension.
   std::vector<int64> data_reshape_;  // Reshape the data before reduction.
@@ -188,6 +236,28 @@ class ReductionHelper {
 
 }  // end namespace
 
+=======
+  // Shape of shuffled input
+  TensorShape data_reshape() const {
+    TensorShape shape;
+    for (auto s : data_reshape_) shape.AddDim(s);
+    return shape;
+  }
+
+  // Shape with all reduction dimensions at the end
+  TensorShape shuffled_shape();
+
+  // Permutation of reduced dims needed to put reduction dimensions at the end
+  gtl::InlinedVector<int32, 8> permutation();
+
+ private:
+  bool reduce_first_axis_;  // True if need to reduce the 0-th dimension.
+  gtl::InlinedVector<int64, 4> data_reshape_;  // Reshape data before reduction.
+  gtl::InlinedVector<int64, 4> out_shape_;     // The final output shape.
+  gtl::InlinedVector<int64, 4> out_reshape_;   // Reshape output for reduction.
+};
+
+>>>>>>> tensorflow/master
 // For operations where the output is a reduction function along some
 // dimensions of the input.
 template <typename Device, class T, typename Reducer>
@@ -203,7 +273,11 @@ class ReductionOp : public OpKernel {
   void Compute(OpKernelContext* ctx) override {
     const Tensor& data = ctx->input(0);
     const Tensor& axes = ctx->input(1);
+<<<<<<< HEAD
     VLOG(1) << "data shape: " << data.shape().ShortDebugString();
+=======
+    VLOG(1) << "data shape: " << data.shape().DebugString();
+>>>>>>> tensorflow/master
     VLOG(1) << "axes      : " << axes.SummarizeValue(10);
 
     ReductionHelper helper;
@@ -226,6 +300,7 @@ class ReductionOp : public OpKernel {
       return;
     }
 
+<<<<<<< HEAD
     // A temporary tensor whose size matches the size of the reduced
     // output.
     Tensor tmp_out;
@@ -233,10 +308,29 @@ class ReductionOp : public OpKernel {
         ctx, ctx->allocate_temp(out->dtype(), helper.out_reshape(), &tmp_out));
 
     typedef functor::ReduceFunctor<Device> Functor;
+=======
+    // We must allocate temp tensors using the same alloc attr as
+    // output(0) because it is returned as output(0) in the end.
+    const AllocatorAttributes alloc_attr = ctx->output_alloc_attr(0);
+
+    // A temporary tensor whose size matches the size of the reduced
+    // output.
+    Tensor tmp_out;
+    OP_REQUIRES_OK(ctx, ctx->allocate_temp(out->dtype(), helper.out_reshape(),
+                                           &tmp_out, alloc_attr));
+
+    typedef functor::ReduceFunctor<Device, Reducer> Functor;
+>>>>>>> tensorflow/master
     Constants<Device> constants;
     const Device& d = ctx->eigen_device<Device>();
     Reducer reducer;
 
+<<<<<<< HEAD
+=======
+    if (tmp_out.NumElements() == 0) {
+      // Nothing to do, fall through to final reshaping.
+    }
+>>>>>>> tensorflow/master
     if ((helper.ndims() == 1) && helper.reduce_first_axis()) {
       // Reduce to a scalar.
       Functor::Reduce(d, helper.out<T, 0>(&tmp_out), helper.in<T, 1>(data),
@@ -259,6 +353,7 @@ class ReductionOp : public OpKernel {
       Functor::Reduce(d, helper.out<T, 2>(&tmp_out), helper.in<T, 3>(data),
                       constants.kOne, reducer);
     } else {
+<<<<<<< HEAD
       // TODO(zhifengc): We can implement reduction for arbitrary rank
       // tensor and arbitrary reduction axes by iterating the reduction
       // multiple times. This may also be accomplished in the graph
@@ -268,6 +363,24 @@ class ReductionOp : public OpKernel {
                                 " axes [", axes.SummarizeValue(10), "] to ",
                                 tmp_out.shape().ShortDebugString()));
       return;
+=======
+      // If we don't hit one of the cases above, transpose the data so that
+      // all reduced dimensions are last and reuse the 2-D -> 1-D case.
+      Tensor data_reshaped;
+      CHECK(data_reshaped.CopyFrom(data, helper.data_reshape()));
+      Tensor shuffled;
+      OP_REQUIRES_OK(ctx, ctx->allocate_temp(DataTypeToEnum<T>::value,
+                                             helper.shuffled_shape(), &shuffled,
+                                             alloc_attr));
+      OP_REQUIRES_OK(
+          ctx, DoTranspose(d, data_reshaped, helper.permutation(), &shuffled));
+      const int64 unreduced = tmp_out.NumElements();
+      const int64 reduced = shuffled.NumElements() / unreduced;
+      const Tensor& const_shuffled = shuffled;
+      Functor::Reduce(d, tmp_out.flat<T>(),
+                      const_shuffled.shaped<T, 2>({unreduced, reduced}),
+                      constants.kOne, reducer);
+>>>>>>> tensorflow/master
     }
 
     // Set the real output using the contents of the reduction but the
@@ -285,10 +398,16 @@ class ReductionOp : public OpKernel {
 
 namespace functor {
 
+<<<<<<< HEAD
 template <>
 struct ReduceFunctor<CPUDevice> {
   template <typename OUT_T, typename IN_T, typename ReductionAxes,
             typename Reducer>
+=======
+template <typename Reducer>
+struct ReduceFunctor<CPUDevice, Reducer> {
+  template <typename OUT_T, typename IN_T, typename ReductionAxes>
+>>>>>>> tensorflow/master
   static void Reduce(const CPUDevice& d, OUT_T out, IN_T in,
                      const ReductionAxes& reduction_axes,
                      const Reducer& reducer) {

@@ -8,6 +8,21 @@ licenses(["notice"])  # Apache 2.0
 exports_files(["LICENSE"])
 
 py_library(
+<<<<<<< HEAD
+=======
+    name = "package",
+    srcs = [
+        "__init__.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":data_utils",
+        ":seq2seq_model",
+    ],
+)
+
+py_library(
+>>>>>>> tensorflow/master
     name = "data_utils",
     srcs = [
         "data_utils.py",

@@ -1,10 +1,32 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Variable class."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+from tensorflow.core.framework import variable_pb2
+>>>>>>> tensorflow/master
 from tensorflow.python.framework import ops
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import control_flow_ops
@@ -124,9 +146,18 @@ class Variable(object):
   @@graph
   @@op
   """
+<<<<<<< HEAD
 
   def __init__(self, initial_value, trainable=True, collections=None,
                validate_shape=True, name=None):
+=======
+  # TODO(touts): Add @@value and @@ref in the docstring above once they are
+  # ready for consumption.
+
+  def __init__(self, initial_value=None, trainable=True, collections=None,
+               validate_shape=True, caching_device=None, name=None,
+               variable_def=None, dtype=None):
+>>>>>>> tensorflow/master
     """Creates a new variable with value `initial_value`.
 
     The new variable is added to the graph collections listed in `collections`,
@@ -150,13 +181,30 @@ class Variable(object):
       validate_shape: If `False`, allows the variable to be initialized with a
         value of unknown shape. If `True`, the default, the shape of
         `initial_value` must be known.
+<<<<<<< HEAD
       name: Optional name for the variable. Defaults to `'Variable'` and gets
         uniquified automatically.
+=======
+      caching_device: Optional device string describing where the Variable
+        should be cached for reading.  Defaults to the Variable's device.
+        If not `None`, caches on another device.  Typical use is to cache
+        on the device where the Ops using the Variable reside, to deduplicate
+        copying through `Switch` and other conditional statements.
+      name: Optional name for the variable. Defaults to `'Variable'` and gets
+        uniquified automatically.
+      variable_def: `VariableDef` protocol buffer. If not `None`, recreates
+        the Variable object with its contents. `variable_def` and the other
+        arguments are mutually exclusive.
+      dtype: If set, initial_value will be converted to the given type.
+        If `None`, either the datatype will be kept (if `initial_value` is
+        a Tensor), or `convert_to_tensor` will decide.
+>>>>>>> tensorflow/master
 
     Returns:
       A Variable.
 
     Raises:
+<<<<<<< HEAD
       ValueError: If the initial value does not have a shape and
         `validate_shape` is `True`.
     """
@@ -196,12 +244,185 @@ class Variable(object):
       ops.add_to_collection(key, self)
     self._save_slice_info = None
 
+=======
+      ValueError: If both `variable_def` and initial_value are specified.
+      ValueError: If the initial value is not specified, or does not have a
+        shape and `validate_shape` is `True`.
+    """
+    if variable_def:
+      # If variable_def is provided, recreates the variable from its fields.
+      if initial_value:
+        raise ValueError("variable_def and initial_value are mutually "
+                         "exclusive.")
+      self._init_from_proto(variable_def)
+    else:
+      # Create from initial_value.
+      self._init_from_args(initial_value=initial_value,
+                           trainable=trainable,
+                           collections=collections,
+                           validate_shape=validate_shape,
+                           caching_device=caching_device,
+                           name=name,
+                           dtype=dtype)
+
+  def _init_from_args(self, initial_value=None, trainable=True,
+                      collections=None, validate_shape=True,
+                      caching_device=None, name=None, dtype=None):
+    """Creates a new variable from arguments.
+
+    Args:
+      initial_value: A `Tensor`, or Python object convertible to a `Tensor`.
+        The initial value for the Variable. Must have a shape specified unless
+        `validate_shape` is set to False.
+      trainable: If `True`, the default, also adds the variable to the graph
+        collection `GraphKeys.TRAINABLE_VARIABLES`. This collection is used as
+        the default list of variables to use by the `Optimizer` classes.
+      collections: List of graph collections keys. The new variable is added to
+        these collections. Defaults to `[GraphKeys.VARIABLES]`.
+      validate_shape: If `False`, allows the variable to be initialized with a
+        value of unknown shape. If `True`, the default, the shape of
+        `initial_value` must be known.
+      caching_device: Optional device string or function describing where the
+        Variable should be cached for reading.  Defaults to the Variable's
+        device.  If not `None`, caches on another device.  Typical use is to
+        cache on the device where the Ops using the Variable reside, to
+        deduplicate copying through `Switch` and other conditional statements.
+      name: Optional name for the variable. Defaults to `'Variable'` and gets
+        uniquified automatically.
+      dtype: If set, initial_value will be converted to the given type.
+        If None, either the datatype will be kept (if initial_value is
+       a Tensor) or float32 will be used (if it is a Python object convertible
+       to a Tensor).
+
+    Raises:
+      ValueError: If the initial value is not specified, or does not have a
+        shape and `validate_shape` is `True`.
+    """
+    if initial_value is None:
+      raise ValueError("initial_value must be specified.")
+    if collections is None:
+      collections = [ops.GraphKeys.VARIABLES]
+    if trainable and ops.GraphKeys.TRAINABLE_VARIABLES not in collections:
+      collections = list(collections) + [ops.GraphKeys.TRAINABLE_VARIABLES]
+    with ops.control_dependencies(None):
+      with ops.op_scope([initial_value], name, "Variable") as name:
+        self._initial_value = ops.convert_to_tensor(initial_value,
+                                                    name="initial_value",
+                                                    dtype=dtype)
+        initial_value_shape = self._initial_value.get_shape()
+        if validate_shape and not initial_value_shape.is_fully_defined():
+          raise ValueError("initial_value must have a shape specified: %s"
+                           % self._initial_value)
+        shape_to_set = initial_value_shape if validate_shape else []
+
+        self._variable = state_ops.variable_op(
+            shape_to_set, self._initial_value.dtype.base_dtype,
+            set_shape=validate_shape, name=name)
+
+        with ops.colocate_with(self._variable.op):
+          self._initializer_op = state_ops.assign(
+              self._variable, self._initial_value,
+              validate_shape=validate_shape).op
+
+        # TODO(vrv): Change this class to not take caching_device, but
+        # to take the op to colocate the snapshot with, so we can use
+        # colocation rather than devices.
+        if caching_device is not None:
+          with ops.device(caching_device):
+            self._snapshot = array_ops.identity(self._variable, name="read")
+        else:
+          with ops.colocate_with(self._variable.op):
+            self._snapshot = array_ops.identity(self._variable, name="read")
+
+    ops.add_to_collections(collections, self)
+    self._caching_device = caching_device
+    self._save_slice_info = None
+
+  def _init_from_proto(self, variable_def):
+    """Creates a new variable from `VariableDef` protocol buffer.
+
+    Args:
+      variable_def: `VariableDef` protocol buffer.
+    """
+    assert isinstance(variable_def, variable_pb2.VariableDef)
+    # Create from variable_def.
+    g = ops.get_default_graph()
+    self._variable = g.as_graph_element(variable_def.variable_name)
+    self._initializer_op = g.as_graph_element(variable_def.initializer_name)
+    self._snapshot = g.as_graph_element(variable_def.snapshot_name)
+    if variable_def.HasField("save_slice_info_def"):
+      self._save_slice_info = Variable.SaveSliceInfo(
+          save_slice_info_def=variable_def.save_slice_info_def)
+    else:
+      self._save_slice_info = None
+    self._caching_device = None
+
+>>>>>>> tensorflow/master
   def _as_graph_element(self):
     """Conversion function for Graph.as_graph_element()."""
     return self._variable
 
   def _AsTensor(self):
+<<<<<<< HEAD
     """Conversion function for ops.convert_to_tensor()."""
+=======
+    """Converts this variable to a Tensor.
+
+    See [`value()`](#Variable.value).
+
+    Returns:
+      A `Tensor` containing the value of the variable.
+    """
+    return self._snapshot
+
+  def __iter__(self):
+    """Dummy method to prevent iteration. Do not call.
+
+    NOTE(mrry): If we register __getitem__ as an overloaded operator,
+    Python will valiantly attempt to iterate over the variable's Tensor from 0
+    to infinity.  Declaring this method prevents this unintended behavior.
+
+    Raises:
+      TypeError: when invoked.
+    """
+    raise TypeError("'Variable' object is not iterable.")
+
+  def value(self):
+    """Returns the last snapshot of this variable.
+
+    You usually do not need to call this method as all ops that need the value
+    of the variable call it automatically through a `convert_to_tensor()` call.
+
+    Returns a `Tensor` which holds the value of the variable.  You can not
+    assign a new value to this tensor as it is not a reference to the variable.
+    See [`ref()`](#Variable.ref) if you want to get a reference to the
+    variable.
+
+    To avoid copies, if the consumer of the returned value is on the same device
+    as the variable, this actually returns the live value of the variable, not
+    a copy.  Updates to the variable are seen by the consumer.  If the consumer
+    is on a different device it will get a copy of the variable.
+
+    Returns:
+      A `Tensor` containing the value of the variable.
+    """
+    return self._snapshot
+
+  def ref(self):
+    """Returns a reference to this variable.
+
+    You usually do not need to call this method as all ops that need a reference
+    to the variable call it automatically.
+
+    Returns is a `Tensor` which holds a reference to the variable.  You can
+    assign a new value to the variable by passing the tensor to an assign op.
+    See [`value()`](#Variable.value) if you want to get the value of the
+    variable.
+
+    Returns:
+      A `Tensor` that is a reference to the variable.
+    """
+>>>>>>> tensorflow/master
     return self._variable
 
   def eval(self, session=None):
@@ -211,8 +432,13 @@ class Variable(object):
 
     This convenience method requires a session where the graph containing this
     variable has been launched. If no session is passed, the default session is
+<<<<<<< HEAD
     used.  See the [Session class](../../api_docs/python/client.md#Session) for more information on
     launching a graph and on sessions.
+=======
+    used.  See the [Session class](../../api_docs/python/client.md#Session) for
+    more information on launching a graph and on sessions.
+>>>>>>> tensorflow/master
 
     ```python
     v = tf.Variable([1, 2])
@@ -221,10 +447,17 @@ class Variable(object):
     with tf.Session() as sess:
         sess.run(init)
         # Usage passing the session explicitly.
+<<<<<<< HEAD
         print v.eval(sess)
         # Usage with the default session.  The 'with' block
         # above makes 'sess' the default session.
         print v.eval()
+=======
+        print(v.eval(sess))
+        # Usage with the default session.  The 'with' block
+        # above makes 'sess' the default session.
+        print(v.eval())
+>>>>>>> tensorflow/master
     ```
 
     Args:
@@ -255,8 +488,36 @@ class Variable(object):
       A `Tensor` holding the value of this variable after its initializer
       has run.
     """
+<<<<<<< HEAD
     return control_flow_ops.with_dependencies(
         [self._initializer_op], self._variable)
+=======
+    with ops.control_dependencies(None):
+      with ops.control_dependencies([self._initializer_op]):
+        # TODO(vrv): Change this class to not take caching_device, but
+        # to take the op to colocate the snapshot with, so we can use
+        # colocation rather than devices.
+        if self._caching_device is not None:
+          with ops.device(self._caching_device):
+            return array_ops.identity(self._variable)
+        else:
+          with ops.colocate_with(self._variable.op):
+            return array_ops.identity(self._variable)
+
+  @property
+  def initial_value(self):
+    """Returns the Tensor used as the initial value for the variable.
+
+    Note that this is different from `initialized_value()` which runs
+    the op that initializes the variable before returning its value.
+    This method returns the tensor that is used by the op that initializes
+    the variable.
+
+    Returns:
+      A `Tensor`.
+    """
+    return self._initial_value
+>>>>>>> tensorflow/master
 
   def assign(self, value, use_locking=False):
     """Assigns a new value to the variable.
@@ -351,15 +612,28 @@ class Variable(object):
 
   # Conversion to tensor.
   @staticmethod
+<<<<<<< HEAD
   def _TensorConversionFunction(v, dtype=None, name=None):
     """Utility function for converting a Variable to a Tensor."""
     _ = name
     ret = v._AsTensor()  # pylint: disable=protected-access
+=======
+  def _TensorConversionFunction(v, dtype=None, name=None, as_ref=False):
+    """Utility function for converting a Variable to a Tensor."""
+    _ = name
+>>>>>>> tensorflow/master
     if dtype and not dtype.is_compatible_with(v.dtype):
       raise ValueError(
           "Incompatible type conversion requested to type '%s' for variable "
           "of type '%s'" % (dtype.name, v.dtype.name))
+<<<<<<< HEAD
     return ret
+=======
+    if as_ref:
+      return v.ref()
+    else:
+      return v.value()
+>>>>>>> tensorflow/master
 
   # Operator overloading.
   #
@@ -441,10 +715,33 @@ class Variable(object):
     """
     return self._variable.get_shape()
 
+<<<<<<< HEAD
+=======
+  def to_proto(self):
+    """Converts a `Variable` to a `VariableDef` protocol buffer.
+
+    Returns:
+      A `VariableDef` protocol buffer.
+    """
+    var_def = variable_pb2.VariableDef()
+    var_def.variable_name = self._variable.name
+    var_def.initializer_name = self.initializer.name
+    var_def.snapshot_name = self._snapshot.name
+    if self._save_slice_info:
+      var_def.save_slice_info_def.MergeFrom(self._save_slice_info.to_proto())
+    return var_def
+
+  @staticmethod
+  def from_proto(variable_def):
+    """Returns a `Variable` object created from `variable_def`."""
+    return Variable(variable_def=variable_def)
+
+>>>>>>> tensorflow/master
   # Experimental support for saving variables as slices of a larger variable.
   class SaveSliceInfo(object):
     """Information on how to save this Variable as a slice."""
 
+<<<<<<< HEAD
     def  __init__(self, name, spec):
       """Create a SliceInfo.
 
@@ -460,12 +757,71 @@ class Variable(object):
 
     Args:
       save_slice_info: A Variable.SliceInfo object.
+=======
+    def __init__(self, full_name=None, full_shape=None, var_offset=None,
+                 var_shape=None, save_slice_info_def=None):
+      """Create a `SaveSliceInfo`.
+
+      Args:
+        full_name: Name of the full variable of which this `Variable` is a
+            slice.
+        full_shape: Shape of the full variable, as a list of int.
+        var_offset: Offset of this `Variable` into the full variable, as a
+            list of int.
+        var_shape: Shape of this `Variable`, as a list of int.
+        save_slice_info_def: `SaveSliceInfoDef` protocol buffer. If not `None`,
+          recreates the SaveSliceInfo object its contents.
+          `save_slice_info_def` and other arguments are mutually
+          exclusive.
+      """
+      if save_slice_info_def:
+        assert isinstance(save_slice_info_def, variable_pb2.SaveSliceInfoDef)
+        self.full_name = save_slice_info_def.full_name
+        self.full_shape = [i for i in save_slice_info_def.full_shape]
+        self.var_offset = [i for i in save_slice_info_def.var_offset]
+        self.var_shape = [i for i in save_slice_info_def.var_shape]
+      else:
+        self.full_name = full_name
+        self.full_shape = full_shape
+        self.var_offset = var_offset
+        self.var_shape = var_shape
+
+    @property
+    def spec(self):
+      """Computes the spec string used for saving."""
+      full_shape_str = " ".join(["%d" % d for d in self.full_shape]) + " "
+      sl_spec = ":".join([
+          "%d,%d" % (o, s) for o, s in zip(self.var_offset, self.var_shape)])
+      return full_shape_str + sl_spec
+
+    def to_proto(self):
+      """Returns a SaveSliceInfoDef() proto."""
+      save_slice_info_def = variable_pb2.SaveSliceInfoDef()
+      save_slice_info_def.full_name = self.full_name
+      for i in self.full_shape:
+        save_slice_info_def.full_shape.append(i)
+      for i in self.var_offset:
+        save_slice_info_def.var_offset.append(i)
+      for i in self.var_shape:
+        save_slice_info_def.var_shape.append(i)
+      return save_slice_info_def
+
+  def _set_save_slice_info(self, save_slice_info):
+    """Sets the slice info for this `Variable`.
+
+    Args:
+      save_slice_info: A `Variable.SaveSliceInfo` object.
+>>>>>>> tensorflow/master
     """
     self._save_slice_info = save_slice_info
 
 
 def all_variables():
+<<<<<<< HEAD
   """Returns all variables collected in the graph.
+=======
+  """Returns all variables that must be saved/restored.
+>>>>>>> tensorflow/master
 
   The `Variable()` constructor automatically adds new variables to the graph
   collection `GraphKeys.VARIABLES`. This convenience function returns the
@@ -490,6 +846,30 @@ def trainable_variables():
   """
   return ops.get_collection(ops.GraphKeys.TRAINABLE_VARIABLES)
 
+<<<<<<< HEAD
+=======
+def local_variables():
+  """Returns all variables created with collection=[LOCAL_VARIABLES].
+
+  Returns:
+    A list of local Variable objects.
+  """
+  return ops.get_collection(ops.GraphKeys.LOCAL_VARIABLES)
+
+def moving_average_variables():
+  """Returns all variables that maintain their moving averages.
+
+  If an `ExponentialMovingAverage` object is created and the `apply()`
+  method is called on a list of variables, these variables will
+  be added to the `GraphKeys.MOVING_AVERAGE_VARIABLES` collection.
+  This convenience function returns the contents of that collection.
+
+  Returns:
+    A list of Variable objects.
+  """
+  return ops.get_collection(ops.GraphKeys.MOVING_AVERAGE_VARIABLES)
+
+>>>>>>> tensorflow/master
 
 def initialize_variables(var_list, name="init"):
   """Returns an Op that initializes a list of variables.
@@ -528,6 +908,20 @@ def initialize_all_variables():
   return initialize_variables(all_variables())
 
 
+<<<<<<< HEAD
+=======
+def initialize_local_variables():
+  """Returns an Op that initializes all local variables.
+
+  This is just a shortcut for `initialize_variables(local_variables())`
+
+  Returns:
+    An Op that initializes all local variables in the graph.
+  """
+  return initialize_variables(local_variables())
+
+
+>>>>>>> tensorflow/master
 def assert_variables_initialized(var_list=None):
   """Returns an Op to check if variables are initialized.
 
@@ -546,7 +940,11 @@ def assert_variables_initialized(var_list=None):
     An Op, or None if there are no variables.
   """
   if var_list is None:
+<<<<<<< HEAD
     var_list = all_variables()
+=======
+    var_list = all_variables() + local_variables()
+>>>>>>> tensorflow/master
   # Backwards compatibility for old-style variables. TODO(touts): remove.
   if not var_list:
     var_list = []
@@ -558,7 +956,11 @@ def assert_variables_initialized(var_list=None):
   else:
     ranks = []
     for var in var_list:
+<<<<<<< HEAD
       with ops.device(var.device):
+=======
+      with ops.colocate_with(var.op):
+>>>>>>> tensorflow/master
         ranks.append(array_ops.rank(var))
     if len(ranks) == 1:
       return ranks[0]
@@ -571,3 +973,19 @@ ops.register_tensor_conversion_function(Variable,
                                         Variable._TensorConversionFunction)
 Variable._OverloadAllOperators()
 # pylint: enable=protected-access
+<<<<<<< HEAD
+=======
+
+ops.register_proto_function(ops.GraphKeys.VARIABLES,
+                            proto_type=variable_pb2.VariableDef,
+                            to_proto=Variable.to_proto,
+                            from_proto=Variable.from_proto)
+ops.register_proto_function(ops.GraphKeys.TRAINABLE_VARIABLES,
+                            proto_type=variable_pb2.VariableDef,
+                            to_proto=Variable.to_proto,
+                            from_proto=Variable.from_proto)
+ops.register_proto_function(ops.GraphKeys.MOVING_AVERAGE_VARIABLES,
+                            proto_type=variable_pb2.VariableDef,
+                            to_proto=Variable.to_proto,
+                            from_proto=Variable.from_proto)
+>>>>>>> tensorflow/master

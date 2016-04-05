@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_TYPES_H_
 #define TENSORFLOW_FRAMEWORK_TYPES_H_
 
@@ -5,6 +23,15 @@
 #include <set>
 #include <string>
 
+<<<<<<< HEAD
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+// Disable clang-format to prevent 'FixedPoint' header from being included
+// before 'Tensor' header on which it depends.
+// clang-format off
+#include "third_party/eigen3/unsupported/Eigen/CXX11/FixedPoint"
+// clang-format on
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/bfloat16.h"
 #include "tensorflow/core/framework/numeric_types.h"
 #include "tensorflow/core/framework/types.pb.h"
@@ -12,8 +39,12 @@
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/FixedPoint"
+=======
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -51,6 +82,10 @@ extern const char* const DEVICE_CPU;  // "CPU"
 extern const char* const DEVICE_GPU;  // "GPU"
 
 typedef gtl::InlinedVector<MemoryType, 4> MemoryTypeVector;
+<<<<<<< HEAD
+=======
+typedef gtl::ArraySlice<MemoryType> MemoryTypeSlice;
+>>>>>>> tensorflow/master
 
 typedef gtl::InlinedVector<DataType, 4> DataTypeVector;
 typedef gtl::ArraySlice<DataType> DataTypeSlice;
@@ -141,21 +176,42 @@ struct EnumToDataType {};  // Specializations below
 typedef Eigen::QInt8 qint8;
 typedef Eigen::QUInt8 quint8;
 typedef Eigen::QInt32 qint32;
+<<<<<<< HEAD
+=======
+typedef Eigen::QInt16 qint16;
+typedef Eigen::QUInt16 quint16;
+>>>>>>> tensorflow/master
 
 MATCH_TYPE_AND_ENUM(float, DT_FLOAT);
 MATCH_TYPE_AND_ENUM(double, DT_DOUBLE);
 MATCH_TYPE_AND_ENUM(int32, DT_INT32);
+<<<<<<< HEAD
+=======
+MATCH_TYPE_AND_ENUM(uint16, DT_UINT16);
+>>>>>>> tensorflow/master
 MATCH_TYPE_AND_ENUM(uint8, DT_UINT8);
 MATCH_TYPE_AND_ENUM(int16, DT_INT16);
 MATCH_TYPE_AND_ENUM(int8, DT_INT8);
 MATCH_TYPE_AND_ENUM(string, DT_STRING);
 MATCH_TYPE_AND_ENUM(complex64, DT_COMPLEX64);
+<<<<<<< HEAD
+=======
+MATCH_TYPE_AND_ENUM(complex128, DT_COMPLEX128);
+>>>>>>> tensorflow/master
 MATCH_TYPE_AND_ENUM(int64, DT_INT64);
 MATCH_TYPE_AND_ENUM(bool, DT_BOOL);
 MATCH_TYPE_AND_ENUM(qint8, DT_QINT8);
 MATCH_TYPE_AND_ENUM(quint8, DT_QUINT8);
+<<<<<<< HEAD
 MATCH_TYPE_AND_ENUM(qint32, DT_QINT32);
 MATCH_TYPE_AND_ENUM(bfloat16, DT_BFLOAT16);
+=======
+MATCH_TYPE_AND_ENUM(qint16, DT_QINT16);
+MATCH_TYPE_AND_ENUM(quint16, DT_QUINT16);
+MATCH_TYPE_AND_ENUM(qint32, DT_QINT32);
+MATCH_TYPE_AND_ENUM(bfloat16, DT_BFLOAT16);
+MATCH_TYPE_AND_ENUM(Eigen::half, DT_HALF);
+>>>>>>> tensorflow/master
 
 #undef MATCH_TYPE_AND_ENUM
 
@@ -163,6 +219,12 @@ bool DataTypeCanUseMemcpy(DataType dt);
 
 bool DataTypeIsQuantized(DataType dt);
 
+<<<<<<< HEAD
+=======
+// Returns a 0 on failure
+int DataTypeSize(DataType dt);
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow
 
 #endif  // TENSORFLOW_FRAMEWORK_TYPES_H_

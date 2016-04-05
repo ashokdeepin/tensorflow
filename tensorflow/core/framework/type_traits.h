@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_TYPE_TRAITS_H_
 #define TENSORFLOW_FRAMEWORK_TYPE_TRAITS_H_
 
@@ -5,7 +23,11 @@
 #include <utility>
 
 #include "tensorflow/core/framework/types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
+=======
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -28,6 +50,13 @@ template <>
 struct is_quantized<quint8> : true_type {};
 template <>
 struct is_quantized<qint32> : true_type {};
+<<<<<<< HEAD
+=======
+template <>
+struct is_quantized<qint16> : true_type {};
+template <>
+struct is_quantized<quint16> : true_type {};
+>>>>>>> tensorflow/master
 
 // All types not specialized are marked invalid.
 template <class T>
@@ -53,6 +82,15 @@ template <>
 class numeric_limits<tensorflow::quint8>
     : public numeric_limits<tensorflow::uint8> {};
 template <>
+<<<<<<< HEAD
+=======
+class numeric_limits<tensorflow::qint16>
+    : public numeric_limits<tensorflow::int16> {};
+template <>
+class numeric_limits<tensorflow::quint16>
+    : public numeric_limits<tensorflow::uint16> {};
+template <>
+>>>>>>> tensorflow/master
 class numeric_limits<tensorflow::qint32>
     : public numeric_limits<tensorflow::int32> {};
 
@@ -62,6 +100,13 @@ struct is_signed<tensorflow::qint8> : public is_signed<tensorflow::int8> {};
 template <>
 struct is_signed<tensorflow::quint8> : public is_signed<tensorflow::uint8> {};
 template <>
+<<<<<<< HEAD
+=======
+struct is_signed<tensorflow::qint16> : public is_signed<tensorflow::int16> {};
+template <>
+struct is_signed<tensorflow::quint16> : public is_signed<tensorflow::uint16> {};
+template <>
+>>>>>>> tensorflow/master
 struct is_signed<tensorflow::qint32> : public is_signed<tensorflow::int32> {};
 
 }  // namespace std

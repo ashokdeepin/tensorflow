@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../imports/lodash.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../tf-imports/lodash.html">
+>>>>>>> tensorflow/master
 
 <!--
 tf-image-loader loads an individual image from the TensorBoard backend.
@@ -15,6 +20,7 @@ future for loading older images.
   img {
     width: 100%;
     height: 100%;
+<<<<<<< HEAD
   }
   </style>
   <template>
@@ -30,6 +36,15 @@ future for loading older images.
     <template is="dom-if" if="[[imageUrl]]">
       <img src="[[imageUrl]]"></img>
     </template is="dom-if">
+=======
+    image-rendering: pixelated;
+  }
+  </style>
+  <template>
+    <template is="dom-if" if="[[imageUrl]]">
+      <img src="[[imageUrl]]">
+    </template>
+>>>>>>> tensorflow/master
   </template>
   <script>
     Polymer({
@@ -38,6 +53,7 @@ future for loading older images.
         run: String,
         tag: String,
         imagesGenerator: Function,
+<<<<<<< HEAD
         individualImageGenerator: Function,
         imageMetadata: Array,
         metadataUrl: {
@@ -59,6 +75,20 @@ future for loading older images.
         var query = _.last(imageMetadata).query;
         return individualImageGenerator(query);
       },
+=======
+        imageUrl: String,
+      },
+      reload: function() {
+        var _this = this;
+        this.imagesGenerator(this.tag, this.run).then(function(metadatas) {
+          var last_metadata = _.last(metadatas);
+          _this.imageUrl = last_metadata.url;
+        })
+      },
+      ready: function() {
+        this.reload();
+      }
+>>>>>>> tensorflow/master
     });
   </script>
 </dom-module>

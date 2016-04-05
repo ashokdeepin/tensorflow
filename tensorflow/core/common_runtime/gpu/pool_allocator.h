@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_COMMON_RUNTIME_GPU_POOL_ALLOCATOR_H_
 #define TENSORFLOW_COMMON_RUNTIME_GPU_POOL_ALLOCATOR_H_
 
@@ -8,6 +26,7 @@
 #include <atomic>
 #include <map>
 #include <memory>
+<<<<<<< HEAD
 #include "tensorflow/core/lib/core/bits.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
@@ -24,6 +43,20 @@ class SubAllocator {
   virtual void Free(void* ptr, size_t num_bytes) = 0;
 };
 
+=======
+#include <vector>
+#include "tensorflow/core/common_runtime/visitable_allocator.h"
+#include "tensorflow/core/lib/core/bits.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mem.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/stream_executor.h"
+#include "tensorflow/core/platform/types.h"
+
+namespace tensorflow {
+
+>>>>>>> tensorflow/master
 // Interface of an object that rounds up integers.
 class RoundUpInterface {
  public:
@@ -100,6 +133,11 @@ class PoolAllocator : public VisitableAllocator {
     return pool_size_limit_;
   }
 
+<<<<<<< HEAD
+=======
+  void GetStats(AllocatorStats* stats) override { stats->Clear(); }
+
+>>>>>>> tensorflow/master
  private:
   struct PtrRecord {
     void* ptr;

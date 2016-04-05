@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef TENSORFLOW_CC_OPS_CONST_OP_H_
 #define TENSORFLOW_CC_OPS_CONST_OP_H_
 
@@ -5,6 +6,30 @@
 #include "tensorflow/core/graph/graph_def_builder.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_CC_OPS_CONST_OP_H_
+#define TENSORFLOW_CC_OPS_CONST_OP_H_
+
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor.pb.h"
+#include "tensorflow/core/graph/graph_def_builder.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace ops {
@@ -27,6 +52,10 @@ namespace ops {
     return Const(gtl::ArraySlice<TYPE>(t), shape, options);                  \
   }
 
+<<<<<<< HEAD
+=======
+DECLARE_CONST(Eigen::half);
+>>>>>>> tensorflow/master
 DECLARE_CONST(float);
 DECLARE_CONST(double);
 DECLARE_CONST(int32);
@@ -34,6 +63,10 @@ DECLARE_CONST(uint8);
 DECLARE_CONST(int16);
 DECLARE_CONST(int8);
 DECLARE_CONST(complex64);
+<<<<<<< HEAD
+=======
+DECLARE_CONST(complex128);
+>>>>>>> tensorflow/master
 DECLARE_CONST(int64);
 DECLARE_CONST(bool);
 

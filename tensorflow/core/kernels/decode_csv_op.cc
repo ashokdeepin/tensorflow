@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // See docs in ../ops/parsing_ops.cc.
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/types.h"
@@ -5,6 +6,31 @@
 #include "tensorflow/core/lib/strings/numbers.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+// See docs in ../ops/parsing_ops.cc.
+#include <vector>
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/strings/numbers.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -29,7 +55,11 @@ class DecodeCSVOp : public OpKernel {
     OP_REQUIRES_OK(ctx, ctx->input("records", &records));
     OP_REQUIRES_OK(ctx, ctx->input_list("record_defaults", &record_defaults));
 
+<<<<<<< HEAD
     for (int i = 0; i < record_defaults.size(); ++i) {
+=======
+    for (int64 i = 0; i < record_defaults.size(); ++i) {
+>>>>>>> tensorflow/master
       OP_REQUIRES(ctx, record_defaults[i].NumElements() < 2,
                   errors::InvalidArgument(
                       "There should only be 1 default per field but field ", i,
@@ -37,7 +67,11 @@ class DecodeCSVOp : public OpKernel {
     }
 
     auto records_t = records->flat<string>();
+<<<<<<< HEAD
     int records_size = records_t.size();
+=======
+    int64 records_size = records_t.size();
+>>>>>>> tensorflow/master
 
     OpOutputList output;
     OP_REQUIRES_OK(ctx, ctx->output_list("output", &output));
@@ -47,7 +81,11 @@ class DecodeCSVOp : public OpKernel {
       output.allocate(i, records->shape(), &out);
     }
 
+<<<<<<< HEAD
     for (int i = 0; i < records_size; ++i) {
+=======
+    for (int64 i = 0; i < records_size; ++i) {
+>>>>>>> tensorflow/master
       const StringPiece record(records_t(i));
       std::vector<string> fields;
       ExtractFields(ctx, record, &fields);
@@ -72,7 +110,11 @@ class DecodeCSVOp : public OpKernel {
               output[f]->flat<int32>()(i) = record_defaults[f].flat<int32>()(0);
             } else {
               int32 value;
+<<<<<<< HEAD
               OP_REQUIRES(ctx, strings::safe_strto32(fields[f].c_str(), &value),
+=======
+              OP_REQUIRES(ctx, strings::safe_strto32(fields[f], &value),
+>>>>>>> tensorflow/master
                           errors::InvalidArgument("Field ", f, " in record ", i,
                                                   " is not a valid int32: ",
                                                   fields[f]));
@@ -92,7 +134,11 @@ class DecodeCSVOp : public OpKernel {
               output[f]->flat<int64>()(i) = record_defaults[f].flat<int64>()(0);
             } else {
               int64 value;
+<<<<<<< HEAD
               OP_REQUIRES(ctx, strings::safe_strto64(fields[f].c_str(), &value),
+=======
+              OP_REQUIRES(ctx, strings::safe_strto64(fields[f], &value),
+>>>>>>> tensorflow/master
                           errors::InvalidArgument("Field ", f, " in record ", i,
                                                   " is not a valid int64: ",
                                                   fields[f]));
@@ -149,7 +195,11 @@ class DecodeCSVOp : public OpKernel {
 
   void ExtractFields(OpKernelContext* ctx, StringPiece input,
                      std::vector<string>* result) {
+<<<<<<< HEAD
     int current_idx = 0;
+=======
+    int64 current_idx = 0;
+>>>>>>> tensorflow/master
     if (!input.empty()) {
       while (static_cast<size_t>(current_idx) < input.size()) {
         if (input[current_idx] == '\n' || input[current_idx] == '\r') {
@@ -198,10 +248,17 @@ class DecodeCSVOp : public OpKernel {
           }
 
           OP_REQUIRES(
+<<<<<<< HEAD
               ctx,
               input[current_idx] == '"' &&
                   (static_cast<size_t>(current_idx) == input.size() - 1 ||
                    input[current_idx + 1] == delim_),
+=======
+              ctx, (static_cast<size_t>(current_idx) < input.size() &&
+                    input[current_idx] == '"' &&
+                    (static_cast<size_t>(current_idx) == input.size() - 1 ||
+                     input[current_idx + 1] == delim_)),
+>>>>>>> tensorflow/master
               errors::InvalidArgument("Quoted field has to end with quote "
                                       "followed by delim or end"));
 

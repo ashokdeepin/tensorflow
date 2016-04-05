@@ -1,7 +1,29 @@
+<<<<<<< HEAD
 #!/bin/bash
 
 # A simple script to configure the Cuda tree needed for the TensorFlow GPU
 # build. We need both Cuda toolkit 7.0 and Cudnn 6.5.
+=======
+#!/usr/bin/env bash
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+
+# A simple script to configure the Cuda tree needed for the TensorFlow GPU
+# build. We need both Cuda toolkit $TF_CUDA_VERSION and Cudnn $TF_CUDNN_VERSION.
+>>>>>>> tensorflow/master
 # Useage:
 #    * User edit cuda.config to point both Cuda toolkit and Cudnn libraries to their local path
 #    * run cuda_config.sh to generate symbolic links in the source tree to reflect
@@ -20,7 +42,11 @@ EOF
 
 CHECK_ONLY=0
 # Parse the arguments. Add more arguments as the "case" line when needed.
+<<<<<<< HEAD
 while [[ $# > 0 ]]; do
+=======
+while [[ $# -gt 0 ]]; do
+>>>>>>> tensorflow/master
   argument="$1"
   shift
   case $argument in
@@ -47,8 +73,13 @@ function CudaError {
 cat << EOF
 ##############################################################################
 ##############################################################################
+<<<<<<< HEAD
 Cuda 7.0 toolkit is missing.
 1. Download and install the CUDA 7.0 toolkit and CUDNN 6.5 library;
+=======
+Cuda $TF_CUDA_VERSION toolkit is missing.
+1. Download and install the CUDA $TF_CUDA_VERSION toolkit and CUDNN $TF_CUDNN_VERSION library;
+>>>>>>> tensorflow/master
 2. Run configure from the root of the source tree, before rerunning bazel;
 Please refer to README.md for more details.
 ##############################################################################
@@ -63,8 +94,13 @@ function CudnnError {
 cat << EOF
 ##############################################################################
 ##############################################################################
+<<<<<<< HEAD
 Cudnn 6.5 is missing.
 1. Download and install the CUDA 7.0 toolkit and CUDNN 6.5 library;
+=======
+Cudnn $TF_CUDNN_VERSION is missing.
+1. Download and install the CUDA $TF_CUDA_VERSION toolkit and CUDNN $TF_CUDNN_VERSION library;
+>>>>>>> tensorflow/master
 2. Run configure from the root of the source tree, before rerunning bazel;
 Please refer to README.md for more details.
 ##############################################################################
@@ -84,8 +120,13 @@ function CheckAndLinkToSrcTree {
 
   # Link the output file to the source tree, avoiding self links if they are
   # the same. This could happen if invoked from the source tree by accident.
+<<<<<<< HEAD
   if [ ! `readlink -f $PWD` == `readlink -f $OUTPUTDIR/third_party/gpus/cuda` ]; then
     mkdir -p `dirname $OUTPUTDIR/third_party/gpus/cuda/$FILE`
+=======
+  if [ ! $(readlink -f $PWD) == $(readlink -f $OUTPUTDIR/third_party/gpus/cuda) ]; then
+    mkdir -p $(dirname $OUTPUTDIR/third_party/gpus/cuda/$FILE)
+>>>>>>> tensorflow/master
     ln -sf $PWD/$FILE $OUTPUTDIR/third_party/gpus/cuda/$FILE
   fi
 }
@@ -95,17 +136,29 @@ if [ "$CHECK_ONLY" == "1" ]; then
   CheckAndLinkToSrcTree CudaError include/cublas.h
   CheckAndLinkToSrcTree CudnnError include/cudnn.h
   CheckAndLinkToSrcTree CudaError lib64/libcudart_static.a
+<<<<<<< HEAD
   CheckAndLinkToSrcTree CudaError lib64/libcublas.so.7.0
   CheckAndLinkToSrcTree CudnnError lib64/libcudnn.so.6.5
   CheckAndLinkToSrcTree CudaError lib64/libcudart.so.7.0
+=======
+  CheckAndLinkToSrcTree CudaError lib64/libcublas.so$TF_CUDA_VERSION
+  CheckAndLinkToSrcTree CudnnError lib64/libcudnn.so$TF_CUDNN_VERSION
+  CheckAndLinkToSrcTree CudaError lib64/libcudart.so$TF_CUDA_VERSION
+  CheckAndLinkToSrcTree CudaError lib64/libcufft.so$TF_CUDA_VERSION
+>>>>>>> tensorflow/master
   exit 0
 fi
 
 # Actually configure the source tree for TensorFlow's canonical view of Cuda
 # libraries.
 
+<<<<<<< HEAD
 if test ! -e ${CUDA_TOOLKIT_PATH}/lib64/libcudart.so.7.0; then
   CudaError "cannot find ${CUDA_TOOLKIT_PATH}/lib64/libcudart.so.7.0"
+=======
+if test ! -e ${CUDA_TOOLKIT_PATH}/lib64/libcudart.so$TF_CUDA_VERSION; then
+  CudaError "cannot find ${CUDA_TOOLKIT_PATH}/lib64/libcudart.so$TF_CUDA_VERSION"
+>>>>>>> tensorflow/master
 fi
 
 if test ! -d ${CUDNN_INSTALL_PATH}; then
@@ -117,6 +170,7 @@ if test -e ${CUDNN_INSTALL_PATH}/cudnn.h; then
   CUDNN_HEADER_PATH=${CUDNN_INSTALL_PATH}
 elif test -e ${CUDNN_INSTALL_PATH}/include/cudnn.h; then
   CUDNN_HEADER_PATH=${CUDNN_INSTALL_PATH}/include
+<<<<<<< HEAD
 else
   CudnnError "cannot find cudnn.h under: ${CUDNN_INSTALL_PATH}"
 fi
@@ -128,6 +182,21 @@ elif test -e ${CUDNN_INSTALL_PATH}/lib64/libcudnn.so.6.5; then
   CUDNN_LIB_PATH=${CUDNN_INSTALL_PATH}/lib64
 else
   CudnnError "cannot find libcudnn.so.6.5 under: ${CUDNN_INSTALL_PATH}"
+=======
+elif test -e /usr/include/cudnn.h; then
+  CUDNN_HEADER_PATH=/usr/include
+else
+  CudnnError "cannot find cudnn.h under: ${CUDNN_INSTALL_PATH} or /usr/include"
+fi
+
+# Locate libcudnn.so.${$TF_CUDNN_VERSION}
+if test -e ${CUDNN_INSTALL_PATH}/libcudnn.so$TF_CUDNN_VERSION; then
+  CUDNN_LIB_PATH=${CUDNN_INSTALL_PATH}
+elif test -e ${CUDNN_INSTALL_PATH}/lib64/libcudnn.so$TF_CUDNN_VERSION; then
+  CUDNN_LIB_PATH=${CUDNN_INSTALL_PATH}/lib64
+else
+  CudnnError "cannot find libcudnn.so.$TF_CUDNN_VERSION under: ${CUDNN_INSTALL_PATH}"
+>>>>>>> tensorflow/master
 fi
 
 # Helper function to build symbolic links for all files under a directory.
@@ -135,9 +204,15 @@ function LinkOneDir {
   SRC_PREFIX=$1
   DST_PREFIX=$2
   SRC_DIR=$3
+<<<<<<< HEAD
   DST_DIR=`echo $SRC_DIR | sed "s,^$SRC_PREFIX,$DST_PREFIX,"`
   mkdir -p $DST_DIR
   FILE_LIST=`find -L $SRC_DIR -maxdepth 1 -type f`
+=======
+  DST_DIR=$(echo $SRC_DIR | sed "s,^$SRC_PREFIX,$DST_PREFIX,")
+  mkdir -p $DST_DIR
+  FILE_LIST=$(find -L $SRC_DIR -maxdepth 1 -type f)
+>>>>>>> tensorflow/master
   if test "$FILE_LIST" != ""; then
     ln -sf $FILE_LIST $DST_DIR/ || exit -1
   fi
@@ -166,4 +241,8 @@ LinkAllFiles ${CUDA_TOOLKIT_PATH}/nvvm $OUTPUTDIR/third_party/gpus/cuda/nvvm || 
 
 # Set up symbolic link for cudnn
 ln -sf $CUDNN_HEADER_PATH/cudnn.h $OUTPUTDIR/third_party/gpus/cuda/include/cudnn.h || exit -1
+<<<<<<< HEAD
 ln -sf $CUDNN_LIB_PATH/libcudnn.so.6.5 $OUTPUTDIR/third_party/gpus/cuda/lib64/libcudnn.so.6.5 || exit -1
+=======
+ln -sf $CUDNN_LIB_PATH/libcudnn.so$TF_CUDNN_VERSION $OUTPUTDIR/third_party/gpus/cuda/lib64/libcudnn.so$TF_CUDNN_VERSION || exit -1
+>>>>>>> tensorflow/master

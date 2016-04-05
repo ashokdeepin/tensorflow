@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Gradients for operators defined in array_ops.py."""
 
 from __future__ import absolute_import
@@ -5,16 +23,28 @@ from __future__ import division
 from __future__ import print_function
 
 from tensorflow.python.framework import ops
+<<<<<<< HEAD
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import constant_op
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import gen_array_ops
+=======
+from tensorflow.python.framework import tensor_util
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import constant_op
+from tensorflow.python.ops import gen_array_ops
+from tensorflow.python.ops import math_ops
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterGradient("Pack")
 def _PackGrad(op, grad):
   """Gradient for pack op."""
+<<<<<<< HEAD
   return array_ops.unpack(grad, num=op.get_attr('N'))
+=======
+  return array_ops.unpack(grad, num=op.get_attr("N"))
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterGradient("Unpack")
@@ -26,6 +56,7 @@ def _UnpackGrad(_, *grads):
 @ops.RegisterGradient("Concat")
 def _ConcatGrad(op, grad):
   """Gradient for concat op."""
+<<<<<<< HEAD
   assert isinstance(grad, ops.Tensor)
   # Degenerate concatenation, just return grad.
   if len(op.inputs) == 2:
@@ -51,6 +82,90 @@ def _ConcatGrad(op, grad):
   return [None] + out_grads
 
 
+=======
+
+  def _CreateDenseMaskAndBegin(sizes, concat_dim):
+    """Create variables for iteratively slicing a dense gradients tensor."""
+    # Since shape is 1-D, shape_of_shape = [rank-of-inputs]
+    shape_of_shape = array_ops.shape(sizes[0])
+    # Make a vector of length equal to the input's dimensions,
+    # with 0's everywhere and 1 in the concat dim position.
+    # Note: Can't use sparse_to_dense since it isn't GPU-capable (for now)
+    mask = array_ops.concat(0,
+                            [array_ops.fill(
+                                array_ops.expand_dims(concat_dim, 0), 0),
+                             [1],
+                             array_ops.fill(
+                                 shape_of_shape - concat_dim - 1, 0)])
+    begin = array_ops.fill(shape_of_shape, 0)
+    return mask, begin
+
+  # Degenerate concatenation, just return grad.
+  if len(op.inputs) == 2:
+    return [None, grad]
+
+  concat_dim = op.inputs[0]
+  out_grads = []
+  if isinstance(grad, ops.Tensor):
+    # Get the inputs' tensor shapes
+    sizes = array_ops.shape_n(op.inputs[1:])
+    # pylint: disable=protected-access
+    offset = gen_array_ops._concat_offset(concat_dim, sizes)
+    # pylint: enable=protected-access
+    for (begin, size) in zip(offset, sizes):
+      out_grads.append(array_ops.slice(grad, begin, size))
+  elif isinstance(grad, ops.IndexedSlices):
+    concat_dim_static = tensor_util.constant_value(concat_dim)
+    if concat_dim_static is None:
+      raise ValueError("Can only compute IndexedSlices gradient with "
+                       "statically-known concat_dim")
+    # Get the inputs' tensor shapes
+    sizes = [array_ops.shape(x) for x in op.inputs[1:]]
+    if concat_dim_static > 0:
+      # IndexedSlices, concat_dim > 0. Each input gets IndexedSlices gradients
+      # with all the indices, but with grad.values sliced accordingly. This
+      # is like the Tensor case, except shape(grad.values)[0] is not equal to
+      # shape(sizes[i])[0], since only a subset of the dim-0 values are stored.
+      mask, begin = _CreateDenseMaskAndBegin(sizes, concat_dim)
+      for size in sizes:
+        new_values = array_ops.slice(
+            grad.values,
+            begin,
+            array_ops.concat(0, [[-1], array_ops.slice(size, [1], [-1])]))
+        out_grads.append(
+            ops.IndexedSlices(new_values, grad.indices, size))
+        # Lint complains begin = begin + ...
+        begin = math_ops.add(begin, size * mask)
+    else:
+      # IndexedSlices, concat_dim == 0. Each input gets IndexedSlices gradients
+      # only for the relevant indices.
+      start = constant_op.constant(0, dtype=grad.indices.dtype)
+      for size in sizes:
+        size_concat_dim = array_ops.gather(size, concat_dim)
+        if size_concat_dim.dtype != grad.indices.dtype:
+          size_concat_dim = math_ops.cast(size_concat_dim,
+                                          dtype=grad.indices.dtype)
+        end = start + size_concat_dim
+        # Compute the 1-D Tensor of indices relevant for this input.
+        indices_to_select = array_ops.squeeze(
+            array_ops.where(math_ops.logical_and(grad.indices >= start,
+                                                 grad.indices < end)),
+            squeeze_dims=[1])
+        new_indices = array_ops.gather(grad.indices, indices_to_select) - start
+        new_values = array_ops.gather(grad.values, indices_to_select)
+        out_grads.append(
+            ops.IndexedSlices(new_values, new_indices, size))
+        start = end
+  else:
+    raise TypeError("Expected Tensor or IndexedSlices, got %s" % type(grad))
+
+  return [None] + out_grads
+
+
+ops.NoGradient("ConcatOffset")
+
+
+>>>>>>> tensorflow/master
 @ops.RegisterGradient("Slice")
 def _SliceGrad(op, grad):
   """Gradient for Slice op."""
@@ -83,21 +198,62 @@ def _SplitGrad(op, *grads):
 
 ops.NoGradient("Const")
 
+<<<<<<< HEAD
 # TODO(liqzhang): The gradient for Diag operator would be
 # the diagonal of the backprop. Implement if there is a need.
 ops.NoGradient("Diag")
+=======
+
+@ops.RegisterGradient("Diag")
+def _DiagGrad(_, grad):
+  return array_ops.diag_part(grad)
+
+@ops.RegisterGradient("DiagPart")
+def _DiagPartGrad(_, grad):
+  return array_ops.diag(grad)
+>>>>>>> tensorflow/master
 
 # Edit Distance has no gradient (but can be used to eval seq2seq or CTC).
 ops.NoGradient("EditDistance")
 
+<<<<<<< HEAD
 ops.NoGradient("Fill")
+=======
+
+@ops.RegisterGradient("Fill")
+def _FillGrad(_, grad):
+  return None, math_ops.reduce_sum(grad)
+
+
+ops.NoGradient("ZerosLike")
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterGradient("Gather")
 def _GatherGrad(op, grad):
+<<<<<<< HEAD
   return [
       ops.IndexedSlices(grad, op.inputs[1], array_ops.shape(op.inputs[0])), None
   ]
+=======
+  if op.inputs[0].get_shape().is_fully_defined():
+    dense_shape = constant_op.constant(op.inputs[0].get_shape().as_list())
+    values_shape = [-1] + op.inputs[0].get_shape()[1:].as_list()
+  else:
+    # op.inputs[0] can be large, so colocate the shape calculation with it.
+    with ops.colocate_with(op.inputs[0]):
+      dense_shape = array_ops.shape(op.inputs[0])
+      values_shape = array_ops.concat(0, [[-1], dense_shape[1:]])
+
+  values = array_ops.reshape(grad, values_shape)
+  indices = array_ops.reshape(op.inputs[1], [-1])
+  return [ops.IndexedSlices(values, indices, dense_shape), None]
+
+
+@ops.RegisterGradient("GatherNd")
+def _GatherNdGrad(unused_op, unused_grad):
+  raise NotImplementedError("Gradient for gather_nd is not implemented.")
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterGradient("Identity")
@@ -146,6 +302,12 @@ def _TransposeGrad(op, grad):
 ops.NoGradient("Shape")
 
 
+<<<<<<< HEAD
+=======
+ops.NoGradient("ShapeN")
+
+
+>>>>>>> tensorflow/master
 ops.NoGradient("Rank")
 
 
@@ -156,7 +318,26 @@ ops.NoGradient("Size")
 def _TileGrad(op, grad):
   """Sum reduces grad along the tiled dimensions."""
   assert isinstance(grad, ops.Tensor)
+<<<<<<< HEAD
   return [gen_array_ops._tile_grad(grad, op.inputs[1]), None]
+=======
+  input_shape = array_ops.shape(op.inputs[0])
+  # We interleave multiples and input_shape to get split_shape,
+  # reshape grad to split_shape, and reduce along all even
+  # dimensions (the tiled dimensions) to get the result
+  # with shape input_shape.  For example
+  #   input_shape = [20, 30, 40]
+  #   multiples = [2, 3, 4]
+  #   split_shape = [2, 20, 3, 30, 4, 40]
+  #   axes = [0, 2, 4]
+  split_shape = array_ops.reshape(array_ops.transpose(
+      array_ops.pack([op.inputs[1], input_shape])), [-1])
+  axes = math_ops.range(0, array_ops.size(split_shape), 2)
+  input_grad = math_ops.reduce_sum(array_ops.reshape(grad, split_shape), axes)
+  # Fix shape inference
+  input_grad.set_shape(op.inputs[0].get_shape())
+  return [input_grad, None]
+>>>>>>> tensorflow/master
 
 
 ops.NoGradient("TileGrad")
@@ -186,6 +367,52 @@ def _PadGrad(op, grad):
 def _ReverseSequenceGrad(op, grad):
   seq_lengths = op.inputs[1]
   return [array_ops.reverse_sequence(grad,
+<<<<<<< HEAD
                                     seq_dim=op.get_attr("seq_dim"),
                                     seq_lengths=seq_lengths),
           None]
+=======
+                                     batch_dim=op.get_attr("batch_dim"),
+                                     seq_dim=op.get_attr("seq_dim"),
+                                     seq_lengths=seq_lengths),
+          None]
+
+
+@ops.RegisterGradient("Reverse")
+def _ReverseGrad(op, grad):
+  reverse_dims = op.inputs[1]
+  return array_ops.reverse(grad, reverse_dims), None
+
+
+@ops.RegisterGradient("SpaceToDepth")
+def _SpaceToDepthGrad(op, grad):
+  # Its gradient is the opposite op: DepthToSpace.
+  block_size = op.get_attr("block_size")
+  return array_ops.depth_to_space(grad, block_size)
+
+
+@ops.RegisterGradient("DepthToSpace")
+def _DepthToSpaceGrad(op, grad):
+  # Its gradient is the opposite op: SpaceToDepth.
+  block_size = op.get_attr("block_size")
+  return array_ops.space_to_depth(grad, block_size)
+
+
+ops.NoGradient("OneHot")
+
+
+@ops.RegisterGradient("MirrorPad")
+def _MirrorPadGrad(op, grad):
+  mode = op.get_attr("mode")
+  # pylint: disable=protected-access
+  return [gen_array_ops._mirror_pad_grad(grad, op.inputs[1], mode=mode), None]
+  # pylint: enable=protected-access
+
+
+@ops.RegisterGradient("MirrorPadGrad")
+def _MirrorPadGradGrad(op, grad):
+  mode = op.get_attr("mode")
+  # pylint: disable=protected-access
+  return [gen_array_ops._mirror_pad(grad, op.inputs[1], mode=mode), None]
+  # pylint: enable=protected-access
+>>>>>>> tensorflow/master

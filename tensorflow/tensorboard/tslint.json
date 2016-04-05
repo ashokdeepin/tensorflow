@@ -11,7 +11,10 @@
     "max-line-length": [true, 140],
     "member-ordering": [false, "variables-before-functions"],
     "no-arg": true,
+<<<<<<< HEAD
     "no-bitwise": true,
+=======
+>>>>>>> tensorflow/master
     "no-consecutive-blank-lines": true,
     "no-console": [true,
         "log",

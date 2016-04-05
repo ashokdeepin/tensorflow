@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.python.framework.errors."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import warnings
 
 import tensorflow as tf
@@ -50,8 +71,13 @@ class ErrorsTest(tf.test.TestCase):
         exc = tf.errors._make_specific_exception(None, None, None, error_code)
         # pylint: enable=protected-access
       self.assertEqual(0, len(w))  # No warning is raised.
+<<<<<<< HEAD
       self.assertTrue(isinstance(exc, tf.errors.OpError))
       self.assertTrue(tf.errors.OpError in exc.__class__.__bases__)
+=======
+      self.assertTrue(isinstance(exc, tf.OpError))
+      self.assertTrue(tf.OpError in exc.__class__.__bases__)
+>>>>>>> tensorflow/master
 
   def testUnknownErrorCodeCausesWarning(self):
     with warnings.catch_warnings(record=True) as w:
@@ -60,7 +86,11 @@ class ErrorsTest(tf.test.TestCase):
       # pylint: enable=protected-access
     self.assertEqual(1, len(w))
     self.assertTrue("Unknown error code: 37" in str(w[0].message))
+<<<<<<< HEAD
     self.assertTrue(isinstance(exc, tf.errors.OpError))
+=======
+    self.assertTrue(isinstance(exc, tf.OpError))
+>>>>>>> tensorflow/master
 
 
 if __name__ == "__main__":

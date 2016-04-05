@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_GRAPH_GRAPH_CONSTRUCTOR_H_
 #define TENSORFLOW_GRAPH_GRAPH_CONSTRUCTOR_H_
 
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/graph/graph.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/status.h"
 
 namespace tensorflow {
@@ -10,6 +29,26 @@ namespace tensorflow {
 // Construct a graph *g out of a GraphDef gdef. Returns non-OK on
 // error, in which case *g is left in an incomplete state.
 struct GraphConstructorOptions {
+=======
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/protobuf/config.pb.h"
+
+namespace tensorflow {
+
+// Options specific to constant folding optimizations.
+struct ConstantFoldingOptions {
+  // If "consider" is not a nullptr, then only constant fold a node "n" if
+  // consider(n) returns true.
+  std::function<bool(const Node*)> consider = nullptr;
+};
+
+// Construct a graph *g out of a GraphDef gdef. Returns non-OK on
+// error, in which case *g is left in an incomplete state.
+struct GraphConstructorOptions {
+  GraphConstructorOptions();
+  explicit GraphConstructorOptions(const OptimizerOptions& opts);
+
+>>>>>>> tensorflow/master
   // If true, allows internal ops in the GraphDef.
   bool allow_internal_ops = false;
 
@@ -28,9 +67,20 @@ struct GraphConstructorOptions {
   // not nullptr, then only consider nodes for CSE for which
   // "cse_consider_function(node)" returns true.
   std::function<bool(const Node*)> cse_consider_function = nullptr;
+<<<<<<< HEAD
 };
 extern Status ConvertGraphDefToGraph(const GraphConstructorOptions& opts,
                                           const GraphDef& gdef, Graph* g);
+=======
+
+  // If true, perform constant folding on the graph.
+  bool optimizer_do_constant_folding = false;
+
+  ConstantFoldingOptions constant_folding_opts;
+};
+extern Status ConvertGraphDefToGraph(const GraphConstructorOptions& opts,
+                                     const GraphDef& gdef, Graph* g);
+>>>>>>> tensorflow/master
 
 // Make a copy of "src" into "*dest".
 //

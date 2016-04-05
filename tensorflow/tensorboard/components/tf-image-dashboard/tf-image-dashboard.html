@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../tf-dashboard-common/tf-run-generator.html">
 <link rel="import" href="../tf-dashboard-common/tf-url-generator.html">
@@ -51,6 +52,30 @@ mechanism for loading older images rather than always getting the most recent on
         run-to-images="[[runToImages]]"
         images-generator="[[imagesUrlGen]]"
         individual-image-generator="[[individualImageUrlGen]]"
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="tf-image-grid.html">
+<link rel="import" href="../tf-dashboard-common/tf-no-data-warning.html">
+<link rel="import" href="../tf-backend/tf-backend.html">
+
+<!--
+tf-image-dashboard displays a dashboard that loads images from a TensorFlow run.
+-->
+<dom-module id="tf-image-dashboard">
+  <template>
+    <div class="center">
+      <tf-no-data-warning
+        data-type="image"
+        show-warning="[[dataNotFound]]"
+      ></tf-no-data-warning>
+      <tf-image-grid
+        id="imageGrid"
+        run-to-images="[[run2tag]]"
+        images-generator="[[dataProvider]]"
+        tags="[[tags]]"
+        runs="[[runs]]"
+>>>>>>> tensorflow/master
       ></tf-image-grid>
     </div>
 
@@ -70,15 +95,28 @@ mechanism for loading older images rather than always getting the most recent on
       }
 
     </style>
+<<<<<<< HEAD
     <style include="warning-style"></style>
+=======
+>>>>>>> tensorflow/master
   </template>
   <script>
     Polymer({
       is: "tf-image-dashboard",
       properties: {
+<<<<<<< HEAD
         runToImages: Object,
         imagesUrlGen: Function,
         individualImageUrlGen: Function,
+=======
+        dataType: {value: "image"},
+      },
+      behaviors: [TF.Backend.Behavior],
+      attached: function() {
+        this.async(function() {
+          this.fire("rendered");
+        });
+>>>>>>> tensorflow/master
       },
       _hasImages: function(runToImagesChange) {
         return _.values(runToImagesChange.base).some(function(arr) {

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_OPS_TESTUTIL_H_
 #define TENSORFLOW_KERNELS_OPS_TESTUTIL_H_
 
@@ -10,13 +28,22 @@
 #include "tensorflow/core/framework/device_base.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_testutil.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_testutil.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/core/status_test_util.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/lib/gtl/stl_util.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/env.h"
@@ -25,6 +52,17 @@
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/util/tensor_slice_reader_cache.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/public/session_options.h"
+#include "tensorflow/core/public/version.h"
+#include "tensorflow/core/util/tensor_slice_reader_cache.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -34,6 +72,22 @@ namespace test {
 NodeDef Node(const string& name, const string& op,
              const std::vector<string>& inputs);
 
+<<<<<<< HEAD
+=======
+inline void SetOutputAttrs(OpKernelContext::Params* params,
+                           std::vector<AllocatorAttributes>* attrs) {
+  attrs->clear();
+  for (int index = 0; index < params->op_kernel->num_outputs(); index++) {
+    AllocatorAttributes attr;
+    const bool on_host =
+        (params->op_kernel->output_memory_types()[index] == HOST_MEMORY);
+    attr.set_on_host(on_host);
+    attrs->push_back(attr);
+  }
+  params->output_attr_array = gtl::vector_as_array(attrs);
+}
+
+>>>>>>> tensorflow/master
 }  // namespace test
 
 // Helpful functions to test operators.
@@ -51,6 +105,10 @@ class OpsTestBase : public ::testing::Test {
   ~OpsTestBase() override {
     gtl::STLDeleteElements(&tensors_);
     context_.reset(nullptr);
+<<<<<<< HEAD
+=======
+    params_.reset(nullptr);
+>>>>>>> tensorflow/master
   }
 
   void set_node_def(const NodeDef& node_def) { node_def_.CopyFrom(node_def); }
@@ -65,7 +123,11 @@ class OpsTestBase : public ::testing::Test {
   Status InitOp() {
     Status status;
     kernel_ = CreateOpKernel(device_type_, device_.get(), allocator(),
+<<<<<<< HEAD
                              node_def_, &status);
+=======
+                             node_def_, TF_GRAPH_DEF_VERSION, &status);
+>>>>>>> tensorflow/master
     if (kernel_ != nullptr) input_types_ = kernel_->input_types();
     return status;
   }
@@ -119,6 +181,7 @@ class OpsTestBase : public ::testing::Test {
   //
   // Returns the context's status after running the operation.
   Status RunOpKernel() {
+<<<<<<< HEAD
     OpKernelContext::Params params;
     params.device = device_.get();
     params.frame_iter = FrameAndIter(0, 0);
@@ -135,6 +198,23 @@ class OpsTestBase : public ::testing::Test {
     params.slice_reader_cache = &slice_reader_cache_wrapper;
 
     context_.reset(new OpKernelContext(params));
+=======
+    // Make sure the old OpKernelContext is deleted before the Params
+    // it was using.
+    context_.reset(nullptr);
+
+    params_.reset(new OpKernelContext::Params);
+    params_.get()->device = device_.get();
+    params_.get()->frame_iter = FrameAndIter(0, 0);
+    params_.get()->inputs = &inputs_;
+    params_.get()->op_kernel = kernel_.get();
+    std::vector<AllocatorAttributes> attrs;
+    test::SetOutputAttrs(params_.get(), &attrs);
+    checkpoint::TensorSliceReaderCacheWrapper slice_reader_cache_wrapper;
+    params_.get()->slice_reader_cache = &slice_reader_cache_wrapper;
+
+    context_.reset(new OpKernelContext(params_.get()));
+>>>>>>> tensorflow/master
     device_->Compute(kernel_.get(), context_.get());
     return context_->status();
   }
@@ -180,6 +260,10 @@ class OpsTestBase : public ::testing::Test {
   // Owns Tensors.
   std::vector<Tensor*> tensors_;
 
+<<<<<<< HEAD
+=======
+  std::unique_ptr<OpKernelContext::Params> params_;
+>>>>>>> tensorflow/master
   std::unique_ptr<OpKernelContext> context_;
 
  private:

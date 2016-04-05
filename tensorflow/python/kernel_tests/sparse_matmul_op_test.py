@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.tf.matmul."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -10,6 +29,11 @@ import tensorflow as tf
 
 from tensorflow.python.kernel_tests import gradient_checker as gc
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 def RandMatrix(rows, cols, tr):
   if tr:
@@ -31,11 +55,19 @@ class SparseMatMulTest(tf.test.TestCase):
     np_ans = x_mat * y_mat
     with self.test_session(use_gpu=False):
       tf_ans = tf.matmul(x, y,
+<<<<<<< HEAD
                                 transpose_a=tr_a, transpose_b=tr_b,
                                 a_is_sparse=sp_a,
                                 b_is_sparse=sp_b)
       out = tf_ans.eval()
     self.assertAllClose(np_ans, out)
+=======
+                         transpose_a=tr_a, transpose_b=tr_b,
+                         a_is_sparse=sp_a,
+                         b_is_sparse=sp_b)
+      out = tf_ans.eval()
+    self.assertAllClose(np_ans, out, rtol=1e-4, atol=1e-4)
+>>>>>>> tensorflow/master
     self.assertShapeEqual(np_ans, tf_ans)
 
   def testFloatBasic(self):
@@ -43,7 +75,24 @@ class SparseMatMulTest(tf.test.TestCase):
     y = np.arange(-1., 1.).reshape([1, 2]).astype(np.float32)
     self._testCpuMatmul(x, y)
 
+<<<<<<< HEAD
   # Tests testing random sized matrices.
+=======
+  # Tests setting one dimension to be a high value.
+  def testFloatLarge(self):
+    r1 = np.random.randint(6000, 20000)
+    r2 = np.random.randint(1, 10)
+    r3 = np.random.randint(1, 10)
+    for m, k, n in [(r1, r2, r3),
+                    (r2, r1, r3),
+                    (r2, r3, r1)]:
+      x = RandMatrix(m, k, False)
+      y = RandMatrix(k, n, False)
+      self._testCpuMatmul(x, y)
+      self._testCpuMatmul(x, y, sp_a=False, sp_b=True)
+
+  # Tests random sized matrices.
+>>>>>>> tensorflow/master
   def testFloatRandom(self):
     for _ in range(10):
       for tr_a in [True, False]:
@@ -63,6 +112,7 @@ class MatMulGradientTest(tf.test.TestCase):
       a = tf.constant(RandMatrix(3, 2, tr_a), dtype=tf.float32)
       b = tf.constant(RandMatrix(2, 4, tr_b), dtype=tf.float32)
       m = tf.matmul(a, b,
+<<<<<<< HEAD
                            name=name,
                            transpose_a=tr_a,
                            transpose_b=tr_b,
@@ -70,6 +120,17 @@ class MatMulGradientTest(tf.test.TestCase):
                            b_is_sparse=sp_b)
       err = (gc.ComputeGradientError(a, [2, 3] if tr_a else [3, 2], m, [3, 4]) +
              gc.ComputeGradientError(b, [4, 2] if tr_b else [2, 4], m, [3, 4]))
+=======
+                    name=name,
+                    transpose_a=tr_a,
+                    transpose_b=tr_b,
+                    a_is_sparse=sp_a,
+                    b_is_sparse=sp_b)
+      err = (tf.test.compute_gradient_error(a, [2, 3]
+                                            if tr_a else [3, 2], m, [3, 4]) +
+             tf.test.compute_gradient_error(b, [4, 2]
+                                            if tr_b else [2, 4], m, [3, 4]))
+>>>>>>> tensorflow/master
     print("sparse_matmul gradient err = ", err)
     self.assertLess(err, 1e-3)
 

@@ -1,12 +1,36 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for Reader ops from io_ops."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import os
 import tensorflow.python.platform
 
+=======
+import collections
+import os
+import threading
+>>>>>>> tensorflow/master
 import tensorflow as tf
 
 
@@ -34,12 +58,21 @@ class IdentityReaderTest(tf.test.TestCase):
       queue.close().run()
       self.assertAllEqual(3, queued_length.eval())
 
+<<<<<<< HEAD
       self._ExpectRead(sess, key, value, "A")
       self.assertAllEqual(1, produced.eval())
 
       self._ExpectRead(sess, key, value, "B")
 
       self._ExpectRead(sess, key, value, "C")
+=======
+      self._ExpectRead(sess, key, value, b"A")
+      self.assertAllEqual(1, produced.eval())
+
+      self._ExpectRead(sess, key, value, b"B")
+
+      self._ExpectRead(sess, key, value, b"C")
+>>>>>>> tensorflow/master
       self.assertAllEqual(3, produced.eval())
       self.assertAllEqual(0, queued_length.eval())
 
@@ -59,6 +92,7 @@ class IdentityReaderTest(tf.test.TestCase):
       key, value = reader.read(queue)
 
       enqueue.run()
+<<<<<<< HEAD
       self._ExpectRead(sess, key, value, "DD")
       self._ExpectRead(sess, key, value, "EE")
       enqueue.run()
@@ -67,6 +101,16 @@ class IdentityReaderTest(tf.test.TestCase):
       enqueue.run()
       self._ExpectRead(sess, key, value, "DD")
       self._ExpectRead(sess, key, value, "EE")
+=======
+      self._ExpectRead(sess, key, value, b"DD")
+      self._ExpectRead(sess, key, value, b"EE")
+      enqueue.run()
+      self._ExpectRead(sess, key, value, b"DD")
+      self._ExpectRead(sess, key, value, b"EE")
+      enqueue.run()
+      self._ExpectRead(sess, key, value, b"DD")
+      self._ExpectRead(sess, key, value, b"EE")
+>>>>>>> tensorflow/master
       queue.close().run()
       with self.assertRaisesOpError("is closed and has insufficient elements "
                                     "\\(requested 1, current size 0\\)"):
@@ -80,26 +124,44 @@ class IdentityReaderTest(tf.test.TestCase):
       queue.enqueue_many([["X", "Y", "Z"]]).run()
       key, value = reader.read(queue)
 
+<<<<<<< HEAD
       self._ExpectRead(sess, key, value, "X")
       self.assertAllEqual(1, produced.eval())
       state = reader.serialize_state().eval()
 
       self._ExpectRead(sess, key, value, "Y")
       self._ExpectRead(sess, key, value, "Z")
+=======
+      self._ExpectRead(sess, key, value, b"X")
+      self.assertAllEqual(1, produced.eval())
+      state = reader.serialize_state().eval()
+
+      self._ExpectRead(sess, key, value, b"Y")
+      self._ExpectRead(sess, key, value, b"Z")
+>>>>>>> tensorflow/master
       self.assertAllEqual(3, produced.eval())
 
       queue.enqueue_many([["Y", "Z"]]).run()
       queue.close().run()
       reader.restore_state(state).run()
       self.assertAllEqual(1, produced.eval())
+<<<<<<< HEAD
       self._ExpectRead(sess, key, value, "Y")
       self._ExpectRead(sess, key, value, "Z")
+=======
+      self._ExpectRead(sess, key, value, b"Y")
+      self._ExpectRead(sess, key, value, b"Z")
+>>>>>>> tensorflow/master
       with self.assertRaisesOpError("is closed and has insufficient elements "
                                     "\\(requested 1, current size 0\\)"):
         sess.run([key, value])
       self.assertAllEqual(3, produced.eval())
 
+<<<<<<< HEAD
       self.assertEqual(str, type(state))
+=======
+      self.assertEqual(bytes, type(state))
+>>>>>>> tensorflow/master
 
       with self.assertRaises(ValueError):
         reader.restore_state([])
@@ -117,6 +179,7 @@ class IdentityReaderTest(tf.test.TestCase):
 
       with self.assertRaisesOpError(
           "Could not parse state for IdentityReader 'test_reader'"):
+<<<<<<< HEAD
         reader.restore_state(state + "ExtraJunk").run()
 
       with self.assertRaisesOpError(
@@ -126,6 +189,17 @@ class IdentityReaderTest(tf.test.TestCase):
       with self.assertRaisesOpError(
           "Could not parse state for IdentityReader 'test_reader'"):
         reader.restore_state("BOGUS" + state[5:]).run()
+=======
+        reader.restore_state(state + b"ExtraJunk").run()
+
+      with self.assertRaisesOpError(
+          "Could not parse state for IdentityReader 'test_reader'"):
+        reader.restore_state(b"PREFIX" + state).run()
+
+      with self.assertRaisesOpError(
+          "Could not parse state for IdentityReader 'test_reader'"):
+        reader.restore_state(b"BOGUS" + state[5:]).run()
+>>>>>>> tensorflow/master
 
   def testReset(self):
     with self.test_session() as sess:
@@ -137,11 +211,19 @@ class IdentityReaderTest(tf.test.TestCase):
       key, value = reader.read(queue)
 
       queue.enqueue_many([["X", "Y", "Z"]]).run()
+<<<<<<< HEAD
       self._ExpectRead(sess, key, value, "X")
       self.assertLess(0, queued_length.eval())
       self.assertAllEqual(1, produced.eval())
 
       self._ExpectRead(sess, key, value, "Y")
+=======
+      self._ExpectRead(sess, key, value, b"X")
+      self.assertLess(0, queued_length.eval())
+      self.assertAllEqual(1, produced.eval())
+
+      self._ExpectRead(sess, key, value, b"Y")
+>>>>>>> tensorflow/master
       self.assertLess(0, work_completed.eval())
       self.assertAllEqual(2, produced.eval())
 
@@ -149,10 +231,17 @@ class IdentityReaderTest(tf.test.TestCase):
       self.assertAllEqual(0, work_completed.eval())
       self.assertAllEqual(0, produced.eval())
       self.assertAllEqual(1, queued_length.eval())
+<<<<<<< HEAD
       self._ExpectRead(sess, key, value, "Z")
 
       queue.enqueue_many([["K", "L"]]).run()
       self._ExpectRead(sess, key, value, "K")
+=======
+      self._ExpectRead(sess, key, value, b"Z")
+
+      queue.enqueue_many([["K", "L"]]).run()
+      self._ExpectRead(sess, key, value, b"K")
+>>>>>>> tensorflow/master
 
 
 class WholeFileReaderTest(tf.test.TestCase):
@@ -161,9 +250,15 @@ class WholeFileReaderTest(tf.test.TestCase):
     super(WholeFileReaderTest, self).setUp()
     self._filenames = [os.path.join(self.get_temp_dir(), "whole_file.%d.txt" % i)
                        for i in range(3)]
+<<<<<<< HEAD
     self._content = ["One\na\nb\n", "Two\nC\nD", "Three x, y, z"]
     for fn, c in zip(self._filenames, self._content):
       open(fn, "w").write(c)
+=======
+    self._content = [b"One\na\nb\n", b"Two\nC\nD", b"Three x, y, z"]
+    for fn, c in zip(self._filenames, self._content):
+      open(fn, "wb").write(c)
+>>>>>>> tensorflow/master
 
   def tearDown(self):
     super(WholeFileReaderTest, self).tearDown()
@@ -172,7 +267,11 @@ class WholeFileReaderTest(tf.test.TestCase):
 
   def _ExpectRead(self, sess, key, value, index):
     k, v = sess.run([key, value])
+<<<<<<< HEAD
     self.assertAllEqual(self._filenames[index], k)
+=======
+    self.assertAllEqual(tf.compat.as_bytes(self._filenames[index]), k)
+>>>>>>> tensorflow/master
     self.assertAllEqual(self._content[index], v)
 
   def testOneEpoch(self):
@@ -218,24 +317,41 @@ class TextLineReaderTest(tf.test.TestCase):
     self._num_lines = 5
 
   def _LineText(self, f, l):
+<<<<<<< HEAD
     return "%d: %d" % (f, l)
 
   def _CreateFiles(self):
+=======
+    return tf.compat.as_bytes("%d: %d" % (f, l))
+
+  def _CreateFiles(self, crlf=False):
+>>>>>>> tensorflow/master
     filenames = []
     for i in range(self._num_files):
       fn = os.path.join(self.get_temp_dir(), "text_line.%d.txt" % i)
       filenames.append(fn)
+<<<<<<< HEAD
       f = open(fn, "w")
+=======
+      f = open(fn, "wb")
+>>>>>>> tensorflow/master
       for j in range(self._num_lines):
         f.write(self._LineText(i, j))
         # Always include a newline after the record unless it is
         # at the end of the file, in which case we include it sometimes.
         if j + 1 != self._num_lines or i == 0:
+<<<<<<< HEAD
           f.write("\n")
     return filenames
 
   def testOneEpoch(self):
     files = self._CreateFiles()
+=======
+          f.write(b"\r\n" if crlf else b"\n")
+    return filenames
+
+  def _testOneEpoch(self, files):
+>>>>>>> tensorflow/master
     with self.test_session() as sess:
       reader = tf.TextLineReader(name="test_reader")
       queue = tf.FIFOQueue(99, [tf.string], shapes=())
@@ -246,13 +362,26 @@ class TextLineReaderTest(tf.test.TestCase):
       for i in range(self._num_files):
         for j in range(self._num_lines):
           k, v = sess.run([key, value])
+<<<<<<< HEAD
           self.assertAllEqual("%s:%d" % (files[i], j + 1), k)
+=======
+          self.assertAllEqual("%s:%d" % (files[i], j + 1), tf.compat.as_text(k))
+>>>>>>> tensorflow/master
           self.assertAllEqual(self._LineText(i, j), v)
 
       with self.assertRaisesOpError("is closed and has insufficient elements "
                                     "\\(requested 1, current size 0\\)"):
         k, v = sess.run([key, value])
 
+<<<<<<< HEAD
+=======
+  def testOneEpochLF(self):
+    self._testOneEpoch(self._CreateFiles(crlf=False))
+
+  def testOneEpochCRLF(self):
+    self._testOneEpoch(self._CreateFiles(crlf=True))
+
+>>>>>>> tensorflow/master
   def testSkipHeaderLines(self):
     files = self._CreateFiles()
     with self.test_session() as sess:
@@ -265,7 +394,11 @@ class TextLineReaderTest(tf.test.TestCase):
       for i in range(self._num_files):
         for j in range(self._num_lines - 1):
           k, v = sess.run([key, value])
+<<<<<<< HEAD
           self.assertAllEqual("%s:%d" % (files[i], j + 2), k)
+=======
+          self.assertAllEqual("%s:%d" % (files[i], j + 2), tf.compat.as_text(k))
+>>>>>>> tensorflow/master
           self.assertAllEqual(self._LineText(i, j + 1), v)
 
       with self.assertRaisesOpError("is closed and has insufficient elements "
@@ -284,18 +417,30 @@ class FixedLengthRecordReaderTest(tf.test.TestCase):
     self._footer_bytes = 2
 
   def _Record(self, f, r):
+<<<<<<< HEAD
     return str(f * 2 + r) * self._record_bytes
+=======
+    return tf.compat.as_bytes(str(f * 2 + r) * self._record_bytes)
+>>>>>>> tensorflow/master
 
   def _CreateFiles(self):
     filenames = []
     for i in range(self._num_files):
       fn = os.path.join(self.get_temp_dir(), "fixed_length_record.%d.txt" % i)
       filenames.append(fn)
+<<<<<<< HEAD
       f = open(fn, "w")
       f.write("H" * self._header_bytes)
       for j in range(self._num_records):
         f.write(self._Record(i, j))
       f.write("F" * self._footer_bytes)
+=======
+      f = open(fn, "wb")
+      f.write(b"H" * self._header_bytes)
+      for j in range(self._num_records):
+        f.write(self._Record(i, j))
+      f.write(b"F" * self._footer_bytes)
+>>>>>>> tensorflow/master
     return filenames
 
   def testOneEpoch(self):
@@ -314,7 +459,11 @@ class FixedLengthRecordReaderTest(tf.test.TestCase):
       for i in range(self._num_files):
         for j in range(self._num_records):
           k, v = sess.run([key, value])
+<<<<<<< HEAD
           self.assertAllEqual("%s:%d" % (files[i], j), k)
+=======
+          self.assertAllEqual("%s:%d" % (files[i], j), tf.compat.as_text(k))
+>>>>>>> tensorflow/master
           self.assertAllEqual(self._Record(i, j), v)
 
       with self.assertRaisesOpError("is closed and has insufficient elements "
@@ -330,7 +479,11 @@ class TFRecordReaderTest(tf.test.TestCase):
     self._num_records = 7
 
   def _Record(self, f, r):
+<<<<<<< HEAD
     return "Record %d of file %d" % (r, f)
+=======
+    return tf.compat.as_bytes("Record %d of file %d" % (r, f))
+>>>>>>> tensorflow/master
 
   def _CreateFiles(self):
     filenames = []
@@ -354,7 +507,11 @@ class TFRecordReaderTest(tf.test.TestCase):
       for i in range(self._num_files):
         for j in range(self._num_records):
           k, v = sess.run([key, value])
+<<<<<<< HEAD
           self.assertTrue(k.startswith("%s:" % files[i]))
+=======
+          self.assertTrue(tf.compat.as_text(k).startswith("%s:" % files[i]))
+>>>>>>> tensorflow/master
           self.assertAllEqual(self._Record(i, j), v)
 
       with self.assertRaisesOpError("is closed and has insufficient elements "
@@ -362,5 +519,48 @@ class TFRecordReaderTest(tf.test.TestCase):
         k, v = sess.run([key, value])
 
 
+<<<<<<< HEAD
+=======
+class AsyncReaderTest(tf.test.TestCase):
+
+  def testNoDeadlockFromQueue(self):
+    """Tests that reading does not block main execution threads."""
+    config = tf.ConfigProto(inter_op_parallelism_threads=1,
+                            intra_op_parallelism_threads=1)
+    with self.test_session(config=config) as sess:
+      thread_data_t = collections.namedtuple("thread_data_t",
+                                             ["thread", "queue", "output"])
+      thread_data = []
+
+      # Create different readers, each with its own queue.
+      for i in range(3):
+        queue = tf.FIFOQueue(99, [tf.string], shapes=())
+        reader = tf.TextLineReader()
+        _, line = reader.read(queue)
+        output = []
+        t = threading.Thread(target=AsyncReaderTest._RunSessionAndSave,
+                             args=(sess, [line], output))
+        thread_data.append(thread_data_t(t, queue, output))
+
+      # Start all readers. They are all blocked waiting for queue entries.
+      sess.run(tf.initialize_all_variables())
+      for d in thread_data:
+        d.thread.start()
+
+      # Unblock the readers.
+      for i, d in enumerate(reversed(thread_data)):
+        fname = os.path.join(self.get_temp_dir(), "deadlock.%s.txt" % i)
+        with open(fname, "wb") as f:
+          f.write(("file-%s" % i).encode())
+        d.queue.enqueue_many([[fname]]).run()
+        d.thread.join()
+        self.assertEqual([[("file-%s" % i).encode()]], d.output)
+
+  @staticmethod
+  def _RunSessionAndSave(sess, args, output):
+    output.append(sess.run(args))
+
+
+>>>>>>> tensorflow/master
 if __name__ == "__main__":
   tf.test.main()

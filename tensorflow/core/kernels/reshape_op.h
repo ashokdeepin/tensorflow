@@ -1,14 +1,40 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_RESHAPE_OP_H_
 #define TENSORFLOW_KERNELS_RESHAPE_OP_H_
 
 #include <memory>
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -20,6 +46,7 @@ class ReshapeOp : public OpKernel {
     const Tensor& input = context->input(0);
     const Tensor& sizes = context->input(1);
     // Preliminary validation of sizes.
+<<<<<<< HEAD
     OP_REQUIRES(context, TensorShapeUtils::IsLegacyVector(sizes.shape()),
                 errors::InvalidArgument("sizes input must be 1-D, not shape ",
                                         sizes.shape().ShortDebugString()));
@@ -27,11 +54,21 @@ class ReshapeOp : public OpKernel {
     OP_REQUIRES(
         context, num_dims <= 8,
         errors::InvalidArgument(num_dims, " > max 8 output dims supported"));
+=======
+    OP_REQUIRES(context, IsLegacyVector(sizes.shape()),
+                errors::InvalidArgument("sizes input must be 1-D, not shape ",
+                                        sizes.shape().DebugString()));
+    const int64 num_dims = sizes.NumElements();
+>>>>>>> tensorflow/master
 
     // Compute the output shape.  Determine product of specified
     // dimensions, and find the index of the unspecified one.
     TensorShape shape;
+<<<<<<< HEAD
     int32 product = 1;
+=======
+    int64 product = 1;
+>>>>>>> tensorflow/master
     int unknown_index = -1;
     auto Svec = sizes.flat<int32>();
     for (int d = 0; d < num_dims; ++d) {
@@ -54,6 +91,7 @@ class ReshapeOp : public OpKernel {
     if (unknown_index != -1) {
       OP_REQUIRES(
           context, product > 0,
+<<<<<<< HEAD
           errors::InvalidArgument("cannot infer the missing input size for "
                                   "an empty tensor unless all specified "
                                   "input sizes are non-zero"));
@@ -67,6 +105,24 @@ class ReshapeOp : public OpKernel {
     OP_REQUIRES(context, shape.num_elements() == input.NumElements(),
                 errors::InvalidArgument("Input has ", input.NumElements(),
                                         " values, which isn't the same as ",
+=======
+          errors::InvalidArgument("Reshape cannot infer the missing input size "
+                                  "for an empty tensor unless all specified "
+                                  "input sizes are non-zero"));
+      const int64 missing = input.NumElements() / product;
+      OP_REQUIRES(
+          context, product * missing == input.NumElements(),
+          errors::InvalidArgument(
+              "Input to reshape is a tensor with ", input.NumElements(),
+              " values, but the requested shape requires a multiple of ",
+              product));
+      shape.set_dim(unknown_index, missing);
+    }
+    OP_REQUIRES(context, shape.num_elements() == input.NumElements(),
+                errors::InvalidArgument("Input to reshape is a tensor with ",
+                                        input.NumElements(),
+                                        " values, but the requested shape has ",
+>>>>>>> tensorflow/master
                                         shape.num_elements()));
 
     // Actually produce the reshaped output.

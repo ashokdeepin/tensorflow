@@ -1,8 +1,32 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_util.h"
 
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/public/tensor.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/tensor_util.h"
+
+#include <vector>
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -120,5 +144,84 @@ TEST(TensorUtil, DeepCopySlice) {
   }
 }
 
+<<<<<<< HEAD
+=======
+TEST(TensorUtil, Concat) {
+  std::vector<int64> sizes = {1, 4, 5};
+  std::vector<Tensor> to_concat;
+  int64 total_size = 0;
+  int offset = 0;
+  for (size_t entry = 0; entry < sizes.size(); ++entry) {
+    const int64 size = sizes[entry];
+    Tensor tensor(DT_INT32, TensorShape({size, 2}));
+    for (int i = offset; i < offset + size; ++i) {
+      for (int j = 0; j < 2; ++j) {
+        tensor.matrix<int32>()(i - offset, j) = 2 * i + j;
+      }
+    }
+    to_concat.push_back(tensor);
+    total_size += size;
+    offset += size;
+  }
+
+  Tensor concated = tensor::Concat(to_concat);
+  ASSERT_EQ(TensorShape({total_size, 2}), concated.shape());
+  for (int i = 0; i < total_size; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      EXPECT_EQ(2 * i + j, concated.matrix<int32>()(i, j));
+    }
+  }
+}
+
+TEST(TensorUtil, Split) {
+  Tensor to_split(DT_INT64, TensorShape({10, 2}));
+  for (int i = 0; i < 10; ++i) {
+    for (int j = 0; j < 2; ++j) {
+      to_split.matrix<int64>()(i, j) = 2 * i + j;
+    }
+  }
+
+  std::vector<int64> sizes = {1, 4, 5};
+  std::vector<Tensor> splits = tensor::Split(to_split, sizes);
+  ASSERT_EQ(sizes.size(), splits.size());
+
+  int offset = 0;
+  for (size_t entry = 0; entry < splits.size(); ++entry) {
+    const int64 size = sizes[entry];
+    const Tensor& split = splits[entry];
+
+    ASSERT_EQ(TensorShape({size, 2}), split.shape());
+    for (int i = offset; i < offset + size; ++i) {
+      for (int j = 0; j < 2; ++j) {
+        EXPECT_EQ(2 * i + j, split.matrix<int64>()(i - offset, j));
+      }
+    }
+
+    offset += size;
+  }
+}
+
+TEST(TensorUtil, ConcatSplitStrings) {
+  Tensor x(DT_STRING, TensorShape({4, 3}));
+  for (int i = 0; i < 4 * 3; ++i) {
+    x.flat<string>()(i) = strings::StrCat("foo_", i);
+  }
+
+  Tensor x_round_tripped = tensor::Concat(tensor::Split(x, {2, 1, 1}));
+  ASSERT_EQ(x.shape(), x_round_tripped.shape());
+  for (int i = 0; i < 4 * 3; ++i) {
+    EXPECT_EQ(x.flat<string>()(i), x_round_tripped.flat<string>()(i));
+  }
+
+  // Ensure that no memory is being shared between 'x' and 'x_round_tripped'.
+  for (int i = 0; i < 4 * 3; ++i) {
+    x_round_tripped.flat<string>()(i) = strings::StrCat("bar_", i);
+  }
+  for (int i = 0; i < 4 * 3; ++i) {
+    EXPECT_NE(x.flat<string>()(i), x_round_tripped.flat<string>()(i));
+  }
+}
+
+>>>>>>> tensorflow/master
 }  // namespace
 }  // namespace tensorflow

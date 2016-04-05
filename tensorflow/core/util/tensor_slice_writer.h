@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // The utility to write checkpoints for google brain tensor ops and v3
 // checkpoints for dist_belief.
 //
@@ -7,6 +25,7 @@
 
 #include <unordered_map>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_slice.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/errors.h"
@@ -16,6 +35,18 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/tensor_shape.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_slice.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/gtl/map_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/saved_tensor_slice.pb.h"
 #include "tensorflow/core/util/saved_tensor_slice_util.h"
 
@@ -32,8 +63,12 @@ class TensorSliceWriter {
     virtual void Add(StringPiece key, StringPiece value) = 0;
     virtual Status Finish(int64* file_size) = 0;
   };
+<<<<<<< HEAD
   typedef std::function<Status(const string&, Builder**)>
       CreateBuilderFunction;
+=======
+  typedef std::function<Status(const string&, Builder**)> CreateBuilderFunction;
+>>>>>>> tensorflow/master
 
   TensorSliceWriter(const string& filename,
                     CreateBuilderFunction create_builder);
@@ -42,7 +77,11 @@ class TensorSliceWriter {
   // TODO(yangke): add more supports
   template <typename T>
   Status Add(const string& name, const TensorShape& shape,
+<<<<<<< HEAD
                   const TensorSlice& slice, const T* data);
+=======
+             const TensorSlice& slice, const T* data);
+>>>>>>> tensorflow/master
   Status Finish();
 
  private:
@@ -68,7 +107,11 @@ class TensorSliceWriter {
 
 template <typename T>
 Status TensorSliceWriter::Add(const string& name, const TensorShape& shape,
+<<<<<<< HEAD
                                    const TensorSlice& slice, const T* data) {
+=======
+                              const TensorSlice& slice, const T* data) {
+>>>>>>> tensorflow/master
   // The tensor and the slice have to be compatible
   if (shape.dims() != slice.dims()) {
     return errors::Internal("Incompatible tensor shape and slice: ", "shape = ",
@@ -122,7 +165,13 @@ Status TensorSliceWriter::Add(const string& name, const TensorShape& shape,
     // list the tensor slices we want to save and then another pass to actually
     // set the data. Need to figure out if the interface works well.
     std::pair<string, string> key_value(key, "");
+<<<<<<< HEAD
     sts.AppendToString(&key_value.second);
+=======
+    if (!sts.AppendToString(&key_value.second)) {
+      return errors::Internal("Error writing Tensor. Possible size overflow.");
+    }
+>>>>>>> tensorflow/master
     data_.insert(key_value);
   }
   ++slices_;
@@ -140,7 +189,11 @@ void TensorSliceWriter::SaveData(const T* data, int num_elements,
 // and set "*builder" to the allocated builder.  Otherwise, return a
 // non-OK status.
 Status CreateTableTensorSliceBuilder(const string& filename,
+<<<<<<< HEAD
                                           TensorSliceWriter::Builder** builder);
+=======
+                                     TensorSliceWriter::Builder** builder);
+>>>>>>> tensorflow/master
 
 }  // namespace checkpoint
 

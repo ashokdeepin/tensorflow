@@ -1,5 +1,26 @@
+<<<<<<< HEAD
 #include "tensorflow/core/public/env.h"
 #include "tensorflow/core/lib/core/errors.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/gtl/stl_util.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/platform/protobuf.h"
 
 namespace tensorflow {
@@ -15,6 +36,7 @@ Thread::~Thread() {}
 EnvWrapper::~EnvWrapper() {}
 
 Status ReadFileToString(Env* env, const string& fname, string* data) {
+<<<<<<< HEAD
   data->clear();
   RandomAccessFile* file;
   Status s = env->NewRandomAccessFile(fname, &file);
@@ -41,6 +63,33 @@ Status ReadFileToString(Env* env, const string& fname, string* data) {
     }
   }
   delete[] space;
+=======
+  uint64 file_size;
+  Status s = env->GetFileSize(fname, &file_size);
+  if (!s.ok()) {
+    return s;
+  }
+  RandomAccessFile* file;
+  s = env->NewRandomAccessFile(fname, &file);
+  if (!s.ok()) {
+    return s;
+  }
+  gtl::STLStringResizeUninitialized(data, file_size);
+  char* p = gtl::string_as_array(data);
+  StringPiece result;
+  s = file->Read(0, file_size, &result, p);
+  if (!s.ok()) {
+    data->clear();
+  } else if (result.size() != file_size) {
+    s = errors::Aborted("File ", fname, " changed while reading: ", file_size,
+                        " vs. ", result.size());
+    data->clear();
+  } else if (result.data() == p) {
+    // Data is already in the correct location
+  } else {
+    memmove(p, result.data(), result.size());
+  }
+>>>>>>> tensorflow/master
   delete file;
   return s;
 }

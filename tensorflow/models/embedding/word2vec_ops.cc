@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/op.h"
 
 namespace tensorflow {
@@ -10,6 +28,10 @@ REGISTER_OP("Skipgram")
     .Output("total_words_processed: int64")
     .Output("examples: int32")
     .Output("labels: int32")
+<<<<<<< HEAD
+=======
+    .SetIsStateful()
+>>>>>>> tensorflow/master
     .Attr("filename: string")
     .Attr("batch_size: int")
     .Attr("window_size: int = 5")
@@ -40,6 +62,10 @@ REGISTER_OP("NegTrain")
     .Input("examples: int32")
     .Input("labels: int32")
     .Input("lr: float")
+<<<<<<< HEAD
+=======
+    .SetIsStateful()
+>>>>>>> tensorflow/master
     .Attr("vocab_count: list(int)")
     .Attr("num_negative_samples: int")
     .Doc(R"doc(
@@ -50,7 +76,11 @@ w_out: output word embedding.
 examples: A vector of word ids.
 labels: A vector of word ids.
 vocab_count: Count of words in the vocabulary.
+<<<<<<< HEAD
 num_negative_samples: Number of negative samples per exaple.
+=======
+num_negative_samples: Number of negative samples per example.
+>>>>>>> tensorflow/master
 )doc");
 
 }  // end namespace tensorflow

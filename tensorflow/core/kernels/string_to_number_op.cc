@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/parse_ops.cc.
 
 #include <errno.h>
@@ -5,10 +23,17 @@
 
 #include "tensorflow/core/framework/kernel_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/strings/numbers.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/strings/numbers.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -33,26 +58,45 @@ class StringToNumberOp : public OpKernel {
                                             &output_tensor));
     auto output_flat = output_tensor->flat<OutputType>();
 
+<<<<<<< HEAD
     for (std::size_t i = 0; i < input_flat.size(); ++i) {
       const char* s = input_flat(i).data();
       Convert(s, &output_flat(i), context);
+=======
+    for (int i = 0; i < input_flat.size(); ++i) {
+      Convert(input_flat(i), &output_flat(i), context);
+>>>>>>> tensorflow/master
     }
   }
 
  private:
+<<<<<<< HEAD
   void Convert(const char* s, OutputType* output_data,
+=======
+  void Convert(const string& s, OutputType* output_data,
+>>>>>>> tensorflow/master
                OpKernelContext* context);
 };
 
 template <>
+<<<<<<< HEAD
 void StringToNumberOp<float>::Convert(const char* s, float* output_data,
                                       OpKernelContext* context) {
   OP_REQUIRES(context, strings::safe_strtof(s, output_data),
+=======
+void StringToNumberOp<float>::Convert(const string& s, float* output_data,
+                                      OpKernelContext* context) {
+  OP_REQUIRES(context, strings::safe_strtof(s.c_str(), output_data),
+>>>>>>> tensorflow/master
               errors::InvalidArgument(kErrorMessage, s));
 }
 
 template <>
+<<<<<<< HEAD
 void StringToNumberOp<int32>::Convert(const char* s, int32* output_data,
+=======
+void StringToNumberOp<int32>::Convert(const string& s, int32* output_data,
+>>>>>>> tensorflow/master
                                       OpKernelContext* context) {
   OP_REQUIRES(context, strings::safe_strto32(s, output_data),
               errors::InvalidArgument(kErrorMessage, s));

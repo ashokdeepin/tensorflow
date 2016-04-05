@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 package org.tensorflow.demo;
 
 import android.content.res.AssetManager;
@@ -9,13 +27,21 @@ import android.media.Image;
 import android.media.Image.Plane;
 import android.media.ImageReader;
 import android.media.ImageReader.OnImageAvailableListener;
+<<<<<<< HEAD
+=======
+import android.os.Handler;
+import android.os.Trace;
+>>>>>>> tensorflow/master
 
 import junit.framework.Assert;
 
 import org.tensorflow.demo.env.ImageUtils;
 import org.tensorflow.demo.env.Logger;
 
+<<<<<<< HEAD
 import java.nio.ByteBuffer;
+=======
+>>>>>>> tensorflow/master
 import java.util.List;
 
 /**
@@ -41,6 +67,7 @@ public class TensorflowImageListener implements OnImageAvailableListener {
 
   private int previewWidth = 0;
   private int previewHeight = 0;
+<<<<<<< HEAD
   private byte[] yuvBytes = null;
   private int[] rgbBytes = null;
   private Bitmap rgbFrameBitmap = null;
@@ -52,6 +79,26 @@ public class TensorflowImageListener implements OnImageAvailableListener {
     tensorflow.initializeTensorflow(
         assetManager, MODEL_FILE, LABEL_FILE, NUM_CLASSES, INPUT_SIZE, IMAGE_MEAN);
     this.scoreView = scoreView;
+=======
+  private byte[][] yuvBytes;
+  private int[] rgbBytes = null;
+  private Bitmap rgbFrameBitmap = null;
+  private Bitmap croppedBitmap = null;
+  
+  private boolean computing = false;
+  private Handler handler;
+  
+  private RecognitionScoreView scoreView;
+
+  public void initialize(
+      final AssetManager assetManager,
+      final RecognitionScoreView scoreView,
+      final Handler handler) {
+    tensorflow.initializeTensorflow(
+        assetManager, MODEL_FILE, LABEL_FILE, NUM_CLASSES, INPUT_SIZE, IMAGE_MEAN);
+    this.scoreView = scoreView;
+    this.handler = handler;
+>>>>>>> tensorflow/master
   }
 
   private void drawResizedBitmap(final Bitmap src, final Bitmap dst) {
@@ -88,6 +135,7 @@ public class TensorflowImageListener implements OnImageAvailableListener {
       if (image == null) {
         return;
       }
+<<<<<<< HEAD
 
       // Initialize the storage bitmaps once when the resolution is known.
       if (previewWidth != image.getWidth() || previewHeight != image.getHeight()) {
@@ -120,11 +168,65 @@ public class TensorflowImageListener implements OnImageAvailableListener {
       image.close();
 
       ImageUtils.convertYUV420SPToARGB8888(yuvBytes, rgbBytes, previewWidth, previewHeight, false);
+=======
+      
+      // No mutex needed as this method is not reentrant.
+      if (computing) {
+        image.close();
+        return;
+      }
+      computing = true;
+
+      Trace.beginSection("imageAvailable");
+
+      final Plane[] planes = image.getPlanes();
+
+      // Initialize the storage bitmaps once when the resolution is known.
+      if (previewWidth != image.getWidth() || previewHeight != image.getHeight()) {
+        previewWidth = image.getWidth();
+        previewHeight = image.getHeight();
+
+        LOGGER.i("Initializing at size %dx%d", previewWidth, previewHeight);
+        rgbBytes = new int[previewWidth * previewHeight];
+        rgbFrameBitmap = Bitmap.createBitmap(previewWidth, previewHeight, Config.ARGB_8888);
+        croppedBitmap = Bitmap.createBitmap(INPUT_SIZE, INPUT_SIZE, Config.ARGB_8888);
+
+        yuvBytes = new byte[planes.length][];
+        for (int i = 0; i < planes.length; ++i) {
+          yuvBytes[i] = new byte[planes[i].getBuffer().capacity()];
+        }
+      }
+
+      for (int i = 0; i < planes.length; ++i) {
+        planes[i].getBuffer().get(yuvBytes[i]);
+      }
+
+      final int yRowStride = planes[0].getRowStride();
+      final int uvRowStride = planes[1].getRowStride();
+      final int uvPixelStride = planes[1].getPixelStride();
+      ImageUtils.convertYUV420ToARGB8888(
+          yuvBytes[0],
+          yuvBytes[1],
+          yuvBytes[2],
+          rgbBytes,
+          previewWidth,
+          previewHeight,
+          yRowStride,
+          uvRowStride,
+          uvPixelStride,
+          false);
+
+      image.close();
+>>>>>>> tensorflow/master
     } catch (final Exception e) {
       if (image != null) {
         image.close();
       }
       LOGGER.e(e, "Exception!");
+<<<<<<< HEAD
+=======
+      Trace.endSection();
+>>>>>>> tensorflow/master
       return;
     }
 
@@ -136,6 +238,7 @@ public class TensorflowImageListener implements OnImageAvailableListener {
       ImageUtils.saveBitmap(croppedBitmap);
     }
 
+<<<<<<< HEAD
     final List<Classifier.Recognition> results = tensorflow.recognizeImage(croppedBitmap);
 
     LOGGER.v("%d results", results.size());
@@ -143,5 +246,23 @@ public class TensorflowImageListener implements OnImageAvailableListener {
       LOGGER.v("Result: " + result.getTitle());
     }
     scoreView.setResults(results);
+=======
+    handler.post(
+        new Runnable() {
+          @Override
+          public void run() {
+            final List<Classifier.Recognition> results = tensorflow.recognizeImage(croppedBitmap);
+
+            LOGGER.v("%d results", results.size());
+            for (final Classifier.Recognition result : results) {
+              LOGGER.v("Result: " + result.getTitle());
+            }
+            scoreView.setResults(results);
+            computing = false;
+          }
+        });
+
+    Trace.endSection();
+>>>>>>> tensorflow/master
   }
 }

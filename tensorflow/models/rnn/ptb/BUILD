@@ -8,6 +8,20 @@ licenses(["notice"])  # Apache 2.0
 exports_files(["LICENSE"])
 
 py_library(
+<<<<<<< HEAD
+=======
+    name = "package",
+    srcs = [
+        "__init__.py",
+    ],
+    srcs_version = "PY2AND3",
+    deps = [
+        ":reader",
+    ],
+)
+
+py_library(
+>>>>>>> tensorflow/master
     name = "reader",
     srcs = ["reader.py"],
     srcs_version = "PY2AND3",
@@ -16,6 +30,10 @@ py_library(
 
 py_test(
     name = "reader_test",
+<<<<<<< HEAD
+=======
+    size = "small",
+>>>>>>> tensorflow/master
     srcs = ["reader_test.py"],
     srcs_version = "PY2AND3",
     deps = [

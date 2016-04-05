@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.reshape_op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -10,6 +29,11 @@ import tensorflow as tf
 
 from tensorflow.python.kernel_tests import gradient_checker as gc
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 class ReshapeTest(tf.test.TestCase):
 
@@ -61,6 +85,7 @@ class ReshapeTest(tf.test.TestCase):
   # reports errors.
 
   def testFloatReshapeGradThreeDimensions(self):
+<<<<<<< HEAD
     x = np.arange(1., 25.).reshape([1, 24]).astype(np.float32)
     s = list(np.shape(x))
     with self.test_session():
@@ -68,6 +93,18 @@ class ReshapeTest(tf.test.TestCase):
       reshape_out = tf.reshape(input_tensor, [1, 8, 3])
       err = gc.ComputeGradientError(input_tensor, s,
                                     reshape_out, s, x_init_value=x)
+=======
+    x = np.arange(1., 25.).reshape([2, 3, 4]).astype(np.float32)
+    s = list(np.shape(x))
+    with self.test_session():
+      input_tensor = tf.constant(x)
+      reshape_out = tf.reshape(input_tensor, [1, 8, 3])
+      err = tf.test.compute_gradient_error(input_tensor,
+                                           s,
+                                           reshape_out,
+                                           s,
+                                           x_init_value=x)
+>>>>>>> tensorflow/master
     print("Reshape gradient error = " % err)
     self.assertLess(err, 1e-3)
 
@@ -90,6 +127,14 @@ class ReshapeTest(tf.test.TestCase):
     with self.assertRaisesRegexp(ValueError, "isn't divisible by 17"):
       tf.reshape(y, [17, -1])
 
+<<<<<<< HEAD
+=======
+    z = tf.constant(0.0, shape=[32, 128])
+    with self.assertRaisesRegexp(ValueError,
+                                 "Cannot reshape a tensor with 4096 elements"):
+      tf.reshape(z, [4095])
+
+>>>>>>> tensorflow/master
   def testPartialShapes(self):
     x = tf.placeholder(tf.float32)
 

@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for Pack Op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -10,6 +29,11 @@ import tensorflow as tf
 
 from tensorflow.python.kernel_tests import gradient_checker
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 class PackOpTest(tf.test.TestCase):
 
@@ -20,7 +44,12 @@ class PackOpTest(tf.test.TestCase):
         for shape in (2,), (3,), (2, 3), (3, 2), (4, 3, 2):
           data = np.random.randn(*shape)
           # Convert [data[0], data[1], ...] separately to tensorflow
+<<<<<<< HEAD
           xs = map(tf.constant, data)
+=======
+          # TODO(irving): Remove list() once we handle maps correctly
+          xs = list(map(tf.constant, data))
+>>>>>>> tensorflow/master
           # Pack back into a single tensorflow tensor
           c = tf.pack(xs)
           self.assertAllEqual(c.eval(), data)
@@ -32,9 +61,16 @@ class PackOpTest(tf.test.TestCase):
         data = np.random.randn(*shape)
         shapes = [shape[1:]] * shape[0]
         with self.test_session(use_gpu=use_gpu):
+<<<<<<< HEAD
           xs = map(tf.constant, data)
           c = tf.pack(xs)
           err = gradient_checker.ComputeGradientError(xs, shapes, c, shape)
+=======
+          # TODO(irving): Remove list() once we handle maps correctly
+          xs = list(map(tf.constant, data))
+          c = tf.pack(xs)
+          err = tf.test.compute_gradient_error(xs, shapes, c, shape)
+>>>>>>> tensorflow/master
           self.assertLess(err, 1e-6)
 
   def testZeroSize(self):

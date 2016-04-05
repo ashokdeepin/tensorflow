@@ -1,8 +1,31 @@
+<<<<<<< HEAD
 """Updates generated docs from Python doc comments.
 
 Both updates the files in the file-system and executes g4 commands to
 make sure any changes are ready to be submitted.
 """
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+"""Updates generated docs from Python doc comments.
+
+Updates the documentation files.
+"""
+
+>>>>>>> tensorflow/master
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
@@ -83,11 +106,14 @@ class Index(Document):
           print("  * %s" % link, file=f)
         print("", file=f)
 
+<<<<<<< HEAD
     # actually include the files right here
     print('<div class="sections-order" style="display: none;">\n<!--', file=f)
     for filename, _ in self._filename_to_library_map:
       print("<!-- %s -->" % filename, file=f)
     print("-->\n</div>", file=f)
+=======
+>>>>>>> tensorflow/master
 
 def collect_members(module_to_name):
   """Collect all symbols from a list of modules.
@@ -100,9 +126,17 @@ def collect_members(module_to_name):
   """
   members = {}
   for module, module_name in module_to_name.items():
+<<<<<<< HEAD
     for name, member in inspect.getmembers(module):
       if ((inspect.isfunction(member) or inspect.isclass(member)) and
           not _always_drop_symbol_re.match(name)):
+=======
+    all_names = getattr(module, "__all__", None)
+    for name, member in inspect.getmembers(module):
+      if ((inspect.isfunction(member) or inspect.isclass(member)) and
+          not _always_drop_symbol_re.match(name) and
+          (all_names is None or name in all_names)):
+>>>>>>> tensorflow/master
         fullname = '%s.%s' % (module_name, name)
         if name in members:
           other_fullname, other_member = members[name]
@@ -112,7 +146,11 @@ def collect_members(module_to_name):
           if len(fullname) == len(other_fullname):
             raise RuntimeError("Can't decide whether to use %s or %s for %s: "
                                "both full names have length %d" %
+<<<<<<< HEAD
                                (fullname, other_fullname, len(fullname)))
+=======
+                               (fullname, other_fullname, name, len(fullname)))
+>>>>>>> tensorflow/master
           if len(fullname) > len(other_fullname):
             continue  # Use the shorter full name
         members[name] = fullname, member
@@ -223,10 +261,19 @@ class Library(Document):
       name, member tuples.
     """
     for name, member in inspect.getmembers(cls):
+<<<<<<< HEAD
       # Only show methods and properties presently.
       if not (inspect.ismethod(member) or isinstance(member, property)):
         continue
       if ((inspect.ismethod(member) and member.__name__ == "__init__")
+=======
+      # Only show methods and properties presently.  In Python 3,
+      # methods register as isfunction.
+      is_method = inspect.ismethod(member) or inspect.isfunction(member)
+      if not (is_method or isinstance(member, property)):
+        continue
+      if ((is_method and member.__name__ == "__init__")
+>>>>>>> tensorflow/master
           or self._should_include_member(name, member)):
         yield name, ("%s.%s" % (cls_name, name), member)
 
@@ -253,7 +300,14 @@ class Library(Document):
     if argspec.defaults:
       for arg, default in zip(
           argspec.args[first_arg_with_default:], argspec.defaults):
+<<<<<<< HEAD
         args_list.append("%s=%r" % (arg, default))
+=======
+        if callable(default):
+          args_list.append("%s=%s" % (arg, default.__name__))
+        else:
+          args_list.append("%s=%r" % (arg, default))
+>>>>>>> tensorflow/master
     if argspec.varargs:
       args_list.append("*" + argspec.varargs)
     if argspec.keywords:
@@ -356,6 +410,7 @@ class Library(Document):
     self._print_formatted_docstring(inspect.getdoc(func), f)
     print("", file=f)
 
+<<<<<<< HEAD
   def _write_member_markdown_to_file(self, f, name, member):
     """Print `member` to `f`."""
     if inspect.isfunction(member):
@@ -377,6 +432,21 @@ class Library(Document):
       print("", file=f)
       print("### `class %s` {#%s}" % (name,
                                       _get_anchor(self._module_to_name, name)),
+=======
+  def _write_member_markdown_to_file(self, f, prefix, name, member):
+    """Print `member` to `f`."""
+    if (inspect.isfunction(member) or inspect.ismethod(member) or
+        isinstance(member, property)):
+      print("- - -", file=f)
+      print("", file=f)
+      self._print_function(f, prefix, name, member)
+      print("", file=f)
+    elif inspect.isclass(member):
+      print("- - -", file=f)
+      print("", file=f)
+      print("%s `class %s` {#%s}" % (prefix, name,
+                                     _get_anchor(self._module_to_name, name)),
+>>>>>>> tensorflow/master
             file=f)
       print("", file=f)
       self._write_class_markdown_to_file(f, name, member)
@@ -384,14 +454,23 @@ class Library(Document):
     else:
       raise RuntimeError("Member %s has unknown type %s" % (name, type(member)))
 
+<<<<<<< HEAD
   def _write_docstring_markdown_to_file(self, f, docstring, members, imports):
+=======
+  def _write_docstring_markdown_to_file(self, f, prefix, docstring, members,
+                                        imports):
+>>>>>>> tensorflow/master
     for l in self._remove_docstring_indent(docstring):
       if l.startswith(_member_mark):
         name = l[len(_member_mark):].strip(" \t")
         if name in members:
           self._documented.add(name)
           self._mentioned.add(name)
+<<<<<<< HEAD
           self._write_member_markdown_to_file(f, *members[name])
+=======
+          self._write_member_markdown_to_file(f, prefix, *members[name])
+>>>>>>> tensorflow/master
           del members[name]
         elif name in imports:
           self._write_module_markdown_to_file(f, imports[name])
@@ -401,7 +480,11 @@ class Library(Document):
         print(l, file=f)
 
   def _write_class_markdown_to_file(self, f, name, cls):
+<<<<<<< HEAD
     """Write the class doc to 'f'.
+=======
+    """Write the class doc to `f`.
+>>>>>>> tensorflow/master
 
     Args:
       f: File to write to.
@@ -414,7 +497,15 @@ class Library(Document):
     # Used later to check if any methods were called out in the class
     # docstring.
     num_methods = len(methods)
+<<<<<<< HEAD
     self._write_docstring_markdown_to_file(f, inspect.getdoc(cls), methods, {})
+=======
+    try:
+      self._write_docstring_markdown_to_file(f, "####", inspect.getdoc(cls),
+                                             methods, {})
+    except ValueError as e:
+      raise ValueError(str(e) + " in class `%s`" % cls.__name__)
+>>>>>>> tensorflow/master
 
     # If some methods were not described, describe them now if they are
     # defined by the class itself (not inherited).  If NO methods were
@@ -430,11 +521,19 @@ class Library(Document):
     else:
       other_methods = methods
     for name in sorted(other_methods):
+<<<<<<< HEAD
       self._write_member_markdown_to_file(f, *other_methods[name])
 
   def _write_module_markdown_to_file(self, f, module):
     imports = dict(self.get_imported_modules(module))
     self._write_docstring_markdown_to_file(f, inspect.getdoc(module),
+=======
+      self._write_member_markdown_to_file(f, "####", *other_methods[name])
+
+  def _write_module_markdown_to_file(self, f, module):
+    imports = dict(self.get_imported_modules(module))
+    self._write_docstring_markdown_to_file(f, "###", inspect.getdoc(module),
+>>>>>>> tensorflow/master
                                            self._members, imports)
 
   def write_markdown_to_file(self, f):
@@ -470,6 +569,12 @@ class Library(Document):
       names = self._members.items()
     else:
       names = inspect.getmembers(self._module)
+<<<<<<< HEAD
+=======
+      all_names = getattr(self._module, "__all__", None)
+      if all_names is not None:
+        names = [(n, m) for n, m in names if n in all_names]
+>>>>>>> tensorflow/master
     leftovers = []
     for name, _ in names:
       if name in self._members and name not in self._documented:
@@ -481,7 +586,11 @@ class Library(Document):
         print("  %s" % name)
         self._documented.add(name)
         self._mentioned.add(name)
+<<<<<<< HEAD
         self._write_member_markdown_to_file(f, *self._members[name])
+=======
+        self._write_member_markdown_to_file(f, "###", *self._members[name])
+>>>>>>> tensorflow/master
 
   def assert_no_leftovers(self):
     """Generate an error if there are leftover members."""

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """A binary to train CIFAR-10 using a single GPU.
 
 Accuracy:
@@ -25,9 +43,12 @@ from datetime import datetime
 import os.path
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 from tensorflow.python.platform import gfile
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -81,8 +102,12 @@ def train():
     # Start the queue runners.
     tf.train.start_queue_runners(sess=sess)
 
+<<<<<<< HEAD
     summary_writer = tf.train.SummaryWriter(FLAGS.train_dir,
                                             graph_def=sess.graph_def)
+=======
+    summary_writer = tf.train.SummaryWriter(FLAGS.train_dir, sess.graph)
+>>>>>>> tensorflow/master
 
     for step in xrange(FLAGS.max_steps):
       start_time = time.time()
@@ -113,9 +138,15 @@ def train():
 
 def main(argv=None):  # pylint: disable=unused-argument
   cifar10.maybe_download_and_extract()
+<<<<<<< HEAD
   if gfile.Exists(FLAGS.train_dir):
     gfile.DeleteRecursively(FLAGS.train_dir)
   gfile.MakeDirs(FLAGS.train_dir)
+=======
+  if tf.gfile.Exists(FLAGS.train_dir):
+    tf.gfile.DeleteRecursively(FLAGS.train_dir)
+  tf.gfile.MakeDirs(FLAGS.train_dir)
+>>>>>>> tensorflow/master
   train()
 
 

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // This file defines functions to compress and uncompress JPEG files
 // to and from memory.  It provides interfaces for raw images
 // (data array and size fields).
@@ -8,10 +26,16 @@
 
 #include <functional>
 #include <string>
+<<<<<<< HEAD
 #include <vector>
 
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/lib/core/stringpiece.h"
+=======
+
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace jpeg {
@@ -57,7 +81,11 @@ struct UncompressFlags {
 uint8* Uncompress(const void* srcdata, int datasize,
                   const UncompressFlags& flags, int* width, int* height,
                   int* components,  // Output only: useful with autodetect
+<<<<<<< HEAD
                   int* nwarn);
+=======
+                  int64* nwarn);
+>>>>>>> tensorflow/master
 
 // Version of Uncompress that allocates memory via a callback.  The callback
 // arguments are (width, height, components).  If the size is known ahead of
@@ -65,7 +93,11 @@ uint8* Uncompress(const void* srcdata, int datasize,
 // the buffer to be shaped based on the JPEG header.  The caller is responsible
 // for freeing the memory *even along error paths*.
 uint8* Uncompress(const void* srcdata, int datasize,
+<<<<<<< HEAD
                   const UncompressFlags& flags, int* nwarn,
+=======
+                  const UncompressFlags& flags, int64* nwarn,
+>>>>>>> tensorflow/master
                   std::function<uint8*(int, int, int)> allocate_output);
 
 // Read jpeg header and get image information.  Returns true on success.

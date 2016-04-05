@@ -1,9 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Builds the CIFAR-10 network.
 
 Summary of available functions:
 
  # Compute input images and labels for training. If you would like to run
+<<<<<<< HEAD
  # evaluations, use input() instead.
+=======
+ # evaluations, use inputs() instead.
+>>>>>>> tensorflow/master
  inputs, labels = distorted_inputs()
 
  # Compute inference on the model inputs to make a prediction.
@@ -26,6 +48,7 @@ import re
 import sys
 import tarfile
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 from six.moves import urllib
 from six.moves import xrange  # pylint: disable=redefined-builtin
@@ -33,6 +56,12 @@ import tensorflow as tf
 
 from tensorflow.models.image.cifar10 import cifar10_input
 from tensorflow.python.platform import gfile
+=======
+from six.moves import urllib
+import tensorflow as tf
+
+from tensorflow.models.image.cifar10 import cifar10_input
+>>>>>>> tensorflow/master
 
 FLAGS = tf.app.flags.FLAGS
 
@@ -42,6 +71,7 @@ tf.app.flags.DEFINE_integer('batch_size', 128,
 tf.app.flags.DEFINE_string('data_dir', '/tmp/cifar10_data',
                            """Path to the CIFAR-10 data directory.""")
 
+<<<<<<< HEAD
 # Process images of this size. Note that this differs from the original CIFAR
 # image size of 32 x 32. If one alters this number, then the entire model
 # architecture will change and any model would need to be retrained.
@@ -51,6 +81,14 @@ IMAGE_SIZE = 24
 NUM_CLASSES = 10
 NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = 50000
 NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = 10000
+=======
+# Global constants describing the CIFAR-10 data set.
+IMAGE_SIZE = cifar10_input.IMAGE_SIZE
+NUM_CLASSES = cifar10_input.NUM_CLASSES
+NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN = cifar10_input.NUM_EXAMPLES_PER_EPOCH_FOR_TRAIN
+NUM_EXAMPLES_PER_EPOCH_FOR_EVAL = cifar10_input.NUM_EXAMPLES_PER_EPOCH_FOR_EVAL
+
+>>>>>>> tensorflow/master
 
 # Constants describing the training process.
 MOVING_AVERAGE_DECAY = 0.9999     # The decay to use for the moving average.
@@ -58,7 +96,11 @@ NUM_EPOCHS_PER_DECAY = 350.0      # Epochs after which learning rate decays.
 LEARNING_RATE_DECAY_FACTOR = 0.1  # Learning rate decay factor.
 INITIAL_LEARNING_RATE = 0.1       # Initial learning rate.
 
+<<<<<<< HEAD
 # If a model is trained with multiple GPU's prefix all Op names with tower_name
+=======
+# If a model is trained with multiple GPUs, prefix all Op names with tower_name
+>>>>>>> tensorflow/master
 # to differentiate the operations. Note that this prefix is removed from the
 # names of the summaries when visualizing a model.
 TOWER_NAME = 'tower'
@@ -118,12 +160,17 @@ def _variable_with_weight_decay(name, shape, stddev, wd):
   """
   var = _variable_on_cpu(name, shape,
                          tf.truncated_normal_initializer(stddev=stddev))
+<<<<<<< HEAD
   if wd:
+=======
+  if wd is not None:
+>>>>>>> tensorflow/master
     weight_decay = tf.mul(tf.nn.l2_loss(var), wd, name='weight_loss')
     tf.add_to_collection('losses', weight_decay)
   return var
 
 
+<<<<<<< HEAD
 def _generate_image_and_label_batch(image, label, min_queue_examples):
   """Construct a queued batch of images and labels.
 
@@ -209,6 +256,23 @@ def distorted_inputs():
   # Generate a batch of images and labels by building up a queue of examples.
   return _generate_image_and_label_batch(float_image, read_input.label,
                                          min_queue_examples)
+=======
+def distorted_inputs():
+  """Construct distorted input for CIFAR training using the Reader ops.
+
+  Returns:
+    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
+    labels: Labels. 1D tensor of [batch_size] size.
+
+  Raises:
+    ValueError: If no data_dir
+  """
+  if not FLAGS.data_dir:
+    raise ValueError('Please supply a data_dir')
+  data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  return cifar10_input.distorted_inputs(data_dir=data_dir,
+                                        batch_size=FLAGS.batch_size)
+>>>>>>> tensorflow/master
 
 
 def inputs(eval_data):
@@ -217,6 +281,7 @@ def inputs(eval_data):
   Args:
     eval_data: bool, indicating if one should use the train or eval data set.
 
+<<<<<<< HEAD
   Raises:
     ValueError: if no data_dir
 
@@ -267,6 +332,20 @@ def inputs(eval_data):
   # Generate a batch of images and labels by building up a queue of examples.
   return _generate_image_and_label_batch(float_image, read_input.label,
                                          min_queue_examples)
+=======
+  Returns:
+    images: Images. 4D tensor of [batch_size, IMAGE_SIZE, IMAGE_SIZE, 3] size.
+    labels: Labels. 1D tensor of [batch_size] size.
+
+  Raises:
+    ValueError: If no data_dir
+  """
+  if not FLAGS.data_dir:
+    raise ValueError('Please supply a data_dir')
+  data_dir = os.path.join(FLAGS.data_dir, 'cifar-10-batches-bin')
+  return cifar10_input.inputs(eval_data=eval_data, data_dir=data_dir,
+                              batch_size=FLAGS.batch_size)
+>>>>>>> tensorflow/master
 
 
 def inference(images):
@@ -289,7 +368,11 @@ def inference(images):
                                          stddev=1e-4, wd=0.0)
     conv = tf.nn.conv2d(images, kernel, [1, 1, 1, 1], padding='SAME')
     biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.0))
+<<<<<<< HEAD
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+=======
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv1 = tf.nn.relu(bias, name=scope.name)
     _activation_summary(conv1)
 
@@ -306,7 +389,11 @@ def inference(images):
                                          stddev=1e-4, wd=0.0)
     conv = tf.nn.conv2d(norm1, kernel, [1, 1, 1, 1], padding='SAME')
     biases = _variable_on_cpu('biases', [64], tf.constant_initializer(0.1))
+<<<<<<< HEAD
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape().as_list())
+=======
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv2 = tf.nn.relu(bias, name=scope.name)
     _activation_summary(conv2)
 
@@ -328,7 +415,11 @@ def inference(images):
     weights = _variable_with_weight_decay('weights', shape=[dim, 384],
                                           stddev=0.04, wd=0.004)
     biases = _variable_on_cpu('biases', [384], tf.constant_initializer(0.1))
+<<<<<<< HEAD
     local3 = tf.nn.relu_layer(reshape, weights, biases, name=scope.name)
+=======
+    local3 = tf.nn.relu(tf.matmul(reshape, weights) + biases, name=scope.name)
+>>>>>>> tensorflow/master
     _activation_summary(local3)
 
   # local4
@@ -336,7 +427,11 @@ def inference(images):
     weights = _variable_with_weight_decay('weights', shape=[384, 192],
                                           stddev=0.04, wd=0.004)
     biases = _variable_on_cpu('biases', [192], tf.constant_initializer(0.1))
+<<<<<<< HEAD
     local4 = tf.nn.relu_layer(local3, weights, biases, name=scope.name)
+=======
+    local4 = tf.nn.relu(tf.matmul(local3, weights) + biases, name=scope.name)
+>>>>>>> tensorflow/master
     _activation_summary(local4)
 
   # softmax, i.e. softmax(WX + b)
@@ -345,7 +440,11 @@ def inference(images):
                                           stddev=1/192.0, wd=0.0)
     biases = _variable_on_cpu('biases', [NUM_CLASSES],
                               tf.constant_initializer(0.0))
+<<<<<<< HEAD
     softmax_linear = tf.nn.xw_plus_b(local4, weights, biases, name=scope.name)
+=======
+    softmax_linear = tf.add(tf.matmul(local4, weights), biases, name=scope.name)
+>>>>>>> tensorflow/master
     _activation_summary(softmax_linear)
 
   return softmax_linear
@@ -354,7 +453,11 @@ def inference(images):
 def loss(logits, labels):
   """Add L2Loss to all the trainable variables.
 
+<<<<<<< HEAD
   Add summary for for "Loss" and "Loss/avg".
+=======
+  Add summary for "Loss" and "Loss/avg".
+>>>>>>> tensorflow/master
   Args:
     logits: Logits from inference().
     labels: Labels from distorted_inputs or inputs(). 1-D tensor
@@ -363,6 +466,7 @@ def loss(logits, labels):
   Returns:
     Loss tensor of type float.
   """
+<<<<<<< HEAD
   # Reshape the labels into a dense Tensor of
   # shape [batch_size, NUM_CLASSES].
   sparse_labels = tf.reshape(labels, [FLAGS.batch_size, 1])
@@ -375,6 +479,12 @@ def loss(logits, labels):
   # Calculate the average cross entropy loss across the batch.
   cross_entropy = tf.nn.softmax_cross_entropy_with_logits(
       logits, dense_labels, name='cross_entropy_per_example')
+=======
+  # Calculate the average cross entropy loss across the batch.
+  labels = tf.cast(labels, tf.int64)
+  cross_entropy = tf.nn.sparse_softmax_cross_entropy_with_logits(
+      logits, labels, name='cross_entropy_per_example')
+>>>>>>> tensorflow/master
   cross_entropy_mean = tf.reduce_mean(cross_entropy, name='cross_entropy')
   tf.add_to_collection('losses', cross_entropy_mean)
 
@@ -399,7 +509,11 @@ def _add_loss_summaries(total_loss):
   losses = tf.get_collection('losses')
   loss_averages_op = loss_averages.apply(losses + [total_loss])
 
+<<<<<<< HEAD
   # Attach a scalar summmary to all individual losses and the total loss; do the
+=======
+  # Attach a scalar summary to all individual losses and the total loss; do the
+>>>>>>> tensorflow/master
   # same for the averaged version of the losses.
   for l in losses + [total_loss]:
     # Name each loss as '(raw)' and name the moving average version of the loss
@@ -452,7 +566,11 @@ def train(total_loss, global_step):
 
   # Add histograms for gradients.
   for grad, var in grads:
+<<<<<<< HEAD
     if grad:
+=======
+    if grad is not None:
+>>>>>>> tensorflow/master
       tf.histogram_summary(var.op.name + '/gradients', grad)
 
   # Track the moving averages of all trainable variables.
@@ -478,9 +596,16 @@ def maybe_download_and_extract():
       sys.stdout.write('\r>> Downloading %s %.1f%%' % (filename,
           float(count * block_size) / float(total_size) * 100.0))
       sys.stdout.flush()
+<<<<<<< HEAD
     filepath, _ = urllib.request.urlretrieve(DATA_URL, filepath,
                                              reporthook=_progress)
     print()
     statinfo = os.stat(filepath)
     print('Succesfully downloaded', filename, statinfo.st_size, 'bytes.')
+=======
+    filepath, _ = urllib.request.urlretrieve(DATA_URL, filepath, _progress)
+    print()
+    statinfo = os.stat(filepath)
+    print('Successfully downloaded', filename, statinfo.st_size, 'bytes.')
+>>>>>>> tensorflow/master
     tarfile.open(filepath, 'r:gz').extractall(dest_directory)

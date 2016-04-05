@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_OPS_UTIL_H_
 #define TENSORFLOW_KERNELS_OPS_UTIL_H_
 
 // This file contains utilities for various operations.
 
+<<<<<<< HEAD
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/util/padding.h"
 #include "tensorflow/core/public/tensor_shape.h"
@@ -15,6 +34,15 @@ namespace tensorflow {
 // mode and has no direct references to any code from this directory.
 void RequireDefaultOps();
 
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/util/padding.h"
+
+namespace tensorflow {
+
+>>>>>>> tensorflow/master
 // Get2dOutputSize(): Given an input tensor, kernel, stride and padding
 // type, the function computes the output and padding dimensions.
 //
@@ -85,16 +113,26 @@ Status Get2dOutputSizeVerbose(const int in_height, const int in_width,
 // index and size for broadcast for that dimension are different from the
 // current index and kernel size.
 // This is mainly used by gradient algorithms for pooling operations.
+<<<<<<< HEAD
 Status GetBroadcastSize(const int index, const int in_size,
                              const int ksize, const int stride,
                              const int pad_size, int* bindex, int* bsize);
+=======
+Status GetBroadcastSize(const int index, const int in_size, const int ksize,
+                        const int stride, const int pad_size, int* bindex,
+                        int* bsize);
+>>>>>>> tensorflow/master
 
 // Converts Brain's Padding to Eigen's PaddingType.
 Eigen::PaddingType BrainPadding2EigenPadding(Padding padding);
 
 // Given a shape 's' of a tensor of type T. Returns true iff the
 // number of bytes occupied by each dim 0 (i.e., &tensor(i + 1, ...) -
+<<<<<<< HEAD
 // &tensor(i, ...)) is multiple of EIGEN_ALIGN_BYTES.
+=======
+// &tensor(i, ...)) is multiple of EIGEN_MAX_ALIGN_BYTES.
+>>>>>>> tensorflow/master
 template <typename T>
 bool IsInnerDimsSizeAligned(const TensorShape& s) {
   if (s.dims() == 0) return false;
@@ -105,7 +143,11 @@ bool IsInnerDimsSizeAligned(const TensorShape& s) {
 }
 
 // Returns in 'col_data', image patches in storage order (height, width, depth)
+<<<<<<< HEAD
 // extracted from image at 'input_data', which is requred to be in storage
+=======
+// extracted from image at 'input_data', which is required to be in storage
+>>>>>>> tensorflow/master
 // order (batch, height, width, depth).
 // Implementation written by Yangqing Jia (jiayq).
 template <typename T>
@@ -175,6 +217,12 @@ void Col2im(const T* col_data, const int depth, const int height,
   }
 }
 
+<<<<<<< HEAD
+=======
+// Returns <suffix> sanitized to have only [a-zA-Z0-9-_].
+string SanitizeThreadSuffix(string suffix);
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow
 
 #endif  // TENSORFLOW_KERNELS_OPS_UTIL_H_

@@ -1,16 +1,44 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_RANGE_SAMPLER_H_
 #define TENSORFLOW_KERNELS_RANGE_SAMPLER_H_
 
 #include <vector>
 
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/lib/random/distribution_sampler.h"
 #include "tensorflow/core/lib/random/random_distributions.h"
 #include "tensorflow/core/lib/random/weighted_picker.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/thread_annotations.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/thread_annotations.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -20,7 +48,11 @@ class Env;
 // [0, range)
 class RangeSampler {
  public:
+<<<<<<< HEAD
   explicit RangeSampler(int range) : range_(range) { CHECK_GT(range_, 0); }
+=======
+  explicit RangeSampler(int64 range) : range_(range) { CHECK_GT(range_, 0); }
+>>>>>>> tensorflow/master
   virtual ~RangeSampler();
 
   // Sample a single value
@@ -49,7 +81,11 @@ class RangeSampler {
   // Expected counts for the elements of the returned "batch" are reported
   // in the aligned array "batch_expected_count".
   //
+<<<<<<< HEAD
   // The user can optionally provide "extras", containg values in the range.
+=======
+  // The user can optionally provide "extras", containing values in the range.
+>>>>>>> tensorflow/master
   // The expected counts for the extras are reported in the aligned array
   // "extras_expected_count".
   //
@@ -112,9 +148,12 @@ class AllSampler : public RangeSampler {
       gtl::ArraySlice<int64> extras,
       gtl::MutableArraySlice<float> extras_expected_count,
       gtl::ArraySlice<int64> avoided_values) const override;
+<<<<<<< HEAD
 
  private:
   const float inv_range_;
+=======
+>>>>>>> tensorflow/master
 };
 
 class UniformSampler : public RangeSampler {
@@ -172,7 +211,11 @@ class UnigramSampler : public RangeSampler {
 
   float Probability(int64 value) const override;
 
+<<<<<<< HEAD
   // Overriding at a high level results in far fewer lock aquisitions.
+=======
+  // Overriding at a high level results in far fewer lock acquisitions.
+>>>>>>> tensorflow/master
   void SampleBatchGetExpectedCountAvoid(
       random::SimplePhilox* rnd, bool unique,
       gtl::MutableArraySlice<int64> batch,

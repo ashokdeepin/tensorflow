@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for directory_watcher."""
 
 from __future__ import absolute_import
@@ -17,11 +35,22 @@ class _ByteLoader(object):
 
   def __init__(self, path):
     self._f = open(path)
+<<<<<<< HEAD
 
   def Load(self):
     while True:
       byte = self._f.read(1)
       if byte:
+=======
+    self.bytes_read = 0
+
+  def Load(self):
+    while True:
+      self._f.seek(self.bytes_read)
+      byte = self._f.read(1)
+      if byte:
+        self.bytes_read += 1
+>>>>>>> tensorflow/master
         yield byte
       else:
         return
@@ -34,7 +63,11 @@ class DirectoryWatcherTest(test_util.TensorFlowTestCase):
     self._directory = os.path.join(self.get_temp_dir(), 'monitor_dir')
     os.mkdir(self._directory)
     self._watcher = directory_watcher.DirectoryWatcher(
+<<<<<<< HEAD
         self._directory, _ByteLoader)
+=======
+        directory_watcher.SequentialGFileProvider(self._directory), _ByteLoader)
+>>>>>>> tensorflow/master
 
   def tearDown(self):
     shutil.rmtree(self._directory)
@@ -51,7 +84,11 @@ class DirectoryWatcherTest(test_util.TensorFlowTestCase):
     with self.assertRaises(ValueError):
       directory_watcher.DirectoryWatcher(None, lambda x: [])
     with self.assertRaises(ValueError):
+<<<<<<< HEAD
       directory_watcher.DirectoryWatcher('asdf', None)
+=======
+      directory_watcher.DirectoryWatcher(lambda x: None, None)
+>>>>>>> tensorflow/master
 
   def testEmptyDirectory(self):
     self.assertWatcherYields([])
@@ -92,15 +129,27 @@ class DirectoryWatcherTest(test_util.TensorFlowTestCase):
     self._WriteToFile('c', 'c')
     self.assertWatcherYields(['a', 'c'])
 
+<<<<<<< HEAD
   def testFileFilter(self):
     self._watcher = directory_watcher.DirectoryWatcher(
         self._directory, _ByteLoader,
         path_filter=lambda path: 'do_not_watch_me' not in path)
+=======
+  def testPathFilter(self):
+    provider = directory_watcher.SequentialGFileProvider(
+        self._directory,
+        path_filter=lambda path: 'do_not_watch_me' not in path)
+    self._watcher = directory_watcher.DirectoryWatcher(provider, _ByteLoader)
+>>>>>>> tensorflow/master
 
     self._WriteToFile('a', 'a')
     self._WriteToFile('do_not_watch_me', 'b')
     self._WriteToFile('c', 'c')
     self.assertWatcherYields(['a', 'c'])
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> tensorflow/master
 if __name__ == '__main__':
   googletest.main()

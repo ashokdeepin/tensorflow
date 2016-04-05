@@ -1,7 +1,30 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/rendezvous.h"
 
 #include <gtest/gtest.h>
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/rendezvous.h"
+
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/tensor_types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/lib/core/errors.h"
@@ -10,6 +33,7 @@
 #include "tensorflow/core/lib/core/threadpool.h"
 #include "tensorflow/core/lib/random/simple_philox.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/test.h"
@@ -17,6 +41,14 @@
 #include "tensorflow/core/public/env.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -31,7 +63,11 @@ TEST(RendezvousTest, Key) {
             "var0;"
             "0:0");
   Rendezvous::ParsedKey parsed;
+<<<<<<< HEAD
   EXPECT_OK(Rendezvous::ParseKey(key, &parsed));
+=======
+  TF_EXPECT_OK(Rendezvous::ParseKey(key, &parsed));
+>>>>>>> tensorflow/master
   EXPECT_EQ(parsed.src_device, "/job:mnist/replica:1/task:2/CPU:0");
   EXPECT_EQ(parsed.src_incarnation, 7890);
   EXPECT_EQ(parsed.src.type, "CPU");
@@ -83,11 +119,19 @@ string V(const Tensor& tensor) {
 
 TEST_F(LocalRendezvousTest, SendRecv) {
   Rendezvous::Args args;
+<<<<<<< HEAD
   ASSERT_OK(rendez_->Send("foo", args, V("hello"), false));
   EXPECT_TRUE(errors::IsAborted(rendez_->Send("foo", args, V("hello"), false)));
   Tensor val(DT_STRING);
   bool is_dead = false;
   ASSERT_OK(rendez_->Recv("foo", args, &val, &is_dead));
+=======
+  TF_ASSERT_OK(rendez_->Send("foo", args, V("hello"), false));
+  EXPECT_TRUE(errors::IsAborted(rendez_->Send("foo", args, V("hello"), false)));
+  Tensor val(DT_STRING);
+  bool is_dead = false;
+  TF_ASSERT_OK(rendez_->Recv("foo", args, &val, &is_dead));
+>>>>>>> tensorflow/master
   EXPECT_EQ("hello", V(val));
 }
 
@@ -95,12 +139,20 @@ TEST_F(LocalRendezvousTest, RecvSend) {
   SchedClosure([this]() {
     Env::Default()->SleepForMicroseconds(10000);
     Rendezvous::Args args;
+<<<<<<< HEAD
     ASSERT_OK(rendez_->Send("foo", args, V("hello"), false));
+=======
+    TF_ASSERT_OK(rendez_->Send("foo", args, V("hello"), false));
+>>>>>>> tensorflow/master
   });
   Tensor val(DT_STRING);
   bool is_dead = false;
   Rendezvous::Args args;
+<<<<<<< HEAD
   ASSERT_OK(rendez_->Recv("foo", args, &val, &is_dead));
+=======
+  TF_ASSERT_OK(rendez_->Recv("foo", args, &val, &is_dead));
+>>>>>>> tensorflow/master
   EXPECT_EQ("hello", V(val));
 }
 
@@ -109,16 +161,26 @@ TEST_F(LocalRendezvousTest, DuplicateWaiterRecv) {
     Tensor t(DT_STRING);
     bool is_dead = false;
     Rendezvous::Args args;
+<<<<<<< HEAD
     ASSERT_OK(rendez_->Recv("foo", args, &t, &is_dead));
     ASSERT_OK(rendez_->Send("bar", args, t, is_dead));
+=======
+    TF_ASSERT_OK(rendez_->Recv("foo", args, &t, &is_dead));
+    TF_ASSERT_OK(rendez_->Send("bar", args, t, is_dead));
+>>>>>>> tensorflow/master
   });
   Env::Default()->SleepForMicroseconds(1000000);
   Tensor val(DT_STRING);
   bool val_dead = false;
   Rendezvous::Args args;
   EXPECT_TRUE(errors::IsAborted(rendez_->Recv("foo", args, &val, &val_dead)));
+<<<<<<< HEAD
   ASSERT_OK(rendez_->Send("foo", args, V("secret msg"), val_dead));
   ASSERT_OK(rendez_->Recv("bar", args, &val, &val_dead));
+=======
+  TF_ASSERT_OK(rendez_->Send("foo", args, V("secret msg"), val_dead));
+  TF_ASSERT_OK(rendez_->Recv("bar", args, &val, &val_dead));
+>>>>>>> tensorflow/master
   EXPECT_EQ("secret msg", V(val));
 }
 
@@ -127,15 +189,25 @@ TEST_F(LocalRendezvousTest, DuplicateSerialRecv) {
     Tensor t(DT_STRING);
     bool is_dead = false;
     Rendezvous::Args args;
+<<<<<<< HEAD
     ASSERT_OK(rendez_->Recv("foo", args, &t, &is_dead));
     ASSERT_OK(rendez_->Send("bar", args, t, is_dead));
+=======
+    TF_ASSERT_OK(rendez_->Recv("foo", args, &t, &is_dead));
+    TF_ASSERT_OK(rendez_->Send("bar", args, t, is_dead));
+>>>>>>> tensorflow/master
   });
   Env::Default()->SleepForMicroseconds(1000000);
   Tensor val(DT_STRING);
   bool val_dead = false;
   Rendezvous::Args args;
+<<<<<<< HEAD
   ASSERT_OK(rendez_->Send("foo", args, V("secret msg"), val_dead));
   ASSERT_OK(rendez_->Recv("bar", args, &val, &val_dead));
+=======
+  TF_ASSERT_OK(rendez_->Send("foo", args, V("secret msg"), val_dead));
+  TF_ASSERT_OK(rendez_->Recv("bar", args, &val, &val_dead));
+>>>>>>> tensorflow/master
   EXPECT_EQ("secret msg", V(val));
   EXPECT_TRUE(errors::IsAborted(rendez_->Recv("foo", args, &val, &val_dead)));
 }
@@ -159,8 +231,13 @@ TEST_F(LocalRendezvousTest, RandomSendRecv) {
       random::SimplePhilox rnd(&philox);
       Env::Default()->SleepForMicroseconds(1000 + rnd.Uniform(10000));
       Rendezvous::Args args;
+<<<<<<< HEAD
       ASSERT_OK(rendez_->Send(strings::StrCat(i), args, V(strings::StrCat(i)),
                               false));
+=======
+      TF_ASSERT_OK(rendez_->Send(strings::StrCat(i), args,
+                                 V(strings::StrCat(i)), false));
+>>>>>>> tensorflow/master
     });
     SchedClosure([this, &state, i]() {
       random::PhiloxRandom philox(testing::RandomSeed() + N + i, 17);
@@ -169,7 +246,11 @@ TEST_F(LocalRendezvousTest, RandomSendRecv) {
       Tensor val(DT_STRING);
       bool val_dead = false;
       Rendezvous::Args args;
+<<<<<<< HEAD
       ASSERT_OK(rendez_->Recv(strings::StrCat(i), args, &val, &val_dead));
+=======
+      TF_ASSERT_OK(rendez_->Recv(strings::StrCat(i), args, &val, &val_dead));
+>>>>>>> tensorflow/master
       EXPECT_EQ(strings::StrCat(i), V(val));
       bool done = false;
       {
@@ -240,7 +321,11 @@ TEST_F(LocalRendezvousTest, TransferDummyDeviceContext) {
   Rendezvous::Args args;
   args.device_context = new DummyDeviceContext(123);
 
+<<<<<<< HEAD
   ASSERT_OK(rendez_->Send("foo", args, V("hello"), false));
+=======
+  TF_ASSERT_OK(rendez_->Send("foo", args, V("hello"), false));
+>>>>>>> tensorflow/master
 
   Notification n;
   Rendezvous::Args args1;

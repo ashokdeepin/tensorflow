@@ -1,13 +1,39 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #if GOOGLE_CUDA
 
 #define EIGEN_USE_GPU
 
 #include <stdio.h>
+<<<<<<< HEAD
+=======
+#include <cfloat>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/tensor_types.h"
 #include "tensorflow/core/kernels/maxpooling_op.h"
 #include "tensorflow/core/kernels/maxpooling_op_gpu.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/util/cuda_kernel_helper.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -27,10 +53,14 @@ namespace {
 //         int form, keeping track of the flattened index of the input item that
 //         produces the max output. If a nullptr is passed in for mask, no mask
 //         will be produced.
+<<<<<<< HEAD
 #define CUDA_1D_KERNEL_LOOP(i, n)                                              \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x;                          \
        i < (n); i += blockDim.x * gridDim.x)
 
+=======
+//
+>>>>>>> tensorflow/master
 // To call the forward and backward functions, use e.g.:
 // const int kThreadsPerBlock = 1024
 // const int output_size = batch * channels * pooled_height * pooled_width;
@@ -185,11 +215,14 @@ __global__ void MaxPoolBackward(const int nthreads, const dtype* top_diff,
   }
 }
 
+<<<<<<< HEAD
 template <typename dtype>
 __global__ void SetZero(const int nthreads, dtype* bottom_diff) {
   CUDA_1D_KERNEL_LOOP(index, nthreads) { *(bottom_diff + index) = dtype(0); }
 }
 
+=======
+>>>>>>> tensorflow/master
 #undef CUDA_1D_KERNEL_LOOP
 }  // namespace
 

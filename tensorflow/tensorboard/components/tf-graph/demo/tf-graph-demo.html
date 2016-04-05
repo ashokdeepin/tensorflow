@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <link rel="import" href="../../../bower_components/polymer/polymer.html">
+=======
+<link rel="import" href="../../polymer/polymer.html">
+>>>>>>> tensorflow/master
 <link rel="import" href="../../tf-graph-board/tf-graph-board.html">
 <link rel="import" href="../../tf-graph-loader/tf-graph-loader.html">
 <link rel="import" href="../../tf-graph/tf-graph-controls.html">
@@ -60,6 +64,10 @@ Example
         out-graph-name="{{graphName}}"
         has-stats="{{hasStats}}"
         progress="{{_progress}}"
+<<<<<<< HEAD
+=======
+        out-hierarchy-params="{{_hierarchyParams}}"
+>>>>>>> tensorflow/master
     ></tf-graph-loader>
   </div>
   <div class="main">
@@ -71,6 +79,10 @@ Example
         progress="[[_progress]]"
         color-by="[[colorBy]]"
         color-by-params="{{colorByParams}}"
+<<<<<<< HEAD
+=======
+        hierarchy-params="[[_hierarchyParams]]"
+>>>>>>> tensorflow/master
     ></tf-graph-board>
   </div>
 </div>
@@ -91,6 +103,13 @@ var datasets = [
     statsPath: "mnist_train_stats.json"
   },
   {
+<<<<<<< HEAD
+=======
+    name: "Mnist Train (with shapes)",
+    path: "mnist_train_shapes.pbtxt",
+  },
+  {
+>>>>>>> tensorflow/master
     name: "Inception Train (huge)",
     path: "inception_train.pbtxt",
   },
@@ -115,7 +134,11 @@ var datasets = [
     path: "ptb_word_lstm_test_eval.pbtxt",
   },
   {
+<<<<<<< HEAD
     name: "Cifar10 Train",
+=======
+    name: "Cifar10 Train (with shapes)",
+>>>>>>> tensorflow/master
     path: "cifar10_train.pbtxt",
   },
   {
@@ -164,11 +187,16 @@ Polymer({
     },
     selectedDataset: {
       type: Number,
+<<<<<<< HEAD
       value: 1
+=======
+      value: 9 // Cifar train with shapes.
+>>>>>>> tensorflow/master
     },
     _progress: Object
   },
   _getDatasets: function() {
+<<<<<<< HEAD
     return _.map(datasets, function(dataset) {
       var result = {
         name: dataset.name,
@@ -176,6 +204,18 @@ Polymer({
       };
       if (dataset.statsPath != null) {
         result.statsPath = this.resolveUrl('tf_model_zoo/' + dataset.statsPath);
+=======
+    if(typeof DEMO_DIR_PREFIX === 'undefined') {
+      DEMO_DIR_PREFIX = '';
+    }
+    return _.map(datasets, function(dataset) {
+      var result = {
+        name: dataset.name,
+        path: this.resolveUrl('tf_model_zoo/' + dataset.path).replace("tf_model_zoo", DEMO_DIR_PREFIX + 'tf_model_zoo')
+      };
+      if (dataset.statsPath != null) {
+        result.statsPath = this.resolveUrl('tf_model_zoo/' + dataset.statsPath).replace("tf_model_zoo", DEMO_DIR_PREFIX + 'tf_model_zoo');
+>>>>>>> tensorflow/master
       }
       return result;
     }, this);

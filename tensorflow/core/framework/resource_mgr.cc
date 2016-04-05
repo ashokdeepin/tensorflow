@@ -1,10 +1,32 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/resource_mgr.h"
 
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/regexp.h"
+=======
+#include "tensorflow/core/lib/strings/scanner.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -26,7 +48,11 @@ void ResourceMgr::Clear() {
   containers_.clear();
 }
 
+<<<<<<< HEAD
 Status ResourceMgr::DoCreate(const string& container, std::type_index type,
+=======
+Status ResourceMgr::DoCreate(const string& container, TypeIndex type,
+>>>>>>> tensorflow/master
                              const string& name, ResourceBase* resource) {
   {
     mutex_lock l(mu_);
@@ -43,7 +69,11 @@ Status ResourceMgr::DoCreate(const string& container, std::type_index type,
                                type.name());
 }
 
+<<<<<<< HEAD
 Status ResourceMgr::DoLookup(const string& container, std::type_index type,
+=======
+Status ResourceMgr::DoLookup(const string& container, TypeIndex type,
+>>>>>>> tensorflow/master
                              const string& name,
                              ResourceBase** resource) const {
   mutex_lock l(mu_);
@@ -61,7 +91,11 @@ Status ResourceMgr::DoLookup(const string& container, std::type_index type,
   return Status::OK();
 }
 
+<<<<<<< HEAD
 Status ResourceMgr::DoDelete(const string& container, std::type_index type,
+=======
+Status ResourceMgr::DoDelete(const string& container, TypeIndex type,
+>>>>>>> tensorflow/master
                              const string& name) {
   ResourceBase* base = nullptr;
   {
@@ -102,15 +136,31 @@ Status ResourceMgr::Cleanup(const string& container) {
   return Status::OK();
 }
 
+<<<<<<< HEAD
+=======
+static bool IsValidContainerName(StringPiece s) {
+  using ::tensorflow::strings::Scanner;
+  return Scanner(s)
+      .One(Scanner::LETTER_DIGIT_DOT)
+      .Any(Scanner::LETTER_DIGIT_DASH_DOT_SLASH)
+      .Eos()
+      .GetResult();
+}
+
+>>>>>>> tensorflow/master
 Status ContainerInfo::Init(ResourceMgr* rmgr, const NodeDef& ndef,
                            bool use_node_name_as_default) {
   CHECK(rmgr);
   rmgr_ = rmgr;
   string attr_container;
   TF_RETURN_IF_ERROR(GetNodeAttr(ndef, "container", &attr_container));
+<<<<<<< HEAD
   static RE2 container_re("[A-Za-z0-9.][A-Za-z0-9_.\\-/]*");
   if (!attr_container.empty() &&
       !RE2::FullMatch(attr_container, container_re)) {
+=======
+  if (!attr_container.empty() && !IsValidContainerName(attr_container)) {
+>>>>>>> tensorflow/master
     return errors::InvalidArgument("container contains invalid characters: ",
                                    attr_container);
   }

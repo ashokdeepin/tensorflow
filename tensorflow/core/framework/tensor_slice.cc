@@ -1,8 +1,32 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_slice.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/lib/strings/str_util.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/tensor_slice.h"
+#include <vector>
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -179,6 +203,25 @@ void TensorSlice::ComputeRelative(const TensorSlice& sub,
   }
 }
 
+<<<<<<< HEAD
+=======
+void TensorSlice::UpdateToCover(const TensorSlice& other) {
+  DCHECK_EQ(dims(), other.dims());
+  for (int d = 0; d < dims(); ++d) {
+    if (!IsFullAt(d)) {
+      if (other.IsFullAt(d)) {
+        starts_[d] = 0;
+        lengths_[d] = kFullExtent;
+      } else {
+        const auto new_end = std::max(end(d), other.end(d));
+        set_start(d, std::min(start(d), other.start(d)));
+        set_length(d, new_end - start(d));
+      }
+    }
+  }
+}
+
+>>>>>>> tensorflow/master
 // static
 bool TensorSlice::HasExtentLength(const TensorSliceProto::Extent& extent) {
   return extent.has_length_case() == TensorSliceProto::Extent::kLength;
@@ -191,7 +234,11 @@ int64 TensorSlice::GetExtentLength(const TensorSliceProto::Extent& extent) {
 }
 
 Status TensorSlice::SliceTensorShape(const TensorShape& shape,
+<<<<<<< HEAD
                                           TensorShape* result_shape) const {
+=======
+                                     TensorShape* result_shape) const {
+>>>>>>> tensorflow/master
   result_shape->Clear();
   // Mismatching ranks: we can't apply the slice at all.
   if (shape.dims() != dims()) {

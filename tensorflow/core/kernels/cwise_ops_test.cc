@@ -1,15 +1,41 @@
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/platform/test_benchmark.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
 // Creates a Graph which applies a unary "func" on a 3D float tensor
 // of "num" elements.
 static Graph* Unary(const string& func, int num) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   Graph* g = new Graph(OpRegistry::Global());
   Tensor data(DT_FLOAT, TensorShape({64, 64, num / (64 * 64)}));
   CHECK_GT(data.NumElements(), 0);
@@ -38,7 +64,10 @@ BM_UNARY(gpu, Floor);
 
 // data func scalar.
 static Graph* BinaryScalar(int num, const string& func) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   Graph* g = new Graph(OpRegistry::Global());
   Tensor lhs(DT_FLOAT, TensorShape({64, 64, num / (64 * 64)}));
   lhs.flat<float>().setRandom();
@@ -69,7 +98,10 @@ BM_BINARY_SCALAR(gpu, Add);
 #undef BM_BINARY_SCALAR
 
 static Graph* BiasAdd(int rows, int cols) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   Graph* g = new Graph(OpRegistry::Global());
   Tensor lhs(DT_FLOAT, TensorShape({rows, cols}));
   lhs.flat<float>().setRandom();
@@ -105,7 +137,10 @@ BM_BIAS_ADD_ALL(gpu);
 #undef BM_BIAS_ADD
 
 static Graph* BcastAdd(int rows, int cols, int dim) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   Graph* g = new Graph(OpRegistry::Global());
   Tensor lhs(DT_FLOAT, TensorShape({rows, cols}));
   lhs.flat<float>().setRandom();

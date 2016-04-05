@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/nn_ops.cc.
 
 #define EIGEN_USE_THREADS
@@ -8,6 +26,7 @@
 #include <string>
 #include <utility>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
@@ -18,6 +37,18 @@
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/public/tensor.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -44,7 +75,12 @@ class PadOp : public OpKernel {
         errors::InvalidArgument("paddings must be a matrix with 2 columns: ",
                                 in1.shape().DebugString()));
     const int fixed_dims =
+<<<<<<< HEAD
         (kAllowLegacyScalars && dims == 0 && in1.dim_size(0) == 1) ? 1 : dims;
+=======
+        (allow_legacy_scalars() && dims == 0 && in1.dim_size(0) == 1) ? 1
+                                                                      : dims;
+>>>>>>> tensorflow/master
     OP_REQUIRES(
         context, fixed_dims == in1.dim_size(0),
         errors::InvalidArgument(
@@ -56,12 +92,20 @@ class PadOp : public OpKernel {
     TTypes<int32>::ConstMatrix paddings = in1.matrix<int32>();
     for (int d = 0; d < fixed_dims; ++d) {
       const int32 before_d = paddings(d, 0);  // Pad before existing elements.
+<<<<<<< HEAD
       const int32 after_d = paddings(d, 1);   // Pad after exisitng elements.
+=======
+      const int32 after_d = paddings(d, 1);   // Pad after existing elements.
+>>>>>>> tensorflow/master
       OP_REQUIRES(context, before_d >= 0 && after_d >= 0,
                   errors::InvalidArgument("Paddings must be non-negative: ",
                                           before_d, " ", after_d));
       const int size_d =
+<<<<<<< HEAD
           (kAllowLegacyScalars && d == in0.dims()) ? 1 : in0.dim_size(d);
+=======
+          (allow_legacy_scalars() && d == in0.dims()) ? 1 : in0.dim_size(d);
+>>>>>>> tensorflow/master
       output_shape.AddDim(before_d + size_d + after_d);
     }
     Tensor* output = nullptr;
@@ -74,7 +118,11 @@ class PadOp : public OpKernel {
         break;
       case 1:
         // TODO(irving): Once Pad doesn't need a scalar special case,
+<<<<<<< HEAD
         // change flat to tensor.  That is, once !kAllowLegacyScalars.
+=======
+        // change flat to tensor.  That is, once !allow_legacy_scalars().
+>>>>>>> tensorflow/master
         Operate<1>(context, in0.flat<T>(), paddings, output);
         break;
       case 2:
@@ -120,7 +168,11 @@ class PadOp : public OpKernel {
                               .HostMemory("paddings"),   \
                           PadOp<CPUDevice, type>)
 
+<<<<<<< HEAD
 TF_CALL_ALL_TYPES(REGISTER_KERNEL);
+=======
+TF_CALL_POD_TYPES(REGISTER_KERNEL);
+>>>>>>> tensorflow/master
 #undef REGISTER_KERNEL
 
 #if GOOGLE_CUDA
@@ -154,6 +206,21 @@ TF_CALL_GPU_NUMBER_TYPES(DECLARE_GPU_SPECS);
                           PadOp<GPUDevice, T>)
 
 TF_CALL_GPU_NUMBER_TYPES(REGISTER_GPU_KERNEL);
+<<<<<<< HEAD
 #endif  // GOOGLE_CUDA
+=======
+
+// A special GPU kernel for int32.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+REGISTER_KERNEL_BUILDER(Name("Pad")
+                            .Device(DEVICE_GPU)
+                            .TypeConstraint<int32>("T")
+                            .HostMemory("input")
+                            .HostMemory("paddings")
+                            .HostMemory("output"),
+                        PadOp<CPUDevice, int32>);
+#endif
+>>>>>>> tensorflow/master
 
 }  // end namespace tensorflow

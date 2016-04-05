@@ -1,8 +1,31 @@
+<<<<<<< HEAD
 #ifndef TENSORFLOW_KERNELS_BATCH_NORM_OP_H_
 #define TENSORFLOW_KERNELS_BATCH_NORM_OP_H_
 // Functor definition for BatchNormOp, must be compilable by nvcc.
 #include "tensorflow/core/framework/tensor_types.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_KERNELS_BATCH_NORM_OP_H_
+#define TENSORFLOW_KERNELS_BATCH_NORM_OP_H_
+// Functor definition for BatchNormOp, must be compilable by nvcc.
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/tensor_types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace functor {
@@ -71,9 +94,26 @@ struct BatchNormGrad {
     const int rest_size = input.size() / depth;
 
     typedef typename TTypes<T>::ConstVec::Index Index;
+<<<<<<< HEAD
     Eigen::DSizes<Index, 2> rest_by_depth(rest_size, depth);
     Eigen::DSizes<Index, 2> rest_by_one(rest_size, 1);
     Eigen::DSizes<Index, 2> one_by_depth(1, depth);
+=======
+
+    Eigen::DSizes<Index, 2> rest_by_depth(rest_size, depth);
+#if !defined(EIGEN_HAS_INDEX_LIST)
+    Eigen::DSizes<Index, 2> rest_by_one(rest_size, 1);
+    Eigen::DSizes<Index, 2> one_by_depth(1, depth);
+    Eigen::array<Index, 1> reduction_axis;
+    reduction_axis[0] = 0;  // Reduces on first dimension.
+#else
+    Eigen::IndexList<Index, Eigen::type2index<1> > rest_by_one;
+    rest_by_one.set(0, rest_size);
+    Eigen::IndexList<Eigen::type2index<1>, Index> one_by_depth;
+    one_by_depth.set(1, depth);
+    Eigen::IndexList<Eigen::type2index<0> > reduction_axis;
+#endif
+>>>>>>> tensorflow/master
 
     // db = out_backprop
     //
@@ -85,9 +125,12 @@ struct BatchNormGrad {
     // dm = sum_over_rest(out_backprop * gamma) * (-1 / rsqrt(v + epsilon))
     //
     // dx = out_backprop * (gamma * rsqrt(v + epsilon))
+<<<<<<< HEAD
     Eigen::array<Index, 1> reduction_axis;
     reduction_axis[0] = 0;  // Reduces on first dimension.
 
+=======
+>>>>>>> tensorflow/master
     db.device(d) = out_backprop.reshape(rest_by_depth).sum(reduction_axis);
 
     // scratch1 = rsqrt(v + epsilon)

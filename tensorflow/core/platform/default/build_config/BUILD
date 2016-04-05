@@ -7,8 +7,14 @@ licenses(["notice"])  # Apache 2.0
 
 exports_files(["LICENSE"])
 
+<<<<<<< HEAD
 load("/tensorflow/tensorflow", "tf_copts")
 load("/tensorflow/tensorflow", "tf_cuda_library")
+=======
+load("//tensorflow:tensorflow.bzl", "tf_copts")
+load("//tensorflow:tensorflow.bzl", "tf_cuda_library")
+load("//tensorflow/core:platform/default/build_config.bzl", "tf_get_cuda_version")
+>>>>>>> tensorflow/master
 
 cc_library(
     name = "gtest",
@@ -59,12 +65,15 @@ cc_library(
     deps = [],
 )
 
+<<<<<<< HEAD
 cc_library(
     name = "cuda_runtime_extra",
     linkstatic = 1,
     deps = [],
 )
 
+=======
+>>>>>>> tensorflow/master
 filegroup(
     name = "android_proto_lib_portable_proto",
     srcs = [],
@@ -74,7 +83,11 @@ filegroup(
 cc_library(
     name = "cuda",
     data = [
+<<<<<<< HEAD
         "//third_party/gpus/cuda:lib64/libcudart.so.7.0",
+=======
+        "//third_party/gpus/cuda:lib64/libcudart.so" + tf_get_cuda_version(),
+>>>>>>> tensorflow/master
     ],
     linkopts = [
         "-Wl,-rpath,third_party/gpus/cuda/lib64",

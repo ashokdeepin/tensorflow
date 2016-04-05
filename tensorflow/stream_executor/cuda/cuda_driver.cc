@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/cuda/cuda_driver.h"
 
 #include <dlfcn.h>
@@ -304,7 +322,11 @@ void PopContextAndCheckNowNull(CUcontext expected) {
   CUcontext popped;
   CHECK_EQ(CUDA_SUCCESS, dynload::cuCtxPopCurrent_v2(&popped));
   CHECK_EQ(expected, popped);
+<<<<<<< HEAD
   CHECK(nullptr == CurrentContext());
+=======
+  DCHECK(nullptr == CurrentContext());
+>>>>>>> tensorflow/master
   VLOG(3) << "popped context " << expected
           << " and current context is now null";
 }
@@ -380,7 +402,11 @@ ScopedActivateContext::ScopedActivateContext(CUcontext context,
 
 ScopedActivateContext::~ScopedActivateContext() {
   if (tls_in_multi_op_activation.get()) {
+<<<<<<< HEAD
     CHECK_EQ(context_, CurrentContext());
+=======
+    DCHECK_EQ(context_, CurrentContext());
+>>>>>>> tensorflow/master
     if (FLAGS_gpuexec_cuda_sync_around_driver_calls) {
       auto res = dynload::cuCtxSynchronize();
       if (res != CUDA_SUCCESS) {
@@ -455,7 +481,11 @@ static port::Status InternalInit() {
     LOG(ERROR) << "injecting CUDA init error; initialization will fail";
   } else if (internal::CachedDsoLoader::GetLibcudaDsoHandle().ok()) {
     // We only call cuInit if we can dynload libcuda.
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> tensorflow/master
     res = dynload::cuInit(0 /* = flags */);
   }
 
@@ -555,7 +585,11 @@ bool DeviceOptionsToContextFlags(DeviceOptions device_options, int *flags) {
   {
     // TODO(leary) Need to see if NVIDIA can expunge the leakiness in their
     // context creation: see http://b/13248943
+<<<<<<< HEAD
     
+=======
+
+>>>>>>> tensorflow/master
     res = dynload::cuCtxCreate_v2(context, flags, device);
   }
   if (res == CUDA_SUCCESS) {
@@ -722,7 +756,11 @@ CUDADriver::ContextGetSharedMemConfig(CUcontext context) {
     {
       // TODO(leary) Need to see if NVIDIA can expunge the leakiness in their
       // module loading: see http://b/13248943
+<<<<<<< HEAD
       
+=======
+
+>>>>>>> tensorflow/master
       res = dynload::cuModuleLoadDataEx(module, ptx_data, ARRAYSIZE(options),
                                         options, option_values);
     }

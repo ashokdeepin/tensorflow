@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/tensor_slice_reader_cache.h"
 
 #include "tensorflow/core/lib/gtl/stl_util.h"
@@ -9,9 +27,13 @@ namespace checkpoint {
 
 TensorSliceReaderCacheWrapper::TensorSliceReaderCacheWrapper() {}
 TensorSliceReaderCacheWrapper::~TensorSliceReaderCacheWrapper() {
+<<<<<<< HEAD
   if (cache_) {
     delete cache_;
   }
+=======
+  delete cache_;
+>>>>>>> tensorflow/master
   cache_ = nullptr;
 }
 
@@ -39,12 +61,30 @@ const TensorSliceReader* TensorSliceReaderCache::GetReader(
     TensorSliceReader::OpenTableFunction open_function, int preferred_shard) {
   mutex_lock l(mu_);
 
+<<<<<<< HEAD
   // Get the function pointer from the open_function value.
   TensorSliceReaderCache::OpenFuncType* func_ptr =
       open_function.target<TensorSliceReaderCache::OpenFuncType>();
   if (!func_ptr) {
     // We could not get the pointer, no caching is possible.
     LOG(WARNING) << "Caching disabled because the open function is a lambda.";
+=======
+#ifdef __GXX_RTTI
+  // Get the function pointer from the open_function value.
+  TensorSliceReaderCache::OpenFuncType* func_ptr =
+      open_function.target<TensorSliceReaderCache::OpenFuncType>();
+#else   // __GXX_RTTI
+  // When RTTI is disabled, we will hard-code func_ptr to be zero,
+  // since we cannot figure out the target type for open_function.
+  // TODO(jiayq): find a more elegant way to possibly enable cache again.
+  TensorSliceReaderCache::OpenFuncType* func_ptr = nullptr;
+#endif  // _GXX_RTTI
+
+  if (!func_ptr) {
+    // We could not get the pointer, no caching is possible.
+    LOG(WARNING) << "Caching disabled because the open function is a lambda or "
+                    "RTTI is not enabled in this build.";
+>>>>>>> tensorflow/master
     return nullptr;
   }
 
@@ -70,7 +110,11 @@ const TensorSliceReader* TensorSliceReaderCache::GetReader(
     } else {
       delete tmp_reader;
     }
+<<<<<<< HEAD
     CHECK_EQ(1, still_opening_.erase(filepattern));
+=======
+    CHECK_EQ(size_t{1}, still_opening_.erase(filepattern));
+>>>>>>> tensorflow/master
     VLOG(1) << "Cached TensorSliceReader for " << filepattern << ": " << reader;
   } else {
     auto cached_val = readers_[filepattern];

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // See docs in ../ops/array_ops.cc
 #define EIGEN_USE_THREADS
 
@@ -11,6 +12,36 @@
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+// See docs in ../ops/array_ops.cc
+#define EIGEN_USE_THREADS
+
+#include "tensorflow/core/kernels/reverse_op.h"
+#include <memory>
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -38,6 +69,7 @@ class ReverseOp : public OpKernel {
                   errors::InvalidArgument("'dims' must be 1-dimension, not ",
                                           dims.dims()));
 
+<<<<<<< HEAD
       OP_REQUIRES(context, input_dims == dims.dim_size(0),
                   errors::InvalidArgument(
           "'dims' must have the same number of values as 'input' has "
@@ -45,6 +77,17 @@ class ReverseOp : public OpKernel {
           dims.dim_size(0), " values"));
       OP_REQUIRES(context, input_dims <= 8, errors::Unimplemented(
                   "reverse is not implemented for tensors of rank > 8."));
+=======
+      OP_REQUIRES(
+          context, input_dims == dims.dim_size(0),
+          errors::InvalidArgument(
+              "'dims' must have the same number of values as 'input' has "
+              "dimensions. 'input' has ",
+              input_dims, "'dims' has ", dims.dim_size(0), " values"));
+      OP_REQUIRES(context, input_dims <= 8,
+                  errors::Unimplemented(
+                      "reverse is not implemented for tensors of rank > 8."));
+>>>>>>> tensorflow/master
 
       Tensor* output = nullptr;
       OP_REQUIRES_OK(context,

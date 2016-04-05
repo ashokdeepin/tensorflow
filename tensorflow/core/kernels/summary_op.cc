@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Operators that deal with SummaryProtos (encoded as DT_STRING tensors) as
 // inputs or outputs in various ways.
 
@@ -6,6 +24,10 @@
 #include <unordered_set>
 
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/register_types.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/resource_mgr.h"
 #include "tensorflow/core/framework/summary.pb.h"
 #include "tensorflow/core/lib/core/errors.h"
@@ -24,25 +46,39 @@ class SummaryScalarOp : public OpKernel {
     const Tensor& tags = c->input(0);
     const Tensor& values = c->input(1);
 
+<<<<<<< HEAD
     OP_REQUIRES(c, tags.IsSameSize(values) ||
                        (TensorShapeUtils::IsLegacyScalar(tags.shape()) &&
                         TensorShapeUtils::IsLegacyScalar(values.shape())),
                 errors::InvalidArgument("tags and values not the same shape: ",
                                         tags.shape().ShortDebugString(), " != ",
                                         values.shape().ShortDebugString()));
+=======
+    OP_REQUIRES(
+        c, tags.IsSameSize(values) ||
+               (IsLegacyScalar(tags.shape()) && IsLegacyScalar(values.shape())),
+        errors::InvalidArgument("tags and values not the same shape: ",
+                                tags.shape().DebugString(), " != ",
+                                values.shape().DebugString(), SingleTag(tags)));
+>>>>>>> tensorflow/master
     auto Ttags = tags.flat<string>();
     auto Tvalues = values.flat<T>();
     Summary s;
     for (int i = 0; i < Ttags.size(); i++) {
       Summary::Value* v = s.add_value();
       v->set_tag(Ttags(i));
+<<<<<<< HEAD
       v->set_simple_value(Tvalues(i));
+=======
+      v->set_simple_value(T(Tvalues(i)));
+>>>>>>> tensorflow/master
     }
 
     Tensor* summary_tensor = nullptr;
     OP_REQUIRES_OK(c, c->allocate_output(0, TensorShape({}), &summary_tensor));
     CHECK(s.SerializeToString(&summary_tensor->scalar<string>()()));
   }
+<<<<<<< HEAD
 };
 
 REGISTER_KERNEL_BUILDER(Name("ScalarSummary")
@@ -54,6 +90,20 @@ REGISTER_KERNEL_BUILDER(Name("ScalarSummary")
                             .TypeConstraint<double>("T"),
                         SummaryScalarOp<double>);
 
+=======
+
+  // If there's only one tag, include it in the error message
+  static string SingleTag(const Tensor& tags) {
+    if (tags.NumElements() == 1) {
+      return strings::StrCat(" (tag '", tags.flat<string>()(0), "')");
+    } else {
+      return "";
+    }
+  }
+};
+
+template <typename T>
+>>>>>>> tensorflow/master
 class SummaryHistoOp : public OpKernel {
  public:
   // SummaryHistoOp could be extended to take a list of custom bucket
@@ -63,19 +113,32 @@ class SummaryHistoOp : public OpKernel {
   void Compute(OpKernelContext* c) override {
     const Tensor& tags = c->input(0);
     const Tensor& values = c->input(1);
+<<<<<<< HEAD
     const auto flat = values.flat<float>();
     OP_REQUIRES(c, TensorShapeUtils::IsLegacyScalar(tags.shape()),
+=======
+    const auto flat = values.flat<T>();
+    OP_REQUIRES(c, IsLegacyScalar(tags.shape()),
+>>>>>>> tensorflow/master
                 errors::InvalidArgument("tags must be scalar"));
     // Build histogram of values in "values" tensor
     histogram::Histogram histo;
     for (int64 i = 0; i < flat.size(); i++) {
+<<<<<<< HEAD
       float v = flat(i);
+=======
+      T v = flat(i);
+>>>>>>> tensorflow/master
       if (!std::isfinite(v)) {
         c->SetStatus(
             errors::OutOfRange("Nan in summary histogram for: ", name()));
         break;
       }
+<<<<<<< HEAD
       histo.Add(v);
+=======
+      histo.Add(static_cast<double>(v));
+>>>>>>> tensorflow/master
     }
 
     Summary s;
@@ -89,13 +152,29 @@ class SummaryHistoOp : public OpKernel {
   }
 };
 
+<<<<<<< HEAD
 REGISTER_KERNEL_BUILDER(Name("HistogramSummary").Device(DEVICE_CPU),
                         SummaryHistoOp);
+=======
+#define REGISTER(T)                                                       \
+  REGISTER_KERNEL_BUILDER(                                                \
+      Name("ScalarSummary").Device(DEVICE_CPU).TypeConstraint<T>("T"),    \
+      SummaryScalarOp<T>);                                                \
+  REGISTER_KERNEL_BUILDER(                                                \
+      Name("HistogramSummary").Device(DEVICE_CPU).TypeConstraint<T>("T"), \
+      SummaryHistoOp<T>);
+TF_CALL_REAL_NUMBER_TYPES(REGISTER)
+#undef REGISTER
+>>>>>>> tensorflow/master
 
 struct HistogramResource : public ResourceBase {
   histogram::ThreadSafeHistogram histogram;
 
+<<<<<<< HEAD
   string DebugString() override { return "A historam summary. Stats ..."; }
+=======
+  string DebugString() override { return "A histogram summary. Stats ..."; }
+>>>>>>> tensorflow/master
 };
 
 class SummaryMergeOp : public OpKernel {

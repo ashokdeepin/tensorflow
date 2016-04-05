@@ -1,15 +1,42 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_PUBLIC_SESSION_H_
 #define TENSORFLOW_PUBLIC_SESSION_H_
 
 #include <string>
 #include <vector>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/device_attributes.pb.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/public/env.h"
 #include "tensorflow/core/public/session_options.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/graph.pb.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/protobuf/config.pb.h"
+#include "tensorflow/core/public/session_options.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -54,7 +81,11 @@ namespace tensorflow {
 ///
 ///     // Close the session to release the resources associated with
 ///     // this session.
+<<<<<<< HEAD
 ///     session->Close()
+=======
+///     session->Close();
+>>>>>>> tensorflow/master
 ///
 /// ```
 ///
@@ -65,6 +96,12 @@ namespace tensorflow {
 /// after all other calls to Run() have returned.
 class Session {
  public:
+<<<<<<< HEAD
+=======
+  Session();
+  virtual ~Session();
+
+>>>>>>> tensorflow/master
   /// \brief Create the graph to be used for the session.
   ///
   /// Returns an error if this session has already been created with a
@@ -100,14 +137,69 @@ class Session {
                      const std::vector<string>& target_node_names,
                      std::vector<Tensor>* outputs) = 0;
 
+<<<<<<< HEAD
+=======
+  /// \brief Implementations which support `RunOptions`.
+  //
+  /// NOTE: This API is still experimental and may change.
+  virtual Status Create(const RunOptions& run_options, const GraphDef& graph) {
+    return errors::Unimplemented(
+        "Create(const RunOptions& run_options, const GraphDef& graph) is not "
+        "supported for this session.");
+  }
+  virtual Status Extend(const RunOptions& run_options, const GraphDef& graph) {
+    return errors::Unimplemented(
+        "Extend(const RunOptions& run_options, const GraphDef& graph) is not "
+        "supported for this session.");
+  }
+  virtual Status Close(const RunOptions& run_options) {
+    return errors::Unimplemented(
+        "Close(const RunOptions& run_options) is not supported for this "
+        "session.");
+  }
+
+  /// \brief Like `Run`, but allows users to pass in a `RunOptions` proto and
+  /// to retrieve non-Tensor metadata output via a `RunMetadata` proto for this
+  /// step.  `run_metadata` may be nullptr, in which case any metadata output is
+  /// discarded.
+  /// NOTE: This API is still experimental and may change.
+  virtual Status Run(const RunOptions& run_options,
+                     const std::vector<std::pair<string, Tensor> >& inputs,
+                     const std::vector<string>& output_tensor_names,
+                     const std::vector<string>& target_node_names,
+                     std::vector<Tensor>* outputs, RunMetadata* run_metadata);
+
+  /// \brief Sets up a graph for partial execution. All future feeds and
+  /// fetches are specified by `input_names` and `output_names`. Returns
+  /// `handle` that can be used to perform a sequence of partial feeds and
+  /// fetches.
+  /// NOTE: This API is still experimental and may change.
+  virtual Status PRunSetup(const std::vector<string>& input_names,
+                           const std::vector<string>& output_names,
+                           const std::vector<string>& target_nodes,
+                           string* handle);
+
+  /// \brief Continues the pending execution specified by `handle` with the
+  /// provided input tensors and fills `outputs` for the endpoints specified
+  /// in `output_names`.
+  /// NOTE: This API is still experimental and may change.
+  virtual Status PRun(const string& handle,
+                      const std::vector<std::pair<string, Tensor> >& inputs,
+                      const std::vector<string>& output_names,
+                      std::vector<Tensor>* outputs);
+
+>>>>>>> tensorflow/master
   /// \brief Closes this session.
   ///
   /// Closing a session releases the resources used by this session
   /// on the TensorFlow runtime (specified during session creation by
   /// the `SessionOptions::target` field).
   virtual Status Close() = 0;
+<<<<<<< HEAD
 
   virtual ~Session() {}
+=======
+>>>>>>> tensorflow/master
 };
 
 /// \brief Create a new session with the given options.

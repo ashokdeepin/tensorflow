@@ -1,15 +1,42 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #if GOOGLE_CUDA
 
 #define EIGEN_USE_GPU
 
 #include "tensorflow/core/kernels/random_op.h"
 
+<<<<<<< HEAD
 #include <stdio.h>
 #include <assert.h>
 
 #include "tensorflow/core/lib/random/philox_random.h"
 #include "tensorflow/core/lib/random/random_distributions.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include <assert.h>
+#include <stdio.h>
+
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/lib/random/philox_random.h"
+#include "tensorflow/core/lib/random/random_distributions.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -27,8 +54,13 @@ struct FillPhiloxRandomKernel;
 template <class Distribution>
 struct FillPhiloxRandomKernel<Distribution, false> {
   typedef typename Distribution::ResultElementType T;
+<<<<<<< HEAD
   PHILOX_DEVICE_FUNC void Run(random::PhiloxRandom gen, T* data, int64 size) {
     Distribution dist;
+=======
+  PHILOX_DEVICE_FUNC void Run(random::PhiloxRandom gen, T* data, int64 size,
+                              Distribution dist) {
+>>>>>>> tensorflow/master
     const int kGroupSize = Distribution::kResultElementCount;
 
     const int32 thread_id = blockIdx.x * blockDim.x + threadIdx.x;
@@ -59,7 +91,11 @@ template <class Distribution>
 struct FillPhiloxRandomKernel<Distribution, true> {
   typedef typename Distribution::ResultElementType T;
   PHILOX_DEVICE_FUNC void Run(const random::PhiloxRandom& base_gen, T* data,
+<<<<<<< HEAD
                               int64 size) {
+=======
+                              int64 size, Distribution dist) {
+>>>>>>> tensorflow/master
     using random::PhiloxRandom;
     using random::SingleSampleAdapter;
 
@@ -73,7 +109,10 @@ struct FillPhiloxRandomKernel<Distribution, true> {
     const int32 total_thread_count = gridDim.x * blockDim.x;
     int64 group_index = thread_id;
     int64 offset = group_index * kGroupSize;
+<<<<<<< HEAD
     Distribution dist;
+=======
+>>>>>>> tensorflow/master
 
     while (offset < size) {
       // Since each output takes a variable number of samples, we need to
@@ -103,10 +142,17 @@ template <class Distribution>
 __global__ void __launch_bounds__(1024)
     FillPhiloxRandomKernelLaunch(random::PhiloxRandom base_gen,
                                  typename Distribution::ResultElementType* data,
+<<<<<<< HEAD
                                  int64 size) {
   FillPhiloxRandomKernel<Distribution,
                          Distribution::kVariableSamplesPerOutput>()
       .Run(base_gen, data, size);
+=======
+                                 int64 size, Distribution dist) {
+  FillPhiloxRandomKernel<Distribution,
+                         Distribution::kVariableSamplesPerOutput>()
+      .Run(base_gen, data, size, dist);
+>>>>>>> tensorflow/master
 }
 
 // Partial specialization for GPU
@@ -115,7 +161,11 @@ struct FillPhiloxRandom<GPUDevice, Distribution> {
   typedef typename Distribution::ResultElementType T;
   typedef GPUDevice Device;
   void operator()(OpKernelContext*, const Device& d, random::PhiloxRandom gen,
+<<<<<<< HEAD
                   T* data, int64 size) {
+=======
+                  T* data, int64 size, Distribution dist) {
+>>>>>>> tensorflow/master
     const int32 block_size = d.maxCudaThreadsPerBlock();
     const int32 num_blocks =
         (d.getNumCudaMultiProcessors() * d.maxCudaThreadsPerMultiProcessor()) /
@@ -123,7 +173,11 @@ struct FillPhiloxRandom<GPUDevice, Distribution> {
 
     FillPhiloxRandomKernelLaunch<
         Distribution><<<num_blocks, block_size, 0, d.stream()>>>(gen, data,
+<<<<<<< HEAD
                                                                  size);
+=======
+                                                                 size, dist);
+>>>>>>> tensorflow/master
   }
 };
 
@@ -135,6 +189,13 @@ template struct FillPhiloxRandom<
 template struct FillPhiloxRandom<
     GPUDevice, random::UniformDistribution<random::PhiloxRandom, double> >;
 template struct FillPhiloxRandom<
+<<<<<<< HEAD
+=======
+    GPUDevice, random::UniformDistribution<random::PhiloxRandom, int32> >;
+template struct FillPhiloxRandom<
+    GPUDevice, random::UniformDistribution<random::PhiloxRandom, int64> >;
+template struct FillPhiloxRandom<
+>>>>>>> tensorflow/master
     GPUDevice, random::NormalDistribution<random::PhiloxRandom, float> >;
 template struct FillPhiloxRandom<
     GPUDevice, random::NormalDistribution<random::PhiloxRandom, double> >;

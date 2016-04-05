@@ -1,11 +1,36 @@
+<<<<<<< HEAD
 #include "tensorflow/core/graph/graph.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/graph/graph.h"
+
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -29,7 +54,15 @@ string Node::DebugString() const {
 }
 
 Node::Node()
+<<<<<<< HEAD
     : id_(-1), cost_id_(-1), props_(nullptr), assigned_device_name_() {}
+=======
+    : id_(-1),
+      cost_id_(-1),
+      class_(NC_UNINITIALIZED),
+      props_(nullptr),
+      assigned_device_name_() {}
+>>>>>>> tensorflow/master
 
 Node::~Node() {
   if (props_) {
@@ -49,6 +82,38 @@ void Node::Initialize(int id, int cost_id, Properties* props) {
     props_->Unref();
   }
   props_ = props;
+<<<<<<< HEAD
+=======
+  // Initialize the class_ based on the type string
+  const string& ts = this->type_string();
+  class_ = NC_UNINITIALIZED;
+
+#define SET_CLASS(enum_val, ts, str1, str2)        \
+  do {                                             \
+    if ((((ts) == (str1)) || ((ts) == (str2)))) {  \
+      /* Cannot be member of more than one class*/ \
+      CHECK(class_ == NC_UNINITIALIZED);           \
+      class_ = (enum_val);                         \
+    }                                              \
+  } while (0)
+
+  SET_CLASS(NC_SWITCH, ts, "Switch", "RefSwitch");
+  SET_CLASS(NC_MERGE, ts, "Merge", "RefMerge");
+  SET_CLASS(NC_ENTER, ts, "Enter", "RefEnter");
+  SET_CLASS(NC_EXIT, ts, "Exit", "RefExit");
+  SET_CLASS(NC_NEXT_ITERATION, ts, "NextIteration", "RefNextIteration");
+  SET_CLASS(NC_LOOP_COND, ts, "LoopCond", "");
+  SET_CLASS(NC_CONTROL_TRIGGER, ts, "ControlTrigger", "");
+  SET_CLASS(NC_SEND, ts, "_Send", "_HostSend");
+  SET_CLASS(NC_RECV, ts, "_Recv", "_HostRecv");
+  SET_CLASS(NC_CONSTANT, ts, "Const", "HostConst");
+  SET_CLASS(NC_VARIABLE, ts, "Variable", "");
+  SET_CLASS(NC_IDENTITY, ts, "Identity", "RefIdentity");
+  if (class_ == NC_UNINITIALIZED) {
+    class_ = NC_OTHER;  // Catch all
+  }
+#undef SET_CLASS
+>>>>>>> tensorflow/master
 }
 
 void Node::Clear() {
@@ -56,6 +121,10 @@ void Node::Clear() {
   out_edges_.clear();
   id_ = -1;
   cost_id_ = -1;
+<<<<<<< HEAD
+=======
+  class_ = NC_UNINITIALIZED;
+>>>>>>> tensorflow/master
 
   if (props_) {
     props_->Unref();
@@ -91,6 +160,12 @@ Node::Properties::~Properties() {}
 
 Graph::Graph(const OpRegistryInterface* ops)
     : ops_(ops), arena_(8 << 10 /* 8kB */) {
+<<<<<<< HEAD
+=======
+  versions_.set_producer(TF_GRAPH_DEF_VERSION);
+  versions_.set_min_consumer(TF_GRAPH_DEF_VERSION_MIN_CONSUMER);
+
+>>>>>>> tensorflow/master
   // Source and sink have no endpoints, just control edges.
   NodeDef def;
   def.set_name("_SOURCE");
@@ -127,6 +202,7 @@ Node* Graph::AddNode(const NodeDef& node_def, Status* status) {
   const OpDef* op_def = ops_->LookUp(node_def.op(), status);
   if (op_def == nullptr) return nullptr;
 
+<<<<<<< HEAD
   // TODO(vrv,josh11b): Find a location higher in the stack to add these defaults
   // to the NodeDef.
   NodeDef node_def_with_defaults(node_def);
@@ -138,12 +214,23 @@ Node* Graph::AddNode(const NodeDef& node_def, Status* status) {
       InOutTypesForNode(node_def_with_defaults, *op_def, &inputs, &outputs));
   if (!status->ok()) {
     *status = AttachDef(*status, node_def_with_defaults);
+=======
+  DataTypeVector inputs;
+  DataTypeVector outputs;
+  status->Update(InOutTypesForNode(node_def, *op_def, &inputs, &outputs));
+  if (!status->ok()) {
+    *status = AttachDef(*status, node_def);
+>>>>>>> tensorflow/master
     return nullptr;
   }
 
   Node* node = AllocateNode(
+<<<<<<< HEAD
       new Node::Properties(op_def, node_def_with_defaults, inputs, outputs),
       nullptr);
+=======
+      new Node::Properties(op_def, node_def, inputs, outputs), nullptr);
+>>>>>>> tensorflow/master
   return node;
 }
 
@@ -206,11 +293,19 @@ const Edge* Graph::AddEdge(Node* source, int x, Node* dest, int y) {
 void Graph::RemoveEdge(const Edge* e) {
   DCHECK(IsValidNode(e->src_)) << e->src_->DebugString();
   DCHECK(IsValidNode(e->dst_)) << e->dst_->DebugString();
+<<<<<<< HEAD
   CHECK_EQ(e->src_->out_edges_.erase(e), 1);
   CHECK_EQ(e->dst_->in_edges_.erase(e), 1);
   CHECK_EQ(e, edges_[e->id_]);
 
   CHECK_EQ(edge_set_.erase(e), 1);
+=======
+  CHECK_EQ(e->src_->out_edges_.erase(e), size_t{1});
+  CHECK_EQ(e->dst_->in_edges_.erase(e), size_t{1});
+  CHECK_EQ(e, edges_[e->id_]);
+
+  CHECK_EQ(edge_set_.erase(e), size_t{1});
+>>>>>>> tensorflow/master
   edges_[e->id_] = nullptr;
 
   Edge* del = const_cast<Edge*>(e);
@@ -238,6 +333,10 @@ void AddInput(NodeDef* dst, StringPiece src_name, int src_slot) {
 
 void Graph::ToGraphDef(GraphDef* graph_def) const {
   graph_def->Clear();
+<<<<<<< HEAD
+=======
+  graph_def->mutable_versions()->CopyFrom(versions());
+>>>>>>> tensorflow/master
   std::vector<const Edge*>
       inputs;  // Construct this outside the loop for speed.
   for (const Node* node : nodes()) {
@@ -259,7 +358,17 @@ void Graph::ToGraphDef(GraphDef* graph_def) const {
       if (edge->IsControlEdge()) {
         inputs.push_back(edge);
       } else {
+<<<<<<< HEAD
         DCHECK(inputs[edge->dst_input()] == nullptr);
+=======
+        CHECK(inputs[edge->dst_input()] == nullptr)
+            << "Edge " << edge->src()->DebugString() << ":"
+            << edge->dst()->DebugString() << " with dst_input "
+            << edge->dst_input() << " and had pre-existing input edge "
+            << inputs[edge->dst_input()]->src()->DebugString() << ":"
+            << inputs[edge->dst_input()]->dst()->DebugString();
+
+>>>>>>> tensorflow/master
         inputs[edge->dst_input()] = edge;
       }
     }
@@ -306,6 +415,10 @@ Node* Graph::AllocateNode(Node::Properties* props, const Node* cost_node) {
   int cost_id = cost_node ? cost_node->cost_id() : id;
   node->Initialize(id, cost_id, props);
   nodes_.push_back(node);
+<<<<<<< HEAD
+=======
+  ++num_nodes_;
+>>>>>>> tensorflow/master
   return node;
 }
 
@@ -313,6 +426,10 @@ void Graph::ReleaseNode(Node* node) {
   DCHECK(IsValidNode(node)) << node->DebugString();
   nodes_[node->id()] = nullptr;
   free_nodes_.push_back(node);
+<<<<<<< HEAD
+=======
+  --num_nodes_;
+>>>>>>> tensorflow/master
   node->Clear();
 }
 

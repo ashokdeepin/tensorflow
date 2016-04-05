@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #if GOOGLE_CUDA
 
 #define EIGEN_USE_GPU
@@ -9,6 +27,10 @@
 
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/tensor_types.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/util/cuda_kernel_helper.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -21,12 +43,15 @@ DEFINE_GPU_KERNELS(float)
 
 #undef DEFINE_GPU_KERNELS
 
+<<<<<<< HEAD
 #define CUDA_1D_KERNEL_LOOP(i, n)                              \
   for (int i = blockIdx.x * blockDim.x + threadIdx.x; i < (n); \
        i += blockDim.x * gridDim.x)
 
 static const int CAFFE_CUDA_NUM_THREADS = 1024;
 
+=======
+>>>>>>> tensorflow/master
 template <typename dtype>
 __global__ void AvePoolBackwardNHWC(const int nthreads,
                                     const dtype* const top_diff, const int num,
@@ -78,6 +103,7 @@ bool RunAvePoolBackwardNHWC(const T* const top_diff, const int num,
                             const int pad_l, T* const bottom_diff,
                             const GPUDevice& d) {
   int x_size = num * height * width * channels;
+<<<<<<< HEAD
   int thread_per_block =
       std::min(CAFFE_CUDA_NUM_THREADS, d.maxCudaThreadsPerMultiProcessor());
   int block_count = (x_size + thread_per_block - 1) / thread_per_block;
@@ -85,6 +111,14 @@ bool RunAvePoolBackwardNHWC(const T* const top_diff, const int num,
       x_size, top_diff, num, height, width, channels, pooled_height,
       pooled_width, kernel_h, kernel_w, stride_h, stride_w, pad_t, pad_t,
       bottom_diff);
+=======
+  CudaLaunchConfig config = GetCudaLaunchConfig(x_size, d);
+  AvePoolBackwardNHWC<
+      T><<<config.block_count, config.thread_per_block, 0, d.stream()>>>(
+      config.virtual_thread_count, top_diff, num, height, width, channels,
+      pooled_height, pooled_width, kernel_h, kernel_w, stride_h, stride_w,
+      pad_t, pad_t, bottom_diff);
+>>>>>>> tensorflow/master
 
   return d.ok();
 }

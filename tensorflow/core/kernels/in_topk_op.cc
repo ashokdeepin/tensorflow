@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/nn_ops.cc.
 
 #define EIGEN_USE_THREADS
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/public/tensor_shape.h"
 #include "tensorflow/core/public/tensor.h"
@@ -10,6 +29,17 @@
 namespace tensorflow {
 
 template <typename T>
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/kernels/bounds_check.h"
+
+namespace tensorflow {
+
+template <typename T, typename TARGET_T>
+>>>>>>> tensorflow/master
 class InTopK : public OpKernel {
  public:
   explicit InTopK(OpKernelConstruction* context) : OpKernel(context) {
@@ -29,7 +59,11 @@ class InTopK : public OpKernel {
                                         " must match length of targets ",
                                         targets_in.dim_size(0)));
     const auto& predictions = predictions_in.matrix<T>();
+<<<<<<< HEAD
     const auto& targets = targets_in.vec<int>();
+=======
+    const auto& targets = targets_in.vec<TARGET_T>();
+>>>>>>> tensorflow/master
 
     Tensor* t_out = nullptr;
     OP_REQUIRES_OK(context,
@@ -40,12 +74,33 @@ class InTopK : public OpKernel {
     const auto size = targets.size();
     const auto num_classes = predictions.dimension(1);
     for (int b = 0; b < size; b++) {
+<<<<<<< HEAD
       T target_prediction = predictions(b, targets(b));
       int more_probable_classes = 0;
       for (int i = 0; i < num_classes; ++i) {
         if (predictions(b, i) > target_prediction) ++more_probable_classes;
       }
       out(b) = more_probable_classes < k_;
+=======
+      auto target = internal::SubtleMustCopy(targets(b));
+      OP_REQUIRES(context, FastBoundsCheck(target, num_classes),
+                  errors::InvalidArgument("targets[", b, "] is out of range"));
+      T target_prediction = predictions(b, target);
+      bool cannot_say = !std::isfinite(target_prediction);
+      int more_probable_classes = 0;
+      if (!cannot_say) {
+        for (int i = 0; i < num_classes; ++i) {
+          T pred = predictions(b, i);
+          if (!std::isfinite(pred)) {
+            cannot_say = true;
+            break;
+          } else if (pred > target_prediction) {
+            ++more_probable_classes;
+          }
+        }
+      }
+      out(b) = cannot_say ? false : (more_probable_classes < k_);
+>>>>>>> tensorflow/master
     }
   }
 
@@ -53,6 +108,15 @@ class InTopK : public OpKernel {
   int k_;
 };
 
+<<<<<<< HEAD
 REGISTER_KERNEL_BUILDER(Name("InTopK").Device(DEVICE_CPU), InTopK<float>);
+=======
+REGISTER_KERNEL_BUILDER(
+    Name("InTopK").Device(DEVICE_CPU).TypeConstraint<int32>("T"),
+    InTopK<float, int32>);
+REGISTER_KERNEL_BUILDER(
+    Name("InTopK").Device(DEVICE_CPU).TypeConstraint<int64>("T"),
+    InTopK<float, int64>);
+>>>>>>> tensorflow/master
 
 }  // namespace tensorflow

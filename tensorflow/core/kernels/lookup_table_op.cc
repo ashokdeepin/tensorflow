@@ -1,22 +1,69 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/kernels/lookup_table_op.h"
 #define EIGEN_USE_THREADS
 
 #include <string>
+<<<<<<< HEAD
+=======
+#include <type_traits>
+>>>>>>> tensorflow/master
 #include <utility>
 
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/types.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/kernels/bounds_check.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/kernels/initializable_lookup_table.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
 #include "tensorflow/core/lib/hash/hash.h"
 
 namespace tensorflow {
 namespace lookup {
+<<<<<<< HEAD
+=======
+namespace {
+
+// Ensure that the compiler cannot elide a copy into a local, for
+// bounds checking on source tensors that might be updated asynchronously for
+// integral types. However strings variables are not allowed and therefore the
+// local copy is unnecessary.
+template <typename T>
+T SubtleMustCopyUnlessString(const T& value) {
+  return internal::SubtleMustCopy(value);
+}
+
+const string& SubtleMustCopyUnlessString(const string& value) { return value; }
+
+}  // namespace
+>>>>>>> tensorflow/master
 
 // Lookup table that wraps an unordered_map, where the key and value data type
 // is specified.
 //
+<<<<<<< HEAD
 // This table is recommened for any variations to key values.
+=======
+// This table is recommended for any variations to key values.
+>>>>>>> tensorflow/master
 //
 // For look up, the table is required to be initialized (allocated
 // and populated). Once the table is marked as initialized it becomes read-only.
@@ -36,7 +83,18 @@ namespace lookup {
 template <class K, class V>
 class HashTable : public InitializableLookupTable {
  public:
+<<<<<<< HEAD
   size_t size() const override { return table_ ? table_->size() : 0; }
+=======
+  size_t size() const override {
+    // return the size of the table only if it's initialized, otherwise 0.
+    if (!is_initialized_) {
+      return 0;
+    }
+    std::atomic_thread_fence(std::memory_order_acquire);
+    return table_ ? table_->size() : 0;
+  }
+>>>>>>> tensorflow/master
 
   DataType key_dtype() const override { return DataTypeToEnum<K>::v(); }
 
@@ -61,9 +119,15 @@ class HashTable : public InitializableLookupTable {
 
     const auto key_values = keys.flat<K>();
     const auto value_values = values.flat<V>();
+<<<<<<< HEAD
     for (size_t i = 0; i < key_values.size(); ++i) {
       const K& key = key_values(i);
       const V& value = value_values(i);
+=======
+    for (int i = 0; i < key_values.size(); ++i) {
+      const K key = SubtleMustCopyUnlessString(key_values(i));
+      const V value = SubtleMustCopyUnlessString(value_values(i));
+>>>>>>> tensorflow/master
       const V& previous_value = gtl::LookupOrInsert(table_.get(), key, value);
       if (previous_value != value) {
         return errors::FailedPrecondition(
@@ -80,9 +144,15 @@ class HashTable : public InitializableLookupTable {
     const auto key_values = key.flat<K>();
     auto value_values = value->flat<V>();
 
+<<<<<<< HEAD
     for (size_t i = 0; i < key_values.size(); ++i) {
       value_values(i) =
           gtl::FindWithDefault(*table_, key_values(i), default_val);
+=======
+    for (int i = 0; i < key_values.size(); ++i) {
+      value_values(i) = gtl::FindWithDefault(
+          *table_, SubtleMustCopyUnlessString(key_values(i)), default_val);
+>>>>>>> tensorflow/master
     }
     return Status::OK();
   }

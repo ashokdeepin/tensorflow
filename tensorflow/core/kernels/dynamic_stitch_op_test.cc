@@ -1,12 +1,33 @@
+<<<<<<< HEAD
 #include <functional>
 #include <memory>
 #include <vector>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <functional>
+#include <memory>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/fake_input.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/kernels/ops_util.h"
@@ -16,6 +37,17 @@
 #include "tensorflow/core/lib/strings/strcat.h"
 #include <gtest/gtest.h>
 #include "tensorflow/core/lib/core/status_test_util.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/kernels/ops_testutil.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/lib/core/status_test_util.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -23,12 +55,20 @@ namespace {
 class DynamicStitchOpTest : public OpsTestBase {
  protected:
   void MakeOp(int n, DataType dt) {
+<<<<<<< HEAD
     RequireDefaultOps();
     ASSERT_OK(NodeDefBuilder("myop", "DynamicStitch")
                   .Input(FakeInput(n, DT_INT32))
                   .Input(FakeInput(n, dt))
                   .Finalize(node_def()));
     ASSERT_OK(InitOp());
+=======
+    TF_ASSERT_OK(NodeDefBuilder("myop", "DynamicStitch")
+                     .Input(FakeInput(n, DT_INT32))
+                     .Input(FakeInput(n, dt))
+                     .Finalize(node_def()));
+    TF_ASSERT_OK(InitOp());
+>>>>>>> tensorflow/master
   }
 };
 
@@ -40,7 +80,11 @@ TEST_F(DynamicStitchOpTest, Simple_OneD) {
   AddInputFromArray<int32>(TensorShape({5}), {1, 6, 2, 3, 5});
   AddInputFromArray<float>(TensorShape({3}), {0, 40, 70});
   AddInputFromArray<float>(TensorShape({5}), {10, 60, 20, 30, 50});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output.
   Tensor expected(allocator(), DT_FLOAT, TensorShape({8}));
@@ -58,7 +102,11 @@ TEST_F(DynamicStitchOpTest, Simple_TwoD) {
   AddInputFromArray<float>(TensorShape({3, 2}), {0, 1, 40, 41, 70, 71});
   AddInputFromArray<float>(TensorShape({2, 2}), {10, 11, 60, 61});
   AddInputFromArray<float>(TensorShape({3, 2}), {20, 21, 30, 31, 50, 51});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output.
   Tensor expected(allocator(), DT_FLOAT, TensorShape({8, 2}));

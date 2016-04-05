@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.tf.Assign*."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -52,7 +73,11 @@ class AssignOpTest(tf.test.TestCase):
       var_value, op_value = self._initAssignSubFetch(x, y, use_gpu=False)
       self.assertAllEqual(x - y, var_value)
       self.assertAllEqual(x - y, op_value)
+<<<<<<< HEAD
       if tf.test.IsBuiltWithCuda() and dtype in [np.float32, np.float64]:
+=======
+      if tf.test.is_built_with_cuda() and dtype in [np.float32, np.float64]:
+>>>>>>> tensorflow/master
         var_value, op_value = self._initAssignFetch(x, y, use_gpu=True)
         self.assertAllEqual(y, var_value)
         self.assertAllEqual(y, op_value)

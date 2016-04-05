@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 # Overview
+=======
+# Tutorials
+>>>>>>> tensorflow/master
 
 
 ## MNIST For ML Beginners
@@ -22,12 +26,27 @@ TensorFlow.
 ## TensorFlow Mechanics 101
 
 This is a technical tutorial, where we walk you through the details of using
+<<<<<<< HEAD
 TensorFlow infrastructure to train models at scale.  We use again MNIST as the
+=======
+TensorFlow infrastructure to train models at scale.  We again use MNIST as the
+>>>>>>> tensorflow/master
 example.
 
 [View Tutorial](../tutorials/mnist/tf/index.md)
 
 
+<<<<<<< HEAD
+=======
+## TensorFlow Serving
+
+An introduction to TensorFlow Serving, a flexible, high-performance system for
+serving machine learning models, designed for production environments.
+
+[View Tutorial](../tutorials/tfserve/index.md)
+
+
+>>>>>>> tensorflow/master
 ## Convolutional Neural Networks
 
 An introduction to convolutional neural networks using the CIFAR-10 data set.
@@ -90,12 +109,23 @@ stuff.
 [View Tutorial](../tutorials/mnist/download/index.md)
 
 
+<<<<<<< HEAD
 ## Visual Object Recognition
 
 We will be releasing our state-of-the-art Inception object recognition model,
 complete and already trained.
 
 COMING SOON
+=======
+## Image Recognition
+
+How to run object recognition using a convolutional neural network
+trained on ImageNet Challenge data and label set.
+
+[View Tutorial](../tutorials/image_recognition/index.md)
+
+We will soon be releasing code for training a state-of-the-art Inception model.
+>>>>>>> tensorflow/master
 
 
 ## Deep Dream Visual Hallucinations
@@ -104,6 +134,7 @@ Building on the Inception recognition model, we will release a TensorFlow
 version of the [Deep Dream](https://github.com/google/deepdream) neural network
 visual hallucination software.
 
+<<<<<<< HEAD
 COMING SOON
 
 
@@ -123,3 +154,6 @@ COMING SOON
 </div>
 
 
+=======
+[View Tutorial](https://www.tensorflow.org/code/tensorflow/examples/tutorials/deepdream/deepdream.ipynb)
+>>>>>>> tensorflow/master

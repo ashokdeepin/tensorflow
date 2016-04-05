@@ -1,5 +1,26 @@
+<<<<<<< HEAD
 #include "tensorflow/core/graph/costmodel.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/graph/costmodel.h"
+
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/step_stats.pb.h"
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/platform/logging.h"
@@ -108,6 +129,12 @@ void CostModel::Ensure(int id) {
     slot_bytes_.resize(id + 1);
     count_.resize(id + 1);
     time_.resize(id + 1);
+<<<<<<< HEAD
+=======
+    max_mem_usage_.resize(id + 1);
+    max_exec_time_.resize(id + 1);
+    output_port_alias_.resize(id + 1);
+>>>>>>> tensorflow/master
   }
 }
 
@@ -116,11 +143,22 @@ void CostModel::SetNumOutputs(const Node* node, int num_outputs) {
   if (id < 0) return;
   Ensure(id);
   auto perslot = &slot_bytes_[id];
+<<<<<<< HEAD
+=======
+  auto max_mem_usage = &max_mem_usage_[id];
+  auto output_port_alias = &output_port_alias_[id];
+>>>>>>> tensorflow/master
   if (perslot->size() > 0) {
     CHECK_EQ(num_outputs, perslot->size()) << "Cannot resize slot_bytes, node="
                                            << node->name();
   } else {
     perslot->resize(num_outputs, Bytes(-1));
+<<<<<<< HEAD
+=======
+    max_mem_usage->output_port_mem.resize(num_outputs, Bytes(-1));
+    max_mem_usage->temp_memory_size = Bytes(-1);
+    output_port_alias->resize(num_outputs, -1);
+>>>>>>> tensorflow/master
   }
 }
 
@@ -208,6 +246,57 @@ void CostModel::CheckInitialized(const Graph& graph) const {
   }
 }
 
+<<<<<<< HEAD
+=======
+void CostModel::RecordMaxSize(const Node* node, int output_slot, Bytes bytes) {
+  const int id = Id(node);
+  if (id < 0) return;
+  Ensure(id);
+  max_mem_usage_[id].output_port_mem[output_slot] = bytes;
+}
+
+Bytes CostModel::MaxSize(const Node* node, int slot) const {
+  const int id = Id(node);
+  if (id < 0 || static_cast<size_t>(id) >= slot_bytes_.size() ||
+      slot_bytes_[id].size() <= static_cast<size_t>(slot)) {
+    return Bytes(0);
+  }
+  return max_mem_usage_[id].output_port_mem[slot];
+}
+
+void CostModel::RecordMaxExecutionTime(const Node* node, Microseconds time) {
+  const int id = Id(node);
+  if (id < 0) return;
+  Ensure(id);
+  max_exec_time_[id] = std::max(max_exec_time_[id], time);
+}
+
+Microseconds CostModel::MaxExecutionTime(const Node* node) const {
+  const int id = Id(node);
+  if (id < 0 || static_cast<size_t>(id) >= max_exec_time_.size()) {
+    return Microseconds(0);
+  }
+  return max_exec_time_[id];
+}
+
+void CostModel::RecordAliases(const Node* node, int output_slot,
+                              int64 alias_id) {
+  const int id = Id(node);
+  if (id < 0) return;
+  Ensure(id);
+  output_port_alias_[id][output_slot] = alias_id;
+}
+
+int64 CostModel::Aliases(const Node* node, int slot) const {
+  const int id = Id(node);
+  if (id < 0 || static_cast<size_t>(id) >= slot_bytes_.size() ||
+      slot_bytes_[id].size() <= static_cast<size_t>(slot)) {
+    return -1;
+  }
+  return output_port_alias_[id][slot];
+}
+
+>>>>>>> tensorflow/master
 Microseconds CostModel::CopyTimeEstimate(Bytes b, double network_latency_millis,
                                          double estimated_gbps) {
   // TODO(jeff,sanjay): estimate cost based on bandwidth along the

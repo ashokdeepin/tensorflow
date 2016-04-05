@@ -1,18 +1,46 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.tf.gather."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
 
 class GatherTest(tf.test.TestCase):
+<<<<<<< HEAD
 
   def testScalar1D(self):
     with self.test_session():
+=======
+  use_gpu = False
+
+  def testScalar1D(self):
+    with self.test_session(use_gpu=self.use_gpu):
+>>>>>>> tensorflow/master
       params = tf.constant([0, 1, 2, 3, 7, 5])
       indices = tf.constant(4)
       gather_t = tf.gather(params, indices)
@@ -21,7 +49,11 @@ class GatherTest(tf.test.TestCase):
     self.assertEqual([], gather_t.get_shape())
 
   def testScalar2D(self):
+<<<<<<< HEAD
     with self.test_session():
+=======
+    with self.test_session(use_gpu=self.use_gpu):
+>>>>>>> tensorflow/master
       params = tf.constant([[0, 1, 2], [3, 4, 5], [6, 7, 8],
                                      [9, 10, 11], [12, 13, 14]])
       indices = tf.constant(2)
@@ -31,7 +63,11 @@ class GatherTest(tf.test.TestCase):
     self.assertEqual([3], gather_t.get_shape())
 
   def testSimpleTwoD32(self):
+<<<<<<< HEAD
     with self.test_session():
+=======
+    with self.test_session(use_gpu=self.use_gpu):
+>>>>>>> tensorflow/master
       params = tf.constant([[0, 1, 2], [3, 4, 5], [6, 7, 8],
                                      [9, 10, 11], [12, 13, 14]])
       indices = tf.constant([0, 4, 0, 2])
@@ -46,7 +82,11 @@ class GatherTest(tf.test.TestCase):
     shape = (4, 3, 2)
     params = np.random.randn(*shape)
     indices = np.random.randint(shape[0], size=15).reshape(3, 5)
+<<<<<<< HEAD
     with self.test_session():
+=======
+    with self.test_session(use_gpu=self.use_gpu):
+>>>>>>> tensorflow/master
       tf_params = tf.constant(params)
       tf_indices = tf.constant(indices)
       gather = tf.gather(tf_params, tf_indices)
@@ -70,6 +110,21 @@ class GatherTest(tf.test.TestCase):
     gather_t = tf.gather(params, indices)
     self.assertEqual(None, gather_t.get_shape())
 
+<<<<<<< HEAD
+=======
+  def testBadIndices(self):
+    with self.test_session(use_gpu=False):
+      params = [0, 1, 2]
+      indices = [[7]]
+      gather = tf.gather(params, indices)
+      with self.assertRaisesOpError(r"indices\[0,0\] = 7 is not in \[0, 3\)"):
+        gather.eval()
+
+
+class GatherGpuTest(GatherTest):
+  use_gpu = True
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/dnn.h"
 
 #include "tensorflow/stream_executor/lib/strcat.h"
@@ -7,6 +25,23 @@ namespace perftools {
 namespace gputools {
 namespace dnn {
 
+<<<<<<< HEAD
+=======
+string QuantizedActivationModeString(QuantizedActivationMode mode) {
+  switch (mode) {
+    case dnn::QuantizedActivationMode::k8Bit:
+      return "uint8";
+    case dnn::QuantizedActivationMode::k16Bit:
+      return "uint16";
+    case dnn::QuantizedActivationMode::k32Bit:
+      return "int32";
+    default:
+      LOG(FATAL) << "Unknown quantized_activation_mode "
+                 << static_cast<int32>(mode);
+  }
+}
+
+>>>>>>> tensorflow/master
 string ActivationModeString(ActivationMode mode) {
   switch (mode) {
     case ActivationMode::kSigmoid:
@@ -63,6 +98,20 @@ string FilterLayoutString(FilterLayout layout) {
   }
 }
 
+<<<<<<< HEAD
+=======
+string ShortPoolingModeString(PoolingMode mode) {
+  switch (mode) {
+    case PoolingMode::kMaximum:
+      return "Max";
+    case PoolingMode::kAverage:
+      return "Avg";
+    default:
+      LOG(FATAL) << "Unknown filter layout " << static_cast<int32>(mode);
+  }
+}
+
+>>>>>>> tensorflow/master
 // -- BatchDescriptor
 
 BatchDescriptor::BatchDescriptor()
@@ -122,6 +171,10 @@ string BatchDescriptor::ToShortString() const {
       return port::StrCat(batch, depth, y, x, suffix);
     default:
       LOG(FATAL) << "Unknown layout " << static_cast<int32>(layout());
+<<<<<<< HEAD
+=======
+      return "";  // Avoid return warning (unreachable)
+>>>>>>> tensorflow/master
   }
 }
 
@@ -144,6 +197,23 @@ int64 BatchDescriptor::FullyConnectedBiasCount(const BatchDescriptor& output) {
   return output.NodesAcrossFeatureMaps();
 }
 
+<<<<<<< HEAD
+=======
+BatchDescriptor BatchDescriptor::DepthConcatenateOutputDescriptor(
+    port::ArraySlice<dnn::BatchDescriptor> inputs) {
+  if (inputs.empty()) {
+    return BatchDescriptor();
+  }
+  int feature_map_count = 0;
+  for (const auto& dimensions : inputs) {
+    feature_map_count += dimensions.feature_map_count();
+  }
+  BatchDescriptor output = inputs[0];
+  output.set_feature_map_count(feature_map_count);
+  return output;
+}
+
+>>>>>>> tensorflow/master
 // -- FilterDescriptor
 
 FilterDescriptor::FilterDescriptor()
@@ -189,6 +259,10 @@ string FilterDescriptor::ToShortString() const {
       return port::StrCat(y, x, id, od);
     default:
       LOG(FATAL) << "Unknown layout " << static_cast<int32>(layout_);
+<<<<<<< HEAD
+=======
+      return "";  // Avoid return warning (unreachable)
+>>>>>>> tensorflow/master
   }
 }
 

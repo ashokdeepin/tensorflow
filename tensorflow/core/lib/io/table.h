@@ -1,6 +1,23 @@
+<<<<<<< HEAD
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+>>>>>>> tensorflow/master
 
 #ifndef TENSORFLOW_LIB_IO_TABLE_H_
 #define TENSORFLOW_LIB_IO_TABLE_H_
@@ -34,7 +51,11 @@ class Table {
   // "*file", but the client must ensure that "file" remains live
   // for the duration of the returned table's lifetime.
   static Status Open(const Options& options, RandomAccessFile* file,
+<<<<<<< HEAD
                           uint64 file_size, Table** table);
+=======
+                     uint64 file_size, Table** table);
+>>>>>>> tensorflow/master
 
   ~Table();
 
@@ -62,8 +83,13 @@ class Table {
   // to Seek(key).  May not make such a call if filter policy says
   // that key is not present.
   Status InternalGet(const StringPiece& key, void* arg,
+<<<<<<< HEAD
                           void (*handle_result)(void* arg, const StringPiece& k,
                                                 const StringPiece& v));
+=======
+                     void (*handle_result)(void* arg, const StringPiece& k,
+                                           const StringPiece& v));
+>>>>>>> tensorflow/master
 
   // No copying allowed
   Table(const Table&);

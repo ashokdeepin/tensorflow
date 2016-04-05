@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #if GOOGLE_CUDA
 
 #define EIGEN_USE_GPU
@@ -37,6 +55,37 @@ struct ApplyAdagrad<GPUDevice, T> {
 };
 
 template <typename T>
+<<<<<<< HEAD
+=======
+struct ApplyAdadelta<GPUDevice, T> {
+  void operator()(const GPUDevice& d, typename TTypes<T>::Flat var,
+                  typename TTypes<T>::Flat accum,
+                  typename TTypes<T>::Flat accum_update,
+                  typename TTypes<T>::ConstScalar lr,
+                  typename TTypes<T>::ConstScalar rho,
+                  typename TTypes<T>::ConstScalar epsilon,
+                  typename TTypes<T>::ConstFlat grad) {
+    Eigen::array<typename TTypes<T>::Tensor::Index, 1> bcast;
+    bcast[0] = grad.dimension(0);
+    Eigen::Sizes<1> single;
+
+    accum.device(d) = accum_update * rho.reshape(single).broadcast(bcast) +
+                      grad.square() * (grad.constant(T(1)) -
+                                       rho.reshape(single).broadcast(bcast));
+    const auto update =
+        (accum_update + epsilon.reshape(single).broadcast(bcast)).sqrt() *
+        (accum + epsilon.reshape(single).broadcast(bcast)).rsqrt() * grad;
+    accum_update.device(d) =
+        accum_update * rho.reshape(single).broadcast(bcast) +
+        update.square() *
+            (grad.constant(T(1)) - rho.reshape(single).broadcast(bcast));
+    var.device(d) -= update * lr.reshape(single).broadcast(bcast);
+  }
+};
+
+
+template <typename T>
+>>>>>>> tensorflow/master
 struct ApplyMomentum<GPUDevice, T> {
   void operator()(const GPUDevice& d, typename TTypes<T>::Flat var,
                   typename TTypes<T>::Flat accum,
@@ -114,6 +163,12 @@ template struct functor::ApplyGradientDescent<GPUDevice, double>;
 template struct functor::ApplyAdagrad<GPUDevice, float>;
 template struct functor::ApplyAdagrad<GPUDevice, double>;
 
+<<<<<<< HEAD
+=======
+template struct functor::ApplyAdadelta<GPUDevice, float>;
+template struct functor::ApplyAdadelta<GPUDevice, double>;
+
+>>>>>>> tensorflow/master
 template struct functor::ApplyMomentum<GPUDevice, float>;
 template struct functor::ApplyMomentum<GPUDevice, double>;
 

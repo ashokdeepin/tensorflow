@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <random>
 
 #include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
@@ -12,16 +13,53 @@ Tensor Int32(int32 v) {
   Tensor t(DT_INT32, TensorShape({}));
   t.scalar<int32>()() = v;
   return t;
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <random>
+
+#include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/random/philox_random.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+
+namespace tensorflow {
+
+Tensor VecShape(int32 v) {
+  Tensor shape(DT_INT32, TensorShape({1}));
+  shape.vec<int32>()(0) = v;
+  return shape;
+>>>>>>> tensorflow/master
 }
 
 Graph* RandomUniform(int64 n) {
   Graph* g = new Graph(OpRegistry::Global());
+<<<<<<< HEAD
   test::graph::RandomUniform(g, test::graph::Constant(g, Int32(n)), DT_FLOAT);
+=======
+  test::graph::RandomUniform(g, test::graph::Constant(g, VecShape(n)),
+                             DT_FLOAT);
+>>>>>>> tensorflow/master
   return g;
 }
 
 Graph* RandomNormal(int64 n) {
   Graph* g = new Graph(OpRegistry::Global());
+<<<<<<< HEAD
   test::graph::RandomGaussian(g, test::graph::Constant(g, Int32(n)), DT_FLOAT);
   return g;
 }
@@ -30,6 +68,17 @@ Graph* RandomParameters(int64 n) {
   Graph* g = new Graph(OpRegistry::Global());
   test::graph::RandomParameters(g, test::graph::Constant(g, Int32(n)),
                                 DT_FLOAT);
+=======
+  test::graph::RandomGaussian(g, test::graph::Constant(g, VecShape(n)),
+                              DT_FLOAT);
+  return g;
+}
+
+Graph* TruncatedNormal(int64 n) {
+  Graph* g = new Graph(OpRegistry::Global());
+  test::graph::TruncatedNormal(g, test::graph::Constant(g, VecShape(n)),
+                               DT_FLOAT);
+>>>>>>> tensorflow/master
   return g;
 }
 
@@ -42,11 +91,19 @@ Graph* RandomParameters(int64 n) {
 
 BM_RNG(cpu, RandomUniform);
 BM_RNG(cpu, RandomNormal);
+<<<<<<< HEAD
 BM_RNG(cpu, RandomParameters);
 
 BM_RNG(gpu, RandomUniform);
 BM_RNG(gpu, RandomNormal);
 BM_RNG(gpu, RandomParameters);
+=======
+BM_RNG(cpu, TruncatedNormal);
+
+BM_RNG(gpu, RandomUniform);
+BM_RNG(gpu, RandomNormal);
+BM_RNG(gpu, TruncatedNormal);
+>>>>>>> tensorflow/master
 
 static void BM_PhiloxRandom(int iters) {
   // Fill 2M random numbers

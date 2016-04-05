@@ -1,12 +1,35 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/gpu/gpu_event_mgr.h"
 
 #include "tensorflow/stream_executor/event.h"
 #include "tensorflow/stream_executor/stream.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/gpu/gpu_event_mgr.h"
+
+#include "tensorflow/core/platform/stream_executor.h"
+#include "tensorflow/core/protobuf/config.pb.h"
+>>>>>>> tensorflow/master
 
 namespace gpu = ::perftools::gputools;
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 EventMgr::EventMgr(gpu::StreamExecutor* se)
     : exec_(se),
       // threadpool_ has 1 thread for the polling loop, and one to execute
@@ -19,11 +42,30 @@ EventMgr::~EventMgr() {
   stop_polling_.Notify();
   // Shut down the backup polling loop.
   polling_stopped_.WaitForNotification();
+=======
+EventMgr::EventMgr(gpu::StreamExecutor* se, const GPUOptions& gpu_options)
+    : exec_(se),
+      deferred_bytes_threshold_(gpu_options.deferred_deletion_bytes()
+                                    ? gpu_options.deferred_deletion_bytes()
+                                    : 8 * 1048576),
+      accumulated_stream_(nullptr),
+      accumulated_tensors_(new TensorReferenceVector),
+      accumulated_tensor_bytes_(0),
+      // threadpool_ has 1 thread for the polling loop, and one to execute
+      // event callback functions. Maybe we should have more?
+      threadpool_(Env::Default(), "GPU_Event_Manager", 2) {
+  StartPollingLoop();
+}
+
+EventMgr::~EventMgr() {
+  StopPollingLoop();
+>>>>>>> tensorflow/master
 
   // Events are owned by this object.
   for (auto& e : free_events_) {
     delete e;
   }
+<<<<<<< HEAD
   while (!used_events_.empty()) {
     delete used_events_[0].event;
     delete used_events_[0].mem;
@@ -32,10 +74,35 @@ EventMgr::~EventMgr() {
     }
     if (used_events_[0].func != nullptr)
       threadpool_.Schedule(used_events_[0].func);
+=======
+  for (auto& t : *(accumulated_tensors_)) {
+    t.Unref();
+  }
+  delete accumulated_tensors_;
+  while (!used_events_.empty()) {
+    InUse* ue = &used_events_[0];
+    delete ue->event;
+    if (ue->mem != nullptr) {
+      for (auto& t : *(ue->mem)) {
+        t.Unref();
+      }
+      delete ue->mem;
+    }
+    if (ue->bufrec.buf) {
+      if (LogMemory::IsEnabled()) {
+        LogMemory::RecordRawDeallocation(ue->bufrec.operation,
+                                         ue->bufrec.step_id, ue->bufrec.buf,
+                                         ue->bufrec.alloc, false);
+      }
+      ue->bufrec.alloc->DeallocateRaw(ue->bufrec.buf);
+    }
+    if (ue->func != nullptr) threadpool_.Schedule(ue->func);
+>>>>>>> tensorflow/master
     used_events_.pop_front();
   }
 }
 
+<<<<<<< HEAD
 // This polling loop runs at a relatively low frequency. Most calls to
 // PollEvents() should come directly from Compute() via
 // ThenDeleteTensors().  This function's purpose is to ensure that
@@ -51,6 +118,79 @@ void EventMgr::PollLoop() {
     }
   }
   polling_stopped_.Notify();
+=======
+void EventMgr::StartPollingLoop() {
+  CHECK(polling_stopped_.get() == nullptr);
+  stop_polling_.reset(new Notification);
+  polling_stopped_.reset(new Notification);
+  threadpool_.Schedule([this]() { PollLoop(); });
+}
+
+void EventMgr::StopPollingLoop() {
+  if (stop_polling_.get()) {
+    stop_polling_->Notify();
+    polling_stopped_->WaitForNotification();
+    stop_polling_.reset(nullptr);
+    polling_stopped_.reset(nullptr);
+  }
+}
+
+void EventMgr::ThenDeleteTensors(perftools::gputools::Stream* stream,
+                                 const TensorReferenceVector& tensors) {
+  mutex_lock l(mu_);
+  // TODO(jeff): We currently keep one accumulated_tensors_ object.
+  // If we start to use multiple streams heavily, we might want to keep
+  // separate vectors/byte counters per stream
+  if (!accumulated_tensors_->empty() && stream != accumulated_stream_) {
+    FlushAccumulatedTensors();
+  }
+  accumulated_stream_ = stream;
+  for (auto t : tensors) {
+    // accumulated_tensors_ takes over ownership of the reference to "t"
+    accumulated_tensors_->push_back(t);
+    accumulated_tensor_bytes_ += t.TotalBytes();
+  }
+  if (accumulated_tensor_bytes_ >= deferred_bytes_threshold_) {
+    FlushAccumulatedTensors();
+  }
+}
+
+void EventMgr::FlushAccumulatedTensors() {
+  DCHECK(!accumulated_tensors_->empty());
+  DCHECK(accumulated_stream_ != nullptr);
+  QueueTensors(accumulated_stream_, accumulated_tensors_);
+  accumulated_tensors_ = new TensorReferenceVector;
+  accumulated_tensor_bytes_ = 0;
+  accumulated_stream_ = nullptr;
+}
+
+// A polling loop to detect completion of GPU events.  There's a
+// tradeoff between achieving low latency detection, which argues for
+// little delay between calls, and minimizing CPU use and lock
+// contention, which argue for longer delay.  The current strategy is
+// to poll frequently when the queue is non-empty, and infrequently
+// otherwise.
+void EventMgr::PollLoop() {
+  const int32 kPollingDelayUsecs = 10;
+  const int32 kPollingSuspendMsecs = 1;
+  bool queue_empty = false;
+  while (!stop_polling_->HasBeenNotified()) {
+    if (queue_empty) {
+      mutex_lock l(mu_);
+      WaitForMilliseconds(&l, &events_pending_, kPollingSuspendMsecs);
+    } else {
+      Env::Default()->SleepForMicroseconds(kPollingDelayUsecs);
+    }
+    ToFreeVector to_free;
+    {
+      mutex_lock l(mu_);
+      PollEvents(true, &to_free);
+      queue_empty = used_events_.empty();
+    }
+    FreeMemory(to_free);
+  }
+  polling_stopped_->Notify();
+>>>>>>> tensorflow/master
 }
 
 void EventMgr::QueueInUse(gpu::Stream* stream, InUse iu) {
@@ -66,7 +206,14 @@ void EventMgr::QueueInUse(gpu::Stream* stream, InUse iu) {
   free_events_.pop_back();
   stream->ThenRecordEvent(e);
   iu.event = e;
+<<<<<<< HEAD
   used_events_.push_back(iu);
+=======
+  bool was_empty = used_events_.empty();
+  used_events_.push_back(iu);
+  // Maybe wake up the polling thread
+  if (was_empty) events_pending_.notify_all();
+>>>>>>> tensorflow/master
 }
 
 // This function must be called periodically to check whether pending
@@ -88,7 +235,12 @@ void EventMgr::QueueInUse(gpu::Stream* stream, InUse iu) {
 // GPU memory use to spike needlessly.  An alternative strategy would
 // be to throttle new Op execution until the pending event queue
 // clears.
+<<<<<<< HEAD
 void EventMgr::PollEvents(bool is_dedicated_poller) {
+=======
+void EventMgr::PollEvents(bool is_dedicated_poller,
+                          gtl::InlinedVector<InUse, 4>* to_free) {
+>>>>>>> tensorflow/master
   VLOG(2) << "PollEvents  free_events_ " << free_events_.size()
           << " used_events_ " << used_events_.size();
   // Sweep the remaining events in order.  If this is the dedicated
@@ -108,11 +260,17 @@ void EventMgr::PollEvents(bool is_dedicated_poller) {
         if (!is_dedicated_poller) return;  // quit processing queue
         break;
       case gpu::Event::Status::kComplete:
+<<<<<<< HEAD
         delete iu.mem;
         if (iu.bufrec.buf) iu.bufrec.alloc->DeallocateRaw(iu.bufrec.buf);
         // The function must be called in another thread, outside of
         // the mutex held here.
         if (iu.func != nullptr) threadpool_.Schedule(iu.func);
+=======
+        // Make a copy of the InUse record so we can free it after releasing
+        // the lock
+        to_free->push_back(iu);
+>>>>>>> tensorflow/master
         free_events_.push_back(iu.event);
         // Mark this InUse record as completed.
         iu.event = nullptr;

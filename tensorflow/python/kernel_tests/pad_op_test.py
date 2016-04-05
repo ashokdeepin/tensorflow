@@ -1,9 +1,28 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.nn_ops.Pad."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -19,12 +38,26 @@ class PadOpTest(tf.test.TestCase):
 
   def testNpPad(self):
     self.assertAllClose(
+=======
+import numpy as np
+import tensorflow as tf
+
+
+class PadOpTest(tf.test.TestCase):
+
+  def _npPad(self, inp, paddings, mode):
+    return np.pad(inp, paddings, mode=mode.lower())
+
+  def testNpPad(self):
+    self.assertAllEqual(
+>>>>>>> tensorflow/master
         np.array([[0, 0, 0, 0, 0, 0],
                   [0, 3, 3, 0, 0, 0],
                   [0, 4, 4, 0, 0, 0],
                   [0, 5, 5, 0, 0, 0],
                   [0, 0, 0, 0, 0, 0],
                   [0, 0, 0, 0, 0, 0]]),
+<<<<<<< HEAD
         self._npPad(np.array([[3, 3], [4, 4], [5, 5]]), [[1, 2], [1, 3]]))
 
   def _testPad(self, np_inputs, paddings, use_gpu=False):
@@ -36,10 +69,47 @@ class PadOpTest(tf.test.TestCase):
     self.assertShapeEqual(np_val, tf_val)
 
   def _testGradient(self, x, a):
+=======
+        self._npPad(
+            np.array([[3, 3], [4, 4], [5, 5]]),
+            [[1, 2], [1, 3]],
+            mode="constant"))
+
+    self.assertAllEqual(
+        np.array([[4, 3, 4, 9, 4, 3],
+                  [1, 0, 1, 2, 1, 0],
+                  [4, 3, 4, 9, 4, 3],
+                  [1, 0, 1, 2, 1, 0]]),
+        self._npPad(
+            np.array([[0, 1, 2], [3, 4, 9]]),
+            [[1, 1], [1, 2]],
+            mode="reflect"))
+
+    self.assertAllEqual(
+        np.array([[0, 0, 1, 2, 2, 1],
+                  [0, 0, 1, 2, 2, 1],
+                  [3, 3, 4, 9, 9, 4],
+                  [3, 3, 4, 9, 9, 4]]),
+        self._npPad(
+            np.array([[0, 1, 2], [3, 4, 9]]),
+            [[1, 1], [1, 2]],
+            mode="symmetric"))
+
+  def _testPad(self, np_inputs, paddings, mode, use_gpu=False):
+    np_val = self._npPad(np_inputs, paddings, mode=mode)
+    with self.test_session(use_gpu=use_gpu):
+      tf_val = tf.pad(np_inputs, paddings, mode=mode)
+      out = tf_val.eval()
+    self.assertAllEqual(np_val, out)
+    self.assertShapeEqual(np_val, tf_val)
+
+  def _testGradient(self, x, a, mode):
+>>>>>>> tensorflow/master
     with self.test_session():
       inx = tf.convert_to_tensor(x)
       xs = list(x.shape)
       ina = tf.convert_to_tensor(a)
+<<<<<<< HEAD
       y = tf.pad(inx, ina)
       # Expected y's shape to be:
       ys = list(np.array(x.shape) + np.sum(np.array(a), axis=1))
@@ -51,6 +121,24 @@ class PadOpTest(tf.test.TestCase):
     self._testPad(np_inputs, paddings, use_gpu=True)
     if np_inputs.dtype == np.float32:
       self._testGradient(np_inputs, paddings)
+=======
+      y = tf.pad(inx, ina, mode=mode)
+      # Expected y's shape to be:
+      ys = list(np.array(x.shape) + np.sum(np.array(a), axis=1))
+      jacob_t, jacob_n = tf.test.compute_gradient(inx,
+                                                  xs,
+                                                  y,
+                                                  ys,
+                                                  x_init_value=x)
+    self.assertAllClose(jacob_t, jacob_n, rtol=1e-5, atol=1e-5)
+
+  def _testAll(self, np_inputs, paddings):
+    for mode in ("CONSTANT", "REFLECT", "SYMMETRIC"):
+      self._testPad(np_inputs, paddings, mode=mode, use_gpu=False)
+      self._testPad(np_inputs, paddings, mode=mode, use_gpu=True)
+      if np_inputs.dtype == np.float32:
+        self._testGradient(np_inputs, paddings, mode=mode)
+>>>>>>> tensorflow/master
 
   def testInputDims(self):
     with self.test_session():
@@ -101,15 +189,39 @@ class PadOpTest(tf.test.TestCase):
             tf.constant([1], shape=[1]),
             tf.constant([-1, 0], shape=[1, 2]))
 
+<<<<<<< HEAD
+=======
+  def testPaddingsMaximum(self):
+    with self.test_session():
+      with self.assertRaises(Exception):
+        tf.pad(
+            tf.constant([1], shape=[2]),
+            tf.constant([2, 0], shape=[1, 2]),
+            mode="REFLECT").eval()
+      with self.assertRaises(Exception):
+        tf.pad(
+            tf.constant([1], shape=[2]),
+            tf.constant([0, 3], shape=[1, 2]),
+            mode="SYMMETRIC").eval()
+
+>>>>>>> tensorflow/master
   def testIntTypes(self):
     # TODO(touts): Figure out why the padding tests do not work on GPU
     # for int types and rank > 2.
     for t in [np.int32, np.int64]:
+<<<<<<< HEAD
       self._testPad((np.random.rand(4, 3, 3) * 100).astype(t),
                     [[1, 0], [2, 3], [0, 2]])
 
   def testFloatTypes(self):
     for t in [np.float32, np.float64]:
+=======
+      self._testAll((np.random.rand(4, 4, 3) * 100).astype(t),
+                    [[1, 0], [2, 3], [0, 2]])
+
+  def testFloatTypes(self):
+    for t in [np.float32, np.float64, np.complex64]:
+>>>>>>> tensorflow/master
       self._testAll(np.random.rand(2, 5).astype(t),
                     [[1, 0], [2, 0]])
 
@@ -136,7 +248,11 @@ class PadOpTest(tf.test.TestCase):
       with self.test_session(use_gpu=use_gpu):
         tf_val = tf.pad(inp, paddings)
         out = tf_val.eval()
+<<<<<<< HEAD
       self.assertAllClose(inp, out)
+=======
+      self.assertAllEqual(inp, out)
+>>>>>>> tensorflow/master
       self.assertShapeEqual(inp, tf_val)
 
 

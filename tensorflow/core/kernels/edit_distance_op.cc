@@ -1,9 +1,28 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/array_ops.cc.
 
 #define EIGEN_USE_THREADS
 
 #include <limits>
 
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/device.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/types.h"
@@ -14,6 +33,19 @@
 #include "tensorflow/core/util/sparse/sparse_tensor.h"
 
 #include "tensorflow/core/platform/logging.h"
+=======
+#include <vector>
+#include "tensorflow/core/common_runtime/device.h"
+#include "tensorflow/core/framework/op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/gtl/edit_distance.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/util/sparse/sparse_tensor.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -103,10 +135,22 @@ class EditDistanceOp : public OpKernel {
                             *hypothesis_shape, *truth_indices, *truth_values,
                             *truth_shape));
 
+<<<<<<< HEAD
     TensorShape hypothesis_st_shape = TensorShapeUtils::MakeShape(
         hypothesis_shape->vec<int64>().data(), hypothesis_shape->NumElements());
     TensorShape truth_st_shape = TensorShapeUtils::MakeShape(
         truth_shape->vec<int64>().data(), truth_shape->NumElements());
+=======
+    TensorShape hypothesis_st_shape;
+    OP_REQUIRES_OK(
+        ctx, TensorShapeUtils::MakeShape(hypothesis_shape->vec<int64>().data(),
+                                         hypothesis_shape->NumElements(),
+                                         &hypothesis_st_shape));
+    TensorShape truth_st_shape;
+    OP_REQUIRES_OK(ctx, TensorShapeUtils::MakeShape(
+                            truth_shape->vec<int64>().data(),
+                            truth_shape->NumElements(), &truth_st_shape));
+>>>>>>> tensorflow/master
 
     // Assume indices are sorted in row-major order.
     std::vector<int64> sorted_order(truth_st_shape.dims());
@@ -123,7 +167,11 @@ class EditDistanceOp : public OpKernel {
     std::iota(group_dims.begin(), group_dims.end(), 0);
 
     TensorShape output_shape;
+<<<<<<< HEAD
     for (int d = 0; d < group_dims.size(); ++d) {
+=======
+    for (size_t d = 0; d < group_dims.size(); ++d) {
+>>>>>>> tensorflow/master
       output_shape.AddDim(std::max(hypothesis_st_shape.dim_size(d),
                                    truth_st_shape.dim_size(d)));
     }

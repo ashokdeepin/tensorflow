@@ -1,16 +1,46 @@
+<<<<<<< HEAD
 #ifndef THIRD_PARTY_TENSORFLOW_CORE_KERNELS_QUEUE_BASE_H_
 #define THIRD_PARTY_TENSORFLOW_CORE_KERNELS_QUEUE_BASE_H_
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_CORE_KERNELS_QUEUE_BASE_H_
+#define TENSORFLOW_CORE_KERNELS_QUEUE_BASE_H_
+>>>>>>> tensorflow/master
 
 #include <deque>
 #include <vector>
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/queue_interface.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -83,6 +113,7 @@ class QueueBase : public QueueInterface {
 
   // Copies the index^th slice (in the first dimension) of parent into element.
   static Status CopySliceToElement(const Tensor& parent, Tensor* element,
+<<<<<<< HEAD
                                    int index);
 
   // Copies element into the index^th slice (in the first dimension) of parent.
@@ -90,6 +121,16 @@ class QueueBase : public QueueInterface {
                                    int index);
 
   void Cancel(Action action, CancellationToken token);
+=======
+                                   int64 index);
+
+  // Copies element into the index^th slice (in the first dimension) of parent.
+  static Status CopyElementToSlice(const Tensor& element, Tensor* parent,
+                                   int64 index);
+
+  void Cancel(Action action, CancellationManager* cancellation_manager,
+              CancellationToken token);
+>>>>>>> tensorflow/master
 
   // Helper for cancelling all pending Enqueue(Many) operations when
   // Close is called with cancel_pending_enqueues.
@@ -102,7 +143,11 @@ class QueueBase : public QueueInterface {
   // of the *_attempts_ queues.
   void FlushUnlocked();
 
+<<<<<<< HEAD
   ~QueueBase() override {}
+=======
+  ~QueueBase() override;
+>>>>>>> tensorflow/master
 
   // Helpers for implementing MatchesNodeDef().
   static string ShapeListString(const gtl::ArraySlice<TensorShape>& shapes);
@@ -125,10 +170,15 @@ class QueueBase : public QueueInterface {
     int32 elements_requested;
     DoneCallback done_callback;  // must be run outside mu_
     OpKernelContext* context;
+<<<<<<< HEAD
+=======
+    CancellationManager* cancellation_manager;  // not owned
+>>>>>>> tensorflow/master
     CancellationToken cancellation_token;
     RunCallback run_callback;  // must be run while holding mu_
     bool is_cancelled;
     Tuple tuple;
+<<<<<<< HEAD
 
     Attempt(int32 elements_requested, DoneCallback done_callback,
             OpKernelContext* context, CancellationToken cancellation_token,
@@ -136,6 +186,18 @@ class QueueBase : public QueueInterface {
         : elements_requested(elements_requested),
           done_callback(done_callback),
           context(context),
+=======
+    // tuples is used by some implementations allowing dynamic shapes.
+    std::vector<Tuple> tuples;
+
+    Attempt(int32 elements_requested, DoneCallback done_callback,
+            OpKernelContext* context, CancellationManager* cancellation_manager,
+            CancellationToken cancellation_token, RunCallback run_callback)
+        : elements_requested(elements_requested),
+          done_callback(done_callback),
+          context(context),
+          cancellation_manager(cancellation_manager),
+>>>>>>> tensorflow/master
           cancellation_token(cancellation_token),
           run_callback(run_callback),
           is_cancelled(false) {}
@@ -148,4 +210,8 @@ class QueueBase : public QueueInterface {
 
 }  // namespace tensorflow
 
+<<<<<<< HEAD
 #endif  // THIRD_PARTY_TENSORFLOW_CORE_KERNELS_QUEUE_BASE_H_
+=======
+#endif  // TENSORFLOW_CORE_KERNELS_QUEUE_BASE_H_
+>>>>>>> tensorflow/master

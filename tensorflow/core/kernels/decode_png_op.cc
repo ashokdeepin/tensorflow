@@ -1,14 +1,42 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/image_ops.cc
 
 #include <memory>
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
 #include "tensorflow/core/lib/png/png_io.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/png/png_io.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -21,18 +49,37 @@ class DecodePngOp : public OpKernel {
                              channels_ == 4,
                 errors::InvalidArgument("channels must be 0, 1, 3, or 4, got ",
                                         channels_));
+<<<<<<< HEAD
+=======
+
+    DataType dt;
+    OP_REQUIRES_OK(context, context->GetAttr("dtype", &dt));
+    OP_REQUIRES(
+        context, dt == DataType::DT_UINT8 || dt == DataType::DT_UINT16,
+        errors::InvalidArgument("Type must be UINT8 or UINT16, got ", dt));
+    if (dt == DataType::DT_UINT8) {
+      desired_channel_bits_ = 8;
+    } else {
+      desired_channel_bits_ = 16;
+    }
+>>>>>>> tensorflow/master
   }
 
   void Compute(OpKernelContext* context) override {
     const Tensor& contents = context->input(0);
     OP_REQUIRES(context, TensorShapeUtils::IsScalar(contents.shape()),
                 errors::InvalidArgument("contents must be scalar, got shape ",
+<<<<<<< HEAD
                                         contents.shape().ShortDebugString()));
+=======
+                                        contents.shape().DebugString()));
+>>>>>>> tensorflow/master
 
     // Start decoding image to get shape details
     const StringPiece data = contents.scalar<string>()();
     png::DecodeContext decode;
     OP_REQUIRES(
+<<<<<<< HEAD
         context, png::CommonInitDecode(data, channels_, 8, &decode),
         errors::InvalidArgument("Invalid PNG header, data size ", data.size()));
 
@@ -41,6 +88,25 @@ class DecodePngOp : public OpKernel {
     const int height = decode.height;
     if (width != static_cast<int64>(decode.width) ||
         height != static_cast<int64>(decode.height)) {
+=======
+        context,
+        png::CommonInitDecode(data, channels_, desired_channel_bits_, &decode),
+        errors::InvalidArgument("Invalid PNG header, data size ", data.size()));
+
+    // Verify that width and height are not too large:
+    // - verify width and height don't overflow int.
+    // - width can later be multiplied by channels_ and sizeof(uint16), so
+    //   verify single dimension is not too large.
+    // - verify when width and height are multiplied together, there are a few
+    //   bits to spare as well.
+    const int width = decode.width;
+    const int height = decode.height;
+    const int64 total_size =
+        static_cast<int64>(width) * static_cast<int64>(height);
+    if (width != static_cast<int64>(decode.width) || width <= 0 ||
+        width >= (1LL << 27) || height != static_cast<int64>(decode.height) ||
+        height <= 0 || height >= (1LL << 27) || total_size >= (1LL << 29)) {
+>>>>>>> tensorflow/master
       png::CommonFreeDecode(&decode);
       OP_REQUIRES(context, false,
                   errors::InvalidArgument("PNG size too large for int: ",
@@ -54,15 +120,39 @@ class DecodePngOp : public OpKernel {
     if (!status.ok()) png::CommonFreeDecode(&decode);
     OP_REQUIRES_OK(context, status);
 
+<<<<<<< HEAD
     // Finish decoding image
     OP_REQUIRES(
         context, png::CommonFinishDecode(output->flat<uint8>().data(),
                                          decode.channels * width, &decode),
         errors::InvalidArgument("Invalid PNG data, size ", data.size()));
+=======
+    if (desired_channel_bits_ == 8) {
+      // Finish decoding image
+      OP_REQUIRES(
+          context,
+          png::CommonFinishDecode(
+              reinterpret_cast<png_bytep>(output->flat<uint8>().data()),
+              decode.channels * width * sizeof(uint8), &decode),
+          errors::InvalidArgument("Invalid PNG data, size ", data.size()));
+    } else {
+      // Finish decoding image
+      OP_REQUIRES(
+          context,
+          png::CommonFinishDecode(
+              reinterpret_cast<png_bytep>(output->flat<uint16>().data()),
+              decode.channels * width * sizeof(uint16), &decode),
+          errors::InvalidArgument("Invalid PNG data, size ", data.size()));
+    }
+>>>>>>> tensorflow/master
   }
 
  private:
   int channels_;
+<<<<<<< HEAD
+=======
+  int desired_channel_bits_;
+>>>>>>> tensorflow/master
 };
 REGISTER_KERNEL_BUILDER(Name("DecodePng").Device(DEVICE_CPU), DecodePngOp);
 

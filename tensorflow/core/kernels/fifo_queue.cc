@@ -1,16 +1,44 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/data_flow_ops.cc.
 
 #include <deque>
 #include <vector>
 
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/kernels/fifo_queue.h"
 #include "tensorflow/core/kernels/queue_base.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -20,7 +48,11 @@ FIFOQueue::FIFOQueue(int capacity, const DataTypeVector& component_dtypes,
     : TypedQueue(capacity, component_dtypes, component_shapes, name) {}
 
 void FIFOQueue::DequeueLocked(OpKernelContext* ctx, Tuple* tuple) {
+<<<<<<< HEAD
   DCHECK_GT(queues_[0].size(), 0);
+=======
+  DCHECK_GT(queues_[0].size(), size_t{0});
+>>>>>>> tensorflow/master
   (*tuple).reserve(num_components());
   for (int i = 0; i < num_components(); ++i) {
     (*tuple).push_back(*queues_[i][0].AccessTensor(ctx));
@@ -36,10 +68,17 @@ void FIFOQueue::TryEnqueue(const Tuple& tuple, OpKernelContext* ctx,
   {
     mutex_lock l(mu_);
     already_cancelled = !cm->RegisterCallback(
+<<<<<<< HEAD
         token, [this, token]() { Cancel(kEnqueue, token); });
     if (!already_cancelled) {
       enqueue_attempts_.emplace_back(
           1, callback, ctx, token,
+=======
+        token, [this, cm, token]() { Cancel(kEnqueue, cm, token); });
+    if (!already_cancelled) {
+      enqueue_attempts_.emplace_back(
+          1, callback, ctx, cm, token,
+>>>>>>> tensorflow/master
           [tuple, this](Attempt* attempt) EXCLUSIVE_LOCKS_REQUIRED(mu_) {
             if (closed_) {
               attempt->context->SetStatus(
@@ -67,7 +106,11 @@ void FIFOQueue::TryEnqueue(const Tuple& tuple, OpKernelContext* ctx,
 
 /* static */
 Status FIFOQueue::GetElementComponentFromBatch(const FIFOQueue::Tuple& tuple,
+<<<<<<< HEAD
                                                int index, int component,
+=======
+                                               int64 index, int component,
+>>>>>>> tensorflow/master
                                                OpKernelContext* ctx,
                                                PersistentTensor* out_tensor) {
   TensorShape element_shape(tuple[component].shape());
@@ -94,10 +137,17 @@ void FIFOQueue::TryEnqueueMany(const Tuple& tuple, OpKernelContext* ctx,
   {
     mutex_lock l(mu_);
     already_cancelled = !cm->RegisterCallback(
+<<<<<<< HEAD
         token, [this, token]() { Cancel(kEnqueue, token); });
     if (!already_cancelled) {
       enqueue_attempts_.emplace_back(
           batch_size, callback, ctx, token,
+=======
+        token, [this, cm, token]() { Cancel(kEnqueue, cm, token); });
+    if (!already_cancelled) {
+      enqueue_attempts_.emplace_back(
+          batch_size, callback, ctx, cm, token,
+>>>>>>> tensorflow/master
           [tuple, this](Attempt* attempt) EXCLUSIVE_LOCKS_REQUIRED(mu_) {
             if (closed_) {
               attempt->context->SetStatus(
@@ -107,7 +157,11 @@ void FIFOQueue::TryEnqueueMany(const Tuple& tuple, OpKernelContext* ctx,
             RunResult result = kNoProgress;
             while (queues_[0].size() < static_cast<size_t>(capacity_)) {
               result = kProgress;
+<<<<<<< HEAD
               const int index =
+=======
+              const int64 index =
+>>>>>>> tensorflow/master
                   tuple[0].dim_size(0) - attempt->elements_requested;
               for (int i = 0; i < num_components(); ++i) {
                 PersistentTensor element;
@@ -140,6 +194,7 @@ void FIFOQueue::TryDequeue(OpKernelContext* ctx, CallbackWithTuple callback) {
   {
     mutex_lock l(mu_);
     already_cancelled = !cm->RegisterCallback(
+<<<<<<< HEAD
         token, [this, token]() { Cancel(kDequeue, token); });
     if (!already_cancelled) {
       // TODO(josh11b): This makes two copies of callback, avoid this if possible.
@@ -147,6 +202,15 @@ void FIFOQueue::TryDequeue(OpKernelContext* ctx, CallbackWithTuple callback) {
           1, [callback]() { callback(Tuple()); }, ctx, token,
           [callback, this](Attempt* attempt) EXCLUSIVE_LOCKS_REQUIRED(mu_) {
             const int32 s = queues_[0].size();
+=======
+        token, [this, cm, token]() { Cancel(kDequeue, cm, token); });
+    if (!already_cancelled) {
+      // TODO(josh11b): This makes two copies of callback, avoid this if possible.
+      dequeue_attempts_.emplace_back(
+          1, [callback]() { callback(Tuple()); }, ctx, cm, token,
+          [callback, this](Attempt* attempt) EXCLUSIVE_LOCKS_REQUIRED(mu_) {
+            const int64 s = queues_[0].size();
+>>>>>>> tensorflow/master
             if (closed_ && s == 0) {
               attempt->context->SetStatus(errors::OutOfRange(
                   "FIFOQueue '", name_, "' is closed and has ",
@@ -224,6 +288,7 @@ void FIFOQueue::TryDequeueMany(int num_elements, OpKernelContext* ctx,
   {
     mutex_lock l(mu_);
     already_cancelled = !cm->RegisterCallback(
+<<<<<<< HEAD
         token, [this, token]() { Cancel(kDequeue, token); });
     if (!already_cancelled) {
       // TODO(josh11b): This makes two copies of callback, avoid this if possible.
@@ -231,6 +296,15 @@ void FIFOQueue::TryDequeueMany(int num_elements, OpKernelContext* ctx,
           num_elements, [callback]() { callback(Tuple()); }, ctx, token,
           [callback, this](Attempt* attempt) EXCLUSIVE_LOCKS_REQUIRED(mu_) {
             int32 s = queues_[0].size();
+=======
+        token, [this, cm, token]() { Cancel(kDequeue, cm, token); });
+    if (!already_cancelled) {
+      // TODO(josh11b): This makes two copies of callback, avoid this if possible.
+      dequeue_attempts_.emplace_back(
+          num_elements, [callback]() { callback(Tuple()); }, ctx, cm, token,
+          [callback, this](Attempt* attempt) EXCLUSIVE_LOCKS_REQUIRED(mu_) {
+            int64 s = queues_[0].size();
+>>>>>>> tensorflow/master
             if (closed_ && s < attempt->elements_requested) {
               attempt->context->SetStatus(errors::OutOfRange(
                   "FIFOQueue '", name_, "' is closed and has ",
@@ -266,7 +340,11 @@ void FIFOQueue::TryDequeueMany(int num_elements, OpKernelContext* ctx,
             for (; s > 0; --s) {
               if (attempt->tuple.empty()) {
                 // Only allocate tuple when we have something to dequeue
+<<<<<<< HEAD
                 // so we don't use exceessive memory when there are many
+=======
+                // so we don't use excessive memory when there are many
+>>>>>>> tensorflow/master
                 // blocked dequeue attempts waiting.
                 attempt->tuple.reserve(num_components());
                 for (int i = 0; i < num_components(); ++i) {
@@ -281,7 +359,11 @@ void FIFOQueue::TryDequeueMany(int num_elements, OpKernelContext* ctx,
               result = kProgress;
               Tuple tuple;
               DequeueLocked(attempt->context, &tuple);
+<<<<<<< HEAD
               const int index =
+=======
+              const int64 index =
+>>>>>>> tensorflow/master
                   attempt->tuple[0].dim_size(0) - attempt->elements_requested;
               for (int i = 0; i < num_components(); ++i) {
                 attempt->context->SetStatus(

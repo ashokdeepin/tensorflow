@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef TENSORFLOW_UTIL_TENSOR_SLICE_UTIL_H_
 #define TENSORFLOW_UTIL_TENSOR_SLICE_UTIL_H_
 
@@ -7,6 +8,34 @@
 
 namespace tensorflow {
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_UTIL_TENSOR_SLICE_UTIL_H_
+#define TENSORFLOW_UTIL_TENSOR_SLICE_UTIL_H_
+
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_slice.h"
+#include "tensorflow/core/platform/logging.h"
+
+namespace tensorflow {
+
+namespace {
+
+>>>>>>> tensorflow/master
 // Some hackery to invoke eigen tensor to copy over tensor slices with variable
 // dimension tensors.
 // TODO(yangke): get rid of that once the variable dimension tensor support is
@@ -25,6 +54,54 @@ GetEigenTensorMapFromTensorShape(const TensorShape& shape, T* data) {
   return eig;
 }
 
+<<<<<<< HEAD
+=======
+// For everything except string, a standard Eigen cast and assignment works
+template <typename DstT>
+struct CopyThatWorksWithStringPointer {
+  template <typename SrcTensor, typename DstTensor, typename Shape>
+  static void Copy(const SrcTensor& s, Shape s_start, Shape len, DstTensor& d,
+                   Shape d_start) {
+    d.slice(d_start, len) = s.slice(s_start, len).template cast<DstT>();
+  }
+};
+
+// Eigen makes it extremely difficult to dereference a tensor of string* into
+// string, so we roll our own loop instead.
+template <>
+struct CopyThatWorksWithStringPointer<string> {
+  template <typename SrcTensor, typename DstTensor, typename Shape>
+  static void Copy(const SrcTensor& s, Shape s_start, Shape len, DstTensor& d,
+                   Shape d_start) {
+    typedef typename SrcTensor::Index Index;
+    static_assert(kTensorSliceMaxRank == 8,
+                  "If kTensorSliceMaxRank changes, modify the loop below.");
+    for (Index i0 = 0; i0 < len[0]; i0++) {
+      for (Index i1 = 0; i1 < len[1]; i1++) {
+        for (Index i2 = 0; i2 < len[2]; i2++) {
+          for (Index i3 = 0; i3 < len[3]; i3++) {
+            for (Index i4 = 0; i4 < len[4]; i4++) {
+              for (Index i5 = 0; i5 < len[5]; i5++) {
+                for (Index i6 = 0; i6 < len[6]; i6++) {
+                  for (Index i7 = 0; i7 < len[7]; i7++) {
+                    d(d_start[0] + i0, d_start[1] + i1, d_start[2] + i2,
+                      d_start[3] + i3, d_start[4] + i4, d_start[5] + i5,
+                      d_start[6] + i6, d_start[7] + i7) =
+                        *s(s_start[0] + i0, s_start[1] + i1, s_start[2] + i2,
+                           s_start[3] + i3, s_start[4] + i4, s_start[5] + i5,
+                           s_start[6] + i6, s_start[7] + i7);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+};
+
+>>>>>>> tensorflow/master
 // Given a tensor described by "shape", two slices "slice_s" and "slice_d",
 // and two pointers "ptr_s" and "ptr_d", where "ptr_s" points to a chunk of
 // memory that stores the data for "slice_s" and "ptr_d" points to a chunk of
@@ -78,11 +155,21 @@ static bool CopyDataFromTensorSliceToTensorSlice(const TensorShape& shape,
 
     rel_s.FillIndicesAndSizes<kTensorSliceMaxRank>(shp_s, &s_start, &s_len);
     rel_d.FillIndicesAndSizes<kTensorSliceMaxRank>(shp_d, &d_start, &d_len);
+<<<<<<< HEAD
     t_d.slice(d_start, d_len) = t_s.slice(s_start, s_len).template cast<DstT>();
+=======
+    CopyThatWorksWithStringPointer<DstT>::Copy(t_s, s_start, s_len, t_d,
+                                               d_start);
+>>>>>>> tensorflow/master
     return true;
   }
 }
 
+<<<<<<< HEAD
+=======
+}  // namespace
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow
 
 #endif  // TENSORFLOW_UTIL_TENSOR_SLICE_UTIL_H_

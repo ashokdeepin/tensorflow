@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """A utility function for importing TensorFlow graphs."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,6 +23,7 @@ from __future__ import print_function
 
 import contextlib
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import six
@@ -14,6 +33,15 @@ from tensorflow.core.framework import types_pb2
 from tensorflow.python.framework import op_def_registry
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import types as types_lib
+=======
+from tensorflow.core.framework import attr_value_pb2
+from tensorflow.core.framework import graph_pb2
+from tensorflow.core.framework import types_pb2
+from tensorflow.python.framework import op_def_registry
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.util import compat
+>>>>>>> tensorflow/master
 
 
 # TODO(josh11b): SWIG the code from node_def_util instead of duplicating
@@ -46,7 +74,11 @@ def _ArgToTypesNoRef(node_def, arg_def):
 def _SingleArgToTypes(node_def, arg_def):
   types = _ArgToTypesNoRef(node_def, arg_def)
   if arg_def.is_ref:
+<<<<<<< HEAD
     return [types_lib.as_dtype(dt).as_ref.as_datatype_enum for dt in types]
+=======
+    return [dtypes.as_dtype(dt).as_ref.as_datatype_enum for dt in types]
+>>>>>>> tensorflow/master
   return types
 
 
@@ -107,6 +139,10 @@ def _ParseTensorName(tensor_name):
 
 
 def _CanonicalInputName(input_name):
+<<<<<<< HEAD
+=======
+  input_name = compat.as_str(input_name)
+>>>>>>> tensorflow/master
   if _IsControlInput(input_name):
     return input_name
   input_op_name, output_index = _ParseTensorName(input_name)
@@ -132,7 +168,11 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
   """Imports the TensorFlow graph in `graph_def` into the Python `Graph`.
 
   This function provides a way to import a serialized TensorFlow
+<<<<<<< HEAD
   [`GraphDef`](https://tensorflow.googlesource.com/tensorflow/+/master/tensorflow/core/framework/graph.proto)
+=======
+  [`GraphDef`](https://www.tensorflow.org/code/tensorflow/core/framework/graph.proto)
+>>>>>>> tensorflow/master
   protocol buffer, and extract individual objects in the `GraphDef` as
   [`Tensor`](#Tensor) and [`Operation`](#Operation) objects. See
   [`Graph.as_graph_def()`](#Graph.as_graph_def) for a way to create a
@@ -155,11 +195,19 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
 
   Returns:
     A list of `Operation` and/or `Tensor` objects from the imported graph,
+<<<<<<< HEAD
     corresponding to the names in `return_elements'.
 
   Raises:
     TypeError: If `graph_def` is not a `GraphDef` proto,
       `input_map' is not a dictionary mapping strings to `Tensor` objects,
+=======
+    corresponding to the names in `return_elements`.
+
+  Raises:
+    TypeError: If `graph_def` is not a `GraphDef` proto,
+      `input_map` is not a dictionary mapping strings to `Tensor` objects,
+>>>>>>> tensorflow/master
       or `return_elements` is not a list of strings.
     ValueError: If `input_map`, or `return_elements` contains names that
       do not appear in `graph_def`, or `graph_def` is not well-formed (e.g.
@@ -167,11 +215,23 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
   """
   # Type checks for inputs.
   if not isinstance(graph_def, graph_pb2.GraphDef):
+<<<<<<< HEAD
     raise TypeError('graph_def must be a GraphDef proto.')
+=======
+    # `graph_def` could be a dynamically-created message, so try a duck-typed
+    # approach
+    try:
+      old_graph_def = graph_def
+      graph_def = graph_pb2.GraphDef()
+      graph_def.MergeFrom(old_graph_def)
+    except TypeError:
+      raise TypeError('graph_def must be a GraphDef proto.')
+>>>>>>> tensorflow/master
   if input_map is None:
     input_map = {}
   else:
     if not (isinstance(input_map, dict)
+<<<<<<< HEAD
             and all(isinstance(k, six.string_types) for k in input_map.keys())):
       raise TypeError('input_map must be a dictionary mapping strings to '
                       'Tensor objects.')
@@ -180,6 +240,17 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
                and all(isinstance(x, six.string_types)
                        for x in return_elements))):
     raise TypeError('return_elements must be a list of strings.')
+=======
+            and all(isinstance(k, compat.bytes_or_text_types)
+                    for k in input_map.keys())):
+      raise TypeError('input_map must be a dictionary mapping strings to '
+                      'Tensor objects.')
+  if return_elements is not None:
+    return_elements = tuple(return_elements)
+    if not all(isinstance(x, compat.bytes_or_text_types)
+               for x in return_elements):
+      raise TypeError('return_elements must be a list of strings.')
+>>>>>>> tensorflow/master
 
   # Use a canonical representation for all tensor names.
   input_map = {_CanonicalInputName(k): v for k, v in input_map.items()}
@@ -192,11 +263,16 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
 
   with ops.op_scope(input_map.values(), name, 'import'):
     g = ops.get_default_graph()
+<<<<<<< HEAD
+=======
+    g.graph_def_versions.CopyFrom(graph_def.versions)
+>>>>>>> tensorflow/master
 
     with ops.name_scope('_inputs'):
       input_map = {k: ops.convert_to_tensor(v) for k, v in input_map.items()}
 
     # NOTE(mrry): We do this in two passes, because there may be a cycle in
+<<<<<<< HEAD
     # `graph_def'.
 
     # 1. Add operations without their inputs.
@@ -206,12 +282,57 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
         name_to_op[node.name] = g.create_op(
             node.op, [], output_types, name=node.name, attrs=node.attr,
             compute_shapes=False)
+=======
+    # `graph_def`.
+
+    # 1. Add operations without their inputs.
+    for node in graph_def.node:
+      # Set any default attr values that aren't present.
+      op_def = op_dict[node.op]
+      for attr_def in op_def.attr:
+        key = attr_def.name
+        if attr_def.HasField('default_value'):
+          value = node.attr[key]
+          if value is None or value.WhichOneof('value') is None:
+            node.attr[key].CopyFrom(attr_def.default_value)
+
+      output_types = _OutputTypes(node, op_dict)
+      name_to_op[node.name] = g.create_op(
+          node.op, [], output_types, name=node.name, attrs=node.attr,
+          compute_shapes=False, compute_device=False,
+          op_def=op_def)
+>>>>>>> tensorflow/master
 
     # 2. Add inputs to the operations.
     for node in graph_def.node:
       op = name_to_op[node.name]
       input_types = _InputTypes(node, op_dict)
 
+<<<<<<< HEAD
+=======
+      # Rewrite the colocation attributes in the graph, since the
+      # names of new ops may have changed.
+      for key, value in op.node_def.attr.items():
+        if key == '_class':
+          class_values = value.list
+          new_class_values = []
+          for class_value in class_values.s:
+            if class_value.startswith(b'loc:@'):
+              op_to_bind_to = class_value[5:].decode()
+              # Find the op by its original name.
+              if op_to_bind_to not in name_to_op:
+                raise ValueError('Specified colocation to an op that '
+                                 'does not exist during import: %s in %s' % (
+                                     op_to_bind_to, node.name))
+              original_op = name_to_op[op_to_bind_to]
+              new_class_values.append(compat.as_bytes(
+                  'loc:@' + original_op.name))
+            else:
+              new_class_values.append(class_value)
+          value.list.CopyFrom(attr_value_pb2.AttrValue.ListValue(
+              s=new_class_values))
+
+>>>>>>> tensorflow/master
       # NOTE(mrry): We cannot use zip here because control inputs do not appear
       # in the list of input_types.
       for i, input_name in enumerate(
@@ -245,7 +366,11 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
             used_input_keys.add(input_name)
 
           else:
+<<<<<<< HEAD
             # (c) Input should be taken from an op in `graph_def'.
+=======
+            # (c) Input should be taken from an op in `graph_def`.
+>>>>>>> tensorflow/master
             operation_name, output_index = _ParseTensorName(input_name)
             try:
               source_op = name_to_op[operation_name]
@@ -262,9 +387,14 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
             op._add_input(source_tensor, dtype=input_type)
             # pylint: enable=protected-access
           except TypeError as te:
+<<<<<<< HEAD
             raise ValueError(
                 _InvalidNodeMessage(node, 'Input tensor %r %s'
                                     % (input_name, te.message)))
+=======
+            raise ValueError(_InvalidNodeMessage(
+                node, 'Input tensor %r %s' % (input_name, te)))
+>>>>>>> tensorflow/master
 
       # pylint: disable=protected_access
       if op._input_dtypes != input_types:
@@ -272,7 +402,11 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
             _InvalidNodeMessage(
                 node,
                 'Input types mismatch (expected %r but got %r)'
+<<<<<<< HEAD
                 % (", ".join(types_lib.as_dtype(x).name for x in input_types),
+=======
+                % (", ".join(dtypes.as_dtype(x).name for x in input_types),
+>>>>>>> tensorflow/master
                    ", ".join(x.name for x in op._input_dtypes))))
       # pylint: enable=protected_access
 
@@ -281,6 +415,15 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
       # may not be available for this op's inputs.
       ops.set_shapes_for_outputs(op)
 
+<<<<<<< HEAD
+=======
+      # Apply device functions for this op.
+      # NOTE(mrry): We do this after configuring the inputs, because
+      # the result of the device functions may depend on the inputs.
+      with _MaybeDevice(node.device):
+        g._apply_device_functions(op)  # pylint: disable=protected-access
+
+>>>>>>> tensorflow/master
     # Treat unused input mappings as an error, because they are likely to be
     # due to a typo.
     unused_input_keys = frozenset(input_map.keys()).difference(used_input_keys)
@@ -294,6 +437,10 @@ def import_graph_def(graph_def, input_map=None, return_elements=None,
     else:
       ret = []
       for name in return_elements:
+<<<<<<< HEAD
+=======
+        name = compat.as_str(name)
+>>>>>>> tensorflow/master
         if ':' in name:
           try:
             operation_name, output_index = _ParseTensorName(name)

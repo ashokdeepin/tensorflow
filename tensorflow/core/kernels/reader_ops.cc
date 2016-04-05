@@ -1,13 +1,42 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/io_ops.cc.
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/queue_interface.h"
 #include "tensorflow/core/framework/reader_interface.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor_shape.h"
 
 namespace tensorflow {
 
 class ReaderVerbOpKernel : public OpKernel {
+=======
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/lib/core/threadpool.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+
+namespace tensorflow {
+
+class ReaderVerbSyncOpKernel : public OpKernel {
+>>>>>>> tensorflow/master
  public:
   using OpKernel::OpKernel;
 
@@ -24,9 +53,45 @@ class ReaderVerbOpKernel : public OpKernel {
                                  ReaderInterface* reader) = 0;
 };
 
+<<<<<<< HEAD
 class ReaderReadOp : public ReaderVerbOpKernel {
  public:
   using ReaderVerbOpKernel::ReaderVerbOpKernel;
+=======
+class ReaderVerbAsyncOpKernel : public AsyncOpKernel {
+ public:
+  using AsyncOpKernel::AsyncOpKernel;
+
+  explicit ReaderVerbAsyncOpKernel(OpKernelConstruction* context)
+      : AsyncOpKernel(context),
+        thread_pool_(new thread::ThreadPool(
+            context->env(), strings::StrCat("reader_thread_",
+                                            SanitizeThreadSuffix(def().name())),
+            1 /* num_threads */)) {}
+
+  void ComputeAsync(OpKernelContext* context, DoneCallback done) override {
+    ReaderInterface* reader;
+    OP_REQUIRES_OK(context,
+                   GetResourceFromContext(context, "reader_handle", &reader));
+    thread_pool_->Schedule([this, context, reader, done]() {
+      ComputeWithReader(context, reader);
+      reader->Unref();
+      done();
+    });
+  }
+
+ protected:
+  virtual void ComputeWithReader(OpKernelContext* context,
+                                 ReaderInterface* reader) = 0;
+
+ private:
+  std::unique_ptr<thread::ThreadPool> thread_pool_;
+};
+
+class ReaderReadOp : public ReaderVerbAsyncOpKernel {
+ public:
+  using ReaderVerbAsyncOpKernel::ReaderVerbAsyncOpKernel;
+>>>>>>> tensorflow/master
 
   void ComputeWithReader(OpKernelContext* context,
                          ReaderInterface* reader) override {
@@ -49,9 +114,15 @@ class ReaderReadOp : public ReaderVerbOpKernel {
 
 REGISTER_KERNEL_BUILDER(Name("ReaderRead").Device(DEVICE_CPU), ReaderReadOp);
 
+<<<<<<< HEAD
 class ReaderNumRecordsProducedOp : public ReaderVerbOpKernel {
  public:
   using ReaderVerbOpKernel::ReaderVerbOpKernel;
+=======
+class ReaderNumRecordsProducedOp : public ReaderVerbSyncOpKernel {
+ public:
+  using ReaderVerbSyncOpKernel::ReaderVerbSyncOpKernel;
+>>>>>>> tensorflow/master
 
   void ComputeWithReader(OpKernelContext* context,
                          ReaderInterface* reader) override {
@@ -65,9 +136,15 @@ class ReaderNumRecordsProducedOp : public ReaderVerbOpKernel {
 REGISTER_KERNEL_BUILDER(Name("ReaderNumRecordsProduced").Device(DEVICE_CPU),
                         ReaderNumRecordsProducedOp);
 
+<<<<<<< HEAD
 class ReaderNumWorkUnitsCompletedOp : public ReaderVerbOpKernel {
  public:
   using ReaderVerbOpKernel::ReaderVerbOpKernel;
+=======
+class ReaderNumWorkUnitsCompletedOp : public ReaderVerbSyncOpKernel {
+ public:
+  using ReaderVerbSyncOpKernel::ReaderVerbSyncOpKernel;
+>>>>>>> tensorflow/master
 
   void ComputeWithReader(OpKernelContext* context,
                          ReaderInterface* reader) override {
@@ -81,9 +158,15 @@ class ReaderNumWorkUnitsCompletedOp : public ReaderVerbOpKernel {
 REGISTER_KERNEL_BUILDER(Name("ReaderNumWorkUnitsCompleted").Device(DEVICE_CPU),
                         ReaderNumWorkUnitsCompletedOp);
 
+<<<<<<< HEAD
 class ReaderSerializeStateOp : public ReaderVerbOpKernel {
  public:
   using ReaderVerbOpKernel::ReaderVerbOpKernel;
+=======
+class ReaderSerializeStateOp : public ReaderVerbSyncOpKernel {
+ public:
+  using ReaderVerbSyncOpKernel::ReaderVerbSyncOpKernel;
+>>>>>>> tensorflow/master
 
   void ComputeWithReader(OpKernelContext* context,
                          ReaderInterface* reader) override {
@@ -98,9 +181,15 @@ class ReaderSerializeStateOp : public ReaderVerbOpKernel {
 REGISTER_KERNEL_BUILDER(Name("ReaderSerializeState").Device(DEVICE_CPU),
                         ReaderSerializeStateOp);
 
+<<<<<<< HEAD
 class ReaderRestoreStateOp : public ReaderVerbOpKernel {
  public:
   using ReaderVerbOpKernel::ReaderVerbOpKernel;
+=======
+class ReaderRestoreStateOp : public ReaderVerbSyncOpKernel {
+ public:
+  using ReaderVerbSyncOpKernel::ReaderVerbSyncOpKernel;
+>>>>>>> tensorflow/master
 
   void ComputeWithReader(OpKernelContext* context,
                          ReaderInterface* reader) override {
@@ -117,9 +206,15 @@ class ReaderRestoreStateOp : public ReaderVerbOpKernel {
 REGISTER_KERNEL_BUILDER(Name("ReaderRestoreState").Device(DEVICE_CPU),
                         ReaderRestoreStateOp);
 
+<<<<<<< HEAD
 class ReaderResetOp : public ReaderVerbOpKernel {
  public:
   using ReaderVerbOpKernel::ReaderVerbOpKernel;
+=======
+class ReaderResetOp : public ReaderVerbSyncOpKernel {
+ public:
+  using ReaderVerbSyncOpKernel::ReaderVerbSyncOpKernel;
+>>>>>>> tensorflow/master
 
   void ComputeWithReader(OpKernelContext* context,
                          ReaderInterface* reader) override {

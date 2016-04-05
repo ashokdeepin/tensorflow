@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+>>>>>>> tensorflow/master
 
 <!--
 An element which provides a filter parsing for pbtxt to graph output.
@@ -21,7 +25,10 @@ Polymer({
     progress: {
       type: Object,
       notify: true,
+<<<<<<< HEAD
       readOnly: true // Produces, does not consume.
+=======
+>>>>>>> tensorflow/master
     },
     datasets: Array,
     hasStats: {
@@ -48,11 +55,21 @@ Polymer({
       type: String,
       readOnly: true,
       notify: true
+<<<<<<< HEAD
     }
+=======
+    },
+    outHierarchyParams: {
+      type: Object,
+      readOnly: true,
+      notify: true
+    },
+>>>>>>> tensorflow/master
   },
   observers: [
     '_selectedDatasetChanged(selectedDataset, datasets)'
   ],
+<<<<<<< HEAD
   _parseAndConstructHierarchicalGraph: function(dataset, pbTxtContent) {
     var self = this;
     // Reset the progress bar to 0.
@@ -84,6 +101,30 @@ Polymer({
     var statsJson;
     var dataTracker = tf.getSubtaskTracker(tracker, 30, 'Data');
     tf.graph.parser.readAndParseData(dataset, pbTxtContent, dataTracker)
+=======
+  _parseAndConstructHierarchicalGraph: function(dataset, pbTxtFile) {
+    // Reset the progress bar to 0.
+    this.set('progress', {
+      value: 0,
+      msg: ''
+    });
+    var tracker = tf.getTracker(this);
+    var hierarchyParams = {
+      verifyTemplate: true,
+      // If a set of numbered op nodes has at least this number of nodes
+      // then group them into a series node.
+      seriesNodeMinSize: 5,
+      // A map of series node names to series grouping settings, to indicate
+      // if a series is to be rendered as grouped or ungrouped.
+      // Starts out empty which allows the renderer to decide which series
+      // are initially rendered grouped and which aren't.
+      seriesMap: {},
+    };
+    this._setOutHierarchyParams(hierarchyParams);
+    var statsJson;
+    var dataTracker = tf.getSubtaskTracker(tracker, 30, 'Data');
+    tf.graph.parser.readAndParseData(dataset, pbTxtFile, dataTracker)
+>>>>>>> tensorflow/master
     .then(function(result) {
       // Build the flat graph (consists only of Op nodes).
       var nodes = result.nodes;
@@ -124,10 +165,13 @@ Polymer({
           tf.graph.joinStatsInfoWithGraph(graph, statsJson);
         });
       }
+<<<<<<< HEAD
       var hierarchyParams = {
         verifyTemplate: true,
         groupSeries: true,
       };
+=======
+>>>>>>> tensorflow/master
       var hierarchyTracker = tf.getSubtaskTracker(tracker, 50,
           'Namespace hierarchy');
       return tf.graph.hierarchy.build(graph, hierarchyParams, hierarchyTracker);
@@ -138,8 +182,15 @@ Polymer({
       this._setHasStats(statsJson != null);
       this._setOutGraphHierarchy(graphHierarchy);
     }.bind(this))
+<<<<<<< HEAD
     .catch(function(reason) {
       tracker.reportError("Graph visualization failed: " + reason);
+=======
+    .catch(function(e) {
+      // Generic error catch, for errors that happened outside
+      // asynchronous tasks.
+      tracker.reportError("Graph visualization failed: " + e, e);
+>>>>>>> tensorflow/master
     });
   },
   _selectedDatasetChanged: function(datasetIndex, datasets) {
@@ -160,6 +211,7 @@ Polymer({
     // selects the same file, we'll re-read it.
     e.target.value = '';
 
+<<<<<<< HEAD
     var reader = new FileReader();
 
     reader.onload = function(e) {
@@ -167,6 +219,9 @@ Polymer({
     }.bind(this);
 
     reader.readAsText(file);
+=======
+    this._parseAndConstructHierarchicalGraph(null, file);
+>>>>>>> tensorflow/master
   }
 });
 </script>

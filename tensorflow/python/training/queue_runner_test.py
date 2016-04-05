@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for QueueRunner."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,8 +23,11 @@ from __future__ import print_function
 
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import tensorflow as tf
 
 
@@ -185,6 +206,17 @@ class QueueRunnerTest(tf.test.TestCase):
       self.assertEqual(1, len(exceptions))
       self.assertTrue("Operation not in the graph" in str(exceptions[0]))
 
+<<<<<<< HEAD
+=======
+  def testName(self):
+    with tf.name_scope("scope"):
+      queue = tf.FIFOQueue(10, tf.float32, name="queue")
+    qr = tf.train.QueueRunner(queue, [tf.no_op()])
+    self.assertEqual("scope/queue", qr.name)
+    tf.train.add_queue_runner(qr)
+    self.assertEqual(1, len(tf.get_collection(tf.GraphKeys.QUEUE_RUNNERS,
+                                              "scope")))
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

@@ -1,11 +1,37 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/parse_ops.cc.
 
 #include <algorithm>
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/platform/host_info.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -19,9 +45,15 @@ class DecodeRawOp : public OpKernel {
 
   void Compute(OpKernelContext* context) override {
     const auto& input = context->input(0);
+<<<<<<< HEAD
     int str_size = -1;
     auto flat_in = input.flat<string>();
     for (int i = 0; i < flat_in.size(); ++i) {
+=======
+    int64 str_size = -1;
+    auto flat_in = input.flat<string>();
+    for (int64 i = 0; i < flat_in.size(); ++i) {
+>>>>>>> tensorflow/master
       const string& in_str = flat_in(i);
       if (str_size == -1) {
         str_size = in_str.size();
@@ -46,7 +78,11 @@ class DecodeRawOp : public OpKernel {
         errors::InvalidArgument("Input to DecodeRaw has length ", str_size,
                                 " that is not a multiple of ", sizeof(T),
                                 ", the size of ", DataTypeString(out_type_)));
+<<<<<<< HEAD
     const int added_dim = str_size / sizeof(T);
+=======
+    const int64 added_dim = str_size / sizeof(T);
+>>>>>>> tensorflow/master
     out_shape.AddDim(added_dim);
     Tensor* output_tensor = nullptr;
     OP_REQUIRES_OK(
@@ -60,7 +96,11 @@ class DecodeRawOp : public OpKernel {
                               little_endian_ ? "true" : "false"));
     // Endianness matches, so just copy each string byte-for-byte.
     T* out_data = out.data();
+<<<<<<< HEAD
     for (int i = 0; i < flat_in.size(); ++i) {
+=======
+    for (int64 i = 0; i < flat_in.size(); ++i) {
+>>>>>>> tensorflow/master
       const T* in_data = reinterpret_cast<const T*>(flat_in(i).data());
       memcpy(out_data, in_data, str_size);
       out_data += added_dim;

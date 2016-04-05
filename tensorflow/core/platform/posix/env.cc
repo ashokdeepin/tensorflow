@@ -1,7 +1,29 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include <dirent.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <stdio.h>
+<<<<<<< HEAD
+=======
+#include <sys/mman.h>
+>>>>>>> tensorflow/master
 #include <sys/stat.h>
 #include <sys/time.h>
 #include <sys/types.h>
@@ -9,9 +31,17 @@
 #include <unistd.h>
 
 #include <thread>
+<<<<<<< HEAD
 
 #include "tensorflow/core/public/env.h"
 #include "tensorflow/core/lib/core/error_codes.pb.h"
+=======
+#include <vector>
+
+#include "tensorflow/core/lib/core/error_codes.pb.h"
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/load_library.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/platform/logging.h"
 
 namespace tensorflow {
@@ -113,7 +143,11 @@ error::Code ErrnoToCode(int err_number) {
     case ENOLCK:        // No locks available
     case ENOLINK:       // Link has been severed
 #if !defined(__APPLE__)
+<<<<<<< HEAD
     case ENONET:        // Machine is not on the network
+=======
+    case ENONET:  // Machine is not on the network
+>>>>>>> tensorflow/master
 #endif
       code = error::UNAVAILABLE;
       break;
@@ -239,6 +273,22 @@ class PosixWritableFile : public WritableFile {
   }
 };
 
+<<<<<<< HEAD
+=======
+class PosixReadOnlyMemoryRegion : public ReadOnlyMemoryRegion {
+ public:
+  PosixReadOnlyMemoryRegion(const void* address, uint64 length)
+      : address_(address), length_(length) {}
+  ~PosixReadOnlyMemoryRegion() { munmap(const_cast<void*>(address_), length_); }
+  const void* data() override { return address_; }
+  uint64 length() override { return length_; }
+
+ private:
+  const void* const address_;
+  const uint64 length_;
+};
+
+>>>>>>> tensorflow/master
 class StdThread : public Thread {
  public:
   // name and thread_options are both ignored.
@@ -295,6 +345,31 @@ class PosixEnv : public Env {
     return s;
   }
 
+<<<<<<< HEAD
+=======
+  Status NewReadOnlyMemoryRegionFromFile(
+      const string& fname, ReadOnlyMemoryRegion** result) override {
+    *result = nullptr;
+    Status s = Status::OK();
+    int fd = open(fname.c_str(), O_RDONLY);
+    if (fd < 0) {
+      s = IOError(fname, errno);
+    } else {
+      struct stat st;
+      ::fstat(fd, &st);
+      const void* address =
+          mmap(nullptr, st.st_size, PROT_READ, MAP_PRIVATE, fd, 0);
+      if (address == MAP_FAILED) {
+        s = IOError(fname, errno);
+      } else {
+        *result = new PosixReadOnlyMemoryRegion(address, st.st_size);
+      }
+      close(fd);
+    }
+    return s;
+  }
+
+>>>>>>> tensorflow/master
   bool FileExists(const string& fname) override {
     return access(fname.c_str(), F_OK) == 0;
   }
@@ -372,9 +447,44 @@ class PosixEnv : public Env {
                       std::function<void()> fn) override {
     return new StdThread(thread_options, name, fn);
   }
+<<<<<<< HEAD
 };
 
 }  // namespace
+=======
+
+  void SchedClosure(std::function<void()> closure) override {
+    // TODO(b/27290852): Spawning a new thread here is wasteful, but
+    // needed to deal with the fact that many `closure` functions are
+    // blocking in the current codebase.
+    std::thread closure_thread(closure);
+    closure_thread.detach();
+  }
+
+  void SchedClosureAfter(int micros, std::function<void()> closure) override {
+    // TODO(b/27290852): Consuming a thread here is wasteful, but this
+    // code is (currently) only used in the case where a step fails
+    // (AbortStep). This could be replaced by a timer thread
+    SchedClosure([this, micros, closure]() {
+      SleepForMicroseconds(micros);
+      closure();
+    });
+  }
+
+  Status LoadLibrary(const char* library_filename, void** handle) override {
+    return tensorflow::internal::LoadLibrary(library_filename, handle);
+  }
+
+  Status GetSymbolFromLibrary(void* handle, const char* symbol_name,
+                              void** symbol) override {
+    return tensorflow::internal::GetSymbolFromLibrary(handle, symbol_name,
+                                                      symbol);
+  }
+};
+
+}  // namespace
+
+>>>>>>> tensorflow/master
 #if defined(PLATFORM_POSIX) || defined(__ANDROID__)
 Env* Env::Default() {
   static Env* default_env = new PosixEnv;

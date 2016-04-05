@@ -1,15 +1,40 @@
+<<<<<<< HEAD
 """Tests for tensorflow.ops.attention_ops."""
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+"""Tests for image.extract_glimpse()."""
+>>>>>>> tensorflow/master
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import tensorflow as tf
 
 from tensorflow.python.ops import attention_ops
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 class ExtractGlimpseTest(tf.test.TestCase):
 
@@ -67,9 +92,15 @@ class ExtractGlimpseTest(tf.test.TestCase):
     t1 = tf.constant([glimpse_sizes[1], glimpse_sizes[0]], shape=[2])
     t2 = tf.constant([offsets[1], offsets[0]], shape=[1, 2])
     glimpse_rows = (tf.transpose(
+<<<<<<< HEAD
         attention_ops.extract_glimpse(t_rows_4d, t1, t2), [0, 2, 1, 3]))
     glimpse_cols = (tf.transpose(
         attention_ops.extract_glimpse(t_cols_4d, t1, t2), [0, 2, 1, 3]))
+=======
+        tf.image.extract_glimpse(t_rows_4d, t1, t2), [0, 2, 1, 3]))
+    glimpse_cols = (tf.transpose(
+        tf.image.extract_glimpse(t_cols_4d, t1, t2), [0, 2, 1, 3]))
+>>>>>>> tensorflow/master
 
     # Evaluate the Tensorflow Graph.
     with self.test_session() as sess:
@@ -102,6 +133,17 @@ class ExtractGlimpseTest(tf.test.TestCase):
                        expected_rows=[20, 21, 22],
                        expected_cols=[29, 30, 31, 32, 33])
 
+<<<<<<< HEAD
+=======
+  def testEmptyTensor(self):
+    empty_image = np.zeros((0, 4, 3, 0))
+    offsets = np.zeros((0, 2))
+    with self.test_session():
+      result = tf.image.extract_glimpse(empty_image, [1, 1], offsets)
+      self.assertAllEqual(np.zeros((0, 1, 1, 0), dtype=np.float32),
+                          result.eval())
+
+>>>>>>> tensorflow/master
   def testLargeCenterGlimpse(self):
     self._VerifyValues(tensor_in_sizes=[41, 61],
                        glimpse_sizes=[41, 61],

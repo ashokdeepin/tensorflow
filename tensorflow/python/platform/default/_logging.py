@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Logging utilities."""
 # pylint: disable=unused-import
 # pylint: disable=g-bad-import-order
@@ -10,13 +28,22 @@ import logging
 import os
 import sys
 import time
+<<<<<<< HEAD
 import thread
+=======
+>>>>>>> tensorflow/master
 from logging import DEBUG
 from logging import ERROR
 from logging import FATAL
 from logging import INFO
 from logging import WARN
 
+<<<<<<< HEAD
+=======
+import six
+
+
+>>>>>>> tensorflow/master
 # Controls which methods from pyglib.logging are available within the project
 # Do not add methods here without also adding to platform/google/_logging.py
 __all__ = ['log', 'debug', 'error', 'fatal', 'info', 'warn', 'warning',
@@ -184,7 +211,11 @@ def set_verbosity(verbosity):
 
 def _get_thread_id():
   """Get id of current thread, suitable for logging as an unsigned quantity."""
+<<<<<<< HEAD
   thread_id = thread.get_ident()
+=======
+  thread_id = six.moves._thread.get_ident()
+>>>>>>> tensorflow/master
   return thread_id & _THREAD_ID_MASK
 
 

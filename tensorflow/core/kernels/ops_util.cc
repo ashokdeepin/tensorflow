@@ -1,11 +1,34 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include <cmath>
 
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/lib/core/errors.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/lib/strings/str_util.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/padding.h"
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 void RequireDefaultOps() {
 // TODO(opensource): Use a more generic sounding preprocessor name than
 // GOOGLE_CUDA (maybe SUPPORT_CUDA?)
@@ -15,6 +38,8 @@ void RequireDefaultOps() {
 #endif
 }
 
+=======
+>>>>>>> tensorflow/master
 Status Get2dOutputSize(const int in_height, const int in_width,
                        int filter_height, int filter_width, int row_stride,
                        int col_stride, Padding padding, int* new_height,
@@ -81,9 +106,15 @@ Eigen::PaddingType BrainPadding2EigenPadding(Padding padding) {
   return Eigen::PADDING_SAME;  // Prevent compiler warning about missing return
 }
 
+<<<<<<< HEAD
 Status GetBroadcastSize(const int index, const int in_size,
                              const int ksize, const int stride,
                              const int pad_size, int* bindex, int* bsize) {
+=======
+Status GetBroadcastSize(const int index, const int in_size, const int ksize,
+                        const int stride, const int pad_size, int* bindex,
+                        int* bsize) {
+>>>>>>> tensorflow/master
   // Cannot have strides larger than the patch size.
   if (stride > ksize) {
     return errors::InvalidArgument(
@@ -110,4 +141,22 @@ Status GetBroadcastSize(const int index, const int in_size,
   }
   return Status::OK();
 }
+<<<<<<< HEAD
+=======
+
+string SanitizeThreadSuffix(string suffix) {
+  string clean;
+  for (int i = 0; i < suffix.size(); ++i) {
+    const char ch = suffix[i];
+    if ((ch >= 'a' && ch <= 'z') || (ch >= 'A' && ch <= 'Z') ||
+        (ch >= '0' && ch <= '9') || ch == '_' || ch == '-') {
+      clean += ch;
+    } else {
+      clean += '_';
+    }
+  }
+  return clean;
+}
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

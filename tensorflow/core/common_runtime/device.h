@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // A Device is a something that can perform computations as part of a
 // model.  Devices can be local (runs computation on this machine), or
 // remote (contacts a device local to another machine using an RPC to
@@ -16,7 +34,10 @@
 
 #include <memory>
 #include <string>
+<<<<<<< HEAD
 #include <vector>
+=======
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/control_flow.h"
@@ -29,8 +50,14 @@
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/graph/types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/device_name_utils.h"
 
 namespace tensorflow {
@@ -72,11 +99,42 @@ class Device : public DeviceBase {
     op_kernel->ComputeAsync(context, done);
   }
 
+<<<<<<< HEAD
+=======
+  // Takes ownership of the references in tensors. If necessary, a
+  // device may override this method to keep a reference to the
+  // accessed tensors until the async computation has completed.
+  virtual void ConsumeListOfAccessedTensors(
+      DeviceContext* context, const TensorReferenceVector& tensors) {
+    for (const auto& ref : tensors) {
+      ref.Unref();
+    }
+  }
+
+>>>>>>> tensorflow/master
   // Blocks until all operations queued on the device at the time of
   // the call have completed.  Returns any error pending on the device
   // at completion.
   virtual Status Sync() = 0;
 
+<<<<<<< HEAD
+=======
+  // Optionally modify the device's GraphDef before execution.
+  //
+  // This method should be considered experimental and is supplied to enable
+  // prototyping of TensorFlow device implementations that need to modify
+  // the GraphDef before execution.
+  //
+  // 'library' provides access to the function library which is shared
+  // between all device partitions.
+  // 'graphdef' supplies the partition of the graph assigned to this
+  // device.
+  virtual Status MaybeRewriteGraph(const FunctionDefLibrary& /*library*/,
+                                   GraphDef* /*graphdef*/) {
+    return Status::OK();
+  }
+
+>>>>>>> tensorflow/master
   // Fill in the context map for the graph. Default behavior is to do
   // nothing.
   //

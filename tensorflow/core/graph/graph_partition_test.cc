@@ -1,8 +1,29 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/graph/graph_partition.h"
 
 #include <unordered_map>
 
+<<<<<<< HEAD
 #include <gtest/gtest.h>
+=======
+>>>>>>> tensorflow/master
 #include "tensorflow/cc/ops/array_ops.h"
 #include "tensorflow/cc/ops/const_op.h"
 #include "tensorflow/cc/ops/control_flow_ops.h"
@@ -17,6 +38,11 @@
 #include "tensorflow/core/lib/core/status_test_util.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/protobuf.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -57,12 +83,28 @@ void Partition(const GraphDef& graph_def,
   popts.control_flow_added = false;
   Status s = Partition(popts, &g, partitions);
   CHECK(s.ok()) << s;
+<<<<<<< HEAD
+=======
+
+  // Check versions
+  EXPECT_EQ(graph_def.versions().producer(), TF_GRAPH_DEF_VERSION);
+  EXPECT_EQ(graph_def.versions().min_consumer(),
+            TF_GRAPH_DEF_VERSION_MIN_CONSUMER);
+  for (auto& it : *partitions) {
+    EXPECT_EQ(graph_def.versions().producer(), it.second.versions().producer());
+    EXPECT_EQ(graph_def.versions().min_consumer(),
+              it.second.versions().min_consumer());
+  }
+>>>>>>> tensorflow/master
 }
 
 void CheckLoopConstruction(const GraphDef& graph_def) {
   std::unordered_map<string, GraphDef> partitions;
   Partition(graph_def, &partitions);
+<<<<<<< HEAD
   GraphConstructorOptions opts;
+=======
+>>>>>>> tensorflow/master
   for (const auto& kv : partitions) {
     const GraphDef& gdef = kv.second;
     bool has_control_enter = false;
@@ -106,7 +148,11 @@ void CheckLoopConstruction(const GraphDef& graph_def) {
 
 REGISTER_OP("Input").Output("o: float");
 REGISTER_OP("BoolInput").Output("o: bool");
+<<<<<<< HEAD
 REGISTER_OP("Cross").Input("a: float").Input("b: float").Output("o: float");
+=======
+REGISTER_OP("Combine").Input("a: float").Input("b: float").Output("o: float");
+>>>>>>> tensorflow/master
 
 Node* Input(const GraphDefBuilder::Options& opts) {
   return ops::SourceOp("Input", opts);
@@ -116,9 +162,15 @@ Node* BoolInput(const GraphDefBuilder::Options& opts) {
   return ops::SourceOp("BoolInput", opts);
 }
 
+<<<<<<< HEAD
 Node* Cross(ops::NodeOut a, ops::NodeOut b,
             const GraphDefBuilder::Options& opts) {
   return ops::BinaryOp("Cross", a, b, opts);
+=======
+Node* Combine(ops::NodeOut a, ops::NodeOut b,
+              const GraphDefBuilder::Options& opts) {
+  return ops::BinaryOp("Combine", a, b, opts);
+>>>>>>> tensorflow/master
 }
 
 class GraphPartitionTest : public ::testing::Test {
@@ -129,7 +181,10 @@ class GraphPartitionTest : public ::testing::Test {
         builder_b_(GraphDefBuilder::kFailImmediately),
         a_opts_(builder_a_.opts().WithDevice("/job:a/replica:0/task:0/cpu:0")),
         b_opts_(builder_b_.opts().WithDevice("/job:a/replica:0/task:0/cpu:1")) {
+<<<<<<< HEAD
     RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   }
 
   const GraphDef& ToGraphDef() {
@@ -163,13 +218,21 @@ class GraphPartitionTest : public ::testing::Test {
 TEST_F(GraphPartitionTest, SingleDevice) {
   using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
   Node* a1 = Input(in_.opts().WithName("A1"));
+<<<<<<< HEAD
   Cross(a1, a1, in_.opts().WithName("A2"));
+=======
+  Combine(a1, a1, in_.opts().WithName("A2"));
+>>>>>>> tensorflow/master
 
   Partition(ToGraphDef(), &partitions_);
   EXPECT_EQ(1, partitions_.size());
 
   a1 = Input(a_opts_.WithName("A1"));
+<<<<<<< HEAD
   Cross(a1, a1, a_opts_.WithName("A2"));
+=======
+  Combine(a1, a1, a_opts_.WithName("A2"));
+>>>>>>> tensorflow/master
   ExpectMatchA();
 }
 
@@ -177,7 +240,11 @@ TEST_F(GraphPartitionTest, CrossDeviceData) {
   using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
   Node* a1 = Input(in_.opts().WithName("A1"));
   Node* b1 = Input(in_.opts().WithName("B1"));
+<<<<<<< HEAD
   Cross(a1, b1, in_.opts().WithName("B2"));
+=======
+  Combine(a1, b1, in_.opts().WithName("B2"));
+>>>>>>> tensorflow/master
 
   Partition(ToGraphDef(), &partitions_);
   EXPECT_EQ(2, partitions_.size());
@@ -191,7 +258,11 @@ TEST_F(GraphPartitionTest, CrossDeviceData) {
   b1 = Input(b_opts_.WithName("B1"));
   Node* recv =
       _Recv(DT_FLOAT, "edge_1_A1", a, 82, b, b_opts_.WithName("A1/_1"));
+<<<<<<< HEAD
   Cross(recv, b1, b_opts_.WithName("B2"));
+=======
+  Combine(recv, b1, b_opts_.WithName("B2"));
+>>>>>>> tensorflow/master
   ExpectMatchB();
 }
 
@@ -199,7 +270,11 @@ TEST_F(GraphPartitionTest, CrossDeviceControl) {
   using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
   Node* a1 = Input(in_.opts().WithName("A1"));
   Node* b1 = Input(in_.opts().WithName("B1"));
+<<<<<<< HEAD
   Cross(b1, b1, in_.opts().WithName("B2").WithControlInput(a1));
+=======
+  Combine(b1, b1, in_.opts().WithName("B2").WithControlInput(a1));
+>>>>>>> tensorflow/master
 
   Partition(ToGraphDef(), &partitions_);
   EXPECT_EQ(2, partitions_.size());
@@ -215,7 +290,11 @@ TEST_F(GraphPartitionTest, CrossDeviceControl) {
       _Recv(DT_FLOAT, "edge_3_A1", a, 82, b, b_opts_.WithName("A1/_2"));
   Node* id = Identity(recv, b_opts_.WithName("A1/_3"));
   b1 = Input(b_opts_.WithName("B1"));
+<<<<<<< HEAD
   Cross(b1, b1, b_opts_.WithName("B2").WithControlInput(id));
+=======
+  Combine(b1, b1, b_opts_.WithName("B2").WithControlInput(id));
+>>>>>>> tensorflow/master
   ExpectMatchB();
 }
 
@@ -223,8 +302,13 @@ TEST_F(GraphPartitionTest, CrossDeviceData_MultiUse) {
   using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
   Node* a1 = Input(in_.opts().WithName("A1"));
   Node* b1 = Input(in_.opts().WithName("B1"));
+<<<<<<< HEAD
   Cross(a1, b1, in_.opts().WithName("B2"));
   Cross(a1, a1, in_.opts().WithName("B3"));
+=======
+  Combine(a1, b1, in_.opts().WithName("B2"));
+  Combine(a1, a1, in_.opts().WithName("B3"));
+>>>>>>> tensorflow/master
 
   Partition(ToGraphDef(), &partitions_);
   EXPECT_EQ(2, partitions_.size());
@@ -238,8 +322,13 @@ TEST_F(GraphPartitionTest, CrossDeviceData_MultiUse) {
   Node* recv =
       _Recv(DT_FLOAT, "edge_1_A1", a, 82, b, b_opts_.WithName("A1/_1"));
   b1 = Input(b_opts_.WithName("B1"));
+<<<<<<< HEAD
   Cross(recv, b1, b_opts_.WithName("B2"));
   Cross(recv, recv, b_opts_.WithName("B3"));
+=======
+  Combine(recv, b1, b_opts_.WithName("B2"));
+  Combine(recv, recv, b_opts_.WithName("B3"));
+>>>>>>> tensorflow/master
   ExpectMatchB();
 }
 
@@ -247,7 +336,11 @@ TEST_F(GraphPartitionTest, CrossDeviceControl_MultiUse) {
   using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
   Node* a1 = Input(in_.opts().WithName("A1"));
   Node* b1 = Input(in_.opts().WithName("B1"));
+<<<<<<< HEAD
   Cross(b1, b1, in_.opts().WithName("B2").WithControlInput(a1));
+=======
+  Combine(b1, b1, in_.opts().WithName("B2").WithControlInput(a1));
+>>>>>>> tensorflow/master
   Input(in_.opts().WithName("B3").WithControlInput(a1));
 
   Partition(ToGraphDef(), &partitions_);
@@ -264,7 +357,11 @@ TEST_F(GraphPartitionTest, CrossDeviceControl_MultiUse) {
       _Recv(DT_FLOAT, "edge_1_A1", a, 82, b, b_opts_.WithName("A1/_2"));
   Node* id = Identity(recv, b_opts_.WithName("A1/_3"));
   b1 = Input(b_opts_.WithName("B1"));
+<<<<<<< HEAD
   Cross(b1, b1, b_opts_.WithName("B2").WithControlInput(id));
+=======
+  Combine(b1, b1, b_opts_.WithName("B2").WithControlInput(id));
+>>>>>>> tensorflow/master
   Input(b_opts_.WithName("B3").WithControlInput(id));
   ExpectMatchB();
 }
@@ -273,7 +370,11 @@ TEST_F(GraphPartitionTest, CrossDevice_DataControl) {
   using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
   Node* a1 = Input(in_.opts().WithName("A1"));
   Node* b1 = Input(in_.opts().WithName("B1"));
+<<<<<<< HEAD
   Cross(a1, b1, in_.opts().WithName("B2"));
+=======
+  Combine(a1, b1, in_.opts().WithName("B2"));
+>>>>>>> tensorflow/master
   Input(in_.opts().WithName("B3").WithControlInput(a1));
 
   Partition(ToGraphDef(), &partitions_);
@@ -295,7 +396,11 @@ TEST_F(GraphPartitionTest, CrossDevice_DataControl) {
   Node* recv2 =
       _Recv(DT_FLOAT, "edge_2_A1", a, 82, b, b_opts_.WithName("A1/_5"));
   b1 = Input(b_opts_.WithName("B1"));
+<<<<<<< HEAD
   Cross(recv2, b1, b_opts_.WithName("B2"));
+=======
+  Combine(recv2, b1, b_opts_.WithName("B2"));
+>>>>>>> tensorflow/master
   Input(b_opts_.WithName("B3").WithControlInput(id1));
   ExpectMatchB();
 }
@@ -312,5 +417,31 @@ TEST_F(GraphPartitionTest, CrossDeviceLoop) {
   CheckLoopConstruction(ToGraphDef());
 }
 
+<<<<<<< HEAD
+=======
+TEST_F(GraphPartitionTest, CrossDeviceLoop1) {
+  using namespace ::tensorflow::ops;  // NOLINT(build/namespaces)
+  Node* a1 = BoolInput(in_.opts().WithName("A1"));
+  Node* a2 = Enter(a1, "foo", in_.opts().WithName("B2"));
+  Node* a3 = Merge({a2, {"B5", 0, DT_BOOL}}, in_.opts().WithName("A3"));
+  LoopCond(a3, in_.opts().WithName("A4"));
+  Node* b1 = Identity(a3, in_.opts().WithName("B1"));
+  NextIteration(b1, in_.opts().WithName("B5"));
+
+  std::unordered_map<string, GraphDef> partitions;
+  Partition(ToGraphDef(), &partitions);
+  for (const auto& kv : partitions) {
+    const GraphDef& gdef = kv.second;
+    for (const NodeDef& ndef : gdef.node()) {
+      if (ndef.name() == "A3") {
+        // A3, B2, and B5 are on the same device.
+        EXPECT_EQ(ndef.input(0), "B2");
+        EXPECT_EQ(ndef.input(1), "B5");
+      }
+    }
+  }
+}
+
+>>>>>>> tensorflow/master
 }  // namespace
 }  // namespace tensorflow

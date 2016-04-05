@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/graph/graph_constructor.h"
 
 #include <string>
@@ -6,20 +24,34 @@
 
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/types.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/versions.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/graph/algorithm.h"
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/graph/optimizer_cse.h"
 #include "tensorflow/core/graph/tensor_id.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/regexp.h"
+=======
+#include "tensorflow/core/lib/strings/scanner.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
 namespace {
 inline bool IsMerge(const NodeDef& node_def) {
+<<<<<<< HEAD
   return node_def.op() == "Merge";
+=======
+  return node_def.op() == "Merge" || node_def.op() == "RefMerge";
+>>>>>>> tensorflow/master
 }
 }  // namespace
 
@@ -30,6 +62,14 @@ class GraphConstructor {
   GraphConstructor(const GraphConstructorOptions& opts, const GraphDef* gdef,
                    Graph* g, Status* status)
       : opts_(opts), gdef_(gdef), g_(g), status_(status) {
+<<<<<<< HEAD
+=======
+    *status =
+        CheckVersions(gdef->versions(), TF_GRAPH_DEF_VERSION,
+                      TF_GRAPH_DEF_VERSION_MIN_PRODUCER, "GraphDef", "graph");
+    if (!status->ok()) return;
+    g->set_versions(gdef->versions());
+>>>>>>> tensorflow/master
     BuildNodeIndex();
     InitFromEdges();
     Convert();
@@ -104,6 +144,7 @@ void GraphConstructor::SetError(const string& error) {
   status_->Update(errors::InvalidArgument(error));
 }
 
+<<<<<<< HEAD
 void GraphConstructor::BuildNodeIndex() {
   // Initialized outside the loop for efficiency
   const char* pattern;
@@ -123,6 +164,28 @@ void GraphConstructor::BuildNodeIndex() {
     }
     if (!name_index_.insert(std::make_pair(StringPiece(node_def.name()),
                                            NodeInfo(n)))
+=======
+bool IsValidNodeName(StringPiece s, bool allow_internal_ops) {
+  using ::tensorflow::strings::Scanner;
+  return Scanner(s)
+      .One(allow_internal_ops ? Scanner::LETTER_DIGIT_DOT_UNDERSCORE
+                              : Scanner::LETTER_DIGIT_DOT)
+      .Any(Scanner::LETTER_DIGIT_DASH_DOT_SLASH_UNDERSCORE)
+      .Eos()
+      .GetResult();
+}
+
+void GraphConstructor::BuildNodeIndex() {
+  // Validate the node names and add them to name_index_.
+  for (int n = 0; n < gdef_->node_size(); ++n) {
+    const NodeDef& node_def(gdef_->node(n));
+    if (!IsValidNodeName(node_def.name(), opts_.allow_internal_ops)) {
+      SetNodeError(node_def, "Node name contains invalid characters");
+      return;
+    }
+    if (!name_index_
+             .insert(std::make_pair(StringPiece(node_def.name()), NodeInfo(n)))
+>>>>>>> tensorflow/master
              .second) {
       SetNodeError(node_def, "Node name is not unique");
       return;
@@ -198,7 +261,11 @@ Node* GraphConstructor::MakeNode(const NodeDef& node_def) {
 static int CountNodes(Graph* g) {
   int nodes = 0;
   for (Node* node : g->nodes()) {
+<<<<<<< HEAD
     VLOG(1) << node;  // Dummy use to avoid compiler warning
+=======
+    VLOG(3) << node;  // Dummy use to avoid compiler warning
+>>>>>>> tensorflow/master
     nodes++;
   }
   return nodes;
@@ -317,8 +384,13 @@ void GraphConstructor::Convert() {
 
     if (opts_.optimizer_do_cse) {
       if (!back_edges.empty()) {
+<<<<<<< HEAD
         LOG(WARNING) << "Not doing CSE.  We need to figure out how to handle "
                      << "loops in the CSE phase.";
+=======
+        VLOG(1) << "Not doing CSE. We need to figure out how to handle "
+                << "loops in the CSE phase.";
+>>>>>>> tensorflow/master
       } else {
         VLOG(1) << "Starting CSE: graph of " << CountNodes(g_) << " nodes";
         OptimizeCSE(g_, opts_.cse_consider_function);
@@ -342,14 +414,57 @@ bool GraphConstructor::TypeValidateEdge(const Edge* edge) {
   return true;
 }
 
+<<<<<<< HEAD
 }  // namespace
 
 // ----------------------------------------------------------------------------
+=======
+static void SetDoCSE(const OptimizerOptions& optimizer_opt, bool force,
+                     GraphConstructorOptions* graph_opt) {
+  graph_opt->optimizer_do_cse =
+      force || optimizer_opt.do_common_subexpression_elimination();
+}
+
+static void SetDoConstantFolding(const OptimizerOptions& optimizer_opt,
+                                 bool force,
+                                 GraphConstructorOptions* graph_opt) {
+  graph_opt->optimizer_do_constant_folding =
+      force || optimizer_opt.do_constant_folding();
+}
+
+}  // namespace
+
+// ----------------------------------------------------------------------------
+// GraphConstructorOptions functions
+// ----------------------------------------------------------------------------
+
+GraphConstructorOptions::GraphConstructorOptions() {}
+
+GraphConstructorOptions::GraphConstructorOptions(const OptimizerOptions& opts) {
+  // Set the individually specified options first.
+  SetDoCSE(opts, false, this);
+  SetDoConstantFolding(opts, false, this);
+
+  // Set options that the level signifies
+  if (opts.opt_level() == OptimizerOptions::L0) {
+    // No optimizations performed.
+  } else if (opts.opt_level() == OptimizerOptions::L1) {
+    SetDoCSE(opts, true, this);
+    SetDoConstantFolding(opts, true, this);
+  }
+}
+
+// ----------------------------------------------------------------------------
+>>>>>>> tensorflow/master
 // ConvertGraphDefToGraph
 // ----------------------------------------------------------------------------
 
 Status ConvertGraphDefToGraph(const GraphConstructorOptions& opts,
+<<<<<<< HEAD
                                    const GraphDef& gdef, Graph* g) {
+=======
+                              const GraphDef& gdef, Graph* g) {
+>>>>>>> tensorflow/master
   Status status;
   GraphConstructor constructor(opts, &gdef, g, &status);
   return status;
@@ -363,6 +478,12 @@ void CopyGraph(const Graph& src, Graph* dest) {
     CHECK(n->IsSource() || n->IsSink()) << "*dest must be empty";
   }
 
+<<<<<<< HEAD
+=======
+  // Copy GraphDef versions
+  dest->set_versions(src.versions());
+
+>>>>>>> tensorflow/master
   // Copy the nodes
   std::unordered_map<Node*, Node*>
       node_map;  // "Node in src" -> "Node in *dest"

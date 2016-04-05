@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/events_writer.h"
 
 #include <stddef.h>  // for NULL
 
+<<<<<<< HEAD
 #include "tensorflow/core/lib/io/path.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/lib/strings/stringprintf.h"
@@ -9,6 +28,16 @@
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/env.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/io/path.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/lib/strings/stringprintf.h"
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/host_info.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/event.pb.h"
 
 namespace tensorflow {
@@ -75,7 +104,11 @@ string EventsWriter::FileName() {
   return filename_;
 }
 
+<<<<<<< HEAD
 void EventsWriter::WriteSerializedEvent(const string& event_str) {
+=======
+void EventsWriter::WriteSerializedEvent(StringPiece event_str) {
+>>>>>>> tensorflow/master
   if (recordio_writer_.get() == NULL) {
     if (!Init()) {
       LOG(ERROR) << "Write failed because file could not be opened.";
@@ -99,7 +132,11 @@ bool EventsWriter::Flush() {
   // recordio_writer_->Sync() can return true even if the underlying
   // file has been deleted.  EventWriter.FileDeletionBeforeWriting
   // demonstrates this and will fail if the FileHasDisappeared()
+<<<<<<< HEAD
   // conditon is removed.
+=======
+  // condition is removed.
+>>>>>>> tensorflow/master
   // Also, we deliberately attempt to Sync() before checking for a
   // disappearing file, in case for some file system File::Exists() is
   // false after File::Open() but before File::Sync().

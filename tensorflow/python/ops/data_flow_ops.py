@@ -1,9 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Data Flow Operations."""
 # pylint: disable=g-bad-name
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
+=======
+import collections
+>>>>>>> tensorflow/master
 import re
 
 from tensorflow.python.framework import ops
@@ -14,8 +36,15 @@ from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import common_shapes
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import gen_data_flow_ops
+<<<<<<< HEAD
 # pylint: disable=wildcard-import
 from tensorflow.python.ops.gen_data_flow_ops import *
+=======
+# go/tf-wildcard-import
+# pylint: disable=wildcard-import
+from tensorflow.python.ops.gen_data_flow_ops import *
+# pylint: enable=wildcard-import
+>>>>>>> tensorflow/master
 
 
 def _as_type_list(dtypes):
@@ -29,20 +58,46 @@ def _as_type_list(dtypes):
     return list(dtypes)
 
 
+<<<<<<< HEAD
 def _as_shape_list(shapes, dtypes):
   """Convert shapes to a list of tuples of int (or None)."""
+=======
+def _as_shape_list(shapes, dtypes, unknown_dim_allowed=False,
+                   unknown_rank_allowed=False):
+  """Convert shapes to a list of tuples of int (or None)."""
+  if unknown_dim_allowed:
+    if (not isinstance(shapes, collections.Sequence)
+        or not shapes
+        or any(shape is None or isinstance(shape, int) for shape in shapes)):
+      raise ValueError(
+          "When providing partial shapes, a list of shapes must be provided.")
+>>>>>>> tensorflow/master
   if shapes is None: return None
   if isinstance(shapes, tensor_shape.TensorShape):
     shapes = [shapes]
   if not isinstance(shapes, (tuple, list)):
     raise TypeError(
         "shapes must be a TensorShape or a list or tuple of TensorShapes.")
+<<<<<<< HEAD
   if all(isinstance(shape, int) for shape in shapes):
     # We have a single shape.
     shapes = [shapes]
   shapes = [tensor_shape.as_shape(shape) for shape in shapes]
   if any(not shape.is_fully_defined() for shape in shapes):
     raise ValueError("All shapes must be fully defined.")
+=======
+  if all(shape is None or isinstance(shape, int) for shape in shapes):
+    # We have a single shape.
+    shapes = [shapes]
+  shapes = [tensor_shape.as_shape(shape) for shape in shapes]
+  if not unknown_dim_allowed:
+    if any([not shape.is_fully_defined() for shape in shapes]):
+      raise ValueError("All shapes must be fully defined: %s" % shapes)
+  if not unknown_rank_allowed:
+    if any([shape.dims is None for shape in shapes]):
+      raise ValueError("All shapes must have a defined rank: %s" % shapes)
+
+>>>>>>> tensorflow/master
   return shapes
 
 
@@ -110,12 +165,20 @@ class QueueBase(object):
       A `QueueBase` object.
 
     Raises:
+<<<<<<< HEAD
       TypeError: when `queues` is not a list of `QueueBase` objects,
+=======
+      TypeError: When `queues` is not a list of `QueueBase` objects,
+>>>>>>> tensorflow/master
         or when the data types of `queues` are not all the same.
     """
     if ((not queues) or
         (not isinstance(queues, list)) or
+<<<<<<< HEAD
         (not all([isinstance(x, QueueBase) for x in queues]))):
+=======
+        (not all(isinstance(x, QueueBase) for x in queues))):
+>>>>>>> tensorflow/master
       raise TypeError("A list of queues expected")
 
     dtypes = queues[0].dtypes
@@ -142,6 +205,29 @@ class QueueBase(object):
     """The list of dtypes for each component of a queue element."""
     return self._dtypes
 
+<<<<<<< HEAD
+=======
+  def _check_enqueue_dtypes(self, vals):
+    """Returns `vals` as a list of `Tensor`s, having checked their dtypes.
+
+    Args:
+      vals: A tensor or a list of tensors, corresponding to an
+      enqueue(_many) tuple.
+
+    Returns:
+      A list of `Tensor` objects.
+    """
+    if not isinstance(vals, (list, tuple)):
+      vals = [vals]
+
+    tensors = []
+    for i, (val, dtype) in enumerate(zip(vals, self._dtypes)):
+      tensors.append(ops.convert_to_tensor(val, dtype=dtype,
+                                           name="component_%d" % i))
+
+    return tensors
+
+>>>>>>> tensorflow/master
   def enqueue(self, vals, name=None):
     """Enqueues one element to this queue.
 
@@ -155,6 +241,7 @@ class QueueBase(object):
     Returns:
       The operation that enqueues a new tuple of tensors to the queue.
     """
+<<<<<<< HEAD
     if name is None:
       name = "%s_enqueue" % self._name
     ret = gen_data_flow_ops._queue_enqueue(self._queue_ref, vals, name=name)
@@ -168,6 +255,23 @@ class QueueBase(object):
 
   def enqueue_many(self, vals, name=None):
     """Enqueues zero or elements to this queue.
+=======
+    if not isinstance(vals, (list, tuple)):
+      vals = [vals]
+
+    with ops.op_scope(vals, name, "%s_enqueue" % self._name) as scope:
+      vals = self._check_enqueue_dtypes(vals)
+
+      # NOTE(mrry): Not using a shape function because we need access to
+      # the `QueueBase` object.
+      for val, shape in zip(vals, self._shapes):
+        val.get_shape().assert_is_compatible_with(shape)
+
+      return gen_data_flow_ops._queue_enqueue(self._queue_ref, vals, name=scope)
+
+  def enqueue_many(self, vals, name=None):
+    """Enqueues zero or more elements to this queue.
+>>>>>>> tensorflow/master
 
     This operation slices each component tensor along the 0th dimension to
     make multiple queue elements. All of the tensors in `vals` must have the
@@ -184,6 +288,7 @@ class QueueBase(object):
     Returns:
       The operation that enqueues a batch of tuples of tensors to the queue.
     """
+<<<<<<< HEAD
     if name is None:
       name = "%s_EnqueueMany" % self._name
 
@@ -198,6 +303,24 @@ class QueueBase(object):
       val.get_shape()[1:].assert_is_compatible_with(shape)
 
     return ret
+=======
+    if not isinstance(vals, (list, tuple)):
+      vals = [vals]
+
+    with ops.op_scope(vals, name, "%s_EnqueueMany" % self._name) as scope:
+      vals = self._check_enqueue_dtypes(vals)
+
+      # NOTE(mrry): Not using a shape function because we need access to
+      # the `QueueBase` object.
+      batch_dim = vals[0].get_shape().with_rank_at_least(1)[0]
+      for val, shape in zip(vals, self._shapes):
+        batch_dim = batch_dim.merge_with(
+            val.get_shape().with_rank_at_least(1)[0])
+        val.get_shape()[1:].assert_is_compatible_with(shape)
+
+      return gen_data_flow_ops._queue_enqueue_many(
+          self._queue_ref, vals, name=scope)
+>>>>>>> tensorflow/master
 
   def dequeue(self, name=None):
     """Dequeues one element from this queue.
@@ -250,7 +373,11 @@ class QueueBase(object):
     # NOTE(mrry): Not using a shape function because we need access to
     # the Queue object.
     op = ret[0].op
+<<<<<<< HEAD
     batch_dim = tensor_shape.Dimension(tensor_util.ConstantValue(op.inputs[1]))
+=======
+    batch_dim = tensor_shape.Dimension(tensor_util.constant_value(op.inputs[1]))
+>>>>>>> tensorflow/master
     for output, shape in zip(op.values(), self._shapes):
       output.set_shape(tensor_shape.TensorShape([batch_dim]).concatenate(shape))
 
@@ -404,6 +531,71 @@ class FIFOQueue(QueueBase):
     super(FIFOQueue, self).__init__(dtypes, shapes, queue_ref)
 
 
+<<<<<<< HEAD
+=======
+class PaddingFIFOQueue(QueueBase):
+  """"A FIFOQueue that supports batching variable-sized tensors by padding.
+
+  A `PaddingFIFOQueue` may contain components with dynamic shape, while also
+  supporting `dequeue_many`.  See the constructor for more details.
+
+  See [`tf.QueueBase`](#QueueBase) for a description of the methods on
+  this class.
+
+  @@__init__
+  """
+
+  def __init__(self, capacity, dtypes, shapes, shared_name=None,
+               name="padding_fifo_queue"):
+    """Creates a queue that dequeues elements in a first-in first-out order.
+
+    A `PaddingFIFOQueue` has bounded capacity; supports multiple concurrent
+    producers and consumers; and provides exactly-once delivery.
+
+    A `PaddingFIFOQueue` holds a list of up to `capacity` elements. Each
+    element is a fixed-length tuple of tensors whose dtypes are
+    described by `dtypes`, and whose shapes are described by the `shapes`
+    argument.
+
+    The `shapes` argument must be specified; each component of a queue
+    element must have the respective shape.  Shapes of fixed
+    rank but variable size are allowed by setting any shape dimension to None.
+    In this case, the inputs' shape may vary along the given dimension, and
+    `dequeue_many` will pad the given dimension with zeros up to the maximum
+    shape of all elements in the given batch.
+
+    Args:
+      capacity: An integer. The upper bound on the number of elements
+        that may be stored in this queue.
+      dtypes:  A list of `DType` objects. The length of `dtypes` must equal
+        the number of tensors in each queue element.
+      shapes: A list of `TensorShape` objects, with the same length as
+        `dtypes`.  Any dimension in the `TensorShape` containing value
+        `None` is dynamic and allows values to be enqueued with
+         variable size in that dimension.
+      shared_name: (Optional.) If non-empty, this queue will be shared under
+        the given name across multiple sessions.
+      name: Optional name for the queue operation.
+
+    Raises:
+      ValueError: If shapes is not a list of shapes, or the lengths of dtypes
+        and shapes do not match.
+    """
+    dtypes = _as_type_list(dtypes)
+    shapes = _as_shape_list(shapes, dtypes, unknown_dim_allowed=True)
+    if len(dtypes) != len(shapes):
+      raise ValueError("Shapes must be provided for all components, "
+                       "but received %d dtypes and %d shapes."
+                       % (len(dtypes), len(shapes)))
+
+    queue_ref = gen_data_flow_ops._padding_fifo_queue(
+        component_types=dtypes, shapes=shapes, capacity=capacity,
+        shared_name=shared_name, name=name)
+
+    super(PaddingFIFOQueue, self).__init__(dtypes, shapes, queue_ref)
+
+
+>>>>>>> tensorflow/master
 # TODO(josh11b): class BatchQueue(QueueBase):
 
 
@@ -432,15 +624,28 @@ ops.NoGradient("InitializeTable")
 ops.RegisterShape("QueueSize")(common_shapes.scalar_shape)
 ops.RegisterShape("Queue")(common_shapes.scalar_shape)
 ops.RegisterShape("FIFOQueue")(common_shapes.scalar_shape)
+<<<<<<< HEAD
 ops.RegisterShape("RandomShuffleQueue")(common_shapes.scalar_shape)
 
 
+=======
+ops.RegisterShape("PaddingFIFOQueue")(common_shapes.scalar_shape)
+ops.RegisterShape("RandomShuffleQueue")(common_shapes.scalar_shape)
+
+
+def _ScalarToVoidShape(op):
+  """Shape function for ops that take a scalar and produce no outputs."""
+  op.inputs[0].get_shape().merge_with(tensor_shape.scalar())
+  return []
+
+>>>>>>> tensorflow/master
 # NOTE(mrry): The following ops use higher-level information in the
 # Queue class to provide shape information.
 ops.RegisterShape("QueueDequeue")(common_shapes.unknown_shape)
 ops.RegisterShape("QueueDequeueMany")(common_shapes.unknown_shape)
 ops.RegisterShape("QueueEnqueue")(common_shapes.unknown_shape)
 ops.RegisterShape("QueueEnqueueMany")(common_shapes.unknown_shape)
+<<<<<<< HEAD
 
 
 @ops.RegisterShape("QueueClose")
@@ -449,6 +654,14 @@ def _ScalarToVoidShape(op):
   unused_input_shape = op.inputs[0].get_shape().merge_with(
       tensor_shape.scalar())
   return []
+=======
+ops.RegisterShape("QueueClose")(_ScalarToVoidShape)
+
+ops.RegisterShape("Stack")(common_shapes.scalar_shape)
+ops.RegisterShape("StackPush")(common_shapes.unknown_shape)
+ops.RegisterShape("StackPop")(common_shapes.unknown_shape)
+ops.RegisterShape("StackClose")(_ScalarToVoidShape)
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterShape("DynamicPartition")
@@ -491,8 +704,12 @@ def _DynamicStitchShape(op):
 @ops.RegisterShape("LookupTableFind")
 def _LookupTableFindShape(op):
   """Shape function for data_flow_ops._lookup_table_find."""
+<<<<<<< HEAD
   unused_table_shape = op.inputs[0].get_shape().merge_with(
       tensor_shape.scalar())
+=======
+  op.inputs[0].get_shape().merge_with(tensor_shape.scalar())
+>>>>>>> tensorflow/master
   shape_in = op.inputs[1].get_shape()
   return [shape_in]
 
@@ -500,13 +717,21 @@ def _LookupTableFindShape(op):
 @ops.RegisterShape("LookupTableSize")
 def _LookupTableSizeShape(op):
   """Shape function for data_flow_ops._lookup_table_find."""
+<<<<<<< HEAD
   unused_table_shape = op.inputs[0].get_shape().merge_with(
       tensor_shape.scalar())
+=======
+  op.inputs[0].get_shape().merge_with(tensor_shape.scalar())
+>>>>>>> tensorflow/master
   return [tensor_shape.scalar()]
 
 
 @ops.RegisterShape("HashTable")
+<<<<<<< HEAD
 def _HashTableShape(unused_op):
+=======
+def _HashTableShape(_):
+>>>>>>> tensorflow/master
   """Shape function for data_flow_ops._hash_table."""
   return [tensor_shape.scalar()]
 
@@ -514,8 +739,14 @@ def _HashTableShape(unused_op):
 @ops.RegisterShape("InitializeTable")
 def _InitializeLookupTableShape(op):
   """Shape function for data_flow_ops._initialize_table."""
+<<<<<<< HEAD
   unused_table_shape = op.inputs[0].get_shape().merge_with(
       tensor_shape.scalar())
   keys_shape = op.inputs[1].get_shape().with_rank(1)
   unused_values_shape = op.inputs[2].get_shape().merge_with(keys_shape)
+=======
+  op.inputs[0].get_shape().merge_with(tensor_shape.scalar())
+  keys_shape = op.inputs[1].get_shape().with_rank(1)
+  op.inputs[2].get_shape().merge_with(keys_shape)
+>>>>>>> tensorflow/master
   return []

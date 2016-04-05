@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 // Test that verifies that various changes to an OpDef are
 // backwards-compatible.
 
@@ -7,6 +8,32 @@
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/kernels/ops_testutil.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+// Test that verifies that various changes to an OpDef are
+// backwards-compatible.
+
+#include "tensorflow/core/framework/op.h"
+#include "tensorflow/core/framework/fake_input.h"
+#include "tensorflow/core/framework/node_def_builder.h"
+#include "tensorflow/core/framework/node_def_util.h"
+#include "tensorflow/core/kernels/ops_testutil.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -35,14 +62,22 @@ class OpCompatibilityTest : public OpsTestBase {
   void ExpectSuccess(const OpDef& old_op_def) {
     // Record the original signature before we change *node_def().
     DataTypeVector old_in_types, old_out_types;
+<<<<<<< HEAD
     ASSERT_OK(InOutTypesForNode(*node_def(), old_op_def, &old_in_types,
                                 &old_out_types));
 
     // This should be all that is needed to get compatiblity.
+=======
+    TF_ASSERT_OK(InOutTypesForNode(*node_def(), old_op_def, &old_in_types,
+                                   &old_out_types));
+
+    // This should be all that is needed to get compatibility.
+>>>>>>> tensorflow/master
     const OpDef* new_op_def = RegisteredOpDef();
     AddDefaultsToNodeDef(*new_op_def, node_def());
 
     // Validate that it is indeed compatible.
+<<<<<<< HEAD
     ASSERT_OK(ValidateNodeDef(*node_def(), *new_op_def));
     DataTypeVector new_in_types, new_out_types;
     ASSERT_OK(InOutTypesForNode(*node_def(), *new_op_def, &new_in_types,
@@ -53,10 +88,24 @@ class OpCompatibilityTest : public OpsTestBase {
     // Verify the Op actually runs.  Result() will return the output.
     ASSERT_OK(InitOp());
     ASSERT_OK(RunOpKernel());
+=======
+    TF_ASSERT_OK(ValidateNodeDef(*node_def(), *new_op_def));
+    DataTypeVector new_in_types, new_out_types;
+    TF_ASSERT_OK(InOutTypesForNode(*node_def(), *new_op_def, &new_in_types,
+                                   &new_out_types));
+    ASSERT_EQ(new_in_types, old_in_types);
+    ASSERT_EQ(new_out_types, old_out_types);
+    TF_ASSERT_OK(OpDefCompatible(old_op_def, *new_op_def));
+
+    // Verify the Op actually runs.  Result() will return the output.
+    TF_ASSERT_OK(InitOp());
+    TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
   }
 
   string Result() { return GetOutput(0)->scalar<string>()(); }
 
+<<<<<<< HEAD
   void ExpectInvalid(const OpDef& old_op_def, string error) {
     // Record the original signature before we change *node_def().
     DataTypeVector old_in_types, old_out_types;
@@ -64,6 +113,29 @@ class OpCompatibilityTest : public OpsTestBase {
                                 &old_out_types));
 
     // This should be all that is needed to get compatiblity.
+=======
+  void ExpectIncompatible(const OpDef& old_op_def, const OpDef& new_op_def,
+                          const string& error) {
+    // Test OpDefCompatible gives the same answer without the node_def.
+    Status status = OpDefCompatible(old_op_def, new_op_def);
+    if (status.ok()) {
+      ADD_FAILURE() << SummarizeOpDef(old_op_def) << " vs. "
+                    << SummarizeOpDef(new_op_def);
+    } else {
+      EXPECT_TRUE(StringPiece(status.error_message()).contains(error))
+          << status << " does not contain " << error;
+    }
+  }
+
+  void ExpectInvalid(const OpDef& old_op_def, const string& validation_error,
+                     const string& compatibility_error) {
+    // Record the original signature before we change *node_def().
+    DataTypeVector old_in_types, old_out_types;
+    TF_ASSERT_OK(InOutTypesForNode(*node_def(), old_op_def, &old_in_types,
+                                   &old_out_types));
+
+    // This should be all that is needed to get compatibility.
+>>>>>>> tensorflow/master
     const OpDef* new_op_def = RegisteredOpDef();
     AddDefaultsToNodeDef(*new_op_def, node_def());
 
@@ -72,6 +144,7 @@ class OpCompatibilityTest : public OpsTestBase {
     if (status.ok()) {
       ADD_FAILURE() << SummarizeNodeDef(*node_def());
     } else {
+<<<<<<< HEAD
       EXPECT_TRUE(StringPiece(status.error_message()).contains(error))
           << status << " does not contain " << error;
     }
@@ -84,20 +157,51 @@ class OpCompatibilityTest : public OpsTestBase {
                                 &old_out_types));
 
     // This should be all that is needed to get compatiblity.
+=======
+      EXPECT_TRUE(
+          StringPiece(status.error_message()).contains(validation_error))
+          << status << " does not contain " << validation_error;
+    }
+
+    ExpectIncompatible(old_op_def, *new_op_def, compatibility_error);
+  }
+
+  void ExpectTypeMismatch(const OpDef& old_op_def,
+                          const string& compatibility_error) {
+    // Record the original signature before we change *node_def().
+    DataTypeVector old_in_types, old_out_types;
+    TF_ASSERT_OK(InOutTypesForNode(*node_def(), old_op_def, &old_in_types,
+                                   &old_out_types));
+
+    // This should be all that is needed to get compatibility.
+>>>>>>> tensorflow/master
     const OpDef* new_op_def = RegisteredOpDef();
     AddDefaultsToNodeDef(*new_op_def, node_def());
 
     // Validate that it is valid, but with incompatible types.
+<<<<<<< HEAD
     ASSERT_OK(ValidateNodeDef(*node_def(), *new_op_def));
 
     DataTypeVector new_in_types, new_out_types;
     ASSERT_OK(InOutTypesForNode(*node_def(), *new_op_def, &new_in_types,
                                 &new_out_types));
+=======
+    TF_ASSERT_OK(ValidateNodeDef(*node_def(), *new_op_def));
+
+    DataTypeVector new_in_types, new_out_types;
+    TF_ASSERT_OK(InOutTypesForNode(*node_def(), *new_op_def, &new_in_types,
+                                   &new_out_types));
+>>>>>>> tensorflow/master
     if (new_in_types == old_in_types && new_out_types == old_out_types) {
       ADD_FAILURE() << SummarizeNodeDef(*node_def()) << "\n"
                     << DataTypeVectorString(new_in_types) << " -> "
                     << DataTypeVectorString(new_out_types);
     }
+<<<<<<< HEAD
+=======
+
+    ExpectIncompatible(old_op_def, *new_op_def, compatibility_error);
+>>>>>>> tensorflow/master
   }
 };
 
@@ -115,6 +219,7 @@ REGISTER_OP("Same")
 REGISTER_KERNEL_BUILDER(Name("Same").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, Same) {
+<<<<<<< HEAD
   ASSERT_OK(NodeDefBuilder("same", "Same")
                 .Input(FakeInput())
                 .Input(FakeInput(DT_FLOAT))
@@ -122,6 +227,15 @@ TEST_F(OpCompatibilityTest, Same) {
                 .Input(FakeInput(3, DT_FLOAT))
                 .Input(FakeInput(2, DT_BOOL))
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(NodeDefBuilder("same", "Same")
+                   .Input(FakeInput())
+                   .Input(FakeInput(DT_FLOAT))
+                   .Input(FakeInput(3))
+                   .Input(FakeInput(3, DT_FLOAT))
+                   .Input(FakeInput(2, DT_BOOL))
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(*RegisteredOpDef());
   EXPECT_EQ(
       "same = Same[N=3, T=DT_FLOAT, TList=[DT_BOOL, DT_BOOL]](a, b, c, c:1, "
@@ -135,9 +249,15 @@ REGISTER_KERNEL_BUILDER(Name("AddAttr").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, AddAttr) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(
       OpDefBuilder("AddAttr").Output("ndef: string").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("add_attr", &old_op_def).Finalize(node_def()));
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("AddAttr").Output("ndef: string").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("add_attr", &old_op_def).Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("add_attr = AddAttr[a=42]()", Result());
 }
@@ -148,6 +268,7 @@ REGISTER_KERNEL_BUILDER(Name("LessStrict").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, LessStrict) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("LessStrict")
                 .Output("ndef: string")
                 .Attr("a: {'A', 'B'}")
@@ -155,6 +276,15 @@ TEST_F(OpCompatibilityTest, LessStrict) {
   ASSERT_OK(NodeDefBuilder("less_strict", &old_op_def)
                 .Attr("a", "B")
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("LessStrict")
+                   .Output("ndef: string")
+                   .Attr("a: {'A', 'B'}")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("less_strict", &old_op_def)
+                   .Attr("a", "B")
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("less_strict = LessStrict[a=\"B\"]()", Result());
 }
@@ -166,6 +296,7 @@ REGISTER_KERNEL_BUILDER(Name("RemoveRestriction").Device(DEVICE_CPU),
 
 TEST_F(OpCompatibilityTest, RemoveRestriction) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("RemoveRestriction")
                 .Output("ndef: string")
                 .Attr("a: {int32, bool}")
@@ -173,6 +304,15 @@ TEST_F(OpCompatibilityTest, RemoveRestriction) {
   ASSERT_OK(NodeDefBuilder("remove_restriction", &old_op_def)
                 .Attr("a", DT_INT32)
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("RemoveRestriction")
+                   .Output("ndef: string")
+                   .Attr("a: {int32, bool}")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("remove_restriction", &old_op_def)
+                   .Attr("a", DT_INT32)
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("remove_restriction = RemoveRestriction[a=DT_INT32]()", Result());
 }
@@ -183,6 +323,7 @@ REGISTER_KERNEL_BUILDER(Name("AttrOrder").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, AttrOrder) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AttrOrder")
                 .Output("ndef: string")
                 .Attr("b: bool")
@@ -192,6 +333,17 @@ TEST_F(OpCompatibilityTest, AttrOrder) {
                 .Attr("b", true)
                 .Attr("a", 7)
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("AttrOrder")
+                   .Output("ndef: string")
+                   .Attr("b: bool")
+                   .Attr("a: int")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("attr_order", &old_op_def)
+                   .Attr("b", true)
+                   .Attr("a", 7)
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("attr_order = AttrOrder[a=7, b=true]()", Result());
 }
@@ -202,6 +354,7 @@ REGISTER_KERNEL_BUILDER(Name("AddDefault").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, AddDefault) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddDefault")
                 .Output("ndef: string")
                 .Attr("a: int")
@@ -209,6 +362,15 @@ TEST_F(OpCompatibilityTest, AddDefault) {
   ASSERT_OK(NodeDefBuilder("add_default", &old_op_def)
                 .Attr("a", 765)
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddDefault")
+                   .Output("ndef: string")
+                   .Attr("a: int")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("add_default", &old_op_def)
+                   .Attr("a", 765)
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("add_default = AddDefault[a=765]()", Result());
 }
@@ -220,11 +382,20 @@ REGISTER_KERNEL_BUILDER(Name("RemoveDefault").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, RemoveDefault) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("RemoveDefault")
                 .Output("ndef: string")
                 .Attr("a: int = 91")
                 .Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("remove_default", &old_op_def).Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("RemoveDefault")
+                   .Output("ndef: string")
+                   .Attr("a: int = 91")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(
+      NodeDefBuilder("remove_default", &old_op_def).Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("remove_default = RemoveDefault[a=91]()", Result());
 }
@@ -239,6 +410,7 @@ REGISTER_KERNEL_BUILDER(Name("TypePolymorphic").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, TypePolymorphic) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("TypePolymorphic")
                 .Input("a: int32")
                 .Output("ndef: string")
@@ -246,6 +418,15 @@ TEST_F(OpCompatibilityTest, TypePolymorphic) {
   ASSERT_OK(NodeDefBuilder("type_polymorphic", &old_op_def)
                 .Input(FakeInput())
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("TypePolymorphic")
+                   .Input("a: int32")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("type_polymorphic", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("type_polymorphic = TypePolymorphic[T=DT_INT32](a)", Result());
 }
@@ -260,6 +441,7 @@ REGISTER_KERNEL_BUILDER(Name("MakeList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, MakeList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("MakeList")
                 .Input("a: int32")
                 .Output("ndef: string")
@@ -267,6 +449,15 @@ TEST_F(OpCompatibilityTest, MakeList) {
   ASSERT_OK(NodeDefBuilder("make_list", &old_op_def)
                 .Input(FakeInput())
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("MakeList")
+                   .Input("a: int32")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("make_list", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("make_list = MakeList[N=1](a)", Result());
 }
@@ -283,6 +474,7 @@ REGISTER_KERNEL_BUILDER(Name("MakePolyList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, MakePolyList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("MakePolyList")
                 .Input("a: int32")
                 .Output("ndef: string")
@@ -290,6 +482,15 @@ TEST_F(OpCompatibilityTest, MakePolyList) {
   ASSERT_OK(NodeDefBuilder("make_poly_list", &old_op_def)
                 .Input(FakeInput())
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("MakePolyList")
+                   .Input("a: int32")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("make_poly_list", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("make_poly_list = MakePolyList[N=1, T=DT_INT32](a)", Result());
 }
@@ -304,6 +505,7 @@ REGISTER_KERNEL_BUILDER(Name("MakeAnyList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, MakeAnyList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("MakeAnyList")
                 .Input("a: int32")
                 .Output("ndef: string")
@@ -311,6 +513,15 @@ TEST_F(OpCompatibilityTest, MakeAnyList) {
   ASSERT_OK(NodeDefBuilder("make_any_list", &old_op_def)
                 .Input(FakeInput())
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("MakeAnyList")
+                   .Input("a: int32")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("make_any_list", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("make_any_list = MakeAnyList[T=[DT_INT32]](a)", Result());
 }
@@ -326,6 +537,7 @@ REGISTER_KERNEL_BUILDER(Name("PolyIntoList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, PolyIntoList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("PolyIntoList")
                 .Input("a: T")
                 .Output("ndef: string")
@@ -334,16 +546,81 @@ TEST_F(OpCompatibilityTest, PolyIntoList) {
   ASSERT_OK(NodeDefBuilder("poly_into_list", &old_op_def)
                 .Input(FakeInput(DT_INT32))
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("PolyIntoList")
+                   .Input("a: T")
+                   .Output("ndef: string")
+                   .Attr("T: type")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("poly_into_list", &old_op_def)
+                   .Input(FakeInput(DT_INT32))
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("poly_into_list = PolyIntoList[N=1, T=DT_INT32](a)", Result());
 }
 
+<<<<<<< HEAD
+=======
+// Should be able to make a multiple inputs/outputs into a list with
+// the default types matching the inputs/outputs being replaced.
+
+// Changing from int32, int32 -> N * int32 (where N: int = 2 by default).
+REGISTER_OP("MakeMultipleSameList")
+    .Input("a: N * int32")
+    .Output("ndef: string")
+    .Attr("N: int = 2");
+REGISTER_KERNEL_BUILDER(Name("MakeMultipleSameList").Device(DEVICE_CPU),
+                        TestKernel);
+
+TEST_F(OpCompatibilityTest, MakeMultipleSameList) {
+  OpDef old_op_def;
+  TF_ASSERT_OK(OpDefBuilder("MakeMultipleSameList")
+                   .Input("a: int32")
+                   .Input("b: int32")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("make_list", &old_op_def)
+                   .Input(FakeInput())
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+  ExpectSuccess(old_op_def);
+  EXPECT_EQ("make_list = MakeMultipleSameList[N=2](a, b)", Result());
+}
+
+// Changing from int32, float -> T
+// (where T: list(type) = [int32, float] by default).
+REGISTER_OP("MakeMultipleAnyList")
+    .Input("a: T")
+    .Output("ndef: string")
+    .Attr("T: list(type) = [DT_INT32, DT_FLOAT]");
+REGISTER_KERNEL_BUILDER(Name("MakeMultipleAnyList").Device(DEVICE_CPU),
+                        TestKernel);
+
+TEST_F(OpCompatibilityTest, MakeMultipleAnyList) {
+  OpDef old_op_def;
+  TF_ASSERT_OK(OpDefBuilder("MakeMultipleAnyList")
+                   .Input("a: int32")
+                   .Input("b: float")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("make_list", &old_op_def)
+                   .Input(FakeInput())
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+  ExpectSuccess(old_op_def);
+  EXPECT_EQ("make_list = MakeMultipleAnyList[T=[DT_INT32, DT_FLOAT]](a, b)",
+            Result());
+}
+
+>>>>>>> tensorflow/master
 // Should be able to change the name of an input/output.
 REGISTER_OP("ChangeName").Input("y: int32").Output("ndef: string");
 REGISTER_KERNEL_BUILDER(Name("ChangeName").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, ChangeName) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("ChangeName")
                 .Input("x: int32")
                 .Output("ndef: string")
@@ -351,6 +628,15 @@ TEST_F(OpCompatibilityTest, ChangeName) {
   ASSERT_OK(NodeDefBuilder("change_name", &old_op_def)
                 .Input(FakeInput())
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("ChangeName")
+                   .Input("x: int32")
+                   .Output("ndef: string")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("change_name", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("change_name = ChangeName[](a)", Result());
 }
@@ -365,9 +651,15 @@ REGISTER_KERNEL_BUILDER(Name("AddNInts").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, AddNInts) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(
       OpDefBuilder("AddNInts").Output("ndef: string").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("add_n_ints", &old_op_def).Finalize(node_def()));
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("AddNInts").Output("ndef: string").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("add_n_ints", &old_op_def).Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("add_n_ints = AddNInts[N=0]()", Result());
 }
@@ -383,9 +675,15 @@ REGISTER_KERNEL_BUILDER(Name("AddNSame").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, AddNSame) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(
       OpDefBuilder("AddNSame").Output("ndef: string").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("add_n_same", &old_op_def).Finalize(node_def()));
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("AddNSame").Output("ndef: string").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("add_n_same", &old_op_def).Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("add_n_same = AddNSame[N=0, T=DT_BOOL]()", Result());
 }
@@ -403,6 +701,7 @@ REGISTER_KERNEL_BUILDER(Name("AddNSameAsExisting").Device(DEVICE_CPU),
 
 TEST_F(OpCompatibilityTest, AddNSameAsExisting) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddNSameAsExisting")
                 .Input("a: T")
                 .Output("ndef: string")
@@ -411,6 +710,16 @@ TEST_F(OpCompatibilityTest, AddNSameAsExisting) {
   ASSERT_OK(NodeDefBuilder("add_n_same_as_existing", &old_op_def)
                 .Input(FakeInput(DT_STRING))
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddNSameAsExisting")
+                   .Input("a: T")
+                   .Output("ndef: string")
+                   .Attr("T: type")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("add_n_same_as_existing", &old_op_def)
+                   .Input(FakeInput(DT_STRING))
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("add_n_same_as_existing = AddNSameAsExisting[N=0, T=DT_STRING](a)",
             Result());
@@ -426,9 +735,16 @@ REGISTER_KERNEL_BUILDER(Name("AddAnyList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, AddAnyList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(
       OpDefBuilder("AddAnyList").Output("ndef: string").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("add_any_list", &old_op_def).Finalize(node_def()));
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("AddAnyList").Output("ndef: string").Finalize(&old_op_def));
+  TF_ASSERT_OK(
+      NodeDefBuilder("add_any_list", &old_op_def).Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("add_any_list = AddAnyList[T=[]]()", Result());
 }
@@ -442,6 +758,7 @@ REGISTER_KERNEL_BUILDER(Name("ShorterAnyList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, ShorterAnyList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("ShorterAnyList")
                 .Input("a: T")
                 .Output("ndef: string")
@@ -450,6 +767,16 @@ TEST_F(OpCompatibilityTest, ShorterAnyList) {
   ASSERT_OK(NodeDefBuilder("shorter_any_list", &old_op_def)
                 .Input(FakeInput(2, DT_BOOL))
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("ShorterAnyList")
+                   .Input("a: T")
+                   .Output("ndef: string")
+                   .Attr("T: list(type) >= 2")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("shorter_any_list", &old_op_def)
+                   .Input(FakeInput(2, DT_BOOL))
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("shorter_any_list = ShorterAnyList[T=[DT_BOOL, DT_BOOL]](a, a:1)",
             Result());
@@ -463,6 +790,7 @@ REGISTER_KERNEL_BUILDER(Name("ShorterSameList").Device(DEVICE_CPU), TestKernel);
 
 TEST_F(OpCompatibilityTest, ShorterSameList) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("ShorterSameList")
                 .Input("a: N * int32")
                 .Output("ndef: string")
@@ -471,20 +799,52 @@ TEST_F(OpCompatibilityTest, ShorterSameList) {
   ASSERT_OK(NodeDefBuilder("shorter_same_list", &old_op_def)
                 .Input(FakeInput(2))
                 .Finalize(node_def()));
+=======
+  TF_ASSERT_OK(OpDefBuilder("ShorterSameList")
+                   .Input("a: N * int32")
+                   .Output("ndef: string")
+                   .Attr("N: int >= 2")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("shorter_same_list", &old_op_def)
+                   .Input(FakeInput(2))
+                   .Finalize(node_def()));
+>>>>>>> tensorflow/master
   ExpectSuccess(old_op_def);
   EXPECT_EQ("shorter_same_list = ShorterSameList[N=2](a, a:1)", Result());
 }
 
 // Negative tests -------------------------------------------------------------
 
+<<<<<<< HEAD
+=======
+// Can't remove an attr.
+REGISTER_OP("RemoveAttr");
+
+TEST_F(OpCompatibilityTest, RemoveAttrFails) {
+  OpDef old_op_def;
+  TF_ASSERT_OK(OpDefBuilder("RemoveAttr").Attr("a: int").Finalize(&old_op_def));
+  TF_ASSERT_OK(
+      NodeDefBuilder("fails", &old_op_def).Attr("a", 3).Finalize(node_def()));
+  ExpectInvalid(old_op_def, "NodeDef mentions attr 'a' not in",
+                "Attr 'a' removed");
+}
+
+>>>>>>> tensorflow/master
 // Can't add an attr without a default.
 REGISTER_OP("AddAttrNoDefault").Attr("a: int");
 
 TEST_F(OpCompatibilityTest, AddAttrNoDefaultFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddAttrNoDefault").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
   ExpectInvalid(old_op_def, "NodeDef missing attr 'a'");
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddAttrNoDefault").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
+  ExpectInvalid(old_op_def, "NodeDef missing attr 'a'",
+                "Attr 'a' added without default");
+>>>>>>> tensorflow/master
 }
 
 // Can't add a non-list input/output.
@@ -492,10 +852,18 @@ REGISTER_OP("AddSingleInput").Input("a: int32");
 
 TEST_F(OpCompatibilityTest, AddSingleInputFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddSingleInput").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
   ExpectInvalid(old_op_def,
                 "expected inputs 'int32' do not match 0 inputs specified");
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddSingleInput").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
+  ExpectInvalid(old_op_def,
+                "expected inputs 'int32' do not match 0 inputs specified",
+                "Input signature mismatch '' vs. 'int32'");
+>>>>>>> tensorflow/master
 }
 
 // Can't add a list input/output without an empty default.
@@ -511,26 +879,50 @@ REGISTER_OP("AddListBigDefault")
 
 TEST_F(OpCompatibilityTest, AddNIntsBigDefaultFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddNIntsBigDefault").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
   ExpectInvalid(old_op_def,
                 "expected inputs 'int32' do not match 0 inputs specified");
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddNIntsBigDefault").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
+  ExpectInvalid(old_op_def,
+                "expected inputs 'int32' do not match 0 inputs specified",
+                "Input signature mismatch '' vs. 'int32'");
+>>>>>>> tensorflow/master
 }
 
 TEST_F(OpCompatibilityTest, AddNSameBigDefaultFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddNSameBigDefault").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
   ExpectInvalid(old_op_def,
                 "expected inputs 'int32' do not match 0 inputs specified");
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddNSameBigDefault").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
+  ExpectInvalid(old_op_def,
+                "expected inputs 'int32' do not match 0 inputs specified",
+                "Input signature mismatch '' vs. 'int32'");
+>>>>>>> tensorflow/master
 }
 
 TEST_F(OpCompatibilityTest, AddListBigDefaultFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AddListBigDefault").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
   ExpectInvalid(old_op_def,
                 "expected inputs 'int32' do not match 0 inputs specified");
+=======
+  TF_ASSERT_OK(OpDefBuilder("AddListBigDefault").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def).Finalize(node_def()));
+  ExpectInvalid(old_op_def,
+                "expected inputs 'int32' do not match 0 inputs specified",
+                "Input signature mismatch '' vs. 'int32'");
+>>>>>>> tensorflow/master
 }
 
 // Can't change the type of an input/output.
@@ -539,11 +931,21 @@ REGISTER_OP("ChangeType").Input("a: float");
 
 TEST_F(OpCompatibilityTest, ChangeTypeFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("ChangeType").Input("a: int32").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
                 .Input(FakeInput())
                 .Finalize(node_def()));
   ExpectTypeMismatch(old_op_def);
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("ChangeType").Input("a: int32").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+  ExpectTypeMismatch(old_op_def,
+                     "Input signature mismatch 'int32' vs. 'float'");
+>>>>>>> tensorflow/master
 }
 
 // Can't change the order of inputs/outputs.
@@ -552,6 +954,7 @@ REGISTER_OP("ChangeOrder").Input("a: float").Input("b: int32");
 
 TEST_F(OpCompatibilityTest, ChangeOrderFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("ChangeOrder")
                 .Input("b: int32")
                 .Input("a: float")
@@ -561,6 +964,34 @@ TEST_F(OpCompatibilityTest, ChangeOrderFails) {
                 .Input(FakeInput())
                 .Finalize(node_def()));
   ExpectTypeMismatch(old_op_def);
+=======
+  TF_ASSERT_OK(OpDefBuilder("ChangeOrder")
+                   .Input("b: int32")
+                   .Input("a: float")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
+                   .Input(FakeInput())
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+  ExpectTypeMismatch(
+      old_op_def, "Input signature mismatch 'int32, float' vs. 'float, int32'");
+}
+
+// Can't remove inputs/outputs.
+
+REGISTER_OP("RemoveInput");
+
+TEST_F(OpCompatibilityTest, RemoveInputFails) {
+  OpDef old_op_def;
+  TF_ASSERT_OK(
+      OpDefBuilder("RemoveInput").Input("a: float").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
+                   .Input(FakeInput())
+                   .Finalize(node_def()));
+  ExpectInvalid(old_op_def,
+                "expected inputs '' do not match 1 inputs specified",
+                "Input signature mismatch 'float' vs. ''");
+>>>>>>> tensorflow/master
 }
 
 // Can't change the type of an attr.
@@ -569,12 +1000,22 @@ REGISTER_OP("ChangeAttrType").Attr("a: int");
 
 TEST_F(OpCompatibilityTest, ChangeAttrTypeFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(
       OpDefBuilder("ChangeAttrType").Attr("a: bool").Finalize(&old_op_def));
   ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
                 .Attr("a", true)
                 .Finalize(node_def()));
   ExpectInvalid(old_op_def, "value with type 'bool' when 'int' expected");
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("ChangeAttrType").Attr("a: bool").Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
+                   .Attr("a", true)
+                   .Finalize(node_def()));
+  ExpectInvalid(old_op_def, "value with type 'bool' when 'int' expected",
+                "Attr 'a' changed type 'bool' -> 'int'");
+>>>>>>> tensorflow/master
 }
 
 // Can't change an attr from a list.
@@ -583,11 +1024,20 @@ REGISTER_OP("AttrFromList").Attr("a: int");
 
 TEST_F(OpCompatibilityTest, AttrFromListFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(
       OpDefBuilder("AttrFromList").Attr("a: list(int)").Finalize(&old_op_def));
   ASSERT_OK(
       NodeDefBuilder("fails", &old_op_def).Attr("a", {5}).Finalize(node_def()));
   ExpectInvalid(old_op_def, "value with type 'list(int)' when 'int' expected");
+=======
+  TF_ASSERT_OK(
+      OpDefBuilder("AttrFromList").Attr("a: list(int)").Finalize(&old_op_def));
+  TF_ASSERT_OK(
+      NodeDefBuilder("fails", &old_op_def).Attr("a", {5}).Finalize(node_def()));
+  ExpectInvalid(old_op_def, "value with type 'list(int)' when 'int' expected",
+                "Attr 'a' changed type 'list(int)' -> 'int'");
+>>>>>>> tensorflow/master
 }
 
 // Can't change an attr to a list.
@@ -596,10 +1046,18 @@ REGISTER_OP("AttrToList").Attr("a: list(int)");
 
 TEST_F(OpCompatibilityTest, AttrToListFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("AttrToList").Attr("a: int").Finalize(&old_op_def));
   ASSERT_OK(
       NodeDefBuilder("fails", &old_op_def).Attr("a", 5).Finalize(node_def()));
   ExpectInvalid(old_op_def, "value with type 'int' when 'list(int)' expected");
+=======
+  TF_ASSERT_OK(OpDefBuilder("AttrToList").Attr("a: int").Finalize(&old_op_def));
+  TF_ASSERT_OK(
+      NodeDefBuilder("fails", &old_op_def).Attr("a", 5).Finalize(node_def()));
+  ExpectInvalid(old_op_def, "value with type 'int' when 'list(int)' expected",
+                "Attr 'a' changed type 'int' -> 'list(int)'");
+>>>>>>> tensorflow/master
 }
 
 // Can't change an input from polymorphic to a list of any type.
@@ -608,6 +1066,7 @@ REGISTER_OP("PolymorphicToAnyList").Input("a: T").Attr("T: list(type)");
 
 TEST_F(OpCompatibilityTest, PolymorphicToAnyListFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("PolymorphicToAnyList")
                 .Input("a: T")
                 .Attr("T: type")
@@ -617,6 +1076,17 @@ TEST_F(OpCompatibilityTest, PolymorphicToAnyListFails) {
                 .Finalize(node_def()));
   ExpectInvalid(old_op_def,
                 "value with type 'type' when 'list(type)' expected");
+=======
+  TF_ASSERT_OK(OpDefBuilder("PolymorphicToAnyList")
+                   .Input("a: T")
+                   .Attr("T: type")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
+                   .Input(FakeInput(DT_INT32))
+                   .Finalize(node_def()));
+  ExpectInvalid(old_op_def, "value with type 'type' when 'list(type)' expected",
+                "Attr 'T' changed type 'type' -> 'list(type)'");
+>>>>>>> tensorflow/master
 }
 
 // Can't change an input from a list of the same type to a list of any type.
@@ -628,6 +1098,7 @@ REGISTER_OP("SameToAnyList")
 
 TEST_F(OpCompatibilityTest, SameToAnyListFails) {
   OpDef old_op_def;
+<<<<<<< HEAD
   ASSERT_OK(OpDefBuilder("SameToAnyList")
                 .Input("a: N * T")
                 .Attr("T: type")
@@ -638,6 +1109,18 @@ TEST_F(OpCompatibilityTest, SameToAnyListFails) {
                 .Finalize(node_def()));
   ExpectInvalid(old_op_def,
                 "value with type 'type' when 'list(type)' expected");
+=======
+  TF_ASSERT_OK(OpDefBuilder("SameToAnyList")
+                   .Input("a: N * T")
+                   .Attr("T: type")
+                   .Attr("N: int")
+                   .Finalize(&old_op_def));
+  TF_ASSERT_OK(NodeDefBuilder("fails", &old_op_def)
+                   .Input(FakeInput(1, DT_INT32))
+                   .Finalize(node_def()));
+  ExpectInvalid(old_op_def, "value with type 'type' when 'list(type)' expected",
+                "Attr 'T' changed type 'type' -> 'list(type)'");
+>>>>>>> tensorflow/master
 }
 
 // Changing an attr's default is not technically illegal, but should

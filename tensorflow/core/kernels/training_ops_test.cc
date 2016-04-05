@@ -1,9 +1,33 @@
+<<<<<<< HEAD
 #include <gtest/gtest.h>
 #include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/platform/test_benchmark.h"
 #include "tensorflow/core/public/session_options.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+#include "tensorflow/core/public/session_options.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -43,7 +67,10 @@ static Node* Scalar(Graph* g, float val) {
 }
 
 static void SGD(int32 n, Graph** init_g, Graph** train_g) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   {
     Graph* g = new Graph(OpRegistry::Global());
     auto var = Var(g, n);
@@ -72,7 +99,10 @@ static void BM_SGD(int iters, int params) {
 BENCHMARK(BM_SGD)->Arg(128 << 10)->Arg(256 << 10);
 
 static void Adagrad(int32 n, Graph** init_g, Graph** train_g) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   {
     Graph* g = new Graph(OpRegistry::Global());
     auto var = Var(g, n);
@@ -105,7 +135,10 @@ static void BM_Adagrad(int iters, int params) {
 BENCHMARK(BM_Adagrad)->Arg(128 << 10)->Arg(256 << 10);
 
 static void Momentum(int32 n, Graph** init_g, Graph** train_g) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   TensorShape shape({n});
   {
     Graph* g = new Graph(OpRegistry::Global());
@@ -140,7 +173,10 @@ static void BM_Momentum(int iters, int params) {
 BENCHMARK(BM_Momentum)->Arg(128 << 10)->Arg(256 << 10);
 
 static void Adam(int32 n, Graph** init_g, Graph** train_g) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   TensorShape shape({n});
   {
     Graph* g = new Graph(OpRegistry::Global());
@@ -183,7 +219,10 @@ static void BM_Adam(int iters, int params) {
 BENCHMARK(BM_Adam)->Arg(128 << 10)->Arg(256 << 10);
 
 static void RMSProp(int32 n, Graph** init_g, Graph** train_g) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   TensorShape shape({n});
   {
     Graph* g = new Graph(OpRegistry::Global());

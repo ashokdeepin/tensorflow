@@ -1,9 +1,32 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_LIB_STRINGS_NUMBERS_H_
 #define TENSORFLOW_LIB_STRINGS_NUMBERS_H_
 
 #include <string>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
+=======
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace strings {
@@ -62,6 +85,7 @@ char* FloatToBuffer(float i, char* buffer);
 string FpToString(Fprint fp);
 
 // Attempt to parse a fingerprint in the form encoded by FpToString.  If
+<<<<<<< HEAD
 // successsful, stores the fingerprint in *fp and returns true.  Otherwise,
 // returns false.
 bool StringToFp(const string& s, Fprint* fp);
@@ -70,11 +94,35 @@ bool StringToFp(const string& s, Fprint* fp);
 // Leading and trailing spaces are allowed.
 // Return false with overflow or invalid input.
 bool safe_strto32(const char* str, int32* value);
+=======
+// successful, stores the fingerprint in *fp and returns true.  Otherwise,
+// returns false.
+bool StringToFp(const string& s, Fprint* fp);
+
+// Convert a 64-bit fingerprint value to an ASCII representation that
+// is terminated by a '\0'.
+// Buf must point to an array of at least kFastToBufferSize characters
+StringPiece Uint64ToHexString(uint64 v, char* buf);
+
+// Attempt to parse a uint64 in the form encoded by FastUint64ToHexString.  If
+// successful, stores the value in *v and returns true.  Otherwise,
+// returns false.
+bool HexStringToUint64(const StringPiece& s, uint64* v);
+
+// Convert strings to 32bit integer values.
+// Leading and trailing spaces are allowed.
+// Return false with overflow or invalid input.
+bool safe_strto32(StringPiece str, int32* value);
+>>>>>>> tensorflow/master
 
 // Convert strings to 64bit integer values.
 // Leading and trailing spaces are allowed.
 // Return false with overflow or invalid input.
+<<<<<<< HEAD
 bool safe_strto64(const char* str, int64* value);
+=======
+bool safe_strto64(StringPiece str, int64* value);
+>>>>>>> tensorflow/master
 
 // Convert strings to floating point values.
 // Leading and trailing spaces are allowed.

@@ -1,6 +1,26 @@
+<<<<<<< HEAD
 #include "tensorflow/core/util/work_sharder.h"
 
 #include <vector>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/util/work_sharder.h"
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/core/blocking_counter.h"
 #include "tensorflow/core/platform/logging.h"
 
@@ -25,8 +45,15 @@ void Shard(int num_workers, thread::ThreadPool* workers, int64 total,
   // much. Let us assume each cost unit is 1ns, kMinCostPerShard=10000
   // is 10us.
   static const int64 kMinCostPerShard = 10000;
+<<<<<<< HEAD
   const int num_shards = std::max(
       1, std::min<int>(num_workers, total * cost_per_unit / kMinCostPerShard));
+=======
+  const int num_shards =
+      std::max<int>(1, std::min(static_cast<int64>(num_workers),
+                                total * cost_per_unit / kMinCostPerShard));
+
+>>>>>>> tensorflow/master
   // Each shard contains up to "block_size" units. [0, total) is sharded
   // into:
   //   [0, block_size), [block_size, 2*block_size), ...

@@ -1,14 +1,39 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.math_ops.matmul."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
 import tensorflow as tf
 
 from tensorflow.python.kernel_tests import gradient_checker as gc
+=======
+import numpy as np
+import tensorflow as tf
+
+from tensorflow.python.framework import ops
+>>>>>>> tensorflow/master
 
 
 class MatMulTest(tf.test.TestCase):
@@ -107,7 +132,11 @@ class MatMulTest(tf.test.TestCase):
       self._testCpuMatmul(x, y, True, True)
       self._testGpuMatmul(x, y, True, True)
 
+<<<<<<< HEAD
   def testDoubleRandomTranposeBoth(self):
+=======
+  def testDoubleRandomTransposeBoth(self):
+>>>>>>> tensorflow/master
     for _ in range(10):
       n, k, m = np.random.randint(1, 100, size=3)
       x = self._randMatrix(k, n, np.float64)
@@ -135,6 +164,20 @@ class MatMulTest(tf.test.TestCase):
     self._testCpuMatmul(x, y)
     self._testGpuMatmul(x, y)
 
+<<<<<<< HEAD
+=======
+  def testShapeErrors(self):
+    a = tf.placeholder(tf.float32, [32, 37])
+    b = tf.placeholder(tf.float32, [36, 2])
+    c = tf.placeholder(tf.float32, [37])
+    with self.assertRaisesRegexp(
+        ValueError,
+        r"Dimensions Dimension\(37\) and Dimension\(36\) are not compatible"):
+      tf.matmul(a, b)
+    with self.assertRaisesRegexp(ValueError, "must have rank 2"):
+      tf.matmul(a, c)
+
+>>>>>>> tensorflow/master
 
 # TODO(zhifengc): Figures out how to test matmul gradients on GPU.
 class MatMulGradientTest(tf.test.TestCase):
@@ -146,7 +189,11 @@ class MatMulGradientTest(tf.test.TestCase):
       y = tf.constant([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
                    shape=[2, 4], dtype=tf.float64, name="y")
       m = tf.matmul(x, y, name="matmul")
+<<<<<<< HEAD
       err = gc.ComputeGradientError(x, [3, 2], m, [3, 4])
+=======
+      err = tf.test.compute_gradient_error(x, [3, 2], m, [3, 4])
+>>>>>>> tensorflow/master
     print("matmul input0 gradient err = ", err)
     self.assertLess(err, 1e-10)
 
@@ -157,7 +204,11 @@ class MatMulGradientTest(tf.test.TestCase):
       y = tf.constant([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
                    shape=[2, 4], dtype=tf.float64, name="y")
       m = tf.matmul(x, y, name="matmul")
+<<<<<<< HEAD
       err = gc.ComputeGradientError(y, [2, 4], m, [3, 4])
+=======
+      err = tf.test.compute_gradient_error(y, [2, 4], m, [3, 4])
+>>>>>>> tensorflow/master
     print("matmul input1 gradient err = ", err)
     self.assertLess(err, 1e-10)
 
@@ -174,7 +225,11 @@ class MatMulGradientTest(tf.test.TestCase):
       y = tf.constant([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
                    shape=shape_y, dtype=tf.float64, name="y")
       m = tf.matmul(x, y, transpose_a, transpose_b, name="matmul")
+<<<<<<< HEAD
       err = gc.ComputeGradientError(x, shape_x, m, [3, 4])
+=======
+      err = tf.test.compute_gradient_error(x, shape_x, m, [3, 4])
+>>>>>>> tensorflow/master
     print("matmul input0 gradient err = ", err)
     self.assertLess(err, 1e-10)
 
@@ -196,7 +251,11 @@ class MatMulGradientTest(tf.test.TestCase):
       y = tf.constant([1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7],
                    shape=shape_y, dtype=tf.float64, name="y")
       m = tf.matmul(x, y, transpose_a, transpose_b, name="matmul")
+<<<<<<< HEAD
       err = gc.ComputeGradientError(y, shape_y, m, [3, 4])
+=======
+      err = tf.test.compute_gradient_error(y, shape_y, m, [3, 4])
+>>>>>>> tensorflow/master
     print("matmul input1 gradient err = ", err)
     self.assertLess(err, 1e-10)
 
@@ -206,5 +265,33 @@ class MatMulGradientTest(tf.test.TestCase):
     self._VerifyInput1(transpose_a=True, transpose_b=True)
 
 
+<<<<<<< HEAD
+=======
+class MatMulStatsTest(tf.test.TestCase):
+
+  def testSimpleStatistics(self):
+    g = tf.Graph()
+    with g.as_default():
+      a = tf.Variable(tf.random_normal([25, 16]))
+      b = tf.Variable(tf.random_normal([16, 9]))
+      tf.matmul(a, b)
+      for op in g.get_operations():
+        flops = ops.get_stats_for_node_def(g, op.node_def, "flops").value
+        if op.name == "MatMul":
+          self.assertEqual(7200, flops)
+
+  def testTransposedStatistics(self):
+    g = tf.Graph()
+    with g.as_default():
+      a = tf.Variable(tf.random_normal([16, 25]))
+      b = tf.Variable(tf.random_normal([16, 9]))
+      tf.matmul(a, b, transpose_a=True)
+      for op in g.get_operations():
+        flops = ops.get_stats_for_node_def(g, op.node_def, "flops").value
+        if op.name == "MatMul":
+          self.assertEqual(7200, flops)
+
+
+>>>>>>> tensorflow/master
 if __name__ == "__main__":
   tf.test.main()

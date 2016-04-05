@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Wrappers for primitive Neural Net (NN) Operations."""
 
 from __future__ import absolute_import
@@ -177,10 +195,26 @@ def learned_unigram_candidate_sampler(true_classes, num_true, num_sampled,
       seed2=seed2, name=name)
 
 
+<<<<<<< HEAD
 def fixed_unigram_candidate_sampler(true_classes, num_true, num_sampled, unique,
                                     range_max, vocab_file='', distortion=0.0,
                                     num_reserved_ids=0, num_shards=1, shard=0,
                                     unigrams=[], seed=None, name=None):
+=======
+def fixed_unigram_candidate_sampler(true_classes,
+                                    num_true,
+                                    num_sampled,
+                                    unique,
+                                    range_max,
+                                    vocab_file='',
+                                    distortion=1.0,
+                                    num_reserved_ids=0,
+                                    num_shards=1,
+                                    shard=0,
+                                    unigrams=(),
+                                    seed=None,
+                                    name=None):
+>>>>>>> tensorflow/master
   """Samples a set of classes using the provided (fixed) base distribution.
 
   This operation randomly samples a tensor of sampled classes
@@ -296,7 +330,11 @@ def all_candidate_sampler(true_classes, num_true, num_sampled, unique,
 
 def compute_accidental_hits(true_classes, sampled_candidates, num_true,
                             seed=None, name=None):
+<<<<<<< HEAD
   """Compute the ids of positions in sampled_candidates matching true_classes.
+=======
+  """Compute the position ids in `sampled_candidates` matching `true_classes`.
+>>>>>>> tensorflow/master
 
   In Candidate Sampling, this operation facilitates virtually removing
   sampled classes which happen to match target classes.  This is done

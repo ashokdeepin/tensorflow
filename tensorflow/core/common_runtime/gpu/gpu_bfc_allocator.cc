@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/gpu/gpu_bfc_allocator.h"
 
 #include "tensorflow/stream_executor/multi_platform_manager.h"
@@ -11,12 +12,33 @@
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/gpu/gpu_bfc_allocator.h"
+
+#include "tensorflow/core/common_runtime/gpu/gpu_init.h"
+>>>>>>> tensorflow/master
 
 namespace gpu = ::perftools::gputools;
 
 namespace tensorflow {
 
 GPUBFCAllocator::GPUBFCAllocator(int device_id, size_t total_memory)
+<<<<<<< HEAD
     : device_id_(device_id) {
   // Get a pointer to the stream_executor for this device
   stream_exec_ = GPUMachineManager()->ExecutorForDevice(device_id).ValueOrDie();
@@ -375,5 +397,15 @@ void GPUBFCAllocator::DumpMemoryLog(size_t num_bytes) {
     }
   }
 }
+=======
+    : GPUBFCAllocator(device_id, total_memory, GPUOptions()) {}
+
+GPUBFCAllocator::GPUBFCAllocator(int device_id, size_t total_memory,
+                                 const GPUOptions& gpu_options)
+    : BFCAllocator(
+          new GPUMemAllocator(
+              GPUMachineManager()->ExecutorForDevice(device_id).ValueOrDie()),
+          total_memory, gpu_options.allow_growth(), "gpu_bfc") {}
+>>>>>>> tensorflow/master
 
 }  // namespace tensorflow

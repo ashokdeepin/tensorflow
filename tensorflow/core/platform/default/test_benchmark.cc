@@ -1,9 +1,38 @@
+<<<<<<< HEAD
 #include "tensorflow/core/platform/test_benchmark.h"
 
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/regexp.h"
 #include "tensorflow/core/public/env.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/platform/test_benchmark.h"
+
+#include <cstdio>
+#include <cstdlib>
+
+#include <vector>
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/regexp.h"
+#include "tensorflow/core/util/reporter.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace testing {
@@ -96,6 +125,27 @@ void Benchmark::Run(const char* pattern) {
       }
       printf("%-*s %10.0f %10d\t%s\n", width, name.c_str(),
              seconds * 1e9 / iters, iters, full_label.c_str());
+<<<<<<< HEAD
+=======
+
+      TestReporter reporter(name);
+      Status s = reporter.Initialize();
+      if (!s.ok()) {
+        LOG(ERROR) << s.ToString();
+        exit(EXIT_FAILURE);
+      }
+      s = reporter.Benchmark(iters, 0.0, seconds,
+                             items_processed * 1e-6 / seconds);
+      if (!s.ok()) {
+        LOG(ERROR) << s.ToString();
+        exit(EXIT_FAILURE);
+      }
+      s = reporter.Close();
+      if (!s.ok()) {
+        LOG(ERROR) << s.ToString();
+        exit(EXIT_FAILURE);
+      }
+>>>>>>> tensorflow/master
     }
   }
 }

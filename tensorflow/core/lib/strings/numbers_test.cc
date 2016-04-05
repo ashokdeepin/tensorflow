@@ -1,7 +1,29 @@
+<<<<<<< HEAD
 #include "tensorflow/core/lib/strings/numbers.h"
 
 #include <string>
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/lib/strings/numbers.h"
+
+#include <string>
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace strings {
@@ -26,6 +48,26 @@ TEST(FpToString, Ints) {
   EXPECT_FALSE(StringToFp("0000000000000000xyz", &dummy));
 }
 
+<<<<<<< HEAD
+=======
+TEST(Uint64ToHexString, Ints) {
+  for (int s = 0; s < 64; s++) {
+    for (int delta = -1; delta <= 1; delta++) {
+      uint64 fp = (1ull << s) + delta;
+      char buf[kFastToBufferSize];
+      StringPiece s = Uint64ToHexString(fp, buf);
+      uint64 fp2;
+      EXPECT_TRUE(HexStringToUint64(s, &fp2));
+      EXPECT_EQ(fp, fp2) << s;
+    }
+  }
+  uint64 dummy;
+  EXPECT_FALSE(HexStringToUint64("", &dummy));
+  EXPECT_FALSE(HexStringToUint64("xyz", &dummy));
+  EXPECT_FALSE(HexStringToUint64("0000000000000000xyz", &dummy));
+}
+
+>>>>>>> tensorflow/master
 TEST(HumanReadableNumBytes, Bytes) {
   EXPECT_EQ("0B", HumanReadableNumBytes(0));
   EXPECT_EQ("4B", HumanReadableNumBytes(4));
@@ -78,6 +120,16 @@ TEST(safe_strto32, Int32s) {
   // Overflow
   EXPECT_EQ(false, safe_strto32("2147483648", &result));
   EXPECT_EQ(false, safe_strto32("-2147483649", &result));
+<<<<<<< HEAD
+=======
+
+  // Check that the StringPiece's length is respected.
+  EXPECT_EQ(true, safe_strto32(StringPiece("123", 1), &result));
+  EXPECT_EQ(1, result);
+  EXPECT_EQ(true, safe_strto32(StringPiece(" -123", 4), &result));
+  EXPECT_EQ(-12, result);
+  EXPECT_EQ(false, safe_strto32(StringPiece(nullptr, 0), &result));
+>>>>>>> tensorflow/master
 }
 
 TEST(safe_strto64, Int64s) {
@@ -107,6 +159,16 @@ TEST(safe_strto64, Int64s) {
   // Overflow
   EXPECT_EQ(false, safe_strto64("9223372036854775808", &result));
   EXPECT_EQ(false, safe_strto64("-9223372036854775809", &result));
+<<<<<<< HEAD
+=======
+
+  // Check that the StringPiece's length is respected.
+  EXPECT_EQ(true, safe_strto64(StringPiece("123", 1), &result));
+  EXPECT_EQ(1, result);
+  EXPECT_EQ(true, safe_strto64(StringPiece(" -123", 4), &result));
+  EXPECT_EQ(-12, result);
+  EXPECT_EQ(false, safe_strto64(StringPiece(nullptr, 0), &result));
+>>>>>>> tensorflow/master
 }
 
 }  // namespace strings

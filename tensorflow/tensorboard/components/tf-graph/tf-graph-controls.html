@@ -1,6 +1,12 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-menu/paper-menu.html">
 <link rel="import" href="../../bower_components/paper-dropdown-menu/paper-dropdown-menu.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-menu/paper-menu.html">
+<link rel="import" href="../paper-dropdown-menu/paper-dropdown-menu.html">
+>>>>>>> tensorflow/master
 
 <dom-module id="tf-graph-controls">
 <template>
@@ -52,7 +58,11 @@ table td {
 }
 
 .allcontrols {
+<<<<<<< HEAD
   padding: 10px;
+=======
+  padding: 30px;
+>>>>>>> tensorflow/master
 }
 
 .legend-holder {
@@ -61,10 +71,13 @@ table td {
   padding-bottom: 10px;
 }
 
+<<<<<<< HEAD
 #fit {
   color: var(--paper-orange-500);
 }
 
+=======
+>>>>>>> tensorflow/master
 paper-radio-button {
   padding: 5px;
 }
@@ -132,7 +145,11 @@ svg.icon {
   padding: 0 0 0 55px;
 }
 
+<<<<<<< HEAD
 .fit-button-text {
+=======
+.button-text {
+>>>>>>> tensorflow/master
   text-transform: none;
   padding: 8px 18px 0 18px;
   font-size: 14px
@@ -145,10 +162,18 @@ svg.icon {
   margin-top: 4px;
 }
 
+<<<<<<< HEAD
 .fit-button {
   padding: 2px;
   width: 30px;
   height: 30px;
+=======
+.iconbutton {
+  padding: 2px;
+  width: 30px;
+  height: 30px;
+  color: var(--paper-orange-500);
+>>>>>>> tensorflow/master
 }
 
 .hidden-input {
@@ -164,12 +189,29 @@ svg.icon {
 </style>
 <div class="allcontrols">
   <div class="control-holder">
+<<<<<<< HEAD
     <paper-icon-button id="fit" icon="aspect-ratio" class="fit-button" on-click="fit" alt="Fit to screen">
     </paper-icon-button>
     <paper-button class="fit-button-text" on-click="fit">Fit to screen
     </paper-button>
   </div>
   <div class="control-holder">
+=======
+    <paper-icon-button icon="aspect-ratio" class="iconbutton" on-click="fit" alt="Fit to screen">
+    </paper-icon-button>
+    <paper-button class="button-text" on-click="fit">Fit to screen
+    </paper-button>
+  </div>
+  <div class="control-holder">
+    <paper-icon-button icon="file-download" class="iconbutton" on-click="download" alt="Download PNG">
+    </paper-icon-button>
+    <paper-button class="button-text" on-click="download">Download PNG
+    </paper-button>
+    <a href="#" id="graphdownload" class="title" download="graph.png">
+    </a>
+  </div>
+  <div class="control-holder">
+>>>>>>> tensorflow/master
     <div class="title">Run</div>
     <paper-dropdown-menu no-label-float no-animations noink class="run-dropdown">
       <paper-menu id="select" class="dropdown-content" selected="{{selectedDataset}}">
@@ -301,9 +343,14 @@ svg.icon {
       </tr>
       <tr>
         <td>
+<<<<<<< HEAD
           <svg class="image-icon">
             <image id="summary-icon" width="24" height="24" x="0" y="0"
                 class="image-icon"/>
+=======
+          <svg class="image-icon" viewBox="0 0 12 12" width="24" height="24">
+            <use x="0" y="0" class="image-icon" xlink:href="#summary-icon"/>
+>>>>>>> tensorflow/master
           </svg>
         </td>
         <td>Summary</td>
@@ -313,16 +360,23 @@ svg.icon {
           <svg class="icon" height="15px"
               preserveAspectRatio="xMinYMid meet" viewBox="0 0 15 15">
             <defs>
+<<<<<<< HEAD
               <marker id="arrowhead-legend" fill="#bbb" markerWidth="10"
                   markerHeight="10" refX="9" refY="5" orient="auto">
                 <path d="M 0,0 L 10,5 L 0,10 C 3,7 3,3 0,0"/>
               </marker>
+=======
+>>>>>>> tensorflow/master
               <marker id="ref-arrowhead-legend" fill="#bbb" markerWidth="10"
                   markerHeight="10" refX="1" refY="5" orient="auto">
                 <path d="M 10,0 L 0,5 L 10,10 C 7,7 7,3 10,0"/>
               </marker>
             </defs>
+<<<<<<< HEAD
             <path marker-end="url(#arrowhead-legend)" stroke="#bbb"
+=======
+            <path stroke="#bbb"
+>>>>>>> tensorflow/master
                 d="M2 9 l 23 0" stroke-linecap="round" />
           </svg>
         </td>
@@ -332,7 +386,11 @@ svg.icon {
         <td>
           <svg class="icon" height="15px"
               preserveAspectRatio="xMinYMid meet" viewBox="0 0 15 15">
+<<<<<<< HEAD
             <path marker-end="url(#arrowhead-legend)" stroke="#bbb"
+=======
+            <path stroke="#bbb"
+>>>>>>> tensorflow/master
                d="M2 9 l 23 0" stroke-linecap="round" stroke-dasharray="2, 2" />
           </svg>
         </td>
@@ -343,7 +401,11 @@ svg.icon {
           <svg class="icon" height="15px"
               preserveAspectRatio="xMinYMid meet" viewBox="0 0 15 15">
             <path marker-start="url(#ref-arrowhead-legend)"
+<<<<<<< HEAD
               marker-end="url(#arrowhead-legend)" stroke="#bbb" d="M2 9 l 23 0"
+=======
+              stroke="#bbb" d="M2 9 l 23 0"
+>>>>>>> tensorflow/master
               stroke-linecap="round" />
           </svg>
         </td>
@@ -357,11 +419,14 @@ svg.icon {
 (function() { // Private scope.
 Polymer({
   is: 'tf-graph-controls',
+<<<<<<< HEAD
   ready: function() {
     // Set the url to download the summary icon.
     d3.select(this.$['summary-icon'])
       .attr('xlink:href', this.resolveUrl('../../lib/svg/summary-icon.svg'));
   },
+=======
+>>>>>>> tensorflow/master
   properties: {
     // Public API.
     hasStats: {
@@ -381,6 +446,10 @@ Polymer({
       type: Number,
       notify: true,
       value: 0,
+<<<<<<< HEAD
+=======
+      observer: '_selectedDatasetChanged'
+>>>>>>> tensorflow/master
     },
     selectedFile: {
       type: Object,
@@ -432,17 +501,54 @@ Polymer({
       endColor: params.endColor
     };
   },
+<<<<<<< HEAD
   _updateFileInput: function(e) {
+=======
+  download: function() {
+    this.$.graphdownload.click();
+  },
+  _updateFileInput: function(e) {
+    var file = e.target.files[0];
+    if (!file) {
+      return;
+    }
+    this._setDownloadFilename(file.name);
+>>>>>>> tensorflow/master
     this.set('selectedFile', e);
   },
   _datasetsChanged: function(newDatasets, oldDatasets) {
     if (oldDatasets != null || this.selected == null) {
       // Select the first dataset by default.
       this.set('selectedDataset', 0);
+<<<<<<< HEAD
+=======
+      this._setDownloadFilename(this.datasets[this.selectedDataset].path);
+    }
+  },
+  _selectedDatasetChanged: function(newDataset, oldDataset) {
+    if (this.datasets) {
+      this._setDownloadFilename(this.datasets[newDataset].path);
+>>>>>>> tensorflow/master
     }
   },
   _getFile: function() {
     this.$.file.click();
+<<<<<<< HEAD
+=======
+  },
+  _setDownloadFilename: function(graphPath) {
+    // Strip off everything before the last "/" and strip off the file
+    // extension in order to get the name of the PNG for the graph.
+    var dotIndex = graphPath.lastIndexOf('.');
+    if (dotIndex) {
+      graphPath = graphPath.substring(0, dotIndex);
+    }
+    var slashIndex = graphPath.lastIndexOf('/');
+    if (slashIndex) {
+      graphPath = graphPath.substring(slashIndex + 1);
+    }
+    this.$.graphdownload.setAttribute('download', graphPath + '.png');
+>>>>>>> tensorflow/master
   }
 });
 

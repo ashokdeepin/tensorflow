@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/array_ops.cc.
 
 #define EIGEN_USE_THREADS
@@ -9,6 +27,7 @@
 #include "tensorflow/core/kernels/reverse_sequence_op.h"
 
 #include <memory>
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/tensor_types.h"
@@ -17,6 +36,18 @@
 #include "tensorflow/core/public/tensor_shape.h"
 #include "tensorflow/core/public/tensor.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include <vector>
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -24,7 +55,11 @@ typedef Eigen::ThreadPoolDevice CPUDevice;
 typedef Eigen::GpuDevice GPUDevice;
 
 template <typename Device>
+<<<<<<< HEAD
 void CheckErrors(OpKernelContext* context, int seq_dim) {
+=======
+void CheckErrors(OpKernelContext* context, int batch_dim, int seq_dim) {
+>>>>>>> tensorflow/master
   const Tensor& input = context->input(0);
   const Tensor& seq_lens = context->input(1);
 
@@ -37,6 +72,7 @@ void CheckErrors(OpKernelContext* context, int seq_dim) {
       seq_lens_vec.data(), seq_lens_t.data(),
       sizeof(int64) * seq_lens_t.size());
 
+<<<<<<< HEAD
   OP_REQUIRES(context, 0 != seq_dim, errors::InvalidArgument("0 == seq_dim"));
   OP_REQUIRES(context, seq_dim < input.dims(),
               errors::InvalidArgument("seq_dim must be < input.dims()", "( ",
@@ -48,6 +84,22 @@ void CheckErrors(OpKernelContext* context, int seq_dim) {
                                       input.dim_size(seq_dim)));
 
   for (int d = 0; d < seq_lens_vec.size(); ++d) {
+=======
+  OP_REQUIRES(context, batch_dim != seq_dim,
+              errors::InvalidArgument("batch_dim == seq_dim == ", seq_dim));
+  OP_REQUIRES(context, seq_dim < input.dims(),
+              errors::InvalidArgument("seq_dim must be < input.dims()", "( ",
+                                      seq_dim, " vs. ", input.dims(), ")"));
+  OP_REQUIRES(context, batch_dim < input.dims(),
+              errors::InvalidArgument("batch_dim must be < input.dims()", "( ",
+                                      batch_dim, " vs. ", input.dims(), ")"));
+  OP_REQUIRES(context, seq_lens.NumElements() == input.dim_size(batch_dim),
+              errors::InvalidArgument("len(seq_lens) != input.dims(", batch_dim,
+                                      "), ", "(", seq_lens.NumElements(),
+                                      " vs. ", input.dim_size(batch_dim)));
+
+  for (size_t d = 0; d < seq_lens_vec.size(); ++d) {
+>>>>>>> tensorflow/master
     OP_REQUIRES(context, seq_lens_vec[d] >= 0,
                 errors::InvalidArgument("seq_lens(", d, ") < 0"));
     OP_REQUIRES(context, seq_lens_vec[d] <= input.dim_size(seq_dim),
@@ -57,6 +109,7 @@ void CheckErrors(OpKernelContext* context, int seq_dim) {
 }
 
 template <>
+<<<<<<< HEAD
 void CheckErrors<GPUDevice>(OpKernelContext* context, int seq_dim) {
   const Tensor& input = context->input(0);
   const Tensor& seq_lens = context->input(1);
@@ -70,6 +123,26 @@ void CheckErrors<GPUDevice>(OpKernelContext* context, int seq_dim) {
               errors::InvalidArgument("len(seq_lens) != input.dims(", 0, "), ",
                                       "(", seq_lens.NumElements(), " vs. ",
                                       input.dim_size(seq_dim)));
+=======
+void CheckErrors<GPUDevice>(OpKernelContext* context, int batch_dim,
+                            int seq_dim) {
+  const Tensor& input = context->input(0);
+  const Tensor& seq_lens = context->input(1);
+
+  OP_REQUIRES(context, batch_dim != seq_dim,
+              errors::InvalidArgument("batch_dim == seq_dim == ", seq_dim));
+  OP_REQUIRES(context, seq_dim < input.dims(),
+              errors::InvalidArgument("seq_dim must be < input.dims()", "( ",
+                                      seq_dim, " vs. ", input.dims(), ")"));
+  OP_REQUIRES(context, batch_dim < input.dims(),
+              errors::InvalidArgument("batch_dim must be < input.dims()", "( ",
+                                      batch_dim, " vs. ", input.dims(), ")"));
+
+  OP_REQUIRES(context, seq_lens.NumElements() == input.dim_size(batch_dim),
+              errors::InvalidArgument("len(seq_lens) != input.dims(", batch_dim,
+                                      "), ", "(", seq_lens.NumElements(),
+                                      " vs. ", input.dim_size(batch_dim)));
+>>>>>>> tensorflow/master
 }
 
 template <typename Device, typename T>
@@ -77,6 +150,10 @@ class ReverseSequenceOp : public OpKernel {
  public:
   explicit ReverseSequenceOp(OpKernelConstruction* context)
       : OpKernel(context) {
+<<<<<<< HEAD
+=======
+    OP_REQUIRES_OK(context, context->GetAttr("batch_dim", &batch_dim_));
+>>>>>>> tensorflow/master
     OP_REQUIRES_OK(context, context->GetAttr("seq_dim", &seq_dim_));
   }
 
@@ -91,7 +168,11 @@ class ReverseSequenceOp : public OpKernel {
 
     auto seq_lens_t = seq_lens.vec<int64>();
 
+<<<<<<< HEAD
     CheckErrors<Device>(context, seq_dim_);
+=======
+    CheckErrors<Device>(context, batch_dim_, seq_dim_);
+>>>>>>> tensorflow/master
 
     const int input_dims = input.dims();
 
@@ -99,11 +180,19 @@ class ReverseSequenceOp : public OpKernel {
     OP_REQUIRES_OK(context,
                    context->allocate_output(0, input.shape(), &output));
 
+<<<<<<< HEAD
 #define HANDLE_DIM(NDIM)                                                    \
   case NDIM:                                                                \
     functor::ReverseSequence<Device, T, NDIM>::Compute(                     \
         context->eigen_device<Device>(), input.tensor<T, NDIM>(), seq_dim_, \
         seq_lens_t, output->tensor<T, NDIM>());                             \
+=======
+#define HANDLE_DIM(NDIM)                                                      \
+  case NDIM:                                                                  \
+    functor::ReverseSequence<Device, T, NDIM>::Compute(                       \
+        context->eigen_device<Device>(), input.tensor<T, NDIM>(), batch_dim_, \
+        seq_dim_, seq_lens_t, output->tensor<T, NDIM>());                     \
+>>>>>>> tensorflow/master
     break;
 
     switch (input_dims) {
@@ -121,6 +210,10 @@ class ReverseSequenceOp : public OpKernel {
   }
 
  private:
+<<<<<<< HEAD
+=======
+  int32 batch_dim_;
+>>>>>>> tensorflow/master
   int32 seq_dim_;
 
   TF_DISALLOW_COPY_AND_ASSIGN(ReverseSequenceOp);
@@ -137,12 +230,21 @@ TF_CALL_NUMBER_TYPES(REGISTER_REVERSE_SEQUENCE);
 
 // Forward declarations of the functor specializations for GPU.
 namespace functor {
+<<<<<<< HEAD
 #define DECLARE_GPU_SPEC(T, Dims)                                      \
   template <>                                                          \
   void ReverseSequence<GPUDevice, T, Dims>::Compute(                   \
       const GPUDevice& d, typename TTypes<T, Dims>::ConstTensor input, \
       int32 seq_dim, TTypes<int64>::ConstVec seq_lens,                 \
       typename TTypes<T, Dims>::Tensor output);                        \
+=======
+#define DECLARE_GPU_SPEC(T, Dims)                                       \
+  template <>                                                           \
+  void ReverseSequence<GPUDevice, T, Dims>::Compute(                    \
+      const GPUDevice& d, typename TTypes<T, Dims>::ConstTensor input,  \
+      int32 batch_dim, int32 seq_dim, TTypes<int64>::ConstVec seq_lens, \
+      typename TTypes<T, Dims>::Tensor output);                         \
+>>>>>>> tensorflow/master
   extern template struct ReverseSequence<GPUDevice, T, Dims>;
 
 #define DECLARE_GPU_SPECS(T) \

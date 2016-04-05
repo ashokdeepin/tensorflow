@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/graph/equal_graph_def.h"
 
 #include <unordered_map>
@@ -11,6 +29,12 @@ namespace tensorflow {
 
 bool EqualGraphDef(const GraphDef& actual, const GraphDef& expected,
                    string* diff) {
+<<<<<<< HEAD
+=======
+  // Intentionally do not check that versions match so that this routine can
+  // be used for less brittle golden file tests.
+
+>>>>>>> tensorflow/master
   std::unordered_map<string, const NodeDef*> actual_index;
   for (const NodeDef& node : actual.node()) {
     actual_index[node.name()] = &node;
@@ -138,9 +162,22 @@ bool EqualNodeDef(const NodeDef& actual, const NodeDef& expected,
 
   std::unordered_set<string> actual_attr;
   for (const auto& a : actual.attr()) {
+<<<<<<< HEAD
     actual_attr.insert(a.first);
   }
   for (const auto& e : expected.attr()) {
+=======
+    if (!a.first.empty() && a.first[0] == '_') {
+      continue;
+    }
+    actual_attr.insert(a.first);
+  }
+  for (const auto& e : expected.attr()) {
+    if (!e.first.empty() && e.first[0] == '_') {
+      continue;
+    }
+
+>>>>>>> tensorflow/master
     if (actual_attr.erase(e.first) == 0) {
       if (diff != nullptr) {
         *diff = strings::StrCat("Node named '", actual.name(),

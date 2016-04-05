@@ -1,13 +1,21 @@
 <!DOCTYPE html>
 <html>
   <head>
+<<<<<<< HEAD
     <script src="../../../bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+=======
+    <script src="../../webcomponentsjs/webcomponents-lite.min.js"></script>
+>>>>>>> tensorflow/master
     <link rel="stylesheet" type="text/css" href="../../../lib/css/global.css">
     <link rel="import" href="../tf-image-dashboard.html">
     <title>Image Dashboard Demo</title>
     <style>
       #container{
+<<<<<<< HEAD
         width: 500px;
+=======
+        width: 1000px;
+>>>>>>> tensorflow/master
         height: 800px;
         border: 2px solid grey;
       }
@@ -17,6 +25,7 @@
     </style>
   </head>
   <body>
+<<<<<<< HEAD
     <script>
       TF.Urls.runsUrl = function() {
         return "data/runs.json"
@@ -34,6 +43,31 @@
     <p>Looks goofy though.</p>
     <div id="container">
       <tf-image-dashboard id="demo"></tf-image-dashboard>
+=======
+    <dom-module id="image-dash-demo">
+      <template>
+        <tf-image-dashboard id="demo" backend="[[backend]]"/>
+        </tf-image-dashboard>
+      </template>
+      <script>
+        Polymer({
+          is: "image-dash-demo",
+          properties: {
+            backend: {
+              type: Object,
+              value: function() {
+                var path = "/demo/data";
+                var router = new TF.Backend.router(path, true);
+                return new TF.Backend.Backend(router);
+              },
+            },
+          },
+        });
+      </script>
+    </dom-module>
+    <div id="container">
+      <image-dash-demo></image-dash-demo>
+>>>>>>> tensorflow/master
     </div>
   </body>
 </html>

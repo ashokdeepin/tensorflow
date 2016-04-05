@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for the DynamicPartition op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -57,11 +78,29 @@ class DynamicPartitionTest(tf.test.TestCase):
           partitions = np.random.randint(n, size=np.prod(shape)).reshape(shape)
           for extra_shape in (), (6,), (6, 7):
             data = np.random.randn(*(shape + extra_shape))
+<<<<<<< HEAD
             outputs = tf.dynamic_partition(data, partitions, num_partitions=n)
             self.assertEqual(n, len(outputs))
             for i, output in enumerate(sess.run(outputs)):
               self.assertAllEqual(output, data[partitions == i])
 
+=======
+            partitions_t = tf.constant(partitions, dtype=tf.int32)
+            data_t = tf.constant(data)
+            outputs = tf.dynamic_partition(
+                data_t, partitions_t, num_partitions=n)
+            self.assertEqual(n, len(outputs))
+            outputs_val = sess.run(outputs)
+            for i, output in enumerate(outputs_val):
+              self.assertAllEqual(output, data[partitions == i])
+
+            # Test gradients
+            outputs_grad = [7 * output for output in outputs_val]
+            grads = tf.gradients(outputs, [data_t, partitions_t], outputs_grad)
+            self.assertEqual(grads[1], None)  # Partitions has no gradients
+            self.assertAllEqual(7 * data, sess.run(grads[0]))
+
+>>>>>>> tensorflow/master
   def testErrorIndexOutOfRange(self):
     with self.test_session() as sess:
       data = tf.constant([[0, 1, 2], [3, 4, 5], [6, 7, 8],

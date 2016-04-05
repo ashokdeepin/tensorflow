@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """One-line documentation for rmsprop module.
 
 rmsprop algorithm [tieleman2012rmsprop]
@@ -26,20 +44,44 @@ from tensorflow.python.training import training_ops
 class RMSPropOptimizer(optimizer.Optimizer):
   """Optimizer that implements the RMSProp algorithm.
 
+<<<<<<< HEAD
   @@__init__
   """
 
   def __init__(self, learning_rate, decay, momentum=0.0, epsilon=1e-10,
                use_locking=False, name="RMSProp"):
+=======
+  See the [paper]
+  (http://www.cs.toronto.edu/~tijmen/csc321/slides/lecture_slides_lec6.pdf).
+
+  @@__init__
+  """
+
+  def __init__(self,
+               learning_rate,
+               decay=0.9,
+               momentum=0.0,
+               epsilon=1e-10,
+               use_locking=False,
+               name="RMSProp"):
+>>>>>>> tensorflow/master
     """Construct a new RMSProp optimizer.
 
     Args:
       learning_rate: A Tensor or a floating point value.  The learning rate.
+<<<<<<< HEAD
       decay: discounting factor for the history/coming gradient
       momentum: a scalar tensor.
       epsilon: small value to avoid zero denominator.
       use_locking: If True use locks for update operation.
       name: Optional name prefic for the operations created when applying
+=======
+      decay: Discounting factor for the history/coming gradient
+      momentum: A scalar tensor.
+      epsilon: Small value to avoid zero denominator.
+      use_locking: If True use locks for update operation.
+      name: Optional name prefix for the operations created when applying
+>>>>>>> tensorflow/master
         gradients. Defaults to "RMSProp".
     """
     super(RMSPropOptimizer, self).__init__(use_locking, name)
@@ -56,9 +98,14 @@ class RMSPropOptimizer(optimizer.Optimizer):
 
   def _create_slots(self, var_list):
     for v in var_list:
+<<<<<<< HEAD
       self._get_or_make_slot(
           v, constant_op.constant(1.0, dtype=v.dtype, shape=v.get_shape()),
           "rms", self._name)
+=======
+      val = constant_op.constant(1.0, dtype=v.dtype, shape=v.get_shape())
+      self._get_or_make_slot(v, val, "rms", self._name)
+>>>>>>> tensorflow/master
       self._zeros_slot(v, "momentum", self._name)
 
   def _prepare(self):

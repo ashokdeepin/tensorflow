@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/nn_ops.cc.
 
 #define EIGEN_USE_THREADS
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
@@ -9,12 +28,22 @@
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include "tensorflow/core/kernels/relu_op.h"
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/numeric_op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/errors.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
 typedef Eigen::ThreadPoolDevice CPUDevice;
 typedef Eigen::GpuDevice GPUDevice;
 
+<<<<<<< HEAD
 template <typename Device, typename T>
 class ReluOp : public UnaryElementWiseOp<T, ReluOp<Device, T>> {
  public:
@@ -82,10 +111,14 @@ class Relu6GradOp : public BinaryElementWiseOp<T, Relu6GradOp<Device, T>> {
 };
 
 #define REGISTER_KERNELS(type)                                        \
+=======
+#define REGISTER_RELU_KERNELS(type)                                   \
+>>>>>>> tensorflow/master
   REGISTER_KERNEL_BUILDER(                                            \
       Name("Relu").Device(DEVICE_CPU).TypeConstraint<type>("T"),      \
       ReluOp<CPUDevice, type>);                                       \
   REGISTER_KERNEL_BUILDER(                                            \
+<<<<<<< HEAD
       Name("Relu6").Device(DEVICE_CPU).TypeConstraint<type>("T"),     \
       Relu6Op<CPUDevice, type>);                                      \
   REGISTER_KERNEL_BUILDER(                                            \
@@ -97,10 +130,36 @@ class Relu6GradOp : public BinaryElementWiseOp<T, Relu6GradOp<Device, T>> {
 
 TF_CALL_REAL_NUMBER_TYPES(REGISTER_KERNELS);
 #undef REGISTER_KERNELS
+=======
+      Name("ReluGrad").Device(DEVICE_CPU).TypeConstraint<type>("T"),  \
+      ReluGradOp<CPUDevice, type>);                                   \
+  REGISTER_KERNEL_BUILDER(                                            \
+      Name("Relu6").Device(DEVICE_CPU).TypeConstraint<type>("T"),     \
+      Relu6Op<CPUDevice, type>);                                      \
+  REGISTER_KERNEL_BUILDER(                                            \
+      Name("Relu6Grad").Device(DEVICE_CPU).TypeConstraint<type>("T"), \
+      Relu6GradOp<CPUDevice, type>)
+
+TF_CALL_REAL_NUMBER_TYPES(REGISTER_RELU_KERNELS);
+#undef REGISTER_RELU_KERNELS
+
+#define REGISTER_ELU_KERNELS(type)                                  \
+  REGISTER_KERNEL_BUILDER(                                          \
+      Name("Elu").Device(DEVICE_CPU).TypeConstraint<type>("T"),     \
+      EluOp<CPUDevice, type>);                                      \
+  REGISTER_KERNEL_BUILDER(                                          \
+      Name("EluGrad").Device(DEVICE_CPU).TypeConstraint<type>("T"), \
+      EluGradOp<CPUDevice, type>)
+
+// Elu only makes sense with float or double.
+TF_CALL_GPU_NUMBER_TYPES(REGISTER_ELU_KERNELS);
+#undef REGISTER_ELU_KERNELS
+>>>>>>> tensorflow/master
 
 #if GOOGLE_CUDA
 // Forward declarations of the functor specializations for GPU.
 namespace functor {
+<<<<<<< HEAD
 #define DECLARE_GPU_SPEC(T)                                          \
   template <>                                                        \
   void Relu<GPUDevice, T>::operator()(                               \
@@ -127,6 +186,47 @@ namespace functor {
       typename TTypes<T>::ConstTensor features,                      \
       typename TTypes<T>::Tensor backprops);                         \
   extern template struct Relu6Grad<GPUDevice, T>;
+=======
+#define DECLARE_GPU_SPEC(T)                                                    \
+  template <>                                                                  \
+  void Relu<GPUDevice, T>::operator()(                                         \
+      const GPUDevice& d, typename TTypes<T>::ConstTensor features,            \
+      typename TTypes<T>::Tensor activations);                                 \
+  extern template struct Relu<GPUDevice, T>;                                   \
+                                                                               \
+  template <>                                                                  \
+  void ReluGrad<GPUDevice, T>::operator()(                                     \
+      const GPUDevice& d, typename TTypes<T>::ConstTensor gradients,           \
+      typename TTypes<T>::ConstTensor features,                                \
+      typename TTypes<T>::Tensor backprops);                                   \
+  extern template struct ReluGrad<GPUDevice, T>;                               \
+                                                                               \
+  template <>                                                                  \
+  void Relu6<GPUDevice, T>::operator()(                                        \
+      const GPUDevice& d, typename TTypes<T>::ConstTensor features,            \
+      typename TTypes<T>::Tensor activations);                                 \
+  extern template struct Relu6<GPUDevice, T>;                                  \
+                                                                               \
+  template <>                                                                  \
+  void Relu6Grad<GPUDevice, T>::operator()(                                    \
+      const GPUDevice& d, typename TTypes<T>::ConstTensor gradients,           \
+      typename TTypes<T>::ConstTensor features,                                \
+      typename TTypes<T>::Tensor backprops);                                   \
+  extern template struct Relu6Grad<GPUDevice, T>;                              \
+                                                                               \
+  template <>                                                                  \
+  void Elu<GPUDevice, T>::operator()(const GPUDevice& d,                       \
+                                     typename TTypes<T>::ConstTensor features, \
+                                     typename TTypes<T>::Tensor activations);  \
+  extern template struct Elu<GPUDevice, T>;                                    \
+                                                                               \
+  template <>                                                                  \
+  void EluGrad<GPUDevice, T>::operator()(                                      \
+      const GPUDevice& d, typename TTypes<T>::ConstTensor gradients,           \
+      typename TTypes<T>::ConstTensor activations,                             \
+      typename TTypes<T>::Tensor backprops);                                   \
+  extern template struct EluGrad<GPUDevice, T>;
+>>>>>>> tensorflow/master
 
 TF_CALL_GPU_NUMBER_TYPES(DECLARE_GPU_SPEC);
 }  // namespace functor
@@ -137,6 +237,7 @@ TF_CALL_GPU_NUMBER_TYPES(DECLARE_GPU_SPEC);
       Name("Relu").Device(DEVICE_GPU).TypeConstraint<type>("T"),      \
       ReluOp<GPUDevice, type>);                                       \
   REGISTER_KERNEL_BUILDER(                                            \
+<<<<<<< HEAD
       Name("Relu6").Device(DEVICE_GPU).TypeConstraint<type>("T"),     \
       Relu6Op<GPUDevice, type>);                                      \
   REGISTER_KERNEL_BUILDER(                                            \
@@ -145,6 +246,22 @@ TF_CALL_GPU_NUMBER_TYPES(DECLARE_GPU_SPEC);
   REGISTER_KERNEL_BUILDER(                                            \
       Name("Relu6Grad").Device(DEVICE_GPU).TypeConstraint<type>("T"), \
       Relu6GradOp<GPUDevice, type>)
+=======
+      Name("ReluGrad").Device(DEVICE_GPU).TypeConstraint<type>("T"),  \
+      ReluGradOp<GPUDevice, type>);                                   \
+  REGISTER_KERNEL_BUILDER(                                            \
+      Name("Relu6").Device(DEVICE_GPU).TypeConstraint<type>("T"),     \
+      Relu6Op<GPUDevice, type>);                                      \
+  REGISTER_KERNEL_BUILDER(                                            \
+      Name("Relu6Grad").Device(DEVICE_GPU).TypeConstraint<type>("T"), \
+      Relu6GradOp<GPUDevice, type>);                                  \
+  REGISTER_KERNEL_BUILDER(                                            \
+      Name("Elu").Device(DEVICE_GPU).TypeConstraint<type>("T"),       \
+      EluOp<GPUDevice, type>);                                        \
+  REGISTER_KERNEL_BUILDER(                                            \
+      Name("EluGrad").Device(DEVICE_GPU).TypeConstraint<type>("T"),   \
+      EluGradOp<GPUDevice, type>)
+>>>>>>> tensorflow/master
 
 TF_CALL_GPU_NUMBER_TYPES(REGISTER_GPU_KERNELS);
 #undef REGISTER_GPU_KERNELS

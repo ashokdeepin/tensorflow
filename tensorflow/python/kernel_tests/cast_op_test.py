@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.tf.cast."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -10,6 +29,11 @@ import tensorflow as tf
 
 from tensorflow.python.kernel_tests import gradient_checker as gc
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 class CastOpTest(tf.test.TestCase):
 
@@ -145,16 +169,26 @@ class CastOpTest(tf.test.TestCase):
           x = tf.constant(1.0, src_t)
           z = tf.identity(x)
           y = tf.cast(z, dst_t)
+<<<<<<< HEAD
           err = gc.ComputeGradientError(x, [1], y, [1])
+=======
+          err = tf.test.compute_gradient_error(x, [], y, [])
+>>>>>>> tensorflow/master
           self.assertLess(err, 1e-3)
 
 
 class SparseTensorCastTest(tf.test.TestCase):
 
   def testCast(self):
+<<<<<<< HEAD
     indices = tf.constant([[0], [1], [2]])
     values = tf.constant(np.array([1, 2, 3], np.int64))
     shape = tf.constant([3])
+=======
+    indices = tf.constant([[0], [1], [2]], tf.int64)
+    values = tf.constant(np.array([1, 2, 3], np.int64))
+    shape = tf.constant([3], tf.int64)
+>>>>>>> tensorflow/master
     st = tf.SparseTensor(indices, values, shape)
     st_cast = tf.cast(st, tf.float32)
     with self.test_session():
@@ -164,5 +198,26 @@ class SparseTensorCastTest(tf.test.TestCase):
       self.assertAllEqual(st_cast.shape.eval(), [3])
 
 
+<<<<<<< HEAD
+=======
+class SaturateCastTest(tf.test.TestCase):
+
+  def testSaturate(self):
+    in_types = tf.float32,
+    out_types = tf.int8, tf.uint8, tf.int16, tf.float32
+    with self.test_session() as sess:
+      for in_type in in_types:
+        for out_type in out_types:
+          lo, hi = in_type.min, in_type.max
+          x = tf.constant([lo, lo + 1, lo // 2, hi // 2, hi - 1, hi],
+                          dtype=in_type)
+          y = tf.saturate_cast(x, dtype=out_type)
+          self.assertEqual(y.dtype, out_type)
+          x, y = sess.run([x, y])
+          correct = np.maximum(out_type.min, np.minimum(out_type.max, x))
+          self.assertAllEqual(correct, y)
+
+
+>>>>>>> tensorflow/master
 if __name__ == "__main__":
   tf.test.main()

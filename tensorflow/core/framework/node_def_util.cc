@@ -1,19 +1,55 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/node_def_util.h"
 
 #include <algorithm>
 #include <unordered_map>
+<<<<<<< HEAD
+=======
+#include <vector>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/attr_value_util.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_def_util.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
+<<<<<<< HEAD
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/platform/regexp.h"
 
 namespace tensorflow {
 
+=======
+#include "tensorflow/core/lib/strings/scanner.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/protobuf.h"
+
+namespace tensorflow {
+
+AttrSlice::AttrSlice(const NodeDef& node_def)
+    : ndef_(&node_def), attrs_(&ndef_->attr()) {}
+
+AttrSlice::AttrSlice(const AttrValueMap* a) : ndef_(nullptr), attrs_(a) {}
+
+>>>>>>> tensorflow/master
 string SummarizeNodeDef(const NodeDef& node_def) {
   string ret = strings::StrCat(node_def.name(), " = ", node_def.op(), "[");
 
@@ -51,20 +87,36 @@ string SummarizeNodeDef(const NodeDef& node_def) {
   return ret;
 }
 
+<<<<<<< HEAD
 const AttrValue* AttrSlice::Find(const string& attr_name) const {
   auto iter = attrs_->find(attr_name);
+=======
+const AttrValue* AttrSlice::Find(StringPiece attr_name) const {
+  auto iter = attrs_->find(attr_name.ToString());
+>>>>>>> tensorflow/master
   if (iter == attrs_->end()) return nullptr;
   return &iter->second;
 }
 
+<<<<<<< HEAD
 Status AttrSlice::Find(const string& attr_name,
+=======
+Status AttrSlice::Find(StringPiece attr_name,
+>>>>>>> tensorflow/master
                        const AttrValue** attr_value) const {
   *attr_value = Find(attr_name);
   if (*attr_value != nullptr) {
     return Status::OK();
   }
   Status s = errors::NotFound("No attr named '", attr_name, "' in NodeDef:");
+<<<<<<< HEAD
   if (ndef_) {
+=======
+  // Skip AttachDef for internal attrs since it is a little bit
+  // expensive and it is common for them to correctly not be included
+  // in a NodeDef.
+  if (!StringPiece(attr_name).starts_with("_") && ndef_) {
+>>>>>>> tensorflow/master
     s = AttachDef(s, *ndef_);
   }
   return s;
@@ -73,7 +125,11 @@ Status AttrSlice::Find(const string& attr_name,
 // The ... is to allow the caller to inject some value validation code.  Use
 // just ; if no additional validation code is needed.
 #define DEFINE_GET_ATTR(TYPE, FIELD, ATTR_TYPE, APPEND_OP, CAST, ...)         \
+<<<<<<< HEAD
   Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,         \
+=======
+  Status GetNodeAttr(const AttrSlice& attrs, StringPiece attr_name,           \
+>>>>>>> tensorflow/master
                      TYPE* value) {                                           \
     const AttrValue* attr_value;                                              \
     TF_RETURN_IF_ERROR(attrs.Find(attr_name, &attr_value));                   \
@@ -83,7 +139,11 @@ Status AttrSlice::Find(const string& attr_name,
     *value = CAST;                                                            \
     return Status::OK();                                                      \
   }                                                                           \
+<<<<<<< HEAD
   Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,         \
+=======
+  Status GetNodeAttr(const AttrSlice& attrs, StringPiece attr_name,           \
+>>>>>>> tensorflow/master
                      std::vector<TYPE>* value) {                              \
     const AttrValue* attr_value;                                              \
     TF_RETURN_IF_ERROR(attrs.Find(attr_name, &attr_value));                   \
@@ -111,7 +171,15 @@ DEFINE_GET_ATTR(bool, b, "bool", push_back, v, ;)
 DEFINE_GET_ATTR(DataType, type, "type", emplace_back, static_cast<DataType>(v),
                 ;)
 DEFINE_GET_ATTR(TensorShapeProto, shape, "shape", emplace_back, v, ;)
+<<<<<<< HEAD
 DEFINE_GET_ATTR(TensorShape, shape, "shape", emplace_back, TensorShape(v), ;)
+=======
+DEFINE_GET_ATTR(TensorShape, shape, "shape", emplace_back, TensorShape(v),
+                TF_RETURN_IF_ERROR(TensorShape::IsValidShape(v));)
+DEFINE_GET_ATTR(PartialTensorShape, shape, "shape", emplace_back,
+                PartialTensorShape(v),
+                TF_RETURN_IF_ERROR(PartialTensorShape::IsValidShape(v));)
+>>>>>>> tensorflow/master
 DEFINE_GET_ATTR(Tensor, tensor, "tensor", emplace_back, t, Tensor t;
                 if (!t.FromProto(v)) {
                   return errors::InvalidArgument(
@@ -121,7 +189,11 @@ DEFINE_GET_ATTR(Tensor, tensor, "tensor", emplace_back, t, Tensor t;
 
 #undef DEFINE_GET_ATTR
 
+<<<<<<< HEAD
 Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,
+=======
+Status GetNodeAttr(const AttrSlice& attrs, StringPiece attr_name,
+>>>>>>> tensorflow/master
                    DataTypeVector* value) {
   const AttrValue* attr_value;
   TF_RETURN_IF_ERROR(attrs.Find(attr_name, &attr_value));
@@ -132,7 +204,11 @@ Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,
   return Status::OK();
 }
 
+<<<<<<< HEAD
 Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,
+=======
+Status GetNodeAttr(const AttrSlice& attrs, StringPiece attr_name,
+>>>>>>> tensorflow/master
                    const TensorProto** value) {
   const AttrValue* attr_value;
   TF_RETURN_IF_ERROR(attrs.Find(attr_name, &attr_value));
@@ -141,7 +217,11 @@ Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,
   return Status::OK();
 }
 
+<<<<<<< HEAD
 Status GetNodeAttr(const AttrSlice& attrs, const string& attr_name,
+=======
+Status GetNodeAttr(const AttrSlice& attrs, StringPiece attr_name,
+>>>>>>> tensorflow/master
                    const NameAttrList** value) {
   const AttrValue* attr_value;
   TF_RETURN_IF_ERROR(attrs.Find(attr_name, &attr_value));
@@ -353,19 +433,64 @@ void AddDefaultsToNodeDef(const OpDef& op_def, NodeDef* node_def) {
 
 namespace {
 
+<<<<<<< HEAD
 static RE2* valid_op_name_pattern = new RE2("[A-Za-z0-9.][A-Za-z0-9_.\\-/]*");
 static RE2* valid_data_input_pattern =
     new RE2("[A-Za-z0-9.][A-Za-z0-9_.\\-/]*(\\:(0|([1-9][0-9]*)))?");
 static RE2* valid_control_input_pattern =
     new RE2("\\^[A-Za-z0-9.][A-Za-z0-9_.\\-/]*");
+=======
+using ::tensorflow::strings::Scanner;
+
+bool IsValidOpName(StringPiece sp) {
+  return Scanner(sp)
+      .One(Scanner::LETTER_DIGIT_DOT)
+      .Any(Scanner::LETTER_DIGIT_DASH_DOT_SLASH_UNDERSCORE)
+      .Eos()
+      .GetResult();
+}
+
+bool IsValidDataInputName(StringPiece sp) {
+  // Data inputs are op_name, op_name:0, or op_name:12345.
+  Scanner scan(sp);
+  scan.One(Scanner::LETTER_DIGIT_DOT)
+      .Any(Scanner::LETTER_DIGIT_DASH_DOT_SLASH_UNDERSCORE);
+  if (scan.Peek() == ':') {
+    scan.OneLiteral(":");
+    if (scan.Peek() == '0') {
+      scan.OneLiteral("0");  // :0
+    } else {
+      scan.Many(Scanner::DIGIT);  // :[1-9][0-9]*
+    }
+  }
+  scan.Eos();
+
+  return scan.GetResult();
+}
+
+bool IsValidControlInputName(StringPiece sp) {
+  return Scanner(sp)
+      .OneLiteral("^")
+      .One(Scanner::LETTER_DIGIT_DOT)
+      .Any(Scanner::LETTER_DIGIT_DASH_DOT_SLASH_UNDERSCORE)
+      .Eos()
+      .GetResult();
+}
+>>>>>>> tensorflow/master
 
 }  // namespace
 
 Status ValidateOpInput(const string& input_name, bool* is_control_input) {
   *is_control_input = false;
+<<<<<<< HEAD
   if (RE2::FullMatch(input_name, *valid_data_input_pattern)) {
     return Status::OK();
   } else if (RE2::FullMatch(input_name, *valid_control_input_pattern)) {
+=======
+  if (IsValidDataInputName(input_name)) {
+    return Status::OK();
+  } else if (IsValidControlInputName(input_name)) {
+>>>>>>> tensorflow/master
     *is_control_input = true;
     return Status::OK();
   } else {
@@ -374,7 +499,11 @@ Status ValidateOpInput(const string& input_name, bool* is_control_input) {
 }
 
 Status ValidateOpName(const string& op_name) {
+<<<<<<< HEAD
   if (RE2::FullMatch(op_name, *valid_op_name_pattern)) {
+=======
+  if (IsValidOpName(op_name)) {
+>>>>>>> tensorflow/master
     return Status::OK();
   } else {
     return errors::InvalidArgument("Illegal op name '", op_name, "'");

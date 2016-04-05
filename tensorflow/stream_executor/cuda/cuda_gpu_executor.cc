@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/cuda/cuda_gpu_executor.h"
 
 #include <unistd.h>
@@ -5,7 +23,11 @@
 #include "tensorflow/stream_executor/cuda/cuda_diagnostics.h"
 #include "tensorflow/stream_executor/cuda/cuda_driver.h"
 #include "tensorflow/stream_executor/cuda/cuda_event.h"
+<<<<<<< HEAD
 #include "tensorflow/stream_executor/cuda/cuda_platform.h"
+=======
+#include "tensorflow/stream_executor/cuda/cuda_platform_id.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/cuda/cuda_stream.h"
 #include "tensorflow/stream_executor/cuda/cuda_timer.h"
 #include "tensorflow/stream_executor/dso_loader.h"
@@ -73,6 +95,7 @@ static CUDAEvent *AsCUDAEvent(Event *event) {
   return static_cast<CUDAEvent *>(event->implementation());
 }
 
+<<<<<<< HEAD
 // Given a platform-independent stream datatype, returns the internal CUDA
 // platform implementation pointer.
 static CUDAStream *AsCUDAStream(Stream *stream) {
@@ -87,6 +110,8 @@ CUstream AsCUDAStreamValue(Stream *stream) {
   DCHECK(stream != nullptr);
   return AsCUDAStream(stream)->cuda_stream();
 }
+=======
+>>>>>>> tensorflow/master
 
 // Given a platform-independent timer datatype, returns the internal CUDA
 // platform implementation pointer.
@@ -207,6 +232,7 @@ static string GetBinaryDir(bool strip_exe) {
   return exe_path;
 }
 
+<<<<<<< HEAD
 // Returns the location of the runfiles directory.
 // This is the directory which "bazel run" sets as the current working directory
 // before the program starts.
@@ -216,6 +242,8 @@ static string GetRunfilesDir() {
   return port::StrCat(GetBinaryDir(false), ".runfiles");
 }
 
+=======
+>>>>>>> tensorflow/master
 bool CUDAExecutor::GetKernel(const MultiKernelLoaderSpec &spec,
                              KernelBase *kernel) {
   CUDAKernel *cuda_kernel = AsCUDAKernel(kernel);
@@ -846,6 +874,29 @@ bool CUDAExecutor::SupportsFft() const { return true; }
 
 bool CUDAExecutor::SupportsRng() const { return true; }
 
+<<<<<<< HEAD
+=======
+std::unique_ptr<internal::EventInterface>
+CUDAExecutor::CreateEventImplementation() {
+  return std::unique_ptr<internal::EventInterface>(new CUDAEvent(this));
+}
+
+std::unique_ptr<internal::KernelInterface>
+CUDAExecutor::CreateKernelImplementation() {
+  return std::unique_ptr<internal::KernelInterface>(new CUDAKernel());
+}
+
+std::unique_ptr<internal::StreamInterface>
+CUDAExecutor::GetStreamImplementation() {
+  return std::unique_ptr<internal::StreamInterface>(new CUDAStream(this));
+}
+
+std::unique_ptr<internal::TimerInterface>
+CUDAExecutor::GetTimerImplementation() {
+  return std::unique_ptr<internal::TimerInterface>(new CUDATimer(this));
+}
+
+>>>>>>> tensorflow/master
 void *CUDAExecutor::CudaContextHack() { return context_; }
 
 CUcontext CUDAExecutor::cuda_context() { return context_; }
@@ -1049,6 +1100,7 @@ void initialize_cuda_gpu_executor() {
       const gpu::PluginConfig &config) {
     return new gpu::cuda::CUDAExecutor{config};
   };
+<<<<<<< HEAD
 
   *gpu::internal::MakeCUDAKernelImplementation() = []() {
     return new gpu::cuda::CUDAKernel;
@@ -1073,6 +1125,8 @@ void initialize_cuda_gpu_executor() {
         static_cast<gpu::cuda::CUDAExecutor *>(parent->implementation());
     return new gpu::cuda::CUDATimer{cuda_executor};
   };
+=======
+>>>>>>> tensorflow/master
 }
 
 }  // namespace gputools

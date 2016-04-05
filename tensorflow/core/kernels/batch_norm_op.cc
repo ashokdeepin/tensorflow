@@ -1,13 +1,40 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/nn_ops.cc.
 
 #define EIGEN_USE_THREADS
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/kernels/batch_norm_op.h"
 #include "tensorflow/core/public/tensor.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include "tensorflow/core/kernels/batch_norm_op.h"
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/numeric_op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -18,6 +45,10 @@ template <typename Device, typename T>
 class BatchNormOp : public OpKernel {
  public:
   explicit BatchNormOp(OpKernelConstruction* context) : OpKernel(context) {
+<<<<<<< HEAD
+=======
+    OP_DEPRECATED(context, 9, "Use tf.nn.batch_normalization()");
+>>>>>>> tensorflow/master
     OP_REQUIRES_OK(context,
                    context->GetAttr("variance_epsilon", &variance_epsilon_));
     OP_REQUIRES_OK(context, context->GetAttr("scale_after_normalization",
@@ -33,6 +64,7 @@ class BatchNormOp : public OpKernel {
 
     OP_REQUIRES(context, input.dims() == 4,
                 errors::InvalidArgument("input must be 4-dimensional",
+<<<<<<< HEAD
                                         input.shape().ShortDebugString()));
     OP_REQUIRES(context, mean.dims() == 1,
                 errors::InvalidArgument("mean must be 1-dimensional",
@@ -46,6 +78,21 @@ class BatchNormOp : public OpKernel {
     OP_REQUIRES(context, gamma.dims() == 1,
                 errors::InvalidArgument("gamma must be 1-dimensional",
                                         gamma.shape().ShortDebugString()));
+=======
+                                        input.shape().DebugString()));
+    OP_REQUIRES(context, mean.dims() == 1,
+                errors::InvalidArgument("mean must be 1-dimensional",
+                                        mean.shape().DebugString()));
+    OP_REQUIRES(context, var.dims() == 1,
+                errors::InvalidArgument("var must be 1-dimensional",
+                                        var.shape().DebugString()));
+    OP_REQUIRES(context, beta.dims() == 1,
+                errors::InvalidArgument("beta must be 1-dimensional",
+                                        beta.shape().DebugString()));
+    OP_REQUIRES(context, gamma.dims() == 1,
+                errors::InvalidArgument("gamma must be 1-dimensional",
+                                        gamma.shape().DebugString()));
+>>>>>>> tensorflow/master
 
     Tensor* output = nullptr;
     OP_REQUIRES_OK(context,
@@ -66,6 +113,10 @@ template <typename Device, typename T>
 class BatchNormGradOp : public OpKernel {
  public:
   explicit BatchNormGradOp(OpKernelConstruction* context) : OpKernel(context) {
+<<<<<<< HEAD
+=======
+    OP_DEPRECATED(context, 9, "Use tf.nn.batch_normalization()");
+>>>>>>> tensorflow/master
     OP_REQUIRES_OK(context,
                    context->GetAttr("variance_epsilon", &variance_epsilon_));
     OP_REQUIRES_OK(context, context->GetAttr("scale_after_normalization",
@@ -81,6 +132,7 @@ class BatchNormGradOp : public OpKernel {
 
     OP_REQUIRES(context, input.dims() == 4,
                 errors::InvalidArgument("input must be 4-dimensional",
+<<<<<<< HEAD
                                         input.shape().ShortDebugString()));
     OP_REQUIRES(context, mean.dims() == 1,
                 errors::InvalidArgument("mean must be 1-dimensional",
@@ -95,6 +147,21 @@ class BatchNormGradOp : public OpKernel {
         context, out_backprop.dims() == 4,
         errors::InvalidArgument("out_backprop must be 4-dimensional",
                                 out_backprop.shape().ShortDebugString()));
+=======
+                                        input.shape().DebugString()));
+    OP_REQUIRES(context, mean.dims() == 1,
+                errors::InvalidArgument("mean must be 1-dimensional",
+                                        mean.shape().DebugString()));
+    OP_REQUIRES(context, var.dims() == 1,
+                errors::InvalidArgument("var must be 1-dimensional",
+                                        var.shape().DebugString()));
+    OP_REQUIRES(context, gamma.dims() == 1,
+                errors::InvalidArgument("gamma must be 1-dimensional",
+                                        gamma.shape().DebugString()));
+    OP_REQUIRES(context, out_backprop.dims() == 4,
+                errors::InvalidArgument("out_backprop must be 4-dimensional",
+                                        out_backprop.shape().DebugString()));
+>>>>>>> tensorflow/master
 
     Tensor* dx = nullptr;
     OP_REQUIRES_OK(context, context->allocate_output(0, input.shape(), &dx));

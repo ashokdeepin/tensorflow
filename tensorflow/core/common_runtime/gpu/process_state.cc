@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/gpu/process_state.h"
 
 #include "tensorflow/core/framework/allocator.h"
@@ -36,6 +37,52 @@ bool FLAGS_brain_gpu_region_allocator_debug = false;
 bool FLAGS_brain_gpu_region_allocator_reset_to_nan = false;
 bool FLAGS_brain_gpu_use_bfc_allocator = true;
 #endif
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/gpu/process_state.h"
+
+#include <vector>
+
+#include "tensorflow/core/common_runtime/gpu/gpu_bfc_allocator.h"
+#include "tensorflow/core/common_runtime/gpu/gpu_debug_allocator.h"
+#include "tensorflow/core/common_runtime/gpu/gpu_init.h"
+#include "tensorflow/core/common_runtime/gpu/pool_allocator.h"
+#include "tensorflow/core/framework/allocator.h"
+#include "tensorflow/core/framework/log_memory.h"
+#include "tensorflow/core/framework/tracking_allocator.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/stream_executor.h"
+#include "tensorflow/core/platform/types.h"
+
+// If these flags need to be runtime configurable, consider adding
+// options to ConfigProto.
+
+// If true, register CPU RAM used to copy to/from GPU RAM with the
+// CUDA driver.
+const bool FLAGS_brain_mem_reg_cuda_dma = true;
+
+// If true, record attributes of memory allocations and
+// dynamically check for appropriate use of registered memory.
+// Should only be true for debugging or diagnosis of
+// performance issues.
+const bool FLAGS_brain_gpu_record_mem_types = false;
+>>>>>>> tensorflow/master
 
 namespace gpu = ::perftools::gputools;
 
@@ -51,7 +98,11 @@ ProcessState* ProcessState::instance_ = nullptr;
   return instance_;
 }
 
+<<<<<<< HEAD
 ProcessState::ProcessState() : gpu_count_(0) {
+=======
+ProcessState::ProcessState() : gpu_device_enabled_(false) {
+>>>>>>> tensorflow/master
   CHECK(instance_ == nullptr);
   instance_ = this;
 }
@@ -69,7 +120,11 @@ string ProcessState::MemDesc::DebugString() {
 }
 
 ProcessState::MemDesc ProcessState::PtrType(const void* ptr) {
+<<<<<<< HEAD
   if (FLAGS_record_mem_types) {
+=======
+  if (FLAGS_brain_gpu_record_mem_types) {
+>>>>>>> tensorflow/master
     auto iter = mem_desc_map_.find(ptr);
     if (iter != mem_desc_map_.end()) {
       return iter->second;
@@ -78,6 +133,7 @@ ProcessState::MemDesc ProcessState::PtrType(const void* ptr) {
   return MemDesc();
 }
 
+<<<<<<< HEAD
 void ProcessState::SetGPUCount(int c) {
   CHECK(gpu_count_ == 0 || gpu_count_ == c)
       << "Cannot call SetGPUCount with a non-zero value "
@@ -90,6 +146,12 @@ int ProcessState::GPUCount() const { return gpu_count_; }
 Allocator* ProcessState::GetGPUAllocator(int gpu_id, size_t total_bytes,
                                          const string& allocator_type) {
 #if GOOGLE_CUDA
+=======
+Allocator* ProcessState::GetGPUAllocator(const GPUOptions& options, int gpu_id,
+                                         size_t total_bytes) {
+#if GOOGLE_CUDA
+  const string& allocator_type = options.allocator_type();
+>>>>>>> tensorflow/master
   mutex_lock lock(mu_);
   gpu::Platform* gpu_platform = GPUMachineManager();
 
@@ -99,7 +161,11 @@ Allocator* ProcessState::GetGPUAllocator(int gpu_id, size_t total_bytes,
 
   if (gpu_id >= static_cast<int64>(gpu_allocators_.size())) {
     gpu_allocators_.resize(gpu_id + 1);
+<<<<<<< HEAD
     if (FLAGS_record_mem_types) gpu_al_.resize(gpu_id + 1);
+=======
+    if (FLAGS_brain_gpu_record_mem_types) gpu_al_.resize(gpu_id + 1);
+>>>>>>> tensorflow/master
   }
 
   if (gpu_allocators_[gpu_id] == nullptr) {
@@ -111,6 +177,7 @@ Allocator* ProcessState::GetGPUAllocator(int gpu_id, size_t total_bytes,
       return nullptr;
     }
 
+<<<<<<< HEAD
     if (FLAGS_brain_gpu_use_bfc_allocator || allocator_type == "BFC") {
       gpu_allocator = new GPUBFCAllocator(gpu_id, total_bytes);
     } else {
@@ -124,6 +191,17 @@ Allocator* ProcessState::GetGPUAllocator(int gpu_id, size_t total_bytes,
       gpu_allocator = new GPUNanResetAllocator(gpu_allocator, gpu_id);
     }
 
+=======
+    gpu_allocator = new GPUBFCAllocator(gpu_id, total_bytes, options);
+
+    // If true, checks for memory overwrites by writing
+    // distinctive patterns on both ends of allocated memory.
+    static const bool kGPUDebug = false;
+    if (kGPUDebug) {
+      gpu_allocator = new GPUDebugAllocator(gpu_allocator, gpu_id);
+      gpu_allocator = new GPUNanResetAllocator(gpu_allocator, gpu_id);
+    }
+>>>>>>> tensorflow/master
     gpu_allocators_[gpu_id] = gpu_allocator;
 
     // If there are any pending AllocVisitors for this bus, add
@@ -136,7 +214,11 @@ Allocator* ProcessState::GetGPUAllocator(int gpu_id, size_t total_bytes,
         gpu_allocators_[gpu_id]->AddAllocVisitor(v);
       }
     }
+<<<<<<< HEAD
     if (FLAGS_record_mem_types) {
+=======
+    if (FLAGS_brain_gpu_record_mem_types) {
+>>>>>>> tensorflow/master
       MemDesc md;
       md.loc = MemDesc::GPU;
       md.dev_index = gpu_id;
@@ -148,7 +230,11 @@ Allocator* ProcessState::GetGPUAllocator(int gpu_id, size_t total_bytes,
           &mem_desc_map_, gpu_allocators_[gpu_id], md, &mu_);
     }
   }
+<<<<<<< HEAD
   if (FLAGS_record_mem_types) return gpu_al_[gpu_id];
+=======
+  if (FLAGS_brain_gpu_record_mem_types) return gpu_al_[gpu_id];
+>>>>>>> tensorflow/master
   return gpu_allocators_[gpu_id];
 #else
   LOG(FATAL) << "GPUAllocator unavailable. Not compiled with --config=cuda.";
@@ -164,15 +250,31 @@ Allocator* ProcessState::GetCPUAllocator(int numa_node) {
   numa_node = 0;
   mutex_lock lock(mu_);
   while (cpu_allocators_.size() <= static_cast<size_t>(numa_node)) {
+<<<<<<< HEAD
     cpu_allocators_.push_back(new PoolAllocator(
         100 /*pool_size_limit*/, true /*auto_resize*/, new BasicCPUAllocator(),
         new NoopRounder, "cpu_pool"));
+=======
+    Allocator* allocator =
+        new PoolAllocator(100 /*pool_size_limit*/, true /*auto_resize*/,
+                          new BasicCPUAllocator(), new NoopRounder, "cpu_pool");
+    if (LogMemory::IsEnabled()) {
+      // Wrap the allocator to track allocation ids for better logging
+      // at the cost of performance.
+      allocator = new TrackingAllocator(allocator, true);
+    }
+    cpu_allocators_.push_back(allocator);
+>>>>>>> tensorflow/master
   }
   return cpu_allocators_[0];
 }
 
 Allocator* ProcessState::GetCUDAHostAllocator(int numa_node) {
+<<<<<<< HEAD
   if (gpu_count_ == 0 || !FLAGS_brain_mem_reg_cuda_dma) {
+=======
+  if (!HasGPUDevice() || !FLAGS_brain_mem_reg_cuda_dma) {
+>>>>>>> tensorflow/master
     return GetCPUAllocator(numa_node);
   }
   // Although we're temporarily ignoring numa_node, check for legality.
@@ -187,10 +289,31 @@ Allocator* ProcessState::GetCUDAHostAllocator(int numa_node) {
     gpu::Platform* gpu_platform = GPUMachineManager();
     gpu::StreamExecutor* se = gpu_platform->ExecutorForDevice(0).ValueOrDie();
     CHECK(se);
+<<<<<<< HEAD
     cuda_host_allocators_.push_back(new PoolAllocator(
         100 /*pool_size_limit*/, true /*auto_resize*/,
         new CUDAHostAllocator(se), new Pow2Rounder, "cuda_host"));
     if (FLAGS_record_mem_types) {
+=======
+    Allocator* allocator = nullptr;
+    static constexpr bool kCudaHostMemoryUseBFC = true;
+    if (kCudaHostMemoryUseBFC) {
+      allocator =
+          new BFCAllocator(new CUDAHostAllocator(se), 1LL << 36 /*64GB max*/,
+                           true /*allow_growth*/, "cuda_host_bfc" /*name*/);
+    } else {
+      allocator = new PoolAllocator(
+          100 /*pool_size_limit*/, true /*auto_resize*/,
+          new CUDAHostAllocator(se), new Pow2Rounder, "cuda_host");
+    }
+    if (LogMemory::IsEnabled()) {
+      // Wrap the allocator to track allocation ids for better logging
+      // at the cost of performance.
+      allocator = new TrackingAllocator(allocator, true);
+    }
+    cuda_host_allocators_.push_back(allocator);
+    if (FLAGS_brain_gpu_record_mem_types) {
+>>>>>>> tensorflow/master
       MemDesc md;
       md.loc = MemDesc::CPU;
       md.dev_index = 0;
@@ -200,7 +323,11 @@ Allocator* ProcessState::GetCUDAHostAllocator(int numa_node) {
           &mem_desc_map_, cuda_host_allocators_.back(), md, &mu_));
     }
   }
+<<<<<<< HEAD
   if (FLAGS_record_mem_types) return cuda_al_[0];
+=======
+  if (FLAGS_brain_gpu_record_mem_types) return cuda_al_[0];
+>>>>>>> tensorflow/master
   return cuda_host_allocators_[0];
 }
 

@@ -1,20 +1,46 @@
+<<<<<<< HEAD
 #!/usr/bin/python2.4
 
 """Utility functions for comparing proto2 messages in Python.
 
 Proto2Cmp() is a cmp-style comparison function. It can be passed to sort(), etc.
 See its docstring for details.
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+"""Utility functions for comparing proto2 messages in Python.
+
+ProtoEq() compares two proto2 messages for equality.
+>>>>>>> tensorflow/master
 
 ClearDefaultValuedFields() recursively clears the fields that are set to their
 default values. This is useful for comparing protocol buffers where the
 semantics of unset fields and default valued fields are the same.
 
+<<<<<<< HEAD
 NormalizeRepeatedFields() sorts and optionally de-dupes repeated fields. This
 is useful for treating repeated fields as sets instead of lists.
 
 assertProto2Equal() and assertProto2SameElements() are useful for unit tests.
 They produce much more helpful output than assertEqual() and friends for proto2
 messages, e.g. this:
+=======
+assertProtoEqual() is useful for unit tests.  It produces much more helpful
+output than assertEqual() for proto2 messages, e.g. this:
+>>>>>>> tensorflow/master
 
   outer {
     inner {
@@ -29,7 +55,11 @@ messages, e.g. this:
 
 AssertionError: <my.Msg object at 0x9fb353c> != <my.Msg object at 0x9fb35cc>
 
+<<<<<<< HEAD
 Call them inside your unit test's googletest.TestCase subclasses like this:
+=======
+Call it inside your unit test's googletest.TestCase subclasses like this:
+>>>>>>> tensorflow/master
 
   from tensorflow.python.util.protobuf import compare
 
@@ -37,36 +67,61 @@ Call them inside your unit test's googletest.TestCase subclasses like this:
     ...
     def testXXX(self):
       ...
+<<<<<<< HEAD
       compare.assertProto2Equal(self, a, b)
       compare.assertProto2SameElements(self, a, c)
+=======
+      compare.assertProtoEqual(self, a, b)
+>>>>>>> tensorflow/master
 
 Alternatively:
 
   from tensorflow.python.util.protobuf import compare
 
+<<<<<<< HEAD
   class MyTest(compare.Proto2Assertions, googletest.TestCase):
     ...
     def testXXX(self):
       ...
       self.assertProto2Equal(a, b)
       self.assertProto2SameElements(a, c)
+=======
+  class MyTest(compare.ProtoAssertions, googletest.TestCase):
+    ...
+    def testXXX(self):
+      ...
+      self.assertProtoEqual(a, b)
+>>>>>>> tensorflow/master
 """
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import copy
+=======
+import collections
+
+import six
+>>>>>>> tensorflow/master
 
 from google.protobuf import descriptor
 from google.protobuf import message
 from google.protobuf import text_format
+<<<<<<< HEAD
 import six
 from six.moves import xrange  # pylint: disable=redefined-builtin
 
 
 def assertProto2Equal(self, a, b, check_initialized=True,
                       normalize_numbers=False, msg=None):
+=======
+
+
+def assertProtoEqual(self, a, b, check_initialized=True,
+                     normalize_numbers=False, msg=None):
+>>>>>>> tensorflow/master
   """Fails with a useful error if a and b aren't equal.
 
   Comparison of repeated fields matches the semantics of
@@ -98,6 +153,7 @@ def assertProto2Equal(self, a, b, check_initialized=True,
                             msg=msg)
 
 
+<<<<<<< HEAD
 def assertProto2SameElements(self, a, b, number_matters=False,
                              check_initialized=True, normalize_numbers=False,
                              msg=None):
@@ -230,6 +286,8 @@ def NormalizeRepeatedFields(pb, dedupe=True):
   return pb
 
 
+=======
+>>>>>>> tensorflow/master
 def NormalizeNumberFields(pb):
   """Normalizes types and precisions of number fields in a protocol buffer.
 
@@ -298,6 +356,13 @@ def NormalizeNumberFields(pb):
   return pb
 
 
+<<<<<<< HEAD
+=======
+def _IsMap(value):
+  return isinstance(value, collections.Mapping)
+
+
+>>>>>>> tensorflow/master
 def _IsRepeatedContainer(value):
   if isinstance(value, six.string_types):
     return False
@@ -308,6 +373,7 @@ def _IsRepeatedContainer(value):
     return False
 
 
+<<<<<<< HEAD
 def Proto2Cmp(a, b):
   """Compares two proto2 objects field by field, in ascending tag order.
 
@@ -325,24 +391,44 @@ def Proto2Cmp(a, b):
   in the proto2 Message class itself. That would take a little more care,
   though, and probably some significant debate over whether they should exist at
   all, so this was easier.
+=======
+def ProtoEq(a, b):
+  """Compares two proto2 objects for equality.
+
+  Recurses into nested messages. Uses list (not set) semantics for comparing
+  repeated fields, ie duplicates and order matter.
+>>>>>>> tensorflow/master
 
   Args:
     a, b: proto2 messages or primitives
 
+<<<<<<< HEAD
   Returns: integer > 0 if a > b, < 0 if a < b, 0 if a == b
+=======
+  Returns:
+    `True` if the messages are equal.
+>>>>>>> tensorflow/master
   """
   def Format(pb):
     """Returns a dictionary that maps tag number (for messages) or element index
     (for repeated fields) to value, or just pb unchanged if it's neither."""
     if isinstance(pb, message.Message):
       return dict((desc.number, value) for desc, value in pb.ListFields())
+<<<<<<< HEAD
     elif _IsRepeatedContainer(pb):
       return dict(enumerate(pb))
+=======
+    elif _IsMap(pb):
+      return dict(pb.items())
+    elif _IsRepeatedContainer(pb):
+      return dict(enumerate(list(pb)))
+>>>>>>> tensorflow/master
     else:
       return pb
 
   a, b = Format(a), Format(b)
 
+<<<<<<< HEAD
   # base case
   if not isinstance(a, dict) or not isinstance(b, dict):
     return cmp(a, b)
@@ -366,20 +452,51 @@ def Proto2Cmp(a, b):
 
 
 class Proto2Assertions(object):
+=======
+  # Base case
+  if not isinstance(a, dict) or not isinstance(b, dict):
+    return a == b
+
+  # This list performs double duty: it compares two messages by tag value *or*
+  # two repeated fields by element, in order. the magic is in the format()
+  # function, which converts them both to the same easily comparable format.
+  for tag in sorted(set(a.keys()) | set(b.keys())):
+    if tag not in a or tag not in b:
+      return False
+    else:
+      # Recursive step
+      if not ProtoEq(a[tag], b[tag]):
+        return False
+
+  # Didn't find any values that differed, so they're equal!
+  return True
+
+
+class ProtoAssertions(object):
+>>>>>>> tensorflow/master
   """Mix this into a googletest.TestCase class to get proto2 assertions.
 
   Usage:
 
+<<<<<<< HEAD
   class SomeTestCase(compare.Proto2Assertions, googletest.TestCase):
     ...
     def testSomething(self):
       ...
       self.assertProto2Equal(a, b)
+=======
+  class SomeTestCase(compare.ProtoAssertions, googletest.TestCase):
+    ...
+    def testSomething(self):
+      ...
+      self.assertProtoEqual(a, b)
+>>>>>>> tensorflow/master
 
   See module-level definitions for method documentation.
   """
 
   # pylint: disable=invalid-name
+<<<<<<< HEAD
   def assertProto2Equal(self, *args, **kwargs):
     return assertProto2Equal(self, *args, **kwargs)
 
@@ -388,3 +505,7 @@ class Proto2Assertions(object):
 
   def assertProto2Contains(self, *args, **kwargs):
     return assertProto2Contains(self, *args, **kwargs)
+=======
+  def assertProtoEqual(self, *args, **kwargs):
+    return assertProtoEqual(self, *args, **kwargs)
+>>>>>>> tensorflow/master

@@ -1,8 +1,32 @@
+<<<<<<< HEAD
 #include "tensorflow/core/util/bcast.h"
 
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/util/bcast.h"
+
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -42,6 +66,18 @@ TEST(BCastTest, Basic_SameShape) {
             "[][]");
 }
 
+<<<<<<< HEAD
+=======
+TEST(BCastTest, Basic_SameShapeWithZeroDim) {
+  // Effectively no broadcast needed.
+  EXPECT_EQ(BCast({11, 7, 0, 3, 2}, {11, 7, 0, 3, 2}),
+            "[0][1][0][1]"
+            "[0]"
+            "[11,7,0,3,2]"
+            "[][]");
+}
+
+>>>>>>> tensorflow/master
 TEST(BCastTest, Basic_Scalar_Scalar) {
   // Effectively it's a scalar and a scalar.
   // [1, 1] [1]
@@ -222,5 +258,23 @@ TEST(BCastTest, TestZeroDimensionShape) {
             "[0,1,3][]");
 }
 
+<<<<<<< HEAD
+=======
+static void BM_BCastSetup(int iters, int same_shape) {
+  if (same_shape) {
+    testing::SetLabel("same_shapes");
+    while (--iters > 0) {
+      class BCast b({1000, 100}, {1000, 100});
+    }
+  } else {
+    testing::SetLabel("different_shapes");
+    while (--iters > 0) {
+      class BCast b({3, 1, 5}, {2, 0, 3, 0, 5});
+    }
+  }
+}
+BENCHMARK(BM_BCastSetup)->Arg(0)->Arg(1);
+
+>>>>>>> tensorflow/master
 }  // namespace
 }  // namespace tensorflow

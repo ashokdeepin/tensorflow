@@ -1,15 +1,44 @@
+<<<<<<< HEAD
 #define EIGEN_USE_THREADS
 
 #include <algorithm>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#define EIGEN_USE_THREADS
+
+#include <algorithm>
+#include <numeric>
+>>>>>>> tensorflow/master
 #include <unordered_map>
 #include <utility>
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_util.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_util.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/gtl/inlined_vector.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/sparse/sparse_tensor.h"
 
 namespace tensorflow {
@@ -23,19 +52,31 @@ class SparseReorderOp : public OpKernel {
     const Tensor& input_ind = context->input(0);
     OP_REQUIRES(context, TensorShapeUtils::IsMatrix(input_ind.shape()),
                 errors::InvalidArgument(
+<<<<<<< HEAD
                     "Input indices should be a matrix but received shape",
+=======
+                    "Input indices should be a matrix but received shape ",
+>>>>>>> tensorflow/master
                     input_ind.shape().DebugString()));
 
     const Tensor& input_val = context->input(1);
     OP_REQUIRES(context, TensorShapeUtils::IsVector(input_val.shape()),
                 errors::InvalidArgument(
+<<<<<<< HEAD
                     "Input values should be a vector but received shape",
+=======
+                    "Input values should be a vector but received shape ",
+>>>>>>> tensorflow/master
                     input_val.shape().DebugString()));
 
     const Tensor& input_shape_in = context->input(2);
     OP_REQUIRES(context, TensorShapeUtils::IsVector(input_shape_in.shape()),
                 errors::InvalidArgument(
+<<<<<<< HEAD
                     "Input shape should be a vector but received shape",
+=======
+                    "Input shape should be a vector but received shape ",
+>>>>>>> tensorflow/master
                     input_shape_in.shape().DebugString()));
 
     const TensorShape input_shape(input_shape_in.vec<int64>());
@@ -46,7 +87,11 @@ class SparseReorderOp : public OpKernel {
     // Check if the sparse tensor is already ordered correctly
     sparse::SparseTensor input_sp(input_ind, input_val, input_shape, std_order);
 
+<<<<<<< HEAD
     if (input_sp.IndicesValid()) {
+=======
+    if (input_sp.IndicesValid().ok()) {
+>>>>>>> tensorflow/master
       context->set_output(0, input_sp.indices());
       context->set_output(1, input_sp.values());
     } else {

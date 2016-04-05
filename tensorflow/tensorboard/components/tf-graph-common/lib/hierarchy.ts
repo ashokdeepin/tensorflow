@@ -1,17 +1,41 @@
+<<<<<<< HEAD
 /// <reference path="graph.ts" />
 /// <reference path="template.ts" />
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+>>>>>>> tensorflow/master
 /**
  * Package for the Graph Hierarchy for TensorFlow graph.
  */
 module tf.graph.hierarchy {
 
+<<<<<<< HEAD
 const LOG_PREFIX_MSG = "Graph hierarchy: ";
 
 /**
  * Class used as output for getPredecessors and getSuccessors methods
  */
 interface Edges {
+=======
+/**
+ * Class used as output for getPredecessors and getSuccessors methods
+ */
+export interface Edges {
+>>>>>>> tensorflow/master
   control: string[];
   regular: string[];
 }
@@ -137,7 +161,11 @@ class HierarchyImpl implements Hierarchy {
 
             // Copy the BaseEdge from the parent's Metaedge into this
             // bridgegraph Metaedge.
+<<<<<<< HEAD
             bridgeMetaedge.addBaseEdge(baseEdge);
+=======
+            bridgeMetaedge.addBaseEdge(baseEdge, this);
+>>>>>>> tensorflow/master
           });
         })
         .value(); // force lodash chain execution.
@@ -165,7 +193,11 @@ class HierarchyImpl implements Hierarchy {
   };
 
   /**
+<<<<<<< HEAD
    * Given the name of a node, return the names of its predecssors.
+=======
+   * Given the name of a node, return the names of its predecessors.
+>>>>>>> tensorflow/master
    * For an OpNode, this will contain the targets from the underlying BaseEdges.
    * For a GroupNode, this will contain the targets truncated to siblings of
    * the shared ancestor.
@@ -187,7 +219,11 @@ class HierarchyImpl implements Hierarchy {
    * into the details of which of of Z/Y's descendant nodes have predecessors to
    * which of A's descendants.
    *
+<<<<<<< HEAD
    * On the other hand, for an OpNode it's clear what the final predecssors
+=======
+   * On the other hand, for an OpNode it's clear what the final predecessors
+>>>>>>> tensorflow/master
    * ought to be. There is no ambiguity.
    */
   getPredecessors(nodeName: string): Edges {
@@ -233,6 +269,7 @@ class HierarchyImpl implements Hierarchy {
     return successors;
   }
 
+<<<<<<< HEAD
   /** Helper method for getPredeccessors and getSuccessors */
   getOneWayEdges(node: GroupNode|OpNode, inEdges: boolean) {
     let edges = { control: [], regular: [] };
@@ -247,6 +284,20 @@ class HierarchyImpl implements Hierarchy {
       findEdgeTargetsInGraph(metagraph, node, inEdges, edges);
       findEdgeTargetsInGraph(bridgegraph, node, inEdges, edges);
     }
+=======
+  /** Helper method for getPredecessors and getSuccessors */
+  getOneWayEdges(node: GroupNode|OpNode, inEdges: boolean) {
+    let edges = { control: [], regular: [] };
+    // A node with no parent cannot have any edges.
+    if (!node.parentNode || !node.parentNode.isGroupNode) {
+      return edges;
+    }
+    let parentNode = <GroupNode> node.parentNode;
+    let metagraph = parentNode.metagraph;
+    let bridgegraph = this.getBridgegraph(parentNode.name);
+    findEdgeTargetsInGraph(metagraph, node, inEdges, edges);
+    findEdgeTargetsInGraph(bridgegraph, node, inEdges, edges);
+>>>>>>> tensorflow/master
     return edges;
   }
 
@@ -352,6 +403,7 @@ class HierarchyImpl implements Hierarchy {
 function findEdgeTargetsInGraph(
     graph: graphlib.Graph<GroupNode|OpNode, Metaedge>,
     node: Node, inbound: boolean, targets: Edges): void {
+<<<<<<< HEAD
   _.each(<Metaedge[]> graph.edges(), e => {
     let [selfName, otherName] = inbound ? [e.w, e.v] : [e.v, e.w];
     if (selfName === node.name) {
@@ -366,13 +418,39 @@ function findEdgeTargetsInGraph(
           targetList.push(inbound ? baseEdge.v : baseEdge.w);
         });
       }
+=======
+  let edges = inbound ? graph.inEdges(node.name) : graph.outEdges(node.name);
+  _.each(edges, e => {
+    let otherName = inbound ? e.v : e.w;
+    let metaedge = graph.edge(e);
+
+    if (node.isGroupNode && metaedge.baseEdgeList.length > 1) {
+      let targetList = metaedge.numRegularEdges
+        ? targets.regular : targets.control;
+      targetList.push(otherName);
+    } else {
+      // Enumerate all the base edges if the node is an OpNode, or the
+      // metaedge has only 1 edge in it.
+      _.each(metaedge.baseEdgeList, (baseEdge: BaseEdge) => {
+        let targetList = baseEdge.isControlDependency
+          ? targets.control : targets.regular;
+        targetList.push(inbound ? baseEdge.v : baseEdge.w);
+      });
+>>>>>>> tensorflow/master
     }
   });
 }
 
+<<<<<<< HEAD
 interface HierarchyParams {
   verifyTemplate: boolean;
   groupSeries: boolean;
+=======
+export interface HierarchyParams {
+  verifyTemplate: boolean;
+  seriesNodeMinSize: number;
+  seriesMap: { [name: string]: tf.graph.SeriesGroupingType };
+>>>>>>> tensorflow/master
 }
 
 /**
@@ -396,8 +474,14 @@ export function build(graph: tf.graph.SlimGraph, params: HierarchyParams,
   }, tracker)
   .then(() => {
     return runAsyncTask("Detect series", 20, () => {
+<<<<<<< HEAD
       if (params.groupSeries) {
         groupSeries(h.root, h, seriesNames);
+=======
+      if (params.seriesNodeMinSize > 0) {
+        groupSeries(h.root, h, seriesNames, params.seriesNodeMinSize,
+          params.seriesMap);
+>>>>>>> tensorflow/master
       }
     }, tracker);
   })
@@ -413,8 +497,11 @@ export function build(graph: tf.graph.SlimGraph, params: HierarchyParams,
   })
   .then(() => {
     return h;
+<<<<<<< HEAD
   }).catch(function(reason) {
     throw new Error("Failure creating graph hierarchy");
+=======
+>>>>>>> tensorflow/master
   });
 };
 
@@ -454,7 +541,12 @@ function addNodes(h: Hierarchy, graph: SlimGraph) {
       }
       parent = child;
     }
+<<<<<<< HEAD
     // Assuming node name is 'a/b/c', assign the OpNode as a child of the metanode 'a/b'.
+=======
+    // Assuming node name is 'a/b/c', assign the OpNode as a child of the
+    // metanode 'a/b'.
+>>>>>>> tensorflow/master
     h.setNode(node.name, node);
     node.parentNode = parent;
     parent.metagraph.setNode(node.name, node);
@@ -504,6 +596,16 @@ function addEdges(h: Hierarchy, graph: SlimGraph,
     let sourceAncestorIndex = getPath(graph.nodes[baseEdge.v], sourcePath);
     let destAncestorIndex = getPath(graph.nodes[baseEdge.w], destPath);
 
+<<<<<<< HEAD
+=======
+    // If the hierarchical path cannot be found for either endpoint, then we
+    // cannot create the edge. This happens for example when a node has a
+    // control dependency on a summary node, which are embedded.
+    if (sourceAncestorIndex === -1 || destAncestorIndex === -1) {
+      return;
+    }
+
+>>>>>>> tensorflow/master
     // Find the lowest shared ancestor between source and dest by looking for
     // the highest nodes that differ between their ancestor paths.
     while (sourcePath[sourceAncestorIndex] === destPath[destAncestorIndex]) {
@@ -536,10 +638,15 @@ function addEdges(h: Hierarchy, graph: SlimGraph,
         !baseEdge.isControlDependency) {
       sharedAncestorNode.hasNonControlEdges = true;
     }
+<<<<<<< HEAD
     metaedge.addBaseEdge(baseEdge);
 
   });
 
+=======
+    metaedge.addBaseEdge(baseEdge, h);
+  });
+>>>>>>> tensorflow/master
 };
 
 /**
@@ -550,15 +657,34 @@ function addEdges(h: Hierarchy, graph: SlimGraph,
  *
  * @param metanode
  * @param hierarchy
+<<<<<<< HEAD
  * @return A dictionary from node name to series node name that contains the node
  */
 function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
     seriesNames: { [name: string]: string }) {
+=======
+ * @param seriesNames Map of node names to their series they are contained in.
+ *     This should be provided empty and is populated by this method.
+ * @param threshold If the series has this many nodes or more, then group them
+ *     into a series.
+ * @param map Map of series names to their series grouping type, if one has
+ *     been set.
+ * @return A dictionary from node name to series node name that contains the
+ *     node.
+ */
+function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
+    seriesNames: { [name: string]: string }, threshold: number,
+    map: { [name: string]: tf.graph.SeriesGroupingType }) {
+>>>>>>> tensorflow/master
   let metagraph = metanode.metagraph;
   _.each(metagraph.nodes(), n => {
     let child = metagraph.node(n);
     if (child.type === tf.graph.NodeType.META) {
+<<<<<<< HEAD
       groupSeries(<Metanode>child, hierarchy, seriesNames);
+=======
+      groupSeries(<Metanode>child, hierarchy, seriesNames, threshold, map);
+>>>>>>> tensorflow/master
     }
   });
 
@@ -569,9 +695,29 @@ function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
   // metagraph.
   _.each(seriesDict, function(seriesNode: SeriesNode, seriesName: string) {
     let nodeMemberNames = seriesNode.metagraph.nodes();
+<<<<<<< HEAD
     let firstMember = seriesNode.metagraph.node(nodeMemberNames[0]);
     let seriesType = firstMember.type;
 
+=======
+    _.each(nodeMemberNames, n => {
+      let child = <OpNode>metagraph.node(n);
+      if (!child.owningSeries) {
+        child.owningSeries = seriesName;
+      }
+    });
+    // If the series contains less than the threshold number of nodes and
+    // this series has not been adding to the series map, then set this
+    // series to be shown ungrouped in the map.
+    if (nodeMemberNames.length < threshold && !(seriesNode.name in map)) {
+      map[seriesNode.name] = tf.graph.SeriesGroupingType.UNGROUP;
+    }
+    // If the series is in the map as ungrouped then do not group the series.
+    if (seriesNode.name in map
+      && map[seriesNode.name] === tf.graph.SeriesGroupingType.UNGROUP) {
+      return;
+    }
+>>>>>>> tensorflow/master
     hierarchy.setNode(seriesName, seriesNode); // add to the index
     metagraph.setNode(seriesName, seriesNode);
     _.each(nodeMemberNames, n => {
@@ -600,7 +746,12 @@ function groupSeries(metanode: Metanode, hierarchy: Hierarchy,
 function clusterNodes(metagraph: graphlib.Graph<GroupNode|OpNode, Metaedge>):
     {[clusterId: string]: string[]} {
   let result: {[clusterId: string]: string[]} = {};
+<<<<<<< HEAD
   return  _.reduce(metagraph.nodes(), function(clusters: {[clusterId: string]: string[]}, n: string) {
+=======
+  return  _.reduce(metagraph.nodes(),
+      (clusters: {[clusterId: string]: string[]}, n: string) => {
+>>>>>>> tensorflow/master
     let child = metagraph.node(n);
     if (child.type === NodeType.META) {
       // skip metanodes
@@ -635,7 +786,11 @@ function detectSeries(clusters: {[clusterId: string]: string[]},
      * which is an array that contains objects with name, id, prefix, suffix,
      * and parent properties.
      */
+<<<<<<< HEAD
     let candidatesDict = {};
+=======
+    let candidatesDict: {[seriesName: string]: SeriesNode[]} = {};
+>>>>>>> tensorflow/master
 
     // Group all nodes that have the same name, with the exception of a
     // number at the end of the name after an underscore, which is allowed to
@@ -655,9 +810,12 @@ function detectSeries(clusters: {[clusterId: string]: string[]},
         id = matches[2]; // the digits
       } else { // for node without "_<number>", make them zero-th items.
         prefix = isGroup ? leaf.substr(0, leaf.length - 1) : leaf;
+<<<<<<< HEAD
         if (prefix.charAt(prefix.length - 1) !== "_") {
           prefix += "_";
         }
+=======
+>>>>>>> tensorflow/master
         id = 0;
         suffix = isGroup ? "*" : "";
       }
@@ -682,7 +840,12 @@ function detectSeries(clusters: {[clusterId: string]: string[]},
       let seriesNodes = [seriesInfoArray[0]];
       for (let index = 1; index < seriesInfoArray.length; index++) {
         let nextNode = seriesInfoArray[index];
+<<<<<<< HEAD
         if (nextNode.clusterId === seriesNodes[seriesNodes.length - 1].clusterId + 1) {
+=======
+        if (nextNode.clusterId === seriesNodes[seriesNodes.length - 1].clusterId
+            + 1) {
+>>>>>>> tensorflow/master
           seriesNodes.push(nextNode);
           continue;
         }
@@ -705,7 +868,11 @@ function detectSeries(clusters: {[clusterId: string]: string[]},
  * @param metagraph
  */
 function addSeriesToDict(seriesNodes: SeriesNode[],
+<<<<<<< HEAD
     seriesDict: {[seriesName: string] : SeriesNode},
+=======
+    seriesDict: {[seriesName: string]: SeriesNode},
+>>>>>>> tensorflow/master
     clusterId: number,
     metagraph: graphlib.Graph<GroupNode|OpNode, Metaedge>) {
   if (seriesNodes.length > 1) {

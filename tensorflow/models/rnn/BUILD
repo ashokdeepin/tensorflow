@@ -7,8 +7,11 @@ licenses(["notice"])  # Apache 2.0
 
 exports_files(["LICENSE"])
 
+<<<<<<< HEAD
 load("/tensorflow/tensorflow", "cuda_py_tests")
 
+=======
+>>>>>>> tensorflow/master
 py_library(
     name = "linear",
     srcs = [
@@ -20,6 +23,7 @@ py_library(
     ],
 )
 
+<<<<<<< HEAD
 py_test(
     name = "linear_test",
     size = "small",
@@ -31,6 +35,8 @@ py_test(
     ],
 )
 
+=======
+>>>>>>> tensorflow/master
 py_library(
     name = "rnn_cell",
     srcs = [
@@ -43,6 +49,7 @@ py_library(
     ],
 )
 
+<<<<<<< HEAD
 py_test(
     name = "rnn_cell_test",
     size = "small",
@@ -54,6 +61,8 @@ py_test(
     ],
 )
 
+=======
+>>>>>>> tensorflow/master
 py_library(
     name = "package",
     srcs = [
@@ -79,6 +88,7 @@ py_library(
     ],
 )
 
+<<<<<<< HEAD
 cuda_py_tests(
     name = "rnn_tests",
     srcs = [
@@ -89,6 +99,8 @@ cuda_py_tests(
     ],
 )
 
+=======
+>>>>>>> tensorflow/master
 py_library(
     name = "seq2seq",
     srcs = [
@@ -101,6 +113,7 @@ py_library(
     ],
 )
 
+<<<<<<< HEAD
 py_test(
     name = "seq2seq_test",
     srcs = [
@@ -113,6 +126,8 @@ py_test(
     ],
 )
 
+=======
+>>>>>>> tensorflow/master
 filegroup(
     name = "all_files",
     srcs = glob(

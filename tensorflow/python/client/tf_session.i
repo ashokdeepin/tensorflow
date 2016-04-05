@@ -1,12 +1,37 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 %include "tensorflow/python/platform/base.i"
 
 %{
 
+<<<<<<< HEAD
 #include "numpy/arrayobject.h"
 
 #include "tensorflow/python/client/tf_session_helper.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/python/client/tf_session_helper.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 
 %}
 
@@ -16,9 +41,21 @@
 // Required to use PyArray_* functions.
 %include "tensorflow/python/platform/numpy.i"
 %init %{
+<<<<<<< HEAD
 import_array();
 %}
 
+=======
+tensorflow::ImportNumpy();
+%}
+
+// TensorFlow version and GraphDef versions
+%constant const char* __version__ = TF_VERSION_STRING;
+%constant int GRAPH_DEF_VERSION = TF_GRAPH_DEF_VERSION;
+%constant int GRAPH_DEF_VERSION_MIN_CONSUMER = TF_GRAPH_DEF_VERSION_MIN_CONSUMER;
+%constant int GRAPH_DEF_VERSION_MIN_PRODUCER = TF_GRAPH_DEF_VERSION_MIN_PRODUCER;
+
+>>>>>>> tensorflow/master
 // Release the Python GIL for the duration of most methods.
 %exception {
   Py_BEGIN_ALLOW_THREADS;
@@ -28,10 +65,18 @@ import_array();
 
 // Proto input arguments to C API functions are passed as a (const
 // void*, size_t) pair. In Python, typemap these to a single string
+<<<<<<< HEAD
 // argument.
 %typemap(in) (const void* proto, size_t proto_len) {
   char* c_string;
   Py_ssize_t py_size;
+=======
+// argument.  This typemap does *not* make a copy of the input.
+%typemap(in) (const void* proto, size_t proto_len) {
+  char* c_string;
+  Py_ssize_t py_size;
+  // PyBytes_AsStringAndSize() does not copy but simply interprets the input
+>>>>>>> tensorflow/master
   if (PyBytes_AsStringAndSize($input, &c_string, &py_size) == -1) {
     // Python has raised an error (likely TypeError or UnicodeEncodeError).
     SWIG_fail;
@@ -40,6 +85,19 @@ import_array();
   $2 = static_cast<size_t>(py_size);
 }
 
+<<<<<<< HEAD
+=======
+// The target input to TF_SetTarget() is passed as a null-terminated
+// const char*.
+%typemap(in) (const char* target) {
+  $1 = PyBytes_AsString($input);
+  if (!$1) {
+    // Python has raised an error.
+    SWIG_fail;
+  }
+}
+
+>>>>>>> tensorflow/master
 ////////////////////////////////////////////////////////////////////////////////
 // BEGIN TYPEMAPS FOR tensorflow::TF_Run_wrapper()
 ////////////////////////////////////////////////////////////////////////////////
@@ -134,7 +192,10 @@ import_array();
   $1 = &temp;
 }
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> tensorflow/master
 // The wrapper has two outputs: a tensorflow::Status, and a vector of
 // PyObjects containing the fetch results (iff the status is OK). Since
 // the interpretation of the vector depends on the status, we define
@@ -150,6 +211,13 @@ import_array();
     tensorflow::PyObjectVector temp) {
   $1 = &temp;
 }
+<<<<<<< HEAD
+=======
+%typemap(in, numinputs=0) char** out_handle (
+    char* temp) {
+  $1 = &temp;
+}
+>>>>>>> tensorflow/master
 
 // Raise a StatusNotOK exception if the out_status is not OK;
 // otherwise build a Python list of outputs and return it.
@@ -160,7 +228,11 @@ import_array();
     SWIG_fail;
   } else {
     tensorflow::Safe_PyObjectVector out_values_safe;
+<<<<<<< HEAD
     for (int i = 0; i < $2->size(); ++i) {
+=======
+    for (size_t i = 0; i < $2->size(); ++i) {
+>>>>>>> tensorflow/master
       out_values_safe.emplace_back(tensorflow::make_safe($2->at(i)));
     }
 
@@ -169,23 +241,67 @@ import_array();
       SWIG_fail;
     }
 
+<<<<<<< HEAD
     for (int i = 0; i < $2->size(); ++i) {
+=======
+    for (size_t i = 0; i < $2->size(); ++i) {
+>>>>>>> tensorflow/master
       PyList_SET_ITEM($result, i, $2->at(i));
       out_values_safe[i].release();
     }
   }
 }
 
+<<<<<<< HEAD
+=======
+// Raise a StatusNotOK exception if the out_status is not OK;
+// otherwise return the handle as a python string object.
+%typemap(argout, fragment="StatusNotOK") (
+    tensorflow::Status* out_status, char** out_handle) {
+  if (!$1->ok()) {
+    RaiseStatusNotOK(*$1, $descriptor(tensorflow::Status*));
+    SWIG_fail;
+  } else {
+%#if PY_MAJOR_VERSION < 3
+    $result = PyString_FromStringAndSize(
+%#else
+    $result = PyUnicode_FromStringAndSize(
+%#endif
+      *$2, strlen(*$2));
+    delete *$2;
+  }
+}
+
+>>>>>>> tensorflow/master
 ////////////////////////////////////////////////////////////////////////////////
 // END TYPEMAPS FOR tensorflow::TF_Run_wrapper()
 ////////////////////////////////////////////////////////////////////////////////
 
+<<<<<<< HEAD
 
+=======
+// Typemap for functions that return a TF_Buffer struct. This typemap creates a
+// Python string from the TF_Buffer and returns it. The TF_Buffer.data string
+// is not expected to be NULL-terminated, and TF_Buffer.length does not count
+// the terminator.
+%typemap(out) TF_Buffer (TF_GetOpList,TF_GetBuffer) {
+  $result = PyBytes_FromStringAndSize(
+      reinterpret_cast<const char*>($1.data), $1.length);
+}
+>>>>>>> tensorflow/master
 
 // Include the functions from tensor_c_api.h, except TF_Run.
 %ignoreall
 %unignore TF_Code;
 %unignore TF_Status;
+<<<<<<< HEAD
+=======
+%unignore TF_Buffer;
+%unignore TF_NewBuffer;
+%unignore TF_NewBufferFromString;
+%unignore TF_DeleteBuffer;
+%unignore TF_GetBuffer;
+>>>>>>> tensorflow/master
 %unignore TF_NewStatus;
 %unignore TF_DeleteStatus;
 %unignore TF_GetCode;
@@ -199,6 +315,12 @@ import_array();
 %unignore TF_CloseSession;
 %unignore TF_DeleteSession;
 %unignore TF_ExtendGraph;
+<<<<<<< HEAD
+=======
+%unignore TF_NewLibrary;
+%unignore TF_LoadLibrary;
+%unignore TF_GetOpList;
+>>>>>>> tensorflow/master
 %include "tensorflow/core/public/tensor_c_api.h"
 %ignoreall
 
@@ -206,15 +328,26 @@ import_array();
   def TF_NewSessionOptions(target=None, config=None):
     opts = _TF_NewSessionOptions()
     if target is not None:
+<<<<<<< HEAD
       _TF_SetTarget(opts, target)
     if config is not None:
       from tensorflow.core.framework import config_pb2
+=======
+      from tensorflow.python.util import compat
+      _TF_SetTarget(opts, compat.as_bytes(target))
+    if config is not None:
+      from tensorflow.core.protobuf import config_pb2
+>>>>>>> tensorflow/master
       if not isinstance(config, config_pb2.ConfigProto):
         raise TypeError("Expected config_pb2.ConfigProto, "
                         "but got %s" % type(config))
       status = TF_NewStatus()
       config_str = config.SerializeToString()
+<<<<<<< HEAD
       _TF_SetConfig(opts, config_str, len(config_str), status)
+=======
+      _TF_SetConfig(opts, config_str, status)
+>>>>>>> tensorflow/master
       if TF_GetCode(status) != 0:
         raise ValueError(TF_Message(status))
     return opts
@@ -229,6 +362,30 @@ import_array();
 %rename(TF_Run) tensorflow::TF_Run_wrapper;
 %unignore tensorflow;
 %unignore TF_Run;
+<<<<<<< HEAD
+=======
+%unignore EqualGraphDefWrapper;
+
+// Include the wrapper for TF_PRunSetup from tf_session_helper.h.
+
+// The %exception block above releases the Python GIL for the length
+// of each wrapped method. We disable this behavior for TF_PRunSetup
+// because it uses the Python allocator.
+%noexception tensorflow::TF_PRunSetup_wrapper;
+%rename(TF_PRunSetup) tensorflow::TF_PRunSetup_wrapper;
+%unignore tensorflow;
+%unignore TF_PRunSetup;
+
+// Include the wrapper for TF_PRun from tf_session_helper.h.
+
+// The %exception block above releases the Python GIL for the length
+// of each wrapped method. We disable this behavior for TF_PRun
+// because it uses the Python allocator.
+%noexception tensorflow::TF_PRun_wrapper;
+%rename(TF_PRun) tensorflow::TF_PRun_wrapper;
+%unignore tensorflow;
+%unignore TF_PRun;
+>>>>>>> tensorflow/master
 
 %include "tensorflow/python/client/tf_session_helper.h"
 

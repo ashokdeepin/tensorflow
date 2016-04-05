@@ -1,12 +1,33 @@
+<<<<<<< HEAD
 #include <functional>
 #include <memory>
 #include <vector>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <functional>
+#include <memory>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/fake_input.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/kernels/ops_util.h"
@@ -14,6 +35,15 @@
 #include "tensorflow/core/public/tensor.h"
 #include <gtest/gtest.h>
 #include "tensorflow/core/lib/core/status_test_util.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/kernels/ops_testutil.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/lib/core/status_test_util.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -21,6 +51,7 @@ namespace {
 class DynamicPartitionOpTest : public OpsTestBase {
  protected:
   void MakeOp() {
+<<<<<<< HEAD
     RequireDefaultOps();
     ASSERT_OK(NodeDefBuilder("myop", "DynamicPartition")
                   .Input(FakeInput(DT_FLOAT))
@@ -28,6 +59,14 @@ class DynamicPartitionOpTest : public OpsTestBase {
                   .Attr("num_partitions", 4)
                   .Finalize(node_def()));
     ASSERT_OK(InitOp());
+=======
+    TF_ASSERT_OK(NodeDefBuilder("myop", "DynamicPartition")
+                     .Input(FakeInput(DT_FLOAT))
+                     .Input(FakeInput(DT_INT32))
+                     .Attr("num_partitions", 4)
+                     .Finalize(node_def()));
+    TF_ASSERT_OK(InitOp());
+>>>>>>> tensorflow/master
   }
 };
 
@@ -39,7 +78,11 @@ TEST_F(DynamicPartitionOpTest, Simple_OneD) {
   // Feed and run
   AddInputFromArray<float>(TensorShape({6}), {0, 13, 2, 39, 4, 17});
   AddInputFromArray<int32>(TensorShape({6}), {0, 0, 2, 3, 2, 1});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output sizes
   {  // Output 0
@@ -72,7 +115,11 @@ TEST_F(DynamicPartitionOpTest, Simple_TwoD) {
       TensorShape({6, 3}),
       {0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17});
   AddInputFromArray<int32>(TensorShape({6}), {0, 0, 2, 3, 2, 1});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the output sizes
   {  // Output 0
@@ -103,7 +150,11 @@ TEST_F(DynamicPartitionOpTest, SomeOutputsEmpty) {
   // Feed and run
   AddInputFromArray<float>(TensorShape({6}), {0, 13, 2, 39, 4, 17});
   AddInputFromArray<int32>(TensorShape({6}), {0, 0, 2, 2, 0, 2});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   TensorShape empty_one_dim;
   empty_one_dim.AddDim(0);

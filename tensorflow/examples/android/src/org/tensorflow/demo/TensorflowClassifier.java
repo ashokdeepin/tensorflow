@@ -1,7 +1,29 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 package org.tensorflow.demo;
 
 import android.content.res.AssetManager;
 import android.graphics.Bitmap;
+<<<<<<< HEAD
+=======
+import android.os.Trace;
+>>>>>>> tensorflow/master
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -33,6 +55,11 @@ public class TensorflowClassifier implements Classifier {
 
   @Override
   public List<Recognition> recognizeImage(final Bitmap bitmap) {
+<<<<<<< HEAD
+=======
+    // Log this method so that it can be analyzed with systrace.
+    Trace.beginSection("Recognize");
+>>>>>>> tensorflow/master
     final ArrayList<Recognition> recognitions = new ArrayList<Recognition>();
     for (final String result : classifyImageBmp(bitmap).split("\n")) {
       Log.i(TAG, "Parsing [" + result + "]");
@@ -54,6 +81,10 @@ public class TensorflowClassifier implements Classifier {
         recognitions.add(new Recognition(id, title, confidence, null));
       }
     }
+<<<<<<< HEAD
+=======
+    Trace.endSection();
+>>>>>>> tensorflow/master
     return recognitions;
   }
 

@@ -1,4 +1,24 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/framework/register_types.h"
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
@@ -38,6 +58,11 @@ string DataTypeString(DataType dtype) {
       return "int32";
     case DT_UINT8:
       return "uint8";
+<<<<<<< HEAD
+=======
+    case DT_UINT16:
+      return "uint16";
+>>>>>>> tensorflow/master
     case DT_INT16:
       return "int16";
     case DT_INT8:
@@ -46,6 +71,11 @@ string DataTypeString(DataType dtype) {
       return "string";
     case DT_COMPLEX64:
       return "complex64";
+<<<<<<< HEAD
+=======
+    case DT_COMPLEX128:
+      return "complex128";
+>>>>>>> tensorflow/master
     case DT_INT64:
       return "int64";
     case DT_BOOL:
@@ -54,10 +84,22 @@ string DataTypeString(DataType dtype) {
       return "qint8";
     case DT_QUINT8:
       return "quint8";
+<<<<<<< HEAD
+=======
+    case DT_QUINT16:
+      return "quint16";
+    case DT_QINT16:
+      return "qint16";
+>>>>>>> tensorflow/master
     case DT_QINT32:
       return "qint32";
     case DT_BFLOAT16:
       return "bfloat16";
+<<<<<<< HEAD
+=======
+    case DT_HALF:
+      return "half";
+>>>>>>> tensorflow/master
     default:
       LOG(FATAL) << "Unrecognized DataType enum value " << dtype;
       return "";
@@ -88,6 +130,12 @@ bool DataTypeFromString(StringPiece sp, DataType* dt) {
   } else if (sp == "uint8") {
     *dt = DT_UINT8;
     return true;
+<<<<<<< HEAD
+=======
+  } else if (sp == "uint16") {
+    *dt = DT_UINT16;
+    return true;
+>>>>>>> tensorflow/master
   } else if (sp == "int16") {
     *dt = DT_INT16;
     return true;
@@ -100,6 +148,12 @@ bool DataTypeFromString(StringPiece sp, DataType* dt) {
   } else if (sp == "complex64") {
     *dt = DT_COMPLEX64;
     return true;
+<<<<<<< HEAD
+=======
+  } else if (sp == "complex128") {
+    *dt = DT_COMPLEX128;
+    return true;
+>>>>>>> tensorflow/master
   } else if (sp == "int64") {
     *dt = DT_INT64;
     return true;
@@ -112,12 +166,27 @@ bool DataTypeFromString(StringPiece sp, DataType* dt) {
   } else if (sp == "quint8") {
     *dt = DT_QUINT8;
     return true;
+<<<<<<< HEAD
+=======
+  } else if (sp == "qint16") {
+    *dt = DT_QINT16;
+    return true;
+  } else if (sp == "quint16") {
+    *dt = DT_QUINT16;
+    return true;
+>>>>>>> tensorflow/master
   } else if (sp == "qint32") {
     *dt = DT_QINT32;
     return true;
   } else if (sp == "bfloat16") {
     *dt = DT_BFLOAT16;
     return true;
+<<<<<<< HEAD
+=======
+  } else if (sp == "half" || sp == "float16") {
+    *dt = DT_HALF;
+    return true;
+>>>>>>> tensorflow/master
   }
   return false;
 }
@@ -134,14 +203,22 @@ string DataTypeSliceString(const DataTypeSlice types) {
 }
 
 DataTypeVector AllTypes() {
+<<<<<<< HEAD
   return {DT_FLOAT, DT_DOUBLE, DT_INT32,     DT_UINT8, DT_INT16,
           DT_INT8,  DT_STRING, DT_COMPLEX64, DT_INT64, DT_BOOL,
           DT_QINT8, DT_QUINT8, DT_QINT32};
+=======
+  return {DT_FLOAT,   DT_DOUBLE, DT_INT32,  DT_UINT8,     DT_INT16,
+          DT_UINT16,  DT_INT8,   DT_STRING, DT_COMPLEX64, DT_COMPLEX128,
+          DT_INT64,   DT_BOOL,   DT_QINT8,  DT_QUINT8,    DT_QINT16,
+          DT_QUINT16, DT_QINT32, DT_HALF};
+>>>>>>> tensorflow/master
 }
 
 #if !defined(__ANDROID__)
 
 DataTypeVector RealNumberTypes() {
+<<<<<<< HEAD
   return {DT_FLOAT, DT_DOUBLE, DT_INT32, DT_INT64, DT_UINT8, DT_INT16, DT_INT8};
 }
 
@@ -158,6 +235,47 @@ DataTypeVector NumberTypes() {
 }
 
 #else  // defined(__ANDROID__)
+=======
+  return {DT_FLOAT, DT_DOUBLE, DT_INT32,  DT_INT64, DT_UINT8,
+          DT_INT16, DT_INT8,   DT_UINT16, DT_HALF};
+}
+
+DataTypeVector QuantizedTypes() {
+  return {DT_QINT8, DT_QUINT8, DT_QINT16, DT_QUINT16, DT_QINT32};
+}
+
+DataTypeVector RealAndQuantizedTypes() {
+  return {DT_FLOAT,  DT_DOUBLE,  DT_INT32,  DT_INT64, DT_UINT8,
+          DT_UINT16, DT_UINT16,  DT_INT8,   DT_QINT8, DT_QUINT8,
+          DT_QINT16, DT_QUINT16, DT_QINT32, DT_HALF};
+}
+
+DataTypeVector NumberTypes() {
+  return {DT_FLOAT,  DT_DOUBLE, DT_INT64,  DT_INT32,     DT_UINT8,
+          DT_UINT16, DT_INT16,  DT_INT8,   DT_COMPLEX64, DT_COMPLEX128,
+          DT_QINT8,  DT_QUINT8, DT_QINT32, DT_HALF};
+}
+
+#elif defined(__ANDROID_TYPES_FULL__)
+
+DataTypeVector RealNumberTypes() { return {DT_FLOAT, DT_INT32, DT_INT64}; }
+
+DataTypeVector NumberTypes() {
+  return {DT_FLOAT,  DT_INT32,  DT_INT64, DT_QINT8,
+          DT_QUINT8, DT_QINT32, DT_HALF};
+}
+
+DataTypeVector QuantizedTypes() {
+  return {DT_QINT8, DT_QUINT8, DT_QINT16, DT_QUINT16, DT_QINT32};
+}
+
+DataTypeVector RealAndQuantizedTypes() {
+  return {DT_FLOAT,  DT_INT32,   DT_INT64,  DT_QINT8, DT_QUINT8,
+          DT_QINT16, DT_QUINT16, DT_QINT32, DT_HALF};
+}
+
+#else  // defined(__ANDROID__) && !defined(__ANDROID_TYPES_FULL__)
+>>>>>>> tensorflow/master
 
 DataTypeVector RealNumberTypes() { return {DT_FLOAT, DT_INT32}; }
 
@@ -165,10 +283,20 @@ DataTypeVector NumberTypes() {
   return {DT_FLOAT, DT_INT32, DT_QINT8, DT_QUINT8, DT_QINT32};
 }
 
+<<<<<<< HEAD
 DataTypeVector QuantizedTypes() { return {DT_QINT8, DT_QUINT8, DT_QINT32}; }
 
 DataTypeVector RealAndQuantizedTypes() {
   return {DT_FLOAT, DT_INT32, DT_QINT8, DT_QUINT8, DT_QINT32};
+=======
+DataTypeVector QuantizedTypes() {
+  return {DT_QINT8, DT_QUINT8, DT_QINT16, DT_QUINT16, DT_QINT32};
+}
+
+DataTypeVector RealAndQuantizedTypes() {
+  return {DT_FLOAT,  DT_INT32,   DT_QINT8, DT_QUINT8,
+          DT_QINT16, DT_QUINT16, DT_QINT32};
+>>>>>>> tensorflow/master
 }
 
 #endif  // defined(__ANDROID__)
@@ -181,15 +309,31 @@ bool DataTypeCanUseMemcpy(DataType dt) {
     case DT_DOUBLE:
     case DT_INT32:
     case DT_UINT8:
+<<<<<<< HEAD
     case DT_INT16:
     case DT_INT8:
     case DT_COMPLEX64:
+=======
+    case DT_UINT16:
+    case DT_INT16:
+    case DT_INT8:
+    case DT_COMPLEX64:
+    case DT_COMPLEX128:
+>>>>>>> tensorflow/master
     case DT_INT64:
     case DT_BOOL:
     case DT_QINT8:
     case DT_QUINT8:
+<<<<<<< HEAD
     case DT_QINT32:
     case DT_BFLOAT16:
+=======
+    case DT_QINT16:
+    case DT_QUINT16:
+    case DT_QINT32:
+    case DT_BFLOAT16:
+    case DT_HALF:
+>>>>>>> tensorflow/master
       return true;
     default:
       return false;
@@ -200,6 +344,11 @@ bool DataTypeIsQuantized(DataType dt) {
   switch (dt) {
     case DT_QINT8:
     case DT_QUINT8:
+<<<<<<< HEAD
+=======
+    case DT_QINT16:
+    case DT_QUINT16:
+>>>>>>> tensorflow/master
     case DT_QINT32:
       return true;
     default:
@@ -207,4 +356,19 @@ bool DataTypeIsQuantized(DataType dt) {
   }
 }
 
+<<<<<<< HEAD
+=======
+int DataTypeSize(DataType dt) {
+#define CASE(T)                  \
+  case DataTypeToEnum<T>::value: \
+    return sizeof(T);
+  switch (dt) {
+    TF_CALL_POD_TYPES(CASE);
+    default:
+      return 0;
+  }
+#undef CASE
+}
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

@@ -1,14 +1,40 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_READER_INTERFACE_H_
 #define TENSORFLOW_FRAMEWORK_READER_INTERFACE_H_
 
 #include <memory>
 #include <string>
+<<<<<<< HEAD
 #include <vector>
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/resource_mgr.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/resource_mgr.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -27,16 +53,23 @@ class ReaderInterface;
 // so see ../ops/io_ops.cc for detailed descriptions.
 //
 // All descendants of this class must be thread-safe.
+<<<<<<< HEAD
 //
 // See the design document here:
 // https://docs.google.com/document/d/1UAgZOoeehYr20TdzW2CoZ30V-aqQphU4SwKXsW7eJv4/edit#
 
 // TODO(josh11b): Switch this to Async.
+=======
+>>>>>>> tensorflow/master
 class ReaderInterface : public ResourceBase {
  public:
   // Read a single record into *key / *value.  May get more work from
   // *queue if the current work is complete.  Sets the status on
+<<<<<<< HEAD
   // *context with an OutOfRange Status if the the current work is
+=======
+  // *context with an OutOfRange Status if the current work is
+>>>>>>> tensorflow/master
   // complete and the queue is done (closed and empty).
   // This method may block.
   virtual void Read(QueueInterface* queue, string* key, string* value,

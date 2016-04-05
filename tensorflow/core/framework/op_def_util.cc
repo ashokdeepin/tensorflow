@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op_def_util.h"
 
 #include <set>
@@ -9,6 +10,35 @@
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/regexp.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/op_def_util.h"
+
+#include <set>
+#include <unordered_map>
+#include "tensorflow/core/framework/attr_value_util.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/gtl/map_util.h"
+#include "tensorflow/core/lib/strings/scanner.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {  // ------ Helper functions ------
@@ -61,7 +91,11 @@ Status AllowedStringValue(const string& str, const OpDef::AttrDef& attr) {
 
 // Requires: attr has already been validated.
 Status ValidateAttrValue(const AttrValue& attr_value,
+<<<<<<< HEAD
                               const OpDef::AttrDef& attr) {
+=======
+                         const OpDef::AttrDef& attr) {
+>>>>>>> tensorflow/master
   // Is it a valid value?
   TF_RETURN_WITH_CONTEXT_IF_ERROR(AttrValueHasType(attr_value, attr.type()),
                                   " for attr '", attr.name(), "'");
@@ -148,7 +182,11 @@ OpDef::AttrDef* FindAttrMutable(StringPiece name, OpDef* op_def) {
   } while (false)
 
 static Status ValidateArg(const OpDef::ArgDef& arg, const OpDef& op_def,
+<<<<<<< HEAD
                                bool output, std::set<string>* names) {
+=======
+                          bool output, std::set<string>* names) {
+>>>>>>> tensorflow/master
   const string suffix = strings::StrCat(
       output ? " for output '" : " for input '", arg.name(), "'");
   VALIDATE(gtl::InsertIfNotPresent(names, arg.name()), "Duplicate name: ",
@@ -205,8 +243,21 @@ static Status ValidateArg(const OpDef::ArgDef& arg, const OpDef& op_def,
 }
 
 Status ValidateOpDef(const OpDef& op_def) {
+<<<<<<< HEAD
   VALIDATE(RE2::FullMatch(op_def.name(), "(?:_.*|[A-Z][a-zA-Z0-9]*)"),
            "Invalid name: ", op_def.name(), " (Did you use CamelCase?)");
+=======
+  using ::tensorflow::strings::Scanner;
+
+  if (!StringPiece(op_def.name()).starts_with("_")) {
+    VALIDATE(Scanner(op_def.name())
+                 .One(Scanner::UPPERLETTER)
+                 .Any(Scanner::LETTER_DIGIT)
+                 .Eos()
+                 .GetResult(),
+             "Invalid name: ", op_def.name(), " (Did you use CamelCase?)");
+  }
+>>>>>>> tensorflow/master
 
   std::set<string> names;  // for detecting duplicate names
   for (const auto& attr : op_def.attr()) {
@@ -341,4 +392,224 @@ string SummarizeOpDef(const OpDef& op_def) {
   return ret;
 }
 
+<<<<<<< HEAD
+=======
+namespace {
+
+typedef std::unordered_map<string, const OpDef::AttrDef*> AttrMap;
+void FillAttrMap(const OpDef& op_def, AttrMap* attr_map) {
+  for (const auto& attr : op_def.attr()) {
+    (*attr_map)[attr.name()] = &attr;
+  }
+}
+
+// Add a comma to *s every call but the first (*add_comma should be
+// initialized to false).
+void AddComma(string* s, bool* add_comma) {
+  if (*add_comma) {
+    strings::StrAppend(s, ", ");
+  } else {
+    *add_comma = true;
+  }
+}
+
+// Compute a signature for either inputs or outputs that will be the
+// same for both the old and new OpDef if they are compatible.  We
+// assume that new_attrs is a superset of old_attrs, and that any attr
+// in the difference has a default.  Our strategy is to make a list of
+// types, where the types are things like:
+// * "int32", "float", etc.,
+// * "T" for some attr "T" in old_attrs, or
+// * "N * type" for "N" either some attr in old_attrs.
+//
+// We get the types by either using the attrs in args if they are in
+// old_attrs, or substituting the default value from new_attrs.
+string ComputeArgSignature(
+    const protobuf::RepeatedPtrField<OpDef::ArgDef>& args,
+    const AttrMap& old_attrs, const AttrMap& new_attrs) {
+  string s;
+  bool add_comma = false;
+  for (const OpDef::ArgDef& arg : args) {
+    if (!arg.type_list_attr().empty()) {
+      const OpDef::AttrDef* old_attr =
+          gtl::FindPtrOrNull(old_attrs, arg.type_list_attr());
+      if (old_attr) {
+        // Both old and new have the list(type) attr, so can use it directly.
+        AddComma(&s, &add_comma);
+        strings::StrAppend(&s, arg.type_list_attr());
+        if (arg.is_ref()) strings::StrAppend(&s, " ref");
+      } else {
+        // Missing the list(type) attr in the old, so use the default
+        // value for the attr from new instead.
+        const OpDef::AttrDef* new_attr =
+            gtl::FindPtrOrNull(new_attrs, arg.type_list_attr());
+        const auto& type_list = new_attr->default_value().list().type();
+        if (type_list.empty()) continue;
+        for (int i = 0; i < type_list.size(); ++i) {
+          AddComma(&s, &add_comma);
+          strings::StrAppend(
+              &s, DataTypeString(static_cast<DataType>(type_list.Get(i))));
+          if (arg.is_ref()) strings::StrAppend(&s, " ref");
+        }
+      }
+    } else {
+      int num = 1;  // How many input/outputs does this represent?
+      if (!arg.number_attr().empty()) {
+        // N * type case.
+        const OpDef::AttrDef* old_attr =
+            gtl::FindPtrOrNull(old_attrs, arg.number_attr());
+        if (old_attr) {
+          // Both old and new have the number attr, so can use it directly.
+          AddComma(&s, &add_comma);
+          strings::StrAppend(&s, arg.number_attr(), " * ");
+          add_comma = false;  // Don't add another comma before the type.
+        } else {
+          // Missing the number attr in the old, so use the default
+          // value for the attr from new instead.
+          const OpDef::AttrDef* new_attr =
+              gtl::FindPtrOrNull(new_attrs, arg.number_attr());
+          num = new_attr->default_value().i();
+        }
+      }
+
+      string type;  // What is the type of this arg?
+      if (arg.type() != DT_INVALID) {
+        // int32, float, etc. case
+        type = DataTypeString(arg.type());
+      } else {
+        const OpDef::AttrDef* old_attr =
+            gtl::FindPtrOrNull(old_attrs, arg.type_attr());
+        if (old_attr) {
+          // Both old and new have the type attr, so can use it directly.
+          type = arg.type_attr();
+        } else {
+          // Missing the type attr in the old, so use the default
+          // value for the attr from new instead.
+          const OpDef::AttrDef* new_attr =
+              gtl::FindPtrOrNull(new_attrs, arg.type_attr());
+          type = DataTypeString(new_attr->default_value().type());
+        }
+      }
+      if (arg.is_ref()) strings::StrAppend(&type, " ref");
+
+      // Record `num` * `type` in the signature.
+      for (int i = 0; i < num; ++i) {
+        AddComma(&s, &add_comma);
+        strings::StrAppend(&s, type);
+      }
+    }
+  }
+
+  return s;
+}
+
+}  // namespace
+
+Status OpDefCompatible(const OpDef& old_op, const OpDef& new_op) {
+#define VALIDATE(CONDITION, ...)                                            \
+  if (!(CONDITION)) {                                                       \
+    return errors::InvalidArgument("Incompatible Op change: ", __VA_ARGS__, \
+                                   "; old: ", SummarizeOpDef(old_op),       \
+                                   "; new: ", SummarizeOpDef(new_op));      \
+  }
+
+  VALIDATE(old_op.name() == new_op.name(), "Name mismatch");
+
+  AttrMap new_attrs, old_attrs;
+  FillAttrMap(old_op, &old_attrs);
+  FillAttrMap(new_op, &new_attrs);
+  for (const auto& old_attr : old_op.attr()) {
+    const OpDef::AttrDef* new_attr =
+        gtl::FindPtrOrNull(new_attrs, old_attr.name());
+    VALIDATE(new_attr != nullptr, "Attr '", old_attr.name(), "' removed");
+    VALIDATE(old_attr.type() == new_attr->type(), "Attr '", old_attr.name(),
+             "' changed type '", old_attr.type(), "' -> '", new_attr->type(),
+             "'");
+  }
+
+  for (const auto& new_attr : new_op.attr()) {
+    const OpDef::AttrDef* old_attr =
+        gtl::FindPtrOrNull(old_attrs, new_attr.name());
+    VALIDATE(old_attr != nullptr || new_attr.has_default_value(), "Attr '",
+             new_attr.name(), "' added without default");
+  }
+
+  const string old_in_sig =
+      ComputeArgSignature(old_op.input_arg(), old_attrs, new_attrs);
+  const string new_in_sig =
+      ComputeArgSignature(new_op.input_arg(), old_attrs, new_attrs);
+  VALIDATE(old_in_sig == new_in_sig, "Input signature mismatch '", old_in_sig,
+           "' vs. '", new_in_sig, "'");
+
+  const string old_out_sig =
+      ComputeArgSignature(old_op.output_arg(), old_attrs, new_attrs);
+  const string new_out_sig =
+      ComputeArgSignature(new_op.output_arg(), old_attrs, new_attrs);
+  VALIDATE(old_out_sig == new_out_sig, "Output signature mismatch '",
+           old_out_sig, "' vs. '", new_out_sig, "'");
+
+  return Status::OK();
+}
+
+Status OpDefAddedDefaultsUnchanged(const OpDef& old_op,
+                                   const OpDef& penultimate_op,
+                                   const OpDef& new_op) {
+  AttrMap new_attrs, old_attrs;
+  FillAttrMap(old_op, &old_attrs);
+  FillAttrMap(new_op, &new_attrs);
+
+  for (const auto& penultimate_attr : penultimate_op.attr()) {
+    const OpDef::AttrDef* old_attr =
+        gtl::FindPtrOrNull(old_attrs, penultimate_attr.name());
+    if (old_attr != nullptr) continue;  // attr wasn't added
+    const OpDef::AttrDef* new_attr =
+        gtl::FindPtrOrNull(new_attrs, penultimate_attr.name());
+
+    // These shouldn't happen if the op passed OpDefCompatible().
+    if (new_attr == nullptr) {
+      return errors::InvalidArgument("Missing attr '", penultimate_attr.name(),
+                                     "' in op: ", SummarizeOpDef(new_op));
+    }
+    if (!penultimate_attr.has_default_value() ||
+        !new_attr->has_default_value()) {
+      return errors::InvalidArgument("Missing default for attr '",
+                                     penultimate_attr.name(), "' in op: ",
+                                     SummarizeOpDef(new_op));
+    }
+
+    // Actually test that the attr's default value hasn't changed.
+    if (!AreAttrValuesEqual(penultimate_attr.default_value(),
+                            new_attr->default_value())) {
+      return errors::InvalidArgument(
+          "Can't change default value for attr '", penultimate_attr.name(),
+          "' from ", SummarizeAttrValue(penultimate_attr.default_value()),
+          " in op: ", SummarizeOpDef(new_op));
+    }
+  }
+
+  return Status::OK();
+}
+
+void RemoveDescriptionsFromOpDef(OpDef* op_def) {
+  for (int i = 0; i < op_def->input_arg_size(); ++i) {
+    op_def->mutable_input_arg(i)->clear_description();
+  }
+  for (int i = 0; i < op_def->output_arg_size(); ++i) {
+    op_def->mutable_output_arg(i)->clear_description();
+  }
+  for (int i = 0; i < op_def->attr_size(); ++i) {
+    op_def->mutable_attr(i)->clear_description();
+  }
+  op_def->clear_summary();
+  op_def->clear_description();
+}
+
+void RemoveDescriptionsFromOpList(OpList* op_list) {
+  for (int i = 0; i < op_list->op_size(); ++i) {
+    OpDef* op_def = op_list->mutable_op(i);
+    RemoveDescriptionsFromOpDef(op_def);
+  }
+}
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

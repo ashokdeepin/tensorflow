@@ -1,10 +1,34 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_AVGPOOLING_OP_H_
 #define TENSORFLOW_KERNELS_AVGPOOLING_OP_H_
 // Functor definition for AvgPoolingOp, must be compilable by nvcc.
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/framework/tensor_types.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/NeuralNetworks"
+=======
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/kernels/eigen_pooling.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace functor {
@@ -15,10 +39,24 @@ struct SpatialAvgPooling {
                   typename TTypes<T, 4>::ConstTensor input, int window_rows,
                   int window_cols, int row_stride, int col_stride,
                   const Eigen::PaddingType& padding) {
+<<<<<<< HEAD
     // Because we swap the layout, we swap the row/cols as well
     output.swap_layout().device(d) =
         Eigen::SpatialAvgPooling(input.swap_layout(), window_cols, window_rows,
                                  col_stride, row_stride, padding);
+=======
+    if (Eigen::internal::is_same<Device, Eigen::GpuDevice>::value) {
+      // Use 32bit indexing to speed up the computations
+      To32Bit(output).swap_layout().device(d) = Eigen::SpatialAvgPooling(
+          To32Bit(input).swap_layout(), window_cols, window_rows, col_stride,
+          row_stride, padding);
+    } else {
+      // Because we swap the layout, we swap the row/cols as well
+      output.swap_layout().device(d) = Eigen::SpatialAvgPooling(
+          input.swap_layout(), window_cols, window_rows, col_stride, row_stride,
+          padding);
+    }
+>>>>>>> tensorflow/master
   }
 };
 
@@ -26,7 +64,11 @@ struct SpatialAvgPooling {
 
 typedef Eigen::GpuDevice GPUDevice;
 
+<<<<<<< HEAD
 // Lauch a custom GPU kernels from Yanqing for the avgpooling backward operation
+=======
+// Launch a custom GPU kernels from Yanqing for the avgpooling backward operation
+>>>>>>> tensorflow/master
 // that works NHWC data formats.
 // Arguments:
 //   top_diff: backprop to the output of the pooling layer

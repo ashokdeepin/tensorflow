@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/array_ops.cc.
 
 #define EIGEN_USE_THREADS
 
 #include "tensorflow/core/kernels/transpose_op.h"
+<<<<<<< HEAD
 #include "tensorflow/core/kernels/transpose_op_functor.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/platform/logging.h"
@@ -15,6 +34,21 @@ namespace tensorflow {
 typedef Eigen::ThreadPoolDevice CPUDevice;
 typedef Eigen::GpuDevice GPUDevice;
 
+=======
+
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/kernels/bounds_check.h"
+#include "tensorflow/core/kernels/transpose_functor.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/platform/logging.h"
+
+namespace tensorflow {
+
+>>>>>>> tensorflow/master
 // inv = InvertPermutationOp(T<int32> p) takes a permutation of
 // integers 0, 1, ..., n - 1 and returns the inverted
 // permutation of p. I.e., inv[p[i]] == i, for i in [0 .. n).
@@ -40,8 +74,13 @@ class InvertPermutationOp : public OpKernel {
     auto Tout = output->vec<int32>();
     std::fill_n(Tout.data(), N, -1);
     for (int i = 0; i < N; ++i) {
+<<<<<<< HEAD
       const int32 d = Tin(i);
       OP_REQUIRES(context, 0 <= d && d < N,
+=======
+      const int32 d = internal::SubtleMustCopy(Tin(i));
+      OP_REQUIRES(context, FastBoundsCheck(d, N),
+>>>>>>> tensorflow/master
                   errors::InvalidArgument(d, " is not between 0 and ", N));
       OP_REQUIRES(context, Tout(d) == -1,
                   errors::InvalidArgument(d, " is duplicated in the input."));
@@ -53,6 +92,15 @@ class InvertPermutationOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(Name("InvertPermutation").Device(DEVICE_CPU),
                         InvertPermutationOp);
 
+<<<<<<< HEAD
+=======
+REGISTER_KERNEL_BUILDER(Name("InvertPermutation")
+                            .Device(DEVICE_GPU)
+                            .HostMemory("x")
+                            .HostMemory("y"),
+                        InvertPermutationOp);
+
+>>>>>>> tensorflow/master
 // output = TransposeOp(T<any> input, T<int32> perm) takes a tensor
 // of type T and rank N, and a permutation of 0, 1, ..., N-1. It
 // shuffles the dimensions of the input tensor according to permutation.
@@ -68,6 +116,7 @@ REGISTER_KERNEL_BUILDER(Name("InvertPermutation").Device(DEVICE_CPU),
 // REQUIRES: input.dims() == perm.size().
 // REQUIRES: perm is a permutation.
 
+<<<<<<< HEAD
 template <typename Device, typename T>
 TransposeOp<Device, T>::TransposeOp(OpKernelConstruction* context)
     : OpKernel(context) {}
@@ -78,10 +127,18 @@ void TransposeOp<Device, T>::Compute(OpKernelContext* context) {
   const Tensor& perm = context->input(1);
   // Preliminary validation of sizes.
   OP_REQUIRES(context, TensorShapeUtils::IsVector(perm.shape()),
+=======
+void TransposeOp::Compute(OpKernelContext* ctx) {
+  const Tensor& input = ctx->input(0);
+  const Tensor& perm = ctx->input(1);
+  // Preliminary validation of sizes.
+  OP_REQUIRES(ctx, TensorShapeUtils::IsVector(perm.shape()),
+>>>>>>> tensorflow/master
               errors::InvalidArgument("perm must be a vector, not ",
                                       perm.shape().DebugString()));
   auto Vperm = perm.vec<int32>();
   const int dims = input.dims();
+<<<<<<< HEAD
   static const int kMinDims = 1;
   static const int kMaxDims = 8;
   OP_REQUIRES(context, kMinDims <= dims && dims <= kMaxDims,
@@ -93,10 +150,27 @@ void TransposeOp<Device, T>::Compute(OpKernelContext* context) {
                   ". But input(1) is a vector of size ", Vperm.size()));
   gtl::ArraySlice<int32> permutation(
       reinterpret_cast<const int32*>(Vperm.data()), dims);
+=======
+  static const int kMinDims = 0;
+  static const int kMaxDims = 10;
+  OP_REQUIRES(ctx, kMinDims <= dims && dims <= kMaxDims,
+              errors::Unimplemented("Transposing a tensor of rank ", dims,
+                                    " is not implemented."));
+  OP_REQUIRES(ctx, dims == Vperm.size(),
+              errors::InvalidArgument(
+                  "transpose expects a vector of size ", input.dims(),
+                  ". But input(1) is a vector of size ", Vperm.size()));
+  // using volatile instead of SubtleMustCopy here so that the
+  // asynchrony boundary is permutation.
+  const volatile int32* perm_begin =
+      reinterpret_cast<const volatile int32*>(Vperm.data());
+  const std::vector<int32> permutation(perm_begin, perm_begin + dims);
+>>>>>>> tensorflow/master
   TensorShape shape;
 
   // Check whether permutation is a permutation of integers of [0 .. dims).
   gtl::InlinedVector<bool, 8> bits(dims);
+<<<<<<< HEAD
   for (const int32 d : permutation) {
     OP_REQUIRES(
         context, 0 <= d && d < dims,
@@ -187,4 +261,71 @@ REGISTER(GPU, float);
 REGISTER(GPU, double);
 #endif
 #undef REGISTER
+=======
+  bool is_identity = true;
+  for (int i = 0; i < dims; ++i) {
+    const int32 d = permutation[i];
+    OP_REQUIRES(
+        ctx, 0 <= d && d < dims,
+        errors::InvalidArgument(d, " is out of range [0 .. ", dims, ")"));
+    bits[d] = true;
+    shape.AddDim(input.dim_size(d));
+    if (d != i) {
+      is_identity = false;
+    }
+  }
+  for (int i = 0; i < dims; ++i) {
+    OP_REQUIRES(ctx, bits[i], errors::InvalidArgument(
+                                  i, " is missing from {",
+                                  str_util::Join(permutation, ","), "}."));
+  }
+
+  // 0-D, 1-D, and identity transposes do nothing.
+  if (dims <= 1 || is_identity) {
+    ctx->set_output(0, input);
+    return;
+  }
+
+  Tensor* output = nullptr;
+  OP_REQUIRES_OK(ctx, ctx->allocate_output(0, shape, &output));
+  if (shape.num_elements() > 0) {
+    OP_REQUIRES_OK(ctx, DoTranspose(ctx, input, permutation, output));
+  }
+}
+
+Status TransposeCpuOp::DoTranspose(OpKernelContext* ctx, const Tensor& in,
+                                   gtl::ArraySlice<int32> perm, Tensor* out) {
+  typedef Eigen::ThreadPoolDevice CPUDevice;
+  return ::tensorflow::DoTranspose(ctx->eigen_device<CPUDevice>(), in, perm,
+                                   out);
+}
+
+#define REGISTER(T)                                   \
+  REGISTER_KERNEL_BUILDER(Name("Transpose")           \
+                              .Device(DEVICE_CPU)     \
+                              .TypeConstraint<T>("T") \
+                              .HostMemory("perm"),    \
+                          TransposeCpuOp);
+TF_CALL_ALL_TYPES(REGISTER)
+#undef REGISTER
+
+#if GOOGLE_CUDA
+Status TransposeGpuOp::DoTranspose(OpKernelContext* ctx, const Tensor& in,
+                                   gtl::ArraySlice<int32> perm, Tensor* out) {
+  typedef Eigen::GpuDevice GPUDevice;
+  return ::tensorflow::DoTranspose(ctx->eigen_device<GPUDevice>(), in, perm,
+                                   out);
+}
+
+#define REGISTER(T)                                   \
+  REGISTER_KERNEL_BUILDER(Name("Transpose")           \
+                              .Device(DEVICE_GPU)     \
+                              .TypeConstraint<T>("T") \
+                              .HostMemory("perm"),    \
+                          TransposeGpuOp);
+TF_CALL_POD_TYPES(REGISTER);
+#undef REGISTER
+#endif
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

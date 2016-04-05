@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for Adam."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -100,6 +121,45 @@ class AdamOptimizerTest(tf.test.TestCase):
         self.assertAllClose(var0_np, var0.eval())
         self.assertAllClose(var1_np, var1.eval())
 
+<<<<<<< HEAD
+=======
+  def testTensorLearningRate(self):
+    with self.test_session():
+      # Initialize variables for numpy implementation.
+      m0, v0, m1, v1 = 0.0, 0.0, 0.0, 0.0
+      var0_np = np.array([1.0, 2.0], dtype=np.float32)
+      grads0_np = np.array([0.1, 0.1], dtype=np.float32)
+      var1_np = np.array([3.0, 4.0], dtype=np.float32)
+      grads1_np = np.array([0.01, 0.01], dtype=np.float32)
+
+      var0 = tf.Variable(var0_np)
+      var1 = tf.Variable(var1_np)
+      grads0 = tf.constant(grads0_np)
+      grads1 = tf.constant(grads1_np)
+      opt = tf.train.AdamOptimizer(tf.constant(0.001))
+      update = opt.apply_gradients(zip([grads0, grads1], [var0, var1]))
+      tf.initialize_all_variables().run()
+
+      # Fetch params to validate initial values
+      self.assertAllClose([1.0, 2.0], var0.eval())
+      self.assertAllClose([3.0, 4.0], var1.eval())
+
+      beta1_power, beta2_power = opt._get_beta_accumulators()
+
+      # Run 3 steps of Adam
+      for t in range(1, 4):
+        self.assertAllClose(0.9 ** t, beta1_power.eval())
+        self.assertAllClose(0.999 ** t, beta2_power.eval())
+        update.run()
+
+        var0_np, m0, v0 = adam_update_numpy(var0_np, grads0_np, t, m0, v0)
+        var1_np, m1, v1 = adam_update_numpy(var1_np, grads1_np, t, m1, v1)
+
+        # Validate updated params
+        self.assertAllClose(var0_np, var0.eval())
+        self.assertAllClose(var1_np, var1.eval())
+
+>>>>>>> tensorflow/master
   def testFloat64(self):
     with self.test_session():
       opt = tf.train.AdamOptimizer()

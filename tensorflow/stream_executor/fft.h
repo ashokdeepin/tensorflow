@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Exposes the family of FFT routines as pre-canned high performance calls for
 // use in conjunction with the StreamExecutor abstraction.
 //
@@ -146,7 +164,11 @@ class FftSupport {
 // Macro used to quickly declare overrides for abstract virtuals in the
 // fft::FftSupport base class. Assumes that it's emitted somewhere inside the
 // ::perftools::gputools namespace.
+<<<<<<< HEAD
 #define TENSORFLOW_STREAM_EXECUTOR_GPU_FFT_SUPPORT_OVERRIDES                 \
+=======
+#define TENSORFLOW_STREAM_EXECUTOR_GPU_FFT_SUPPORT_OVERRIDES                \
+>>>>>>> tensorflow/master
   std::unique_ptr<fft::Plan> Create1dPlan(Stream *stream, uint64 num_x,      \
                                           fft::Type type, bool in_place_fft) \
       override;                                                              \

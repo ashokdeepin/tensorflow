@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef TENSORFLOW_FRAMEWORK_TENSOR_TESTUTIL_H_
 #define TENSORFLOW_FRAMEWORK_TENSOR_TESTUTIL_H_
 
@@ -5,6 +6,30 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/tensor.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#ifndef TENSORFLOW_FRAMEWORK_TENSOR_TESTUTIL_H_
+#define TENSORFLOW_FRAMEWORK_TENSOR_TESTUTIL_H_
+
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace test {
@@ -69,7 +94,11 @@ template <typename T>
 void ExpectTensorEqual(const Tensor& x, const Tensor& y);
 
 // Expects "x" and "y" are tensors of the same type, same shape, and
+<<<<<<< HEAD
 // approxmiate equal values, each within "abs_err".
+=======
+// approximate equal values, each within "abs_err".
+>>>>>>> tensorflow/master
 template <typename T>
 void ExpectTensorNear(const Tensor& x, const Tensor& y, const T& abs_err);
 
@@ -92,26 +121,51 @@ struct is_floating_point_type {
 };
 
 template <typename T>
+<<<<<<< HEAD
 static void ExpectEqual(const T& a, const T& b) {
+=======
+inline void ExpectEqual(const T& a, const T& b) {
+>>>>>>> tensorflow/master
   EXPECT_EQ(a, b);
 }
 
 template <>
+<<<<<<< HEAD
 void ExpectEqual<float>(const float& a, const float& b) {
+=======
+inline void ExpectEqual<float>(const float& a, const float& b) {
+>>>>>>> tensorflow/master
   EXPECT_FLOAT_EQ(a, b);
 }
 
 template <>
+<<<<<<< HEAD
 void ExpectEqual<double>(const double& a, const double& b) {
+=======
+inline void ExpectEqual<double>(const double& a, const double& b) {
+>>>>>>> tensorflow/master
   EXPECT_DOUBLE_EQ(a, b);
 }
 
 template <>
+<<<<<<< HEAD
 void ExpectEqual<complex64>(const complex64& a, const complex64& b) {
+=======
+inline void ExpectEqual<complex64>(const complex64& a, const complex64& b) {
+>>>>>>> tensorflow/master
   EXPECT_FLOAT_EQ(a.real(), b.real()) << a << " vs. " << b;
   EXPECT_FLOAT_EQ(a.imag(), b.imag()) << a << " vs. " << b;
 }
 
+<<<<<<< HEAD
+=======
+template <>
+inline void ExpectEqual<complex128>(const complex128& a, const complex128& b) {
+  EXPECT_DOUBLE_EQ(a.real(), b.real()) << a << " vs. " << b;
+  EXPECT_DOUBLE_EQ(a.imag(), b.imag()) << a << " vs. " << b;
+}
+
+>>>>>>> tensorflow/master
 inline void AssertSameTypeDims(const Tensor& x, const Tensor& y) {
   ASSERT_EQ(x.dtype(), y.dtype());
   ASSERT_TRUE(x.IsSameSize(y))

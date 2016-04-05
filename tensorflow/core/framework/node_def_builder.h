@@ -1,14 +1,40 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_NODE_DEF_BUILDER_H_
 #define TENSORFLOW_FRAMEWORK_NODE_DEF_BUILDER_H_
 
 #include <functional>
+<<<<<<< HEAD
+=======
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/attr_value_util.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_def.pb.h"
 #include "tensorflow/core/framework/types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 
@@ -16,7 +42,12 @@ namespace tensorflow {
 
 class NodeDefBuilder;
 typedef std::function<Status(const OpDef&, int, const NodeDef&,
+<<<<<<< HEAD
                                   NodeDefBuilder*)> FakeInputFunctor;
+=======
+                             NodeDefBuilder*)>
+    FakeInputFunctor;
+>>>>>>> tensorflow/master
 
 // This is a helper for creating a NodeDef.  Automatically sets attrs
 // that can be inferred from the inputs, and uses default values
@@ -33,6 +64,7 @@ class NodeDefBuilder {
  public:
   // To specify an output to be consumed by one of the Input() methods below.
   struct NodeOut {
+<<<<<<< HEAD
     NodeOut(const string& n, int i, DataType dt)
         : node(n), index(i), data_type(dt) {}
     NodeOut() {}  // uninitialized, call Reset() before use.
@@ -41,6 +73,11 @@ class NodeDefBuilder {
       index = i;
       data_type = dt;
     }
+=======
+    NodeOut(StringPiece n, int i, DataType dt);
+    NodeOut();  // uninitialized, call Reset() before use.
+    void Reset(StringPiece n, int i, DataType dt);
+>>>>>>> tensorflow/master
     string node;
     int index;
     DataType data_type;
@@ -50,16 +87,27 @@ class NodeDefBuilder {
   // the Op plus a registry) for the NodeDef.  Other fields are
   // specified by calling the methods below.
   // REQUIRES: The OpDef must satisfy ValidateOpDef().
+<<<<<<< HEAD
   NodeDefBuilder(const string& name, const string& op_name,
                  const OpRegistryInterface* op_registry = OpRegistry::Global());
   // REQUIRES: in addition, *op_def must outlive *this.
   NodeDefBuilder(const string& name, const OpDef* op_def);
+=======
+  NodeDefBuilder(StringPiece name, StringPiece op_name,
+                 const OpRegistryInterface* op_registry = OpRegistry::Global());
+  // REQUIRES: in addition, *op_def must outlive *this.
+  NodeDefBuilder(StringPiece name, const OpDef* op_def);
+>>>>>>> tensorflow/master
 
   // You must call one Input() function per input_arg in the Op,
   // *and in the same order as the input_args appear in the OpDef.*
 
   // For inputs that take a single tensor.
+<<<<<<< HEAD
   NodeDefBuilder& Input(const string& src_node, int src_index, DataType dt) {
+=======
+  NodeDefBuilder& Input(StringPiece src_node, int src_index, DataType dt) {
+>>>>>>> tensorflow/master
     const OpDef::ArgDef* arg = NextArgDef();
     if (arg != nullptr) SingleInput(arg, src_node, src_index, dt);
     return *this;
@@ -80,6 +128,7 @@ class NodeDefBuilder {
   NodeDefBuilder& Input(FakeInputFunctor fake_input);
 
   // Specify that this node must only run after src_node.
+<<<<<<< HEAD
   NodeDefBuilder& ControlInput(const string& src_node) {
     control_inputs_.push_back(src_node);
     return *this;
@@ -90,15 +139,28 @@ class NodeDefBuilder {
     node_def_.set_device(device_spec);
     return *this;
   }
+=======
+  NodeDefBuilder& ControlInput(StringPiece src_node);
+
+  // Constrains what devices this node may be scheduled on.
+  NodeDefBuilder& Device(StringPiece device_spec);
+>>>>>>> tensorflow/master
 
   // Sets the attr, if not already set.  If already set with a different
   // value, an error will be returned from Finalize().
   template <class T>
+<<<<<<< HEAD
   NodeDefBuilder& Attr(const string& attr_name, T&& value);
   // Note: overload needed to allow {...} expressions for value.
   template <class T>
   NodeDefBuilder& Attr(const string& attr_name,
                        std::initializer_list<T> value) {
+=======
+  NodeDefBuilder& Attr(StringPiece attr_name, T&& value);
+  // Note: overload needed to allow {...} expressions for value.
+  template <class T>
+  NodeDefBuilder& Attr(StringPiece attr_name, std::initializer_list<T> value) {
+>>>>>>> tensorflow/master
     Attr<std::initializer_list<T>>(attr_name, std::move(value));
     return *this;
   }
@@ -125,13 +187,21 @@ class NodeDefBuilder {
   bool NextArgAvailable();
 
   // These do the main work of the Input() methods.
+<<<<<<< HEAD
   void SingleInput(const OpDef::ArgDef* input_arg, const string& src_node,
+=======
+  void SingleInput(const OpDef::ArgDef* input_arg, StringPiece src_node,
+>>>>>>> tensorflow/master
                    int src_index, DataType dt);
   void ListInput(const OpDef::ArgDef* input_arg,
                  gtl::ArraySlice<NodeOut> src_list);
 
   // Add "src_node:src_index" to the list of inputs in the node_def_.
+<<<<<<< HEAD
   void AddInput(const string& src_node, int src_index);
+=======
+  void AddInput(StringPiece src_node, int src_index);
+>>>>>>> tensorflow/master
 
   // Generate an error if you can't pass dt when expected is expected.
   void VerifyInputType(const OpDef::ArgDef* input_arg, DataType expected,
@@ -145,6 +215,12 @@ class NodeDefBuilder {
     return input_arg->is_ref() ? MakeRefType(dt) : dt;
   }
 
+<<<<<<< HEAD
+=======
+  void CheckInconsistency(StringPiece attr_name, const AttrValue& found,
+                          const AttrValue& attr_value);
+
+>>>>>>> tensorflow/master
   const OpDef* op_def_;
   NodeDef node_def_;
   int inputs_specified_;
@@ -155,18 +231,26 @@ class NodeDefBuilder {
 // IMPLEMENTATION -------------------------------------------------------------
 
 template <class T>
+<<<<<<< HEAD
 NodeDefBuilder& NodeDefBuilder::Attr(const string& attr_name, T&& value) {
+=======
+NodeDefBuilder& NodeDefBuilder::Attr(StringPiece attr_name, T&& value) {
+>>>>>>> tensorflow/master
   const AttrValue* found = AttrSlice(node_def_).Find(attr_name);
   if (found == nullptr) {
     AddNodeAttr(attr_name, std::forward<T>(value), &node_def_);
   } else {
     AttrValue attr_value;
     SetAttrValue(std::forward<T>(value), &attr_value);
+<<<<<<< HEAD
     if (!AreAttrValuesEqual(*found, attr_value)) {
       errors_.push_back(strings::StrCat(
           "Inconsistent values for attr '", attr_name, "' ",
           SummarizeAttrValue(*found), " vs. ", SummarizeAttrValue(attr_value)));
     }
+=======
+    CheckInconsistency(attr_name, *found, attr_value);
+>>>>>>> tensorflow/master
   }
   return *this;
 }

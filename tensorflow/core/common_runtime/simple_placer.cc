@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/common_runtime/simple_placer.h"
 
 #include <memory>
@@ -22,7 +40,11 @@ namespace {
 // types in 'supported_device_types' and returns the *first* subset of devices
 // that match.
 //
+<<<<<<< HEAD
 // For example, if suported_device_types contains {GPU, CPU} and
+=======
+// For example, if supported_device_types contains {GPU, CPU} and
+>>>>>>> tensorflow/master
 // 'devices' contains CPU and GPU devices, the returned vector will
 // include *only* GPU devices, since that is higher in the priority
 // order in 'supported_device_types'.
@@ -52,6 +74,10 @@ std::vector<Device*> FilterSupportedDevices(
   return filtered_devices;
 }
 
+<<<<<<< HEAD
+=======
+// TODO(vrv): Remove "@" syntax capability.
+>>>>>>> tensorflow/master
 bool HasColocatedNodeName(const Node& node) {
   return StringPiece(node.def().device()).starts_with("@");
 }
@@ -68,6 +94,39 @@ Status ParseColocatedNodeName(const Node& node,
   return Status::OK();
 }
 
+<<<<<<< HEAD
+=======
+// Returns the name of the colocation group of the node by inspecting
+// the "_class" attribute of the NodeDef.  Returns "" if it doesn't
+// exist.
+Status ColocationGroups(const Node& node,
+                        std::vector<string>* colocation_groups) {
+  std::vector<string> class_specs;
+  // TODO(vrv): We should consider adding a GetNodeAttr that returns a
+  // StringPiece, to avoid a copy.
+  Status s = GetNodeAttr(node.def(), "_class", &class_specs);
+  if (!s.ok()) {
+    // No "_class" attribute is equivalent to the empty colocation_group.
+    *colocation_groups = {strings::StrCat("loc:@", node.name())};
+    return Status::OK();
+  }
+
+  bool found_spec = false;
+  for (const string& class_spec : class_specs) {
+    StringPiece spec(class_spec);
+    if (spec.Consume("loc:@")) {
+      found_spec = true;
+      colocation_groups->emplace_back(class_spec);
+    }
+  }
+
+  if (!found_spec) {
+    *colocation_groups = {strings::StrCat("loc:@", node.name())};
+  }
+  return Status::OK();
+}
+
+>>>>>>> tensorflow/master
 // This class maintains the connected components of a colocation
 // constraint graph, and uses this information to assign a satisfying
 // device placement to the nodes of the graph.
@@ -119,6 +178,31 @@ class ColocationGraph {
     CHECK_GE(member.parent, 0);
     members_.resize(member.parent + 1);
     members_[member.parent] = std::move(member);
+<<<<<<< HEAD
+=======
+
+    // When adding the node, identify whether it is part of a
+    // colocation group.
+    std::vector<string> colocation_groups;
+    TF_RETURN_IF_ERROR(ColocationGroups(node, &colocation_groups));
+    Status s;
+    for (const string& colocation_group : colocation_groups) {
+      auto it = colocation_group_root_.find(colocation_group);
+      if (it == colocation_group_root_.end()) {
+        // This is the first node of the colocation group, so
+        // designate this node as the 'root' of that colocation group.
+        colocation_group_root_[colocation_group] = &node;
+      } else {
+        // Try to colocate the node with the root.  If there is an
+        // error, return it.
+        s = ColocateNodes(node, *(it->second));
+        if (!s.ok()) {
+          return s;
+        }
+      }
+    }
+
+>>>>>>> tensorflow/master
     return Status::OK();
   }
 
@@ -131,6 +215,10 @@ class ColocationGraph {
   Status ColocateNodes(const Node& x, const Node& y) {
     int x_root = FindRoot(x.id());
     int y_root = FindRoot(y.id());
+<<<<<<< HEAD
+=======
+    Status s;
+>>>>>>> tensorflow/master
     if (x_root != y_root) {
       // Merge the sets by swinging the parent pointer of the smaller
       // tree to point to the root of the larger tree. Together with
@@ -168,9 +256,20 @@ class ColocationGraph {
       // TODO(mrry): Consider enriching the error message by pointing
       // out which nodes have the explicit partial device
       // specifications that caused this conflict.
+<<<<<<< HEAD
       TF_RETURN_IF_ERROR(DeviceNameUtils::MergeDevNames(
           &members_[new_root].device_name, members_[old_root].device_name,
           options_ == nullptr || options_->config.allow_soft_placement()));
+=======
+      s = DeviceNameUtils::MergeDevNames(
+          &members_[new_root].device_name, members_[old_root].device_name,
+          options_ == nullptr || options_->config.allow_soft_placement());
+      if (!s.ok()) {
+        return errors::InvalidArgument("Cannot colocate nodes '", x.name(),
+                                       "' and '", y.name(), ": ",
+                                       s.error_message());
+      }
+>>>>>>> tensorflow/master
 
       // Ensure that the common root has at least one supported device
       // type, by computing the intersection of
@@ -243,9 +342,40 @@ class ColocationGraph {
             // The specified device and merged set device match, and
             // will appear in the GraphDef (for debugging), so just
             // print the specified device.
+<<<<<<< HEAD
             return errors::InvalidArgument(
                 "Could not satisfy explicit device specification '",
                 node->def().device(), "'");
+=======
+            std::vector<Device*> devices_matching_nodedef;
+            device_set_->FindMatchingDevices(specified_device_name,
+                                             &devices_matching_nodedef);
+            if (devices_matching_nodedef.empty()) {
+              // Sometimes it is almost impossible to understand the problem
+              // without a list of available devices.
+              std::vector<string> device_names;
+              for (const Device* device : device_set_->devices()) {
+                device_names.push_back(device->name());
+              }
+              std::sort(device_names.begin(), device_names.end());
+
+              return errors::InvalidArgument(
+                  "Could not satisfy explicit device specification '",
+                  node->def().device(),
+                  "' because no devices matching that specification "
+                  "are registered in this process; available devices: ",
+                  str_util::Join(device_names, ", "));
+            } else if (specified_device_name.has_type) {
+              return errors::InvalidArgument(
+                  "Could not satisfy explicit device specification '",
+                  node->def().device(), "' because no supported kernel for ",
+                  specified_device_name.type, " devices is available");
+            } else {
+              return errors::InvalidArgument(
+                  "Could not satisfy explicit device specification '",
+                  node->def().device());
+            }
+>>>>>>> tensorflow/master
           } else {
             // The specified device may be a valid device but the
             // merged set device is different, so print both.
@@ -432,6 +562,13 @@ class ColocationGraph {
   const DeviceSet* device_set_;  // Not owned.
   const std::vector<DeviceType> device_types_;
   const SessionOptions* options_;  // Not owned;
+<<<<<<< HEAD
+=======
+
+  // Maps from a colocation group identifier to the 'root' of that
+  // colocation group.
+  std::unordered_map<string, const Node*> colocation_group_root_;
+>>>>>>> tensorflow/master
 };
 
 }  // namespace
@@ -512,11 +649,21 @@ Status SimplePlacer::Run() {
           IsRefType(node->input_type(edge->dst_input()))) {
         status = colocation_graph.ColocateNodes(*edge->src(), *node);
         if (!status.ok()) {
+<<<<<<< HEAD
           return AttachDef(
               errors::InvalidArgument("Cannot satisfy colocation constraint "
                                       "implied by reference connection: ",
                                       status.error_message()),
               node->def());
+=======
+          return AttachDef(errors::InvalidArgument(
+                               "Nodes were connected by a "
+                               "reference connection (requiring them to "
+                               "be on the same device), but the two nodes "
+                               "were assigned two different devices: ",
+                               status.error_message()),
+                           node->def());
+>>>>>>> tensorflow/master
         }
       }
     }

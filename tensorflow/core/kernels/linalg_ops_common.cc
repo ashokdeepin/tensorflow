@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/kernels/linalg_ops_common.h"
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 void LinearAlgebraOpBase::Compute(OpKernelContext* context) {
   const Tensor& in = context->input(0);
 
@@ -17,14 +36,31 @@ void LinearAlgebraOpBase::Compute(OpKernelContext* context) {
     OP_REQUIRES(context, in.dims() == input_rank,
                 errors::InvalidArgument("Input tensor must have rank == %d",
                                         input_rank));
+=======
+void UnaryLinearAlgebraOpBase::Compute(OpKernelContext* context) {
+  const Tensor& in = context->input(0);
+
+  const int input_rank = in.dims();
+  if (SupportsBatchOperation()) {
+    OP_REQUIRES(context, input_rank >= 2,
+                errors::InvalidArgument("Input tensor must have rank >= 2"));
+  } else {
+    OP_REQUIRES(context, input_rank == 2,
+                errors::InvalidArgument("Input tensor must have rank == 2"));
+>>>>>>> tensorflow/master
   }
 
   // If the tensor rank is greater than input_rank, we consider the inner-most
   // dimensions as matrices, and loop over all the other outer
   // dimensions to compute the results.
+<<<<<<< HEAD
   // TODO(kalakris): Only matrix inputs are currently supported.
   const int row_dimension = in.dims() - 2;
   const int col_dimension = in.dims() - 1;
+=======
+  const int row_dimension = input_rank - 2;
+  const int col_dimension = input_rank - 1;
+>>>>>>> tensorflow/master
   const int64 num_rows = in.dim_size(row_dimension);
   const int64 num_cols = in.dim_size(col_dimension);
   const TensorShape input_matrix_shape = TensorShape({num_rows, num_cols});
@@ -36,6 +72,7 @@ void LinearAlgebraOpBase::Compute(OpKernelContext* context) {
   int num_matrices = 1;
   // The output has the shape of all the outer dimensions of the input
   // except for the last two, plus the output_matrix_shape (if the output
+<<<<<<< HEAD
   // is not scalar). This still assumes that each input matrix is
   // 2-dimensional, in accordance with the TODO above.
   TensorShape output_shape;
@@ -46,6 +83,21 @@ void LinearAlgebraOpBase::Compute(OpKernelContext* context) {
       num_matrices *= in.dim_size(dim);
       output_shape.AddDim(in.dim_size(dim));
     }
+=======
+  // is not scalar). This assumes that each input matrix is
+  // 2-dimensional.
+  TensorShape output_shape;
+  if (input_rank == 2) {
+    output_shape = output_matrix_shape;
+  } else {
+    // Add the common outer dimensions.
+    for (int dim = 0; dim < input_rank - 2; ++dim) {
+      num_matrices *= in.dim_size(dim);
+      output_shape.AddDim(in.dim_size(dim));
+    }
+    // Add the inner dimensions that depend on the operation implemented by the
+    // derived class.
+>>>>>>> tensorflow/master
     for (int dim = 0; dim < output_matrix_shape.dims(); ++dim) {
       output_shape.AddDim(output_matrix_shape.dim_size(dim));
     }
@@ -68,7 +120,11 @@ void LinearAlgebraOpBase::Compute(OpKernelContext* context) {
 }
 
 template <typename Scalar, bool SupportsBatchOperationT>
+<<<<<<< HEAD
 void LinearAlgebraOp<Scalar, SupportsBatchOperationT>::ComputeMatrix(
+=======
+void UnaryLinearAlgebraOp<Scalar, SupportsBatchOperationT>::ComputeMatrix(
+>>>>>>> tensorflow/master
     OpKernelContext* context, int64 matrix_index, const Tensor& in,
     const TensorShape& input_matrix_shape, Tensor* out,
     const TensorShape& output_matrix_shape) {
@@ -90,10 +146,19 @@ void LinearAlgebraOp<Scalar, SupportsBatchOperationT>::ComputeMatrix(
   ComputeMatrix(context, input, &output);
 }
 
+<<<<<<< HEAD
 // Explicitly instantiate LinearAlgebraOp for the scalar types we expect to use.
 template class LinearAlgebraOp<float, false>;
 template class LinearAlgebraOp<float, true>;
 template class LinearAlgebraOp<double, false>;
 template class LinearAlgebraOp<double, true>;
+=======
+// Explicitly instantiate UnaryLinearAlgebraOp for the scalar types we expect to
+// use.
+template class UnaryLinearAlgebraOp<float, false>;
+template class UnaryLinearAlgebraOp<float, true>;
+template class UnaryLinearAlgebraOp<double, false>;
+template class UnaryLinearAlgebraOp<double, true>;
+>>>>>>> tensorflow/master
 
 }  // namespace tensorflow

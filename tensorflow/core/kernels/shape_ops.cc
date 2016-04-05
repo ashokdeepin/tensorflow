@@ -1,11 +1,37 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/array_ops.cc.
 
 #include <unordered_set>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include <vector>
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -27,6 +53,10 @@ class ShapeOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(Name("Shape").Device(DEVICE_CPU).HostMemory("output"),
                         ShapeOp);
 
+<<<<<<< HEAD
+=======
+#if GOOGLE_CUDA
+>>>>>>> tensorflow/master
 #define REGISTER_GPU_KERNEL(type)                         \
   REGISTER_KERNEL_BUILDER(Name("Shape")                   \
                               .Device(DEVICE_GPU)         \
@@ -45,6 +75,51 @@ REGISTER_KERNEL_BUILDER(Name("Shape")
                             .HostMemory("output")
                             .TypeConstraint<int32>("T"),
                         ShapeOp);
+<<<<<<< HEAD
+=======
+#endif
+
+class ShapeNOp : public OpKernel {
+ public:
+  explicit ShapeNOp(OpKernelConstruction* ctx) : OpKernel(ctx) {}
+
+  void Compute(OpKernelContext* ctx) override {
+    for (int i = 0; i < ctx->num_inputs(); ++i) {
+      auto shape = ctx->input(i).shape();
+      const int dims = shape.dims();
+      Tensor* out = nullptr;
+      OP_REQUIRES_OK(ctx, ctx->allocate_output(i, {dims}, &out));
+      auto vec = out->vec<int32>();
+      for (int j = 0; j < dims; ++j) vec(j) = shape.dim_size(j);
+    }
+  }
+
+  bool IsExpensive() override { return false; }
+};
+REGISTER_KERNEL_BUILDER(Name("ShapeN").Device(DEVICE_CPU).HostMemory("output"),
+                        ShapeNOp);
+
+#if GOOGLE_CUDA
+#define REGISTER_GPU_KERNEL(type)                         \
+  REGISTER_KERNEL_BUILDER(Name("ShapeN")                  \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          ShapeNOp)
+TF_CALL_REAL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
+#undef REGISTER_GPU_KERNEL
+
+// A special GPU kernel for int32.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+REGISTER_KERNEL_BUILDER(Name("ShapeN")
+                            .Device(DEVICE_GPU)
+                            .HostMemory("input")
+                            .HostMemory("output")
+                            .TypeConstraint<int32>("T"),
+                        ShapeNOp);
+#endif
+>>>>>>> tensorflow/master
 
 class RankOp : public OpKernel {
  public:
@@ -63,6 +138,10 @@ class RankOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(Name("Rank").Device(DEVICE_CPU).HostMemory("output"),
                         RankOp);
 
+<<<<<<< HEAD
+=======
+#if GOOGLE_CUDA
+>>>>>>> tensorflow/master
 #define REGISTER_GPU_KERNEL(type)                        \
   REGISTER_KERNEL_BUILDER(Name("Rank")                   \
                               .Device(DEVICE_GPU)        \
@@ -72,7 +151,11 @@ REGISTER_KERNEL_BUILDER(Name("Rank").Device(DEVICE_CPU).HostMemory("output"),
 TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
 #undef REGISTER_GPU_KERNEL
 
+<<<<<<< HEAD
 // A special GPU kernel for int32.
+=======
+// A special GPU kernel for int32 and bool.
+>>>>>>> tensorflow/master
 // TODO(b/25387198): Also enable int32 in device memory. This kernel
 // registration requires all int32 inputs and outputs to be in host memory.
 REGISTER_KERNEL_BUILDER(Name("Rank")
@@ -82,6 +165,17 @@ REGISTER_KERNEL_BUILDER(Name("Rank")
                             .HostMemory("output"),
                         RankOp);
 
+<<<<<<< HEAD
+=======
+REGISTER_KERNEL_BUILDER(Name("Rank")
+                            .Device(DEVICE_GPU)
+                            .TypeConstraint<bool>("T")
+                            .HostMemory("input")
+                            .HostMemory("output"),
+                        RankOp);
+#endif
+
+>>>>>>> tensorflow/master
 class SizeOp : public OpKernel {
  public:
   explicit SizeOp(OpKernelConstruction* ctx) : OpKernel(ctx) {}
@@ -100,6 +194,10 @@ class SizeOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(Name("Size").Device(DEVICE_CPU).HostMemory("output"),
                         SizeOp);
 
+<<<<<<< HEAD
+=======
+#if GOOGLE_CUDA
+>>>>>>> tensorflow/master
 #define REGISTER_GPU_KERNEL(type)                        \
   REGISTER_KERNEL_BUILDER(Name("Size")                   \
                               .Device(DEVICE_GPU)        \
@@ -118,6 +216,10 @@ REGISTER_KERNEL_BUILDER(Name("Size")
                             .HostMemory("input")
                             .HostMemory("output"),
                         SizeOp);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> tensorflow/master
 
 class ExpandDimsOp : public OpKernel {
  public:
@@ -163,6 +265,10 @@ class ExpandDimsOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(Name("ExpandDims").Device(DEVICE_CPU).HostMemory("dim"),
                         ExpandDimsOp);
 
+<<<<<<< HEAD
+=======
+#if GOOGLE_CUDA
+>>>>>>> tensorflow/master
 #define REGISTER_GPU_KERNEL(type)                        \
   REGISTER_KERNEL_BUILDER(Name("ExpandDims")             \
                               .Device(DEVICE_GPU)        \
@@ -179,6 +285,10 @@ REGISTER_KERNEL_BUILDER(Name("ExpandDims")
                             .HostMemory("dim")
                             .HostMemory("output"),
                         ExpandDimsOp);
+<<<<<<< HEAD
+=======
+#endif
+>>>>>>> tensorflow/master
 
 class SqueezeOp : public OpKernel {
  public:
@@ -251,11 +361,32 @@ class SqueezeOp : public OpKernel {
 
 REGISTER_KERNEL_BUILDER(Name("Squeeze").Device(DEVICE_CPU), SqueezeOp);
 
+<<<<<<< HEAD
+=======
+#if GOOGLE_CUDA
+>>>>>>> tensorflow/master
 #define REGISTER_GPU_KERNEL(type)                                   \
   REGISTER_KERNEL_BUILDER(                                          \
       Name("Squeeze").Device(DEVICE_GPU).TypeConstraint<type>("T"), \
       SqueezeOp);
+<<<<<<< HEAD
 TF_CALL_NUMBER_TYPES(REGISTER_GPU_KERNEL);
 #undef REGISTER_GPU_KERNEL
 
+=======
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
+#undef REGISTER_GPU_KERNEL
+
+// A special GPU kernel for int32.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+REGISTER_KERNEL_BUILDER(Name("Squeeze")
+                            .Device(DEVICE_GPU)
+                            .TypeConstraint<int32>("T")
+                            .HostMemory("input")
+                            .HostMemory("output"),
+                        SqueezeOp);
+#endif
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+>>>>>>> tensorflow/master
 <link rel="import" href="scrollbar-style.html">
 <link rel="import" href="tensorboard-color.html">
 <!--
@@ -18,16 +22,21 @@ Generic layout for a dashboard.
       #sidebar {
         width: inherit;
         height: 100%;
+<<<<<<< HEAD
         background-color: var(--tb-grey-darker);
         background-image: linear-gradient(to right, var(--tb-grey-lighter), var(--tb-grey-lighter));
         overflow: ellipsis;
         padding-left: 10px;
         padding-right: 10px;
+=======
+        overflow: ellipsis;
+>>>>>>> tensorflow/master
         flex-grow: 0;
         flex-shrink: 0;
       }
 
       #center {
+<<<<<<< HEAD
         margin: 0 10px;
         height: 100%;
         overflow-y: scroll;
@@ -35,6 +44,18 @@ Generic layout for a dashboard.
         flex-grow: 1;
         flex-shrink: 1;
       }
+=======
+        height: 100%;
+        overflow-y: scroll;
+        flex-grow: 1;
+        flex-shrink: 1;
+      }
+
+      .tf-graph-dashboard #center {
+        background: white;
+      }
+
+>>>>>>> tensorflow/master
       :host {
         display: flex;
         flex-direction: row;

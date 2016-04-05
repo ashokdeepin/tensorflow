@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+>>>>>>> tensorflow/master
 
 <dom-module id="tf-collapsable-pane">
   <template>
@@ -11,7 +16,11 @@
     <span class="name">[[name]]</span>
     <span class="hackpadding"></span>
     <span class="count">
+<<<<<<< HEAD
       (<span>[[count]]</span>)
+=======
+      <span>[[count]]</span>
+>>>>>>> tensorflow/master
     </span>
   </button>
     <iron-collapse opened="[[opened]]">
@@ -22,6 +31,7 @@
       </div>
     </iron-collapse>
     <style>
+<<<<<<< HEAD
       .heading {
         margin-top: 10px;
         padding-left: 15px;
@@ -35,26 +45,64 @@
         height: 30px;
         box-sizing: border-box;
         font-size: 16px;
+=======
+      :host {
+        display: block;
+        margin: 0 5px 1px 10px;
+      }
+
+      :host:first-of-type {
+        margin-top: 20px;
+      }
+      
+      :host:last-of-type {
+        margin-bottom: 20px;
+      }
+
+      .heading {
+        background-color: white;
+        border-radius: 2px;
+        border: none;
+        cursor: pointer;
+        -webkit-tap-highlight-color: rgba(0,0,0,0);
+        width: 100%;
+        box-sizing: border-box;
+        font-size: 15px;
+>>>>>>> tensorflow/master
         display: inline-flex;
         flex-direction: row;
         align-items: center;
         justify-content: space-between;
         line-height: 1;
+<<<<<<< HEAD
         padding-top: 2px;
         padding-bottom: 2px;
+=======
+        box-shadow: 0 1px 5px rgba(0,0,0,0.2);
+        padding: 10px 15px;
+>>>>>>> tensorflow/master
       }
 
       .content {
         padding: 15px;
         border: 1px solid #dedede;
         border-top: none;
+<<<<<<< HEAD
         border-bottom-left-radius: 5px;
         border-bottom-right-radius: 5px;
       }
+=======
+        border-bottom-left-radius: 2px;
+        border-bottom-right-radius: 2px;
+        background: white;
+      }
+
+>>>>>>> tensorflow/master
       [open-button] {
         border-bottom-left-radius: 0px !important;
         border-bottom-right-radius: 0px !important;
       }
+<<<<<<< HEAD
       .name {
         flex-grow: 0;
       }
@@ -63,6 +111,21 @@
         float: right;
         font-size: 12px;
       }
+=======
+
+      .name {
+        flex-grow: 0;
+      }
+
+      .count {
+        flex-grow: 0;
+        float: right;
+        margin-right: 5px;
+        font-size: 12px;
+        color: var(--paper-grey-500);
+      }
+
+>>>>>>> tensorflow/master
       .hackpadding {
         /* An obnoxious hack, but I can't get justify-content: space-between to work */
         flex-grow: 1;

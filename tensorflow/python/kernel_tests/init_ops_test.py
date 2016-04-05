@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.ops."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -12,7 +33,11 @@ from tensorflow.python.framework import random_seed
 from tensorflow.python.ops import init_ops
 
 
+<<<<<<< HEAD
 # Returns true iff the two initalizers produce the same tensor to
+=======
+# Returns true iff the two initializers produce the same tensor to
+>>>>>>> tensorflow/master
 # within a tiny tolerance.
 def identicaltest(tc, init1, init2, use_gpu):
   """Tests if two initializations are identical to within tiny tolerances.
@@ -74,10 +99,47 @@ def _init_sampler(tc, init, num, use_gpu):
   return func
 
 
+<<<<<<< HEAD
+=======
+class ConstantInitializersTest(tf.test.TestCase):
+
+  def testZerosInitializer(self):
+    with self.test_session():
+      shape = [2, 3]
+      x = tf.get_variable("x", shape=shape, initializer=tf.zeros_initializer)
+      x.initializer.run()
+      self.assertAllEqual(x.eval(), np.zeros(shape))
+
+  def testOnesInitializer(self):
+    with self.test_session():
+      shape = [2, 3]
+      x = tf.get_variable("x", shape=shape, initializer=tf.ones_initializer)
+      x.initializer.run()
+      self.assertAllEqual(x.eval(), np.ones(shape))
+
+  def testConstantZeroInitializer(self):
+    with self.test_session():
+      shape = [2, 3]
+      x = tf.get_variable("x", shape=shape,
+                          initializer=tf.constant_initializer(0.0))
+      x.initializer.run()
+      self.assertAllEqual(x.eval(), np.zeros(shape))
+
+  def testConstantOneInitializer(self):
+    with self.test_session():
+      shape = [2, 3]
+      x = tf.get_variable("x", shape=shape,
+                          initializer=tf.constant_initializer(1.0))
+      x.initializer.run()
+      self.assertAllEqual(x.eval(), np.ones(shape))
+
+
+>>>>>>> tensorflow/master
 class RandomNormalInitializationTest(tf.test.TestCase):
 
   def testInitializerIdentical(self):
     for use_gpu in [False, True]:
+<<<<<<< HEAD
       init1 = tf.random_normal_initializer(0.0, 1.0, seed=1)
       init2 = tf.random_normal_initializer(0.0, 1.0, seed=1)
       self.assertTrue(identicaltest(self, init1, init2, use_gpu))
@@ -87,17 +149,39 @@ class RandomNormalInitializationTest(tf.test.TestCase):
       init1 = tf.random_normal_initializer(0.0, 1.0, seed=1)
       init2 = tf.random_normal_initializer(0.0, 1.0, seed=2)
       self.assertFalse(identicaltest(self, init1, init2, use_gpu=use_gpu))
+=======
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.random_normal_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        init2 = tf.random_normal_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        self.assertTrue(identicaltest(self, init1, init2, use_gpu))
+
+  def testInitializerDifferent(self):
+    for use_gpu in [False, True]:
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.random_normal_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        init2 = tf.random_normal_initializer(0.0, 1.0, seed=2, dtype=dtype)
+        self.assertFalse(identicaltest(self, init1, init2, use_gpu=use_gpu))
+>>>>>>> tensorflow/master
 
   def testDuplicatedInitializer(self):
     for use_gpu in [False, True]:
       init = tf.random_normal_initializer(0.0, 1.0)
       self.assertFalse(duplicated_initializer(self, init, use_gpu, 1))
 
+<<<<<<< HEAD
+=======
+  def testInvalidDataType(self):
+    self.assertRaises(
+        ValueError,
+        tf.random_normal_initializer, 0.0, 1.0, dtype=tf.string)
+
+>>>>>>> tensorflow/master
 
 class TruncatedNormalInitializationTest(tf.test.TestCase):
 
   def testInitializerIdentical(self):
     for use_gpu in [False, True]:
+<<<<<<< HEAD
       init1 = tf.truncated_normal_initializer(0.0, 1.0, seed=1)
       init2 = tf.truncated_normal_initializer(0.0, 1.0, seed=1)
       self.assertTrue(identicaltest(self, init1, init2, use_gpu))
@@ -107,17 +191,39 @@ class TruncatedNormalInitializationTest(tf.test.TestCase):
       init1 = tf.truncated_normal_initializer(0.0, 1.0, seed=1)
       init2 = tf.truncated_normal_initializer(0.0, 1.0, seed=2)
       self.assertFalse(identicaltest(self, init1, init2, use_gpu=use_gpu))
+=======
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.truncated_normal_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        init2 = tf.truncated_normal_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        self.assertTrue(identicaltest(self, init1, init2, use_gpu))
+
+  def testInitializerDifferent(self):
+    for use_gpu in [False, True]:
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.truncated_normal_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        init2 = tf.truncated_normal_initializer(0.0, 1.0, seed=2, dtype=dtype)
+        self.assertFalse(identicaltest(self, init1, init2, use_gpu=use_gpu))
+>>>>>>> tensorflow/master
 
   def testDuplicatedInitializer(self):
     for use_gpu in [False, True]:
       init = tf.truncated_normal_initializer(0.0, 1.0)
       self.assertFalse(duplicated_initializer(self, init, use_gpu, 1))
 
+<<<<<<< HEAD
+=======
+  def testInvalidDataType(self):
+    self.assertRaises(
+        ValueError,
+        tf.truncated_normal_initializer, 0.0, 1.0, dtype=tf.string)
+
+>>>>>>> tensorflow/master
 
 class RandomUniformInitializationTest(tf.test.TestCase):
 
   def testInitializerIdentical(self):
     for use_gpu in [False, True]:
+<<<<<<< HEAD
       init1 = tf.random_uniform_initializer(0.0, 1.0, seed=1)
       init2 = tf.random_uniform_initializer(0.0, 1.0, seed=1)
       self.assertTrue(identicaltest(self, init1, init2, use_gpu))
@@ -127,17 +233,39 @@ class RandomUniformInitializationTest(tf.test.TestCase):
       init1 = tf.random_uniform_initializer(0.0, 1.0, seed=1)
       init2 = tf.random_uniform_initializer(0.0, 1.0, seed=2)
       self.assertFalse(identicaltest(self, init1, init2, use_gpu))
+=======
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.random_uniform_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        init2 = tf.random_uniform_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        self.assertTrue(identicaltest(self, init1, init2, use_gpu))
+
+  def testInitializerDifferent(self):
+    for use_gpu in [False, True]:
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.random_uniform_initializer(0.0, 1.0, seed=1, dtype=dtype)
+        init2 = tf.random_uniform_initializer(0.0, 1.0, seed=2, dtype=dtype)
+        self.assertFalse(identicaltest(self, init1, init2, use_gpu))
+>>>>>>> tensorflow/master
 
   def testDuplicatedInitializer(self):
     for use_gpu in [False, True]:
       init = tf.random_uniform_initializer(0.0, 1.0)
       self.assertFalse(duplicated_initializer(self, init, use_gpu, 1))
 
+<<<<<<< HEAD
+=======
+  def testInvalidDataType(self):
+    self.assertRaises(
+        ValueError,
+        tf.random_uniform_initializer, 0.0, 1.0, dtype=tf.string)
+
+>>>>>>> tensorflow/master
 
 class UniformUnitScalingInitializationTest(tf.test.TestCase):
 
   def testInitializerIdentical(self):
     for use_gpu in [False, True]:
+<<<<<<< HEAD
       init1 = tf.uniform_unit_scaling_initializer(seed=1)
       init2 = tf.uniform_unit_scaling_initializer(seed=1)
       self.assertTrue(identicaltest(self, init1, init2, use_gpu))
@@ -153,12 +281,39 @@ class UniformUnitScalingInitializationTest(tf.test.TestCase):
       self.assertFalse(identicaltest(self, init1, init2, use_gpu))
       self.assertFalse(identicaltest(self, init1, init3, use_gpu))
       self.assertFalse(identicaltest(self, init2, init3, use_gpu))
+=======
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.uniform_unit_scaling_initializer(seed=1, dtype=dtype)
+        init2 = tf.uniform_unit_scaling_initializer(seed=1, dtype=dtype)
+        self.assertTrue(identicaltest(self, init1, init2, use_gpu))
+        init3 = tf.uniform_unit_scaling_initializer(1.5, seed=1, dtype=dtype)
+        init4 = tf.uniform_unit_scaling_initializer(1.5, seed=1, dtype=dtype)
+        self.assertTrue(identicaltest(self, init3, init4, use_gpu))
+
+  def testInitializerDifferent(self):
+    for use_gpu in [False, True]:
+      for dtype in [tf.float32, tf.float64]:
+        init1 = tf.uniform_unit_scaling_initializer(seed=1, dtype=dtype)
+        init2 = tf.uniform_unit_scaling_initializer(seed=2, dtype=dtype)
+        init3 = tf.uniform_unit_scaling_initializer(1.5, seed=1, dtype=dtype)
+        self.assertFalse(identicaltest(self, init1, init2, use_gpu))
+        self.assertFalse(identicaltest(self, init1, init3, use_gpu))
+        self.assertFalse(identicaltest(self, init2, init3, use_gpu))
+>>>>>>> tensorflow/master
 
   def testDuplicatedInitializer(self):
     for use_gpu in [False, True]:
       init = tf.uniform_unit_scaling_initializer()
       self.assertFalse(duplicated_initializer(self, init, use_gpu, 1))
 
+<<<<<<< HEAD
+=======
+  def testInvalidDataType(self):
+    self.assertRaises(
+        ValueError,
+        tf.uniform_unit_scaling_initializer, dtype=tf.string)
+
+>>>>>>> tensorflow/master
 
 class RandomWalkShapeTest(tf.test.TestCase):
 
@@ -245,15 +400,25 @@ class DeviceTest(tf.test.TestCase):
   def testNoDevice(self):
     with tf.Graph().as_default():
       var = tf.Variable([[1.0, 1.0]])
+<<<<<<< HEAD
     self.assertEqual(None, var.device)
     self.assertEqual(None, var.initializer.device)
+=======
+    self.assertDeviceEqual(None, var.device)
+    self.assertDeviceEqual(None, var.initializer.device)
+>>>>>>> tensorflow/master
 
   def testDevice(self):
     with tf.Graph().as_default():
       with tf.device("/job:ps"):
         var = tf.Variable([[1.0, 1.0]])
+<<<<<<< HEAD
     self.assertEqual("/job:ps", var.device)
     self.assertEqual("/job:ps", var.initializer.device)
+=======
+    self.assertDeviceEqual("/job:ps", var.device)
+    self.assertDeviceEqual("/job:ps", var.initializer.device)
+>>>>>>> tensorflow/master
 
 
 if __name__ == "__main__":

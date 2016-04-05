@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // This approach to arenas overcomes many of the limitations described
 // in the "Specialized allocators" section of
 //     http://www.pdos.lcs.mit.edu/~dm/c++-new.html
@@ -14,6 +32,12 @@
 #include <vector>
 
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mem.h"
+
+>>>>>>> tensorflow/master
 namespace tensorflow {
 namespace core {
 
@@ -59,7 +83,11 @@ bool Arena::SatisfyAlignment(size_t alignment) {
     freestart_ += waste;
     remaining_ -= waste;
   }
+<<<<<<< HEAD
   DCHECK_EQ(0, reinterpret_cast<size_t>(freestart_) & (alignment - 1));
+=======
+  DCHECK_EQ(size_t{0}, reinterpret_cast<size_t>(freestart_) & (alignment - 1));
+>>>>>>> tensorflow/master
   return true;
 }
 
@@ -150,7 +178,11 @@ Arena::AllocatedBlock* Arena::AllocNewBlock(const size_t block_size,
   const uint32 adjusted_alignment =
       (alignment > 1 ? LeastCommonMultiple(alignment, kDefaultAlignment) : 1);
 
+<<<<<<< HEAD
   CHECK_LE(adjusted_alignment, 1 << 20)
+=======
+  CHECK_LE(adjusted_alignment, static_cast<uint32>(1 << 20))
+>>>>>>> tensorflow/master
       << "Alignment on boundaries greater than 1MB not supported.";
 
   // If block_size > alignment we force block_size to be a multiple

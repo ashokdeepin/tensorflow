@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Class to represent a device."""
 from __future__ import absolute_import
 from __future__ import division
@@ -188,6 +206,20 @@ def check_valid(spec):
   from_string(spec)
 
 
+<<<<<<< HEAD
+=======
+def canonical_name(device):
+  """Returns a canonical name for the given device or device name."""
+  if device is None:
+    return ""
+  if isinstance(device, Device):
+    return device.to_string()
+  else:
+    device = from_string(device)
+    return device.to_string()
+
+
+>>>>>>> tensorflow/master
 def merge_device(spec):
   """Returns a device function that merges devices specifications.
 

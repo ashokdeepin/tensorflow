@@ -1,16 +1,58 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/node_def_builder.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/node_def_builder.h"
+
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/op_def_util.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 NodeDefBuilder::NodeDefBuilder(const string& name, const string& op_name,
                                const OpRegistryInterface* op_registry) {
   node_def_.set_name(name);
   Status status;
   op_def_ = op_registry->LookUp(op_name, &status);
+=======
+NodeDefBuilder::NodeOut::NodeOut(StringPiece n, int i, DataType dt)
+    : node(n.ToString()), index(i), data_type(dt) {}
+
+NodeDefBuilder::NodeOut::NodeOut() {
+  // uninitialized, call Reset() before use.
+}
+
+void NodeDefBuilder::NodeOut::Reset(StringPiece n, int i, DataType dt) {
+  node = n.ToString();
+  index = i;
+  data_type = dt;
+}
+
+NodeDefBuilder::NodeDefBuilder(StringPiece name, StringPiece op_name,
+                               const OpRegistryInterface* op_registry) {
+  node_def_.set_name(name.ToString());
+  Status status;
+  op_def_ = op_registry->LookUp(op_name.ToString(), &status);
+>>>>>>> tensorflow/master
   if (op_def_ == nullptr) {
     errors_.push_back(status.error_message());
     inputs_specified_ = 0;
@@ -19,9 +61,15 @@ NodeDefBuilder::NodeDefBuilder(const string& name, const string& op_name,
   }
 }
 
+<<<<<<< HEAD
 NodeDefBuilder::NodeDefBuilder(const string& name, const OpDef* op_def)
     : op_def_(op_def) {
   node_def_.set_name(name);
+=======
+NodeDefBuilder::NodeDefBuilder(StringPiece name, const OpDef* op_def)
+    : op_def_(op_def) {
+  node_def_.set_name(name.ToString());
+>>>>>>> tensorflow/master
   Initialize();
 }
 
@@ -49,15 +97,23 @@ bool NodeDefBuilder::NextArgAvailable() {
 
 NodeDefBuilder& NodeDefBuilder::Input(FakeInputFunctor fake_input) {
   if (NextArgAvailable()) {
+<<<<<<< HEAD
     Status status =
         fake_input(*op_def_, inputs_specified_, node_def_, this);
+=======
+    Status status = fake_input(*op_def_, inputs_specified_, node_def_, this);
+>>>>>>> tensorflow/master
     if (!status.ok()) errors_.push_back(status.error_message());
   }
   return *this;
 }
 
 void NodeDefBuilder::SingleInput(const OpDef::ArgDef* input_arg,
+<<<<<<< HEAD
                                  const string& src_node, int src_index,
+=======
+                                 StringPiece src_node, int src_index,
+>>>>>>> tensorflow/master
                                  DataType dt) {
   AddInput(src_node, src_index);
 
@@ -114,7 +170,11 @@ void NodeDefBuilder::ListInput(const OpDef::ArgDef* input_arg,
   }
 }
 
+<<<<<<< HEAD
 void NodeDefBuilder::AddInput(const string& src_node, int src_index) {
+=======
+void NodeDefBuilder::AddInput(StringPiece src_node, int src_index) {
+>>>>>>> tensorflow/master
   if (src_node.empty()) {
     errors_.push_back("Empty input node name");
   } else if (src_node[0] == '^') {
@@ -123,7 +183,11 @@ void NodeDefBuilder::AddInput(const string& src_node, int src_index) {
   } else if (src_index > 0) {
     node_def_.add_input(strings::StrCat(src_node, ":", src_index));
   } else {
+<<<<<<< HEAD
     node_def_.add_input(src_node);
+=======
+    node_def_.add_input(src_node.ToString());
+>>>>>>> tensorflow/master
   }
 }
 
@@ -145,6 +209,19 @@ void NodeDefBuilder::VerifyInputRef(const OpDef::ArgDef* input_arg,
   }
 }
 
+<<<<<<< HEAD
+=======
+NodeDefBuilder& NodeDefBuilder::ControlInput(StringPiece src_node) {
+  control_inputs_.push_back(src_node.ToString());
+  return *this;
+}
+
+NodeDefBuilder& NodeDefBuilder::Device(StringPiece device_spec) {
+  node_def_.set_device(device_spec.ToString());
+  return *this;
+}
+
+>>>>>>> tensorflow/master
 Status NodeDefBuilder::Finalize(NodeDef* node_def) const {
   const std::vector<string>* errors_ptr = &errors_;
   std::vector<string> errors_storage;
@@ -191,4 +268,17 @@ Status NodeDefBuilder::Finalize(NodeDef* node_def) const {
   }
 }
 
+<<<<<<< HEAD
+=======
+void NodeDefBuilder::CheckInconsistency(StringPiece attr_name,
+                                        const AttrValue& found,
+                                        const AttrValue& attr_value) {
+  if (!AreAttrValuesEqual(found, attr_value)) {
+    errors_.push_back(strings::StrCat(
+        "Inconsistent values for attr '", attr_name, "' ",
+        SummarizeAttrValue(found), " vs. ", SummarizeAttrValue(attr_value)));
+  }
+}
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.data_flow_ops.FIFOQueue."""
 from __future__ import absolute_import
 from __future__ import division
@@ -7,8 +25,11 @@ import random
 import re
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -329,6 +350,45 @@ class FIFOQueueTest(tf.test.TestCase):
       self.assertAllEqual(dequeued_t.eval(), elems)
 
   def testEnqueueWrongShape(self):
+<<<<<<< HEAD
+=======
+    q = tf.FIFOQueue(10, (tf.int32, tf.int32), ((), (2)))
+
+    with self.assertRaises(ValueError):
+      q.enqueue(([1, 2], [2, 2]))
+
+    with self.assertRaises(ValueError):
+      q.enqueue_many((7, [[1, 2], [3, 4], [5, 6]]))
+
+  def testBatchSizeMismatch(self):
+    q = tf.FIFOQueue(10, (tf.int32, tf.int32, tf.int32), ((), (), ()))
+
+    with self.assertRaises(ValueError):
+      q.enqueue_many(([1, 2, 3], [1, 2], [1, 2, 3]))
+
+    with self.assertRaises(ValueError):
+      q.enqueue_many(([1, 2, 3], [1, 2], tf.placeholder(tf.int32)))
+
+    with self.assertRaises(ValueError):
+      q.enqueue_many((tf.placeholder(tf.int32), [1, 2], [1, 2, 3]))
+
+  def testEnqueueManyEmptyTypeConversion(self):
+    q = tf.FIFOQueue(10, (tf.int32, tf.float32), ((), ()))
+    enq = q.enqueue_many(([], []))
+    self.assertEqual(tf.int32, enq.inputs[1].dtype)
+    self.assertEqual(tf.float32, enq.inputs[2].dtype)
+
+  def testEnqueueWrongType(self):
+    q = tf.FIFOQueue(10, (tf.int32, tf.float32), ((), ()))
+
+    with self.assertRaises(ValueError):
+      q.enqueue((tf.placeholder(tf.int32), tf.placeholder(tf.int32)))
+
+    with self.assertRaises(ValueError):
+      q.enqueue_many((tf.placeholder(tf.int32), tf.placeholder(tf.int32)))
+
+  def testEnqueueWrongShapeAtRuntime(self):
+>>>>>>> tensorflow/master
     with self.test_session() as sess:
       q = tf.FIFOQueue(10, (tf.int32, tf.int32), ((2, 2), (3, 3)))
       elems_ok = np.array([1] * 4).reshape((2, 2)).astype(np.int32)
@@ -338,8 +398,11 @@ class FIFOQueueTest(tf.test.TestCase):
           tf.errors.InvalidArgumentError, r"Expected \[3,3\], got \[3,4\]"):
         sess.run([enqueue_op],
                  feed_dict={elems_bad: np.array([1] * 12).reshape((3, 4))})
+<<<<<<< HEAD
         sess.run([enqueue_op],
                  feed_dict={elems_bad: np.array([1] * 12).reshape((3, 4))})
+=======
+>>>>>>> tensorflow/master
 
   def testEnqueueDequeueManyWrongShape(self):
     with self.test_session() as sess:
@@ -1075,6 +1138,51 @@ class FIFOQueueTest(tf.test.TestCase):
       thread.join()
       self.assertAllEqual(elem, results)
 
+<<<<<<< HEAD
+=======
+  def testDtypes(self):
+    with self.test_session() as sess:
+      dtypes = [tf.float32, tf.float64, tf.int32, tf.uint8, tf.int16, tf.int8,
+                tf.int64, tf.bool, tf.complex64]
+      shape = (32, 4, 128)
+      q = tf.FIFOQueue(32, dtypes, [shape[1:]] * len(dtypes))
+
+      input_tuple = []
+      for dtype in dtypes:
+        np_dtype = dtype.as_numpy_dtype
+        np_array = np.random.randint(-10, 10, shape)
+        if dtype == tf.bool:
+          np_array = np_array > 0
+        elif dtype == tf.complex64:
+          np_array = np.sqrt(np_array.astype(np_dtype))
+        else:
+          np_array = np_array.astype(np_dtype)
+        input_tuple.append(np_array)
+
+      q.enqueue_many(input_tuple).run()
+
+      output_tuple_t = q.dequeue_many(32)
+      output_tuple = sess.run(output_tuple_t)
+
+      for (input_elem, output_elem) in zip(input_tuple, output_tuple):
+        self.assertAllEqual(input_elem, output_elem)
+
+
+class FIFOQueueWithTimeoutTest(tf.test.TestCase):
+
+  def testDequeueWithTimeout(self):
+    with self.test_session(
+        config=tf.ConfigProto(operation_timeout_in_ms=20)) as sess:
+      q = tf.FIFOQueue(10, tf.float32)
+      dequeued_t = q.dequeue()
+
+      # Intentionally do not run any enqueue_ops so that dequeue will block
+      # until operation_timeout_in_ms.
+      with self.assertRaisesRegexp(tf.errors.DeadlineExceededError,
+                                   "Timed out waiting for notification"):
+        sess.run(dequeued_t)
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

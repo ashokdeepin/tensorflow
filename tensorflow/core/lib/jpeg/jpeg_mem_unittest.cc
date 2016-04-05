@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/jpeg/jpeg_mem.h"
 
 #include <setjmp.h>
@@ -8,10 +26,17 @@
 #include <memory>
 
 #include "tensorflow/core/lib/jpeg/jpeg_handle.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/env.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/lib/core/casts.h"
 
@@ -46,23 +71,36 @@ void TestJPEG(Env* env, const string& jpegfile) {
   const int fsize = jpeg.size();
   const uint8* const temp = bit_cast<const uint8*>(jpeg.data());
 
+<<<<<<< HEAD
   // try partial decoding (half of the data)
+=======
+  // Try partial decoding (half of the data)
+>>>>>>> tensorflow/master
   int w, h, c;
   std::unique_ptr<uint8[]> imgdata;
 
   UncompressFlags flags;
   flags.components = 3;
 
+<<<<<<< HEAD
   // set min_acceptable_fraction to something insufficient
+=======
+  // Set min_acceptable_fraction to something insufficient
+>>>>>>> tensorflow/master
   flags.min_acceptable_fraction = 0.8;
   imgdata.reset(Uncompress(temp, fsize / 2, flags, &w, &h, &c, NULL));
   CHECK(imgdata.get() == NULL);
 
+<<<<<<< HEAD
   // now, use a value that makes fsize/2 be enough for a black-filling
+=======
+  // Now, use a value that makes fsize/2 be enough for a black-filling
+>>>>>>> tensorflow/master
   flags.min_acceptable_fraction = 0.01;
   imgdata.reset(Uncompress(temp, fsize / 2, flags, &w, &h, &c, NULL));
   CHECK(imgdata.get() != NULL);
 
+<<<<<<< HEAD
   // finally, uncompress the whole data
   flags.min_acceptable_fraction = 1.0;
   imgdata.reset(Uncompress(temp, fsize, flags, &w, &h, &c, NULL));
@@ -73,6 +111,12 @@ void TestJPEG(Env* env, const string& jpegfile) {
   flags.components = 4;
   imgdata.reset(Uncompress(temp, fsize, flags, &w, &h, &c, NULL));
   CHECK(imgdata.get() != NULL);
+=======
+  // Finally, uncompress the whole data
+  flags.min_acceptable_fraction = 1.0;
+  imgdata.reset(Uncompress(temp, fsize, flags, &w, &h, &c, NULL));
+  CHECK(imgdata.get() != NULL);
+>>>>>>> tensorflow/master
 }
 
 TEST(JpegMemTest, Jpeg) {
@@ -166,7 +210,12 @@ TEST(JpegMemTest, Jpeg2) {
     flags.stride = 3 * 411;
     const std::unique_ptr<uint8[]> imgdata2(new uint8[flags.stride * in_h]);
     CHECK(imgdata2.get() == Uncompress(cpdata2.c_str(), cpdata2.length(), flags,
+<<<<<<< HEAD
                                        NULL, [&imgdata2](int w, int h, int c) {
+=======
+                                       nullptr /* nwarn */,
+                                       [&imgdata2](int w, int h, int c) {
+>>>>>>> tensorflow/master
                                          CHECK_EQ(w, in_w);
                                          CHECK_EQ(h, in_h);
                                          CHECK_EQ(c, 3);
@@ -232,7 +281,12 @@ TEST(JpegMemTest, ChromaDownsampling) {
   // First, uncompress the JPEG.
   UncompressFlags unflags;
   unflags.components = 3;
+<<<<<<< HEAD
   int w, h, c, num_warnings;
+=======
+  int w, h, c;
+  int64 num_warnings;
+>>>>>>> tensorflow/master
   std::unique_ptr<uint8[]> uncompressed(Uncompress(
       jpeg.c_str(), jpeg.size(), unflags, &w, &h, &c, &num_warnings));
   CHECK(uncompressed.get() != NULL);

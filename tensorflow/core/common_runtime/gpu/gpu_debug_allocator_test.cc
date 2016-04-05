@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #if GOOGLE_CUDA
 
 #include "tensorflow/core/common_runtime/gpu/gpu_debug_allocator.h"
@@ -5,6 +23,7 @@
 #include <algorithm>
 #include <vector>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/platform/logging.h"
@@ -13,6 +32,15 @@
 #include "tensorflow/stream_executor/multi_platform_manager.h"
 #include "tensorflow/stream_executor/stream_executor.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/common_runtime/gpu/gpu_bfc_allocator.h"
+#include "tensorflow/core/common_runtime/gpu/gpu_init.h"
+#include "tensorflow/core/lib/gtl/inlined_vector.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/stream_executor.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace gpu = ::perftools::gputools;
 
@@ -66,7 +94,11 @@ TEST(GPUDebugAllocatorTest, OverwriteDetection_Header) {
               stream_exec->SynchronousMemcpy(&gpu_hdr_ptr, &pi, sizeof(float)));
 
           // Expect error on free.
+<<<<<<< HEAD
           a.Deallocate(gpu_array);
+=======
+          a.DeallocateRaw(gpu_array);
+>>>>>>> tensorflow/master
         },
         "");
   }
@@ -99,7 +131,11 @@ TEST(GPUDebugAllocatorTest, OverwriteDetection_Footer) {
               stream_exec->SynchronousMemcpy(&gpu_ftr_ptr, &pi, sizeof(float)));
 
           // Expect error on free.
+<<<<<<< HEAD
           a.Deallocate(gpu_array);
+=======
+          a.DeallocateRaw(gpu_array);
+>>>>>>> tensorflow/master
         },
         "");
   }
@@ -134,7 +170,11 @@ TEST(GPUDebugAllocatorTest, ResetToNan) {
   ASSERT_EQ(1.0, cpu_array_result[0]);
 
   // Free the array
+<<<<<<< HEAD
   a.Deallocate(gpu_array);
+=======
+  a.DeallocateRaw(gpu_array);
+>>>>>>> tensorflow/master
 
   // All values should be reset to nan.
   ASSERT_TRUE(
@@ -177,7 +217,11 @@ TEST(GPUDebugAllocatorTest, ResetToNanWithHeaderFooter) {
   ASSERT_EQ(1.0, cpu_array_result[0]);
 
   // Free the array
+<<<<<<< HEAD
   a.Deallocate(gpu_array);
+=======
+  a.DeallocateRaw(gpu_array);
+>>>>>>> tensorflow/master
 
   // All values should be reset to nan.
   ASSERT_TRUE(
@@ -199,7 +243,11 @@ TEST(GPUDebugAllocatorTest, AllocatedVsRequested) {
   float* t1 = a.Allocate<float>(1);
   EXPECT_EQ(4, a.RequestedSize(t1));
   EXPECT_EQ(256, a.AllocatedSize(t1));
+<<<<<<< HEAD
   a.Deallocate(t1);
+=======
+  a.DeallocateRaw(t1);
+>>>>>>> tensorflow/master
 }
 
 }  // namespace tensorflow

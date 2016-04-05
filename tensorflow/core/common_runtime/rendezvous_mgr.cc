@@ -1,18 +1,43 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/common_runtime/rendezvous_mgr.h"
 
 #include <unordered_set>
 
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/device.h"
 #include "tensorflow/core/common_runtime/device_mgr.h"
 #if !defined(__ANDROID__) && (defined(PLATFORM_GOOGLE) || GOOGLE_CUDA)
 #include "tensorflow/core/common_runtime/gpu/gpu_util.h"
 #endif
+=======
+#include "tensorflow/core/common_runtime/copy_tensor.h"
+#include "tensorflow/core/common_runtime/device.h"
+#include "tensorflow/core/common_runtime/device_mgr.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/notification.h"
 #include "tensorflow/core/lib/strings/numbers.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 
 namespace tensorflow {
@@ -46,6 +71,13 @@ constexpr auto CopyTensorBetweenDevicesFunc = &CopyTensorBetweenDevices;
 
 }  // end namespace
 
+=======
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/types.h"
+
+namespace tensorflow {
+
+>>>>>>> tensorflow/master
 IntraProcessRendezvous::IntraProcessRendezvous(const DeviceMgr* device_mgr)
     : device_mgr_(device_mgr), local_(NewLocalRendezvous()) {}
 
@@ -120,10 +152,17 @@ void IntraProcessRendezvous::SameWorkerRecvDone(
   Tensor copy(out_allocator, in.dtype(), in.shape());
   *out = copy;
 
+<<<<<<< HEAD
   CopyTensorBetweenDevicesFunc(parsed.edge_name, send_args.device_context,
                                recv_args.device_context, src_device, dst_device,
                                send_args.alloc_attrs, recv_args.alloc_attrs,
                                &in, out, done);
+=======
+  CopyTensor::ViaDMA(parsed.edge_name, send_args.device_context,
+                     recv_args.device_context, src_device, dst_device,
+                     send_args.alloc_attrs, recv_args.alloc_attrs, &in, out,
+                     done);
+>>>>>>> tensorflow/master
 }
 
 void IntraProcessRendezvous::RecvAsync(const string& key,

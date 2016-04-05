@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // The utility to read checkpoints for google brain tensor ops and v3
 // checkpoints for dist_belief.
 //
@@ -7,6 +25,7 @@
 
 #include <unordered_map>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_slice.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/lib/core/stringpiece.h"
@@ -16,6 +35,21 @@
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include <vector>
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_slice.h"
+#include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/gtl/map_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/saved_tensor_slice.pb.h"
 #include "tensorflow/core/util/saved_tensor_slice_util.h"
 #include "tensorflow/core/util/tensor_slice_set.h"
@@ -44,6 +78,10 @@ class TensorSliceReader {
   typedef std::function<Status(const string&, Table**)> OpenTableFunction;
 
   static const int kLoadAllShards = -1;
+<<<<<<< HEAD
+=======
+  TensorSliceReader(const string& filepattern);
+>>>>>>> tensorflow/master
   TensorSliceReader(const string& filepattern, OpenTableFunction open_function);
   TensorSliceReader(const string& filepattern, OpenTableFunction open_function,
                     int preferred_shard);
@@ -77,6 +115,21 @@ class TensorSliceReader {
     return tensors_;
   }
 
+<<<<<<< HEAD
+=======
+  // Returns value for one tensor. Only single slice checkpoints are supported
+  // at the moment.
+  Status GetTensor(const string& name,
+                   std::unique_ptr<tensorflow::Tensor>* out_tensor) const;
+
+  typedef std::unordered_map<string, TensorShape> VarToShapeMap;
+  // Returns a map from tensor name to shape.
+  VarToShapeMap GetVariableToShapeMap() const;
+
+  // Returns a string containing names and shapes of all the tensors.
+  const string DebugString() const;
+
+>>>>>>> tensorflow/master
  private:
   friend class TensorSliceWriteTestHelper;
 

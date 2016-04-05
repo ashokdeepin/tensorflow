@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include <string>
 
 #include "tensorflow/core/framework/op_kernel.h"
@@ -5,6 +6,31 @@
 #include "tensorflow/core/lib/hash/hash.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <string>
+
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/hash/hash.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -25,7 +51,12 @@ class StringToHashBucketOp : public OpKernel {
                                             &output_tensor));
     auto output_flat = output_tensor->flat<int64>();
 
+<<<<<<< HEAD
     for (std::size_t i = 0; i < input_flat.size(); ++i) {
+=======
+    typedef decltype(input_flat.size()) Index;
+    for (Index i = 0; i < input_flat.size(); ++i) {
+>>>>>>> tensorflow/master
       const uint64 input_hash = Hash64(input_flat(i));
       const uint64 bucket_id = input_hash % num_buckets_;
       // The number of buckets is always in the positive range of int64 so is

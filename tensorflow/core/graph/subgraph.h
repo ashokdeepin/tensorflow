@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_GRAPH_SUBGRAPH_H_
 #define TENSORFLOW_GRAPH_SUBGRAPH_H_
 
@@ -5,8 +23,13 @@
 
 #include "tensorflow/core/framework/device_attributes.pb.h"
 #include "tensorflow/core/graph/graph.h"
+<<<<<<< HEAD
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace subgraph {
@@ -43,6 +66,23 @@ Status RewriteGraphForExecution(
     const gtl::ArraySlice<string>& target_node_names,
     const DeviceAttributes& device_info);
 
+<<<<<<< HEAD
+=======
+typedef std::unordered_map<StringPiece, Node*, StringPiece::Hasher> NameIndex;
+
+// Augment "*g" by adding special "fetch" nodes that connect to the
+// tensor outputs specified in "fetch_outputs" to retrieve the output
+// of the tensors.  The new nodes added are set up to execute on
+// "client_device_name", and are returned in "*fetch_nodes".
+//
+// Return OK on success.  On error, return false and sets *error to
+// an appropriate error message (and *g is left in an indeterminate
+// state).
+Status FetchOutputs(Graph* g, const DeviceAttributes& device_info,
+                    const gtl::ArraySlice<string>& fetch_outputs,
+                    NameIndex* name_index, std::vector<Node*>* fetch_nodes);
+
+>>>>>>> tensorflow/master
 }  // namespace subgraph
 }  // namespace tensorflow
 

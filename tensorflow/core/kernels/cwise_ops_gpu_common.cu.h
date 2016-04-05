@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #if !GOOGLE_CUDA
 #error This file must only be included when building with Cuda support
 #endif
@@ -9,9 +27,15 @@
 
 #include <complex>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/kernels/cwise_ops.h"
 #include "tensorflow/core/framework/tensor_types.h"
+=======
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/kernels/cwise_ops.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/platform/logging.h"
 namespace tensorflow {
@@ -25,7 +49,11 @@ template <typename Functor>
 struct UnaryFunctor<GPUDevice, Functor> {
   void operator()(const GPUDevice& d, typename Functor::tout_type out,
                   typename Functor::tin_type in) {
+<<<<<<< HEAD
     out.device(d) = in.unaryExpr(typename Functor::func());
+=======
+    To32Bit(out).device(d) = To32Bit(in).unaryExpr(typename Functor::func());
+>>>>>>> tensorflow/master
   }
 };
 
@@ -35,7 +63,12 @@ struct BinaryFunctor<GPUDevice, Functor, NDIMS> {
   void operator()(const GPUDevice& d, typename Functor::tout_type out,
                   typename Functor::tin_type in0,
                   typename Functor::tin_type in1) {
+<<<<<<< HEAD
     out.device(d) = in0.binaryExpr(in1, typename Functor::func());
+=======
+    To32Bit(out).device(d) =
+        To32Bit(in0).binaryExpr(in1, typename Functor::func());
+>>>>>>> tensorflow/master
   }
 
   void Left(const GPUDevice& d, typename Functor::tout_type out,
@@ -45,7 +78,11 @@ struct BinaryFunctor<GPUDevice, Functor, NDIMS> {
     typedef typename Functor::in_type Tin;
     typedef typename Functor::func Binary;
     typedef typename Eigen::internal::scalar_left<Tout, Tin, Binary> Unary;
+<<<<<<< HEAD
     out.device(d) = in.unaryExpr(Unary(scalar.data()));
+=======
+    To32Bit(out).device(d) = To32Bit(in).unaryExpr(Unary(scalar.data()));
+>>>>>>> tensorflow/master
   }
 
   void Right(const GPUDevice& d, typename Functor::tout_type out,
@@ -55,7 +92,11 @@ struct BinaryFunctor<GPUDevice, Functor, NDIMS> {
     typedef typename Functor::in_type Tin;
     typedef typename Functor::func Binary;
     typedef typename Eigen::internal::scalar_right<Tout, Tin, Binary> Unary;
+<<<<<<< HEAD
     out.device(d) = in.unaryExpr(Unary(scalar.data()));
+=======
+    To32Bit(out).device(d) = To32Bit(in).unaryExpr(Unary(scalar.data()));
+>>>>>>> tensorflow/master
   }
 
   void BCast(const GPUDevice& d,
@@ -71,6 +112,7 @@ struct BinaryFunctor<GPUDevice, Functor, NDIMS> {
       const bool bcast0_all_one = AllOne<NDIMS>(bcast0);
       const bool bcast1_all_one = AllOne<NDIMS>(bcast1);
       if (bcast0_all_one && !bcast1_all_one) {
+<<<<<<< HEAD
         out.device(d) = in0.binaryExpr(in1.broadcast(bcast1), func);
         return;
       }
@@ -91,6 +133,20 @@ struct SelectFunctor<GPUDevice, T> {
                   typename TTypes<T>::ConstFlat then_flat,
                   typename TTypes<T>::ConstFlat else_flat) {
     out.device(d) = cond_flat.select(then_flat, else_flat);
+=======
+        To32Bit(out).device(d) =
+            To32Bit(in0).binaryExpr(To32Bit(in1).broadcast(bcast1), func);
+        return;
+      }
+      if (!bcast0_all_one && bcast1_all_one) {
+        To32Bit(out).device(d) =
+            To32Bit(in0).broadcast(bcast0).binaryExpr(To32Bit(in1), func);
+        return;
+      }
+    }
+    To32Bit(out).device(d) = To32Bit(in0).broadcast(bcast0).binaryExpr(
+        To32Bit(in1).broadcast(bcast1), func);
+>>>>>>> tensorflow/master
   }
 };
 
@@ -128,6 +184,15 @@ struct SelectFunctor<GPUDevice, T> {
 #define DEFINE_BINARY5(F, T0, T1, T2, T3, T4) \
   DEFINE_BINARY2(F, T0, T1);                  \
   DEFINE_BINARY3(F, T2, T3, T4)
+<<<<<<< HEAD
+=======
+#define DEFINE_BINARY6(F, T0, T1, T2, T3, T4, T5) \
+  DEFINE_BINARY3(F, T0, T1, T2);                  \
+  DEFINE_BINARY3(F, T3, T4, T5)
+#define DEFINE_BINARY7(F, T0, T1, T2, T3, T4, T5, T6) \
+  DEFINE_BINARY3(F, T0, T1, T2);                      \
+  DEFINE_BINARY4(F, T3, T4, T5, T6)
+>>>>>>> tensorflow/master
 
 }  // end namespace functor
 }  // end namespace tensorflow

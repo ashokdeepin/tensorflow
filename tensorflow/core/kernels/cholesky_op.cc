@@ -1,9 +1,28 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/linalg_ops.cc.
 // TODO(konstantinos): Enable complex inputs. This will require additional tests
 //                     and OP_REQUIRES.
 
 #include <cmath>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/kernel_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/kernels/linalg_ops_common.h"
@@ -12,14 +31,32 @@
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/tensor_shape.h"
 #include "third_party/eigen3/Eigen/Cholesky"
+=======
+#include "third_party/eigen3/Eigen/Cholesky"
+#include "tensorflow/core/framework/kernel_def_builder.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/kernels/linalg_ops_common.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
 template <class Scalar, bool SupportsBatchOperationT>
+<<<<<<< HEAD
 class CholeskyOp : public LinearAlgebraOp<Scalar, SupportsBatchOperationT> {
  public:
   explicit CholeskyOp(OpKernelConstruction* context)
       : LinearAlgebraOp<Scalar, SupportsBatchOperationT>(context) {}
+=======
+class CholeskyOp
+    : public UnaryLinearAlgebraOp<Scalar, SupportsBatchOperationT> {
+ public:
+  explicit CholeskyOp(OpKernelConstruction* context)
+      : UnaryLinearAlgebraOp<Scalar, SupportsBatchOperationT>(context) {}
+>>>>>>> tensorflow/master
 
   TensorShape GetOutputMatrixShape(
       const TensorShape& input_matrix_shape) override {
@@ -30,15 +67,26 @@ class CholeskyOp : public LinearAlgebraOp<Scalar, SupportsBatchOperationT> {
     const int64 rows = input_matrix_shape.dim_size(0);
     if (rows > (1LL << 20)) {
       // A big number to cap the cost in case overflow.
+<<<<<<< HEAD
       return kint32max;
+=======
+      return kint64max;
+>>>>>>> tensorflow/master
     } else {
       return rows * rows * rows;
     }
   }
 
+<<<<<<< HEAD
   using typename LinearAlgebraOp<Scalar, SupportsBatchOperationT>::MatrixMap;
   using
       typename LinearAlgebraOp<Scalar, SupportsBatchOperationT>::ConstMatrixMap;
+=======
+  using
+      typename UnaryLinearAlgebraOp<Scalar, SupportsBatchOperationT>::MatrixMap;
+  using typename UnaryLinearAlgebraOp<Scalar,
+                                      SupportsBatchOperationT>::ConstMatrixMap;
+>>>>>>> tensorflow/master
 
   void ComputeMatrix(OpKernelContext* context, const ConstMatrixMap& input,
                      MatrixMap* output) override {
@@ -52,8 +100,14 @@ class CholeskyOp : public LinearAlgebraOp<Scalar, SupportsBatchOperationT> {
     // Perform the actual LL^T Cholesky decomposition. This will only use
     // the lower triangular part of data_in by default. The upper triangular
     // part of the matrix will not be read.
+<<<<<<< HEAD
     Eigen::LLT<Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic,
                              Eigen::RowMajor>> llt_decomposition(input);
+=======
+    Eigen::LLT<
+        Eigen::Matrix<Scalar, Eigen::Dynamic, Eigen::Dynamic, Eigen::RowMajor>>
+        llt_decomposition(input);
+>>>>>>> tensorflow/master
 
     // Output the lower triangular in a dense form.
     *output = llt_decomposition.matrixL();

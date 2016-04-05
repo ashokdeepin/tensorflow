@@ -1,9 +1,34 @@
+<<<<<<< HEAD
 #include "tensorflow/core/util/tensor_slice_set.h"
 
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/util/tensor_slice_util.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/util/tensor_slice_set.h"
+
+#include <vector>
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/gtl/map_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/util/tensor_slice_util.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -14,6 +39,7 @@ TensorSliceSet::TensorSliceSet(const TensorShape& shape, DataType type)
 
 TensorSliceSet::~TensorSliceSet() {}
 
+<<<<<<< HEAD
 Status TensorSliceSet::Register(const TensorSlice& slice,
                                      const string& tag, const float* data) {
   TensorShape result_shape;
@@ -28,6 +54,31 @@ Status TensorSliceSet::Register(const TensorSlice& slice,
     }
   }
   // No overlap: we can now insert the slice
+=======
+Status TensorSliceSet::Register(const TensorSlice& slice, const string& tag,
+                                const float* data) {
+  TensorShape result_shape;
+  TF_RETURN_IF_ERROR(slice.SliceTensorShape(shape_, &result_shape));
+  string str = slice.DebugString();
+
+  if (slices_.empty()) {
+    slices_hull_ = slice;
+  } else {
+    // We check if there is any intersection between this slice and any of the
+    // registered slices.
+    if (slices_hull_.Overlaps(slice)) {
+      for (const auto x : slices_) {
+        if (slice.Overlaps(x.second.slice)) {
+          return errors::Internal("Overlapping slices: existing slice = ",
+                                  x.first, ", new slice = ", str);
+        }
+      }
+    }
+    // No overlap: we can now insert the slice
+    slices_hull_.UpdateToCover(slice);
+  }
+
+>>>>>>> tensorflow/master
   TensorSliceSet::SliceInfo info = {slice, tag, data,
                                     result_shape.num_elements()};
   slices_.insert(std::make_pair(str, info));
@@ -46,8 +97,13 @@ bool TensorSliceSet::Query(const TensorSlice& slice, float* data) const {
     }
     return true;
   } else {
+<<<<<<< HEAD
     // We didn't find any exact match but there is still a posibility that
     // mutliple existing slices can be patched together to output the slice.
+=======
+    // We didn't find any exact match but there is still a possibility that
+    // multiple existing slices can be patched together to output the slice.
+>>>>>>> tensorflow/master
     // We figure this out by computing the intersection of each of the existing
     // slices with the query slice, and check if the union of all these
     // intersections cover the entire slice. We rely on the fact that the
@@ -103,7 +159,11 @@ bool TensorSliceSet::QueryMeta(
     results->emplace_back(std::make_pair(info->slice, info->tag));
     return true;
   } else {
+<<<<<<< HEAD
     // We didn't find any exact match but there is still a posibility that
+=======
+    // We didn't find any exact match but there is still a possibility that
+>>>>>>> tensorflow/master
     // multiple existing slices can be patched together to output the slice.
     // We figure this out by computing the intersection of each of the existing
     // slices with the query slice, and check if the union of all these

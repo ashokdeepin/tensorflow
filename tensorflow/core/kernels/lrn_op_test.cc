@@ -1,20 +1,49 @@
+<<<<<<< HEAD
 #include <functional>
 #include <memory>
 #include <vector>
 
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <functional>
+#include <memory>
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/fake_input.h"
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/tensor.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/tensor_testutil.h"
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/kernels/ops_testutil.h"
 #include "tensorflow/core/kernels/ops_util.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
 #include "tensorflow/core/lib/random/simple_philox.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -22,7 +51,11 @@ static const float tol_ = 1e-4;
 
 class LRNFloatTest : public OpsTestBase {
  protected:
+<<<<<<< HEAD
   LRNFloatTest() : philox_(123, 17), rand_(&philox_) { RequireDefaultOps(); }
+=======
+  LRNFloatTest() : philox_(123, 17), rand_(&philox_) {}
+>>>>>>> tensorflow/master
 
   int GetIntAttr(const string& name) {
     int value;
@@ -80,6 +113,7 @@ class LRNFloatTest : public OpsTestBase {
 };
 
 TEST_F(LRNFloatTest, Depth96) {
+<<<<<<< HEAD
   ASSERT_OK(NodeDefBuilder("lrn_op", "LRN")
                 .Input(FakeInput())
                 .Attr("depth_radius", 5)
@@ -91,6 +125,19 @@ TEST_F(LRNFloatTest, Depth96) {
   AddInput<float>(TensorShape({1, 1, 1, 96}),
                   [this](int i) -> float { return i + 1; });
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(NodeDefBuilder("lrn_op", "LRN")
+                   .Input(FakeInput())
+                   .Attr("depth_radius", 5)
+                   .Attr("bias", 1.0f)
+                   .Attr("alpha", 0.1f)
+                   .Attr("beta", 2.0f)
+                   .Finalize(node_def()));
+  TF_ASSERT_OK(InitOp());
+  AddInput<float>(TensorShape({1, 1, 1, 96}),
+                  [this](int i) -> float { return i + 1; });
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
   auto actual = GetOutput(0)->tensor<float, 4>();
 
   // Output for Node 0 with Value 1:
@@ -116,6 +163,7 @@ TEST_F(LRNFloatTest, Depth96) {
 }
 
 TEST_F(LRNFloatTest, Depth16) {
+<<<<<<< HEAD
   ASSERT_OK(NodeDefBuilder("lrn_op", "LRN")
                 .Input(FakeInput())
                 .Attr("depth_radius", 5)
@@ -127,6 +175,19 @@ TEST_F(LRNFloatTest, Depth16) {
   AddInput<float>(TensorShape({1, 1, 1, 16}),
                   [this](int i) -> float { return i + 1; });
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(NodeDefBuilder("lrn_op", "LRN")
+                   .Input(FakeInput())
+                   .Attr("depth_radius", 5)
+                   .Attr("bias", 1.0f)
+                   .Attr("alpha", 0.1f)
+                   .Attr("beta", 2.0f)
+                   .Finalize(node_def()));
+  TF_ASSERT_OK(InitOp());
+  AddInput<float>(TensorShape({1, 1, 1, 16}),
+                  [this](int i) -> float { return i + 1; });
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
   auto actual = GetOutput(0)->tensor<float, 4>();
 
   // Output for Node 0 with Value 1:
@@ -159,6 +220,7 @@ static double RndGaussian(random::SimplePhilox* rnd) {
 
 #define TCASE(NAME, DEPTH, BATCH, DEPTH_RADIUS, BIAS, ALPHA, BETA)           \
   TEST_F(LRNFloatTest, NAME) {                                               \
+<<<<<<< HEAD
     ASSERT_OK(NodeDefBuilder("lrn_op", "LRN")                                \
                   .Input(FakeInput())                                        \
                   .Attr("depth_radius", (DEPTH_RADIUS))                      \
@@ -170,6 +232,19 @@ static double RndGaussian(random::SimplePhilox* rnd) {
     AddInput<float>(TensorShape({BATCH, 1, 1, DEPTH}),                       \
                     [this](int i) -> float { return RndGaussian(&rand_); }); \
     ASSERT_OK(RunOpKernel());                                                \
+=======
+    TF_ASSERT_OK(NodeDefBuilder("lrn_op", "LRN")                             \
+                     .Input(FakeInput())                                     \
+                     .Attr("depth_radius", (DEPTH_RADIUS))                   \
+                     .Attr("bias", (BIAS))                                   \
+                     .Attr("alpha", ((ALPHA) / 10))                          \
+                     .Attr("beta", (BETA))                                   \
+                     .Finalize(node_def()));                                 \
+    TF_ASSERT_OK(InitOp());                                                  \
+    AddInput<float>(TensorShape({BATCH, 1, 1, DEPTH}),                       \
+                    [this](int i) -> float { return RndGaussian(&rand_); }); \
+    TF_ASSERT_OK(RunOpKernel());                                             \
+>>>>>>> tensorflow/master
     EXPECT_TRUE(Compare());                                                  \
   }
 

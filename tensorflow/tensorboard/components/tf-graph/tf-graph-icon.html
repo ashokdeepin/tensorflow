@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+>>>>>>> tensorflow/master
 
 <dom-module id="tf-graph-icon">
   <template>
@@ -12,8 +16,14 @@
         </svg>
       </template>
       <template is="dom-if" if="[[_isSummary(node, summary)]]">
+<<<<<<< HEAD
         <img height$="[[height]]"
             src="[[resolveUrl('../../lib/svg/summary-icon.svg')]]" />
+=======
+        <svg width$="[[height]]" height$="[[height]]" viewBox="0 0 12 12">
+          <use x="0" y="0" xlink:href="#summary-icon" />
+        </svg>
+>>>>>>> tensorflow/master
       </template>
       <template is="dom-if" if="[[_isRegularOp(node, const, summary)]]">
         <svg height$="[[height]]"
@@ -82,7 +92,11 @@
            * Render node information associated with this node. Optional. If
            * specified, this is only used when computing the fill of the icon
            * element.
+<<<<<<< HEAD
            * @type {tf.graph.render.RenderNodeInformation}
+=======
+           * @type {tf.graph.render.RenderNodeInfo}
+>>>>>>> tensorflow/master
            */
           renderInfo: {
             type: Object,
@@ -91,7 +105,11 @@
 
           /**
            * String indicating the type of coloring to use for this node, used
+<<<<<<< HEAD
            * only for deterimining the fill.
+=======
+           * only for determining the fill.
+>>>>>>> tensorflow/master
            */
           colorBy: {
             type: Object,
@@ -99,7 +117,11 @@
           },
 
           /**
+<<<<<<< HEAD
            * Function used by structural coloring algorithim to determine which
+=======
+           * Function used by structural coloring algorithm to determine which
+>>>>>>> tensorflow/master
            * color to use based on the template ID of the node. Optional.
            */
           templateIndex: {

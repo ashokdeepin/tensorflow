@@ -1,23 +1,81 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for aggregate operations."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
 
 class AdagradOptimizerTest(tf.test.TestCase):
 
+<<<<<<< HEAD
   def testBasic(self):
+=======
+  def doTestBasic(self, use_locking=False):
     with self.test_session():
       var0 = tf.Variable([1.0, 2.0])
       var1 = tf.Variable([3.0, 4.0])
       grads0 = tf.constant([0.1, 0.1])
       grads1 = tf.constant([0.01, 0.01])
+      ada_opt = tf.train.AdagradOptimizer(3.0, initial_accumulator_value=0.1,
+                                          use_locking=use_locking)
+      ada_update = ada_opt.apply_gradients(zip([grads0, grads1], [var0, var1]))
+      tf.initialize_all_variables().run()
+      # Fetch params to validate initial values
+      self.assertAllClose([1.0, 2.0], var0.eval())
+      self.assertAllClose([3.0, 4.0], var1.eval())
+      # Run 3 steps of adagrad
+      for _ in range(3):
+        ada_update.run()
+      # Validate updated params
+      self.assertAllClose(np.array([-1.6026098728179932, -0.6026098728179932]),
+                          var0.eval())
+      self.assertAllClose(np.array([2.715679168701172, 3.715679168701172]),
+                          var1.eval())
+
+  def testBasic(self):
+    self.doTestBasic(use_locking=False)
+
+  def testBasicLocked(self):
+    self.doTestBasic(use_locking=True)
+
+  def testTensorLearningRate(self):
+>>>>>>> tensorflow/master
+    with self.test_session():
+      var0 = tf.Variable([1.0, 2.0])
+      var1 = tf.Variable([3.0, 4.0])
+      grads0 = tf.constant([0.1, 0.1])
+      grads1 = tf.constant([0.01, 0.01])
+<<<<<<< HEAD
       ada_opt = tf.train.AdagradOptimizer(3.0, initial_accumulator_value=0.1)
+=======
+      ada_opt = tf.train.AdagradOptimizer(
+          tf.constant(3.0), initial_accumulator_value=0.1)
+>>>>>>> tensorflow/master
       ada_update = ada_opt.apply_gradients(zip([grads0, grads1], [var0, var1]))
       tf.initialize_all_variables().run()
       # Fetch params to validate initial values

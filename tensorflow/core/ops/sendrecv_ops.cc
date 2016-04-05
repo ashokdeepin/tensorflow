@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/op.h"
 
 namespace tensorflow {
@@ -10,6 +28,10 @@ REGISTER_OP("_Send")
     .Attr("send_device_incarnation: int")
     .Attr("recv_device: string")
     .Attr("client_terminated: bool = false")
+<<<<<<< HEAD
+=======
+    .SetIsStateful()
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Sends the named tensor from send_device to recv_device.
 
@@ -32,6 +54,10 @@ REGISTER_OP("_Recv")
     .Attr("send_device_incarnation: int")
     .Attr("recv_device: string")
     .Attr("client_terminated: bool = false")
+<<<<<<< HEAD
+=======
+    .SetIsStateful()
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Receives the named tensor from send_device on recv_device.
 
@@ -54,6 +80,10 @@ REGISTER_OP("_HostSend")
     .Attr("send_device_incarnation: int")
     .Attr("recv_device: string")
     .Attr("client_terminated: bool = false")
+<<<<<<< HEAD
+=======
+    .SetIsStateful()
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Sends the named tensor from send_device to recv_device.
 
@@ -79,6 +109,10 @@ REGISTER_OP("_HostRecv")
     .Attr("send_device_incarnation: int")
     .Attr("recv_device: string")
     .Attr("client_terminated: bool = false")
+<<<<<<< HEAD
+=======
+    .SetIsStateful()
+>>>>>>> tensorflow/master
     .Doc(R"doc(
 Receives the named tensor from send_device on recv_device.
 

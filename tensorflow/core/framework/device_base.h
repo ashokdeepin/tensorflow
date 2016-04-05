@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_DEVICE_BASE_H_
 #define TENSORFLOW_FRAMEWORK_DEVICE_BASE_H_
 
@@ -5,6 +23,7 @@
 #include <unordered_map>
 
 #include "tensorflow/core/framework/device_attributes.pb.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor.pb.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/public/tensor.h"
@@ -14,6 +33,17 @@
 
 namespace Eigen {
 class ThreadPoolDevice;
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor.pb.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/core/refcount.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/logging.h"
+
+namespace Eigen {
+struct ThreadPoolDevice;
+>>>>>>> tensorflow/master
 }  // end namespace Eigen
 
 namespace perftools {
@@ -27,12 +57,23 @@ namespace tensorflow {
 class Device;
 class Env;
 class EventMgr;
+<<<<<<< HEAD
+=======
+class OpKernelContext;
+class ResourceMgr;
+>>>>>>> tensorflow/master
 
 namespace thread {
 class ThreadPool;
 }
 
+<<<<<<< HEAD
 // A wrapper for an Eigen Gpu Device that includes per-op state
+=======
+// A wrapper for an Eigen Gpu Device that includes per-op state. The
+// class is defined even for non-GPU devices since the
+// OpKernelContext::Params structure wants to fill it in.
+>>>>>>> tensorflow/master
 class PerOpGpuDevice {
  public:
   virtual ~PerOpGpuDevice() {}
@@ -79,7 +120,11 @@ class DeviceBase {
   // Override this to return true for devices that require an Op's
   // compute method to save references to the temporary tensors it
   // allocates until the Op execution completes
+<<<<<<< HEAD
   virtual bool SaveTemporaryTensors() const { return false; }
+=======
+  virtual bool RequiresRecordingAccessedTensors() const { return false; }
+>>>>>>> tensorflow/master
 
   struct CpuWorkerThreads {
     int num_threads = 0;
@@ -104,9 +149,16 @@ class DeviceBase {
   // "event_mgr" is used to delay deallocation of temporary GPU buffers.
   // TODO(pbar) Work out how to move this out of DeviceBase.
   struct GpuDeviceInfo {
+<<<<<<< HEAD
     perftools::gputools::Stream* stream;
     DeviceContext* default_context;
     EventMgr* event_mgr;
+=======
+    // Make sure all the defaults are NULL, so we can spot missing assignments.
+    perftools::gputools::Stream* stream = nullptr;
+    DeviceContext* default_context = nullptr;
+    EventMgr* event_mgr = nullptr;
+>>>>>>> tensorflow/master
   };
 
   // Does not take ownership.
@@ -129,11 +181,25 @@ class DeviceBase {
     LOG(FATAL) << "GetAllocator() is not implemented.";
   }
 
+<<<<<<< HEAD
+=======
+  // Return the Allocator implementation to use based on the allocator
+  // attributes requested and the supplied resource manager. By
+  // default this ignores the resource manager and calls the base
+  // implementation but devices can override if they want to consult
+  // the resource manager when choosing the allocator.
+  virtual Allocator* GetStepAllocator(AllocatorAttributes attr,
+                                      ResourceMgr* /*step_resource_manager*/) {
+    return GetAllocator(attr);
+  }
+
+>>>>>>> tensorflow/master
   const Eigen::ThreadPoolDevice* eigen_cpu_device() {
     CHECK(eigen_cpu_device_ != nullptr);
     return eigen_cpu_device_;
   }
 
+<<<<<<< HEAD
   // The caller owns the returned device and must free it by calling
   // DisposeGpuDevice below
   virtual const PerOpGpuDevice* MakeGpuDevice(DeviceContext* /*dc*/,
@@ -142,6 +208,19 @@ class DeviceBase {
     // implement an eigen_gpu_device
     return nullptr;
   }
+=======
+  // Caller owns the return value. The OpKernelContext calls this even
+  // for devices that do not implement an eigen_gpu_device. Overridden
+  // by GPU devices to return a derived type.
+  virtual PerOpGpuDevice* MakeGpuDevice() { return nullptr; }
+
+  // This is overridden by GPU devices to reinitialize the derived
+  // type returned by MakeGpuDevice.
+  virtual void ReinitializeGpuDevice(OpKernelContext* /*context*/,
+                                     PerOpGpuDevice* /*device*/,
+                                     DeviceContext* /*dc*/,
+                                     Allocator* /*allocator*/) {}
+>>>>>>> tensorflow/master
 
   virtual const DeviceAttributes& attributes() const {
     LOG(FATAL) << "Device does not implement attributes()";

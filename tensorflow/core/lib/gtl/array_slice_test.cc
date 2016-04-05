@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/gtl/array_slice.h"
 
 #include <algorithm>
@@ -7,8 +25,14 @@
 
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/lib/gtl/stl_util.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace gtl {
@@ -390,7 +414,11 @@ TEST(IntSlice, Equality) {
 // Compile-asserts that the argument has the expected type.
 template <typename Expected, typename T>
 void CheckType(const T& value) {
+<<<<<<< HEAD
   testing::StaticAssertTypeEq<Expected, T>();
+=======
+  ::testing::StaticAssertTypeEq<Expected, T>();
+>>>>>>> tensorflow/master
 }
 
 TEST(IntSlice, ExposesContainerTypesAndConsts) {
@@ -400,9 +428,15 @@ TEST(IntSlice, ExposesContainerTypesAndConsts) {
   CheckType<IntSlice::const_iterator>(const_slice.end());
   CheckType<IntSlice::const_reverse_iterator>(const_slice.rbegin());
   CheckType<IntSlice::reverse_iterator>(slice.rend());
+<<<<<<< HEAD
   testing::StaticAssertTypeEq<int, IntSlice::value_type>();
   testing::StaticAssertTypeEq<const int*, IntSlice::pointer>();
   testing::StaticAssertTypeEq<const int&, IntSlice::const_reference>();
+=======
+  ::testing::StaticAssertTypeEq<int, IntSlice::value_type>();
+  ::testing::StaticAssertTypeEq<const int*, IntSlice::pointer>();
+  ::testing::StaticAssertTypeEq<const int&, IntSlice::const_reference>();
+>>>>>>> tensorflow/master
   EXPECT_EQ(static_cast<IntSlice::size_type>(-1), IntSlice::npos);
 }
 
@@ -512,7 +546,11 @@ TEST(MutableIntSlice, InlinedVectorConversion) {
     }
     MutableIntSlice v = &inline_vec;  // Test assignment
     static_cast<void>(v);
+<<<<<<< HEAD
     TestImplicitConversion(&inline_vec, inline_vec.array(), inline_vec.size());
+=======
+    TestImplicitConversion(&inline_vec, inline_vec.data(), inline_vec.size());
+>>>>>>> tensorflow/master
   }
 }
 
@@ -570,11 +608,19 @@ TEST(MutableIntSlice, ContainerWithShallowConstDataConversion) {
 }
 
 TEST(MutableIntSlice, TypedefsAndConstants) {
+<<<<<<< HEAD
   testing::StaticAssertTypeEq<int, MutableIntSlice::value_type>();
   testing::StaticAssertTypeEq<int*, MutableIntSlice::pointer>();
   testing::StaticAssertTypeEq<const int*, MutableIntSlice::const_pointer>();
   testing::StaticAssertTypeEq<int&, MutableIntSlice::reference>();
   testing::StaticAssertTypeEq<const int&, MutableIntSlice::const_reference>();
+=======
+  ::testing::StaticAssertTypeEq<int, MutableIntSlice::value_type>();
+  ::testing::StaticAssertTypeEq<int*, MutableIntSlice::pointer>();
+  ::testing::StaticAssertTypeEq<const int*, MutableIntSlice::const_pointer>();
+  ::testing::StaticAssertTypeEq<int&, MutableIntSlice::reference>();
+  ::testing::StaticAssertTypeEq<const int&, MutableIntSlice::const_reference>();
+>>>>>>> tensorflow/master
 
   EXPECT_EQ(static_cast<MutableIntSlice::size_type>(-1), MutableIntSlice::npos);
 }
@@ -639,6 +685,13 @@ TEST(MutableCharSlice, StringConversion) {
   // since in that case both overloads would be feasible.
   string str;
   EXPECT_TRUE(TestMutableOverload(&str));
+<<<<<<< HEAD
+=======
+
+  // Avoid warning "unused function 'TestMutableOverload'"
+  int a[1];
+  EXPECT_FALSE(TestMutableOverload(a));
+>>>>>>> tensorflow/master
 }
 
 }  // namespace

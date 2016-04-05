@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Functions to read and write images in PNG format.
 
 #include <string.h>
@@ -5,14 +23,23 @@
 #include <string>
 #include <utility>
 #include <vector>
+<<<<<<< HEAD
 // NOTE(skal): we don't '#include <setjmp.h>' before png/png.h as it otherwise
+=======
+// NOTE(skal): we don't '#include <setjmp.h>' before png.h as it otherwise
+>>>>>>> tensorflow/master
 // provokes a compile error. We instead let png.h include what is needed.
 
 #include "tensorflow/core/lib/core/casts.h"
 #include "tensorflow/core/lib/png/png_io.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"  // endian
 #include "external/png_archive/libpng-1.2.53/png.h"
+=======
+#include "tensorflow/core/platform/png.h"
+#include "tensorflow/core/platform/types.h"  // endian
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace png {
@@ -23,6 +50,7 @@ namespace png {
 
 namespace {
 
+<<<<<<< HEAD
 #define PTR_INC(type, ptr, del) (ptr = \
     reinterpret_cast<type*>(reinterpret_cast<char*>(ptr) + (del)))
 #define CPTR_INC(type, ptr, del) (ptr = \
@@ -42,6 +70,33 @@ static void Convert8to16(const uint8* p8, int num_comps, int p8_row_bytes,
   int bump16 = width * sizeof(*p16) - p16_row_bytes;
   for (; height-- != 0;
       CPTR_INC(uint8, p8, bump8), PTR_INC(uint16, p16, bump16)) {
+=======
+#define PTR_INC(type, ptr, del) \
+  (ptr = reinterpret_cast<type*>(reinterpret_cast<char*>(ptr) + (del)))
+#define CPTR_INC(type, ptr, del)                                            \
+  (ptr = reinterpret_cast<const type*>(reinterpret_cast<const char*>(ptr) + \
+                                       (del)))
+
+// Convert from 8 bit components to 16. This works in-place.
+static void Convert8to16(const uint8* p8, int num_comps, int p8_row_bytes,
+                         int width, int height_in, uint16* p16,
+                         int p16_row_bytes) {
+  // Force height*row_bytes computations to use 64 bits. Height*width is
+  // enforced to < 29 bits in decode_png_op.cc, but height*row_bytes is
+  // height*width*channels*(8bit?1:2) which is therefore only constrained to <
+  // 33 bits.
+  int64 height = static_cast<int64>(height_in);
+
+  // Adjust pointers to copy backwards
+  width *= num_comps;
+  CPTR_INC(uint8, p8, (height - 1) * p8_row_bytes + (width - 1) * sizeof(*p8));
+  PTR_INC(uint16, p16,
+          (height - 1) * p16_row_bytes + (width - 1) * sizeof(*p16));
+  int bump8 = width * sizeof(*p8) - p8_row_bytes;
+  int bump16 = width * sizeof(*p16) - p16_row_bytes;
+  for (; height-- != 0;
+       CPTR_INC(uint8, p8, bump8), PTR_INC(uint16, p16, bump16)) {
+>>>>>>> tensorflow/master
     for (int w = width; w-- != 0; --p8, --p16) {
       uint pix = *p8;
       pix |= pix << 8;
@@ -65,8 +120,12 @@ void WarningHandler(png_structp png_ptr, png_const_charp msg) {
   LOG(WARNING) << "PNG warning: " << msg;
 }
 
+<<<<<<< HEAD
 void StringReader(png_structp png_ptr,
                   png_bytep data, png_size_t length) {
+=======
+void StringReader(png_structp png_ptr, png_bytep data, png_size_t length) {
+>>>>>>> tensorflow/master
   DecodeContext* const ctx = bit_cast<DecodeContext*>(png_get_io_ptr(png_ptr));
   if (static_cast<png_size_t>(ctx->data_left) < length) {
     if (!ctx->error_condition) {
@@ -86,8 +145,12 @@ void StringWriter(png_structp png_ptr, png_bytep data, png_size_t length) {
   s->append(bit_cast<const char*>(data), length);
 }
 
+<<<<<<< HEAD
 void StringWriterFlush(png_structp png_ptr) {
 }
+=======
+void StringWriterFlush(png_structp png_ptr) {}
+>>>>>>> tensorflow/master
 
 char* check_metadata_string(const string& s) {
   const char* const c_string = s.c_str();
@@ -195,10 +258,16 @@ bool CommonInitDecode(StringPiece png_string, int desired_channels,
   context->data_left = png_string.size();
   png_set_read_fn(context->png_ptr, context, StringReader);
   png_read_info(context->png_ptr, context->info_ptr);
+<<<<<<< HEAD
   png_get_IHDR(context->png_ptr, context->info_ptr,
                &context->width, &context->height,
                &context->bit_depth, &context->color_type,
                0, 0, 0);
+=======
+  png_get_IHDR(context->png_ptr, context->info_ptr, &context->width,
+               &context->height, &context->bit_depth, &context->color_type, 0,
+               0, 0);
+>>>>>>> tensorflow/master
   if (context->error_condition) {
     VLOG(1) << ": DecodePNG <- error during header parsing.";
     CommonFreeDecode(context);
@@ -219,12 +288,21 @@ bool CommonInitDecode(StringPiece png_string, int desired_channels,
     } else if (has_tRNS) {
       png_set_tRNS_to_alpha(context->png_ptr);  // Convert transparency to alpha
     } else {
+<<<<<<< HEAD
       png_set_add_alpha(
           context->png_ptr, (1 << context->bit_depth) - 1, PNG_FILLER_AFTER);
     }
   } else {                                        // We don't want alpha
     if (has_alpha || has_tRNS) {  // There is alpha
       png_set_strip_alpha(context->png_ptr);                  // Strip alpha
+=======
+      png_set_add_alpha(context->png_ptr, (1 << context->bit_depth) - 1,
+                        PNG_FILLER_AFTER);
+    }
+  } else {                                    // We don't want alpha
+    if (has_alpha || has_tRNS) {              // There is alpha
+      png_set_strip_alpha(context->png_ptr);  // Strip alpha
+>>>>>>> tensorflow/master
     }
   }
 
@@ -240,17 +318,26 @@ bool CommonInitDecode(StringPiece png_string, int desired_channels,
   png_read_update_info(context->png_ptr, context->info_ptr);
 
 #ifdef IS_LITTLE_ENDIAN
+<<<<<<< HEAD
   if (desired_channel_bits > 8)
     png_set_swap(context->png_ptr);
+=======
+  if (desired_channel_bits > 8) png_set_swap(context->png_ptr);
+>>>>>>> tensorflow/master
 #endif  // IS_LITTLE_ENDIAN
 
   // convert palette to rgb(a) if needs be.
   if (context->color_type == PNG_COLOR_TYPE_PALETTE)
+<<<<<<< HEAD
       png_set_palette_to_rgb(context->png_ptr);
+=======
+    png_set_palette_to_rgb(context->png_ptr);
+>>>>>>> tensorflow/master
 
   // handle grayscale case for source or destination
   const bool want_gray = (context->channels < 3);
   const bool is_gray = !(context->color_type & PNG_COLOR_MASK_COLOR);
+<<<<<<< HEAD
   if (is_gray) {    // upconvert gray to 8-bit if needed.
     if (context->bit_depth < 8)
       png_set_gray_1_2_4_to_8(context->png_ptr);
@@ -259,6 +346,15 @@ bool CommonInitDecode(StringPiece png_string, int desired_channels,
     if (!is_gray)
       png_set_rgb_to_gray(context->png_ptr, 1, 0.299, 0.587);   // 601, JPG
   } else {            // output is rgb(a)
+=======
+  if (is_gray) {  // upconvert gray to 8-bit if needed.
+    if (context->bit_depth < 8) png_set_gray_1_2_4_to_8(context->png_ptr);
+  }
+  if (want_gray) {  // output is grayscale
+    if (!is_gray)
+      png_set_rgb_to_gray(context->png_ptr, 1, 0.299, 0.587);  // 601, JPG
+  } else {  // output is rgb(a)
+>>>>>>> tensorflow/master
     if (is_gray)
       png_set_gray_to_rgb(context->png_ptr);  // Enable gray -> RGB conversion
   }
@@ -306,6 +402,7 @@ bool WriteImageToBuffer(
   CHECK_NOTNULL(png_string);
   // Although this case is checked inside png.cc and issues an error message,
   // that error causes memory corruption.
+<<<<<<< HEAD
   if (width == 0 || height == 0)
     return false;
 
@@ -314,6 +411,14 @@ bool WriteImageToBuffer(
   png_structp png_ptr =
     png_create_write_struct(PNG_LIBPNG_VER_STRING,
                             NULL, ErrorHandler, WarningHandler);
+=======
+  if (width == 0 || height == 0) return false;
+
+  png_string->resize(0);
+  png_infop info_ptr = NULL;
+  png_structp png_ptr = png_create_write_struct(PNG_LIBPNG_VER_STRING, NULL,
+                                                ErrorHandler, WarningHandler);
+>>>>>>> tensorflow/master
   if (png_ptr == NULL) return false;
   if (setjmp(png_jmpbuf(png_ptr))) {
     png_destroy_write_struct(&png_ptr, info_ptr ? &info_ptr : NULL);
@@ -369,8 +474,12 @@ bool WriteImageToBuffer(
 
   png_write_info(png_ptr, info_ptr);
 #ifdef IS_LITTLE_ENDIAN
+<<<<<<< HEAD
   if (channel_bits > 8)
     png_set_swap(png_ptr);
+=======
+  if (channel_bits > 8) png_set_swap(png_ptr);
+>>>>>>> tensorflow/master
 #endif  // IS_LITTLE_ENDIAN
 
   png_byte* row = reinterpret_cast<png_byte*>(const_cast<void*>(image));

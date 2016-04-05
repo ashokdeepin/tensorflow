@@ -1,8 +1,31 @@
+<<<<<<< HEAD
 #include "tensorflow/core/lib/histogram/histogram.h"
 #include <float.h>
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/framework/summary.pb.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/lib/histogram/histogram.h"
+#include <float.h>
+#include "tensorflow/core/framework/summary.pb.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace histogram {
@@ -51,15 +74,52 @@ TEST(Histogram, CustomBuckets) {
   Validate(h);
 }
 
+<<<<<<< HEAD
 TEST(Histogram, Percentile) {
+=======
+TEST(Histogram, Median) {
+>>>>>>> tensorflow/master
   Histogram h({0, 10, 100, DBL_MAX});
   h.Add(-2);
   h.Add(-2);
   h.Add(0);
+<<<<<<< HEAD
   double median = h.Percentile(50.0);
   EXPECT_EQ(median, -0.5);
 }
 
+=======
+  double median = h.Median();
+  EXPECT_EQ(median, -0.5);
+}
+
+TEST(Histogram, Percentile) {
+  // 10%, 30%, 40%, 20%
+  Histogram h({1, 2, 3, 4});
+  // 10% first bucket
+  h.Add(-1.0);
+  // 30% second bucket
+  h.Add(1.5);
+  h.Add(1.5);
+  h.Add(1.5);
+  // 40% third bucket
+  h.Add(2.5);
+  h.Add(2.5);
+  h.Add(2.5);
+  h.Add(2.5);
+  // 20% fourth bucket
+  h.Add(3.5);
+  h.Add(3.9);
+
+  EXPECT_EQ(h.Percentile(0), -1.0);    // -1.0 = histo.min_
+  EXPECT_EQ(h.Percentile(25), 1.5);    // 1.5 = remap(25, 10, 40, 1, 2)
+  EXPECT_EQ(h.Percentile(50), 2.25);   // 2.25 = remap(50, 40, 80, 2, 3)
+  EXPECT_EQ(h.Percentile(75), 2.875);  // 2.875 = remap(75, 40, 80, 2, 3)
+  EXPECT_EQ(h.Percentile(90), 3.45);   // 3.45 = remap(90, 80, 100, 3, 3.9)
+  EXPECT_EQ(h.Percentile(100), 3.9);   // 3.9 = histo.max_
+}
+
+>>>>>>> tensorflow/master
 TEST(Histogram, Basic) {
   Histogram h;
   for (int i = 0; i < 100; i++) {

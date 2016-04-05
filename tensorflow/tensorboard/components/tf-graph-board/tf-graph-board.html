@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../tf-graph/tf-graph.html">
 <link rel="import" href="../tf-graph-info/tf-graph-info.html">
 <link rel="import" href="../../bower_components/paper-progress/paper-progress.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../tf-graph/tf-graph.html">
+<link rel="import" href="../tf-graph-info/tf-graph-info.html">
+<link rel="import" href="../paper-progress/paper-progress.html">
+>>>>>>> tensorflow/master
 <!-- Element for putting tf-graph and tf-graph-info side by side.
 
 Example
@@ -77,6 +84,35 @@ paper-progress {
   --paper-progress-height: 6px;
   --paper-progress-active-color: #f3913e;
 }
+<<<<<<< HEAD
+=======
+
+.context-menu {
+  position: absolute;
+  display: none;
+  background-color: #e2e2e2;
+  border-radius: 2px;
+  font-size: 14px;
+  min-width: 150px;
+  border: 1px solid #d4d4d4;
+}
+
+/deep/ .context-menu ul {
+  list-style-type: none;
+  margin: 0;
+  padding: 0;
+  cursor: default;
+}
+
+/deep/ .context-menu ul li {
+  padding: 4px 16px;
+}
+
+/deep/ .context-menu ul li:hover {
+  background-color: #f3913e;
+  color: white;
+}
+>>>>>>> tensorflow/master
 </style>
 <template is="dom-if" if="[[_isNotComplete(progress)]]">
   <div id="progress-bar">
@@ -87,14 +123,24 @@ paper-progress {
 <div class$="[[_getContainerClass(progress)]]">
   <div id="main">
     <tf-graph id="graph"
+<<<<<<< HEAD
               graph-hierarchy="[[graphHierarchy]]"
+=======
+              graph-hierarchy="{{graphHierarchy}}"
+              basic-graph="[[graph]]"
+              hierarchy-params="[[hierarchyParams]]"
+>>>>>>> tensorflow/master
               render-hierarchy="{{_renderHierarchy}}"
               selected-node="{{_selectedNode}}"
               highlighted-node="{{_highlightedNode}}"
               color-by="[[colorBy]]"
               color-by-params="{{colorByParams}}"
               graph-name="[[graphName]]"
+<<<<<<< HEAD
               progress="[[progress]]"
+=======
+              progress="{{progress}}"
+>>>>>>> tensorflow/master
     ></tf-graph>
   </div>
   <div id="info">
@@ -104,11 +150,19 @@ paper-progress {
                     render-hierarchy="[[_renderHierarchy]]"
                     graph="[[graph]]"
                     selected-node="{{_selectedNode}}"
+<<<<<<< HEAD
+=======
+                    selected-node-include="{{_selectedNodeInclude}}"
+>>>>>>> tensorflow/master
                     highlighted-node="{{_highlightedNode}}"
                     color-by="[[colorBy]]"
                     color-by-params="[[colorByParams]]"
     ></tf-graph-info>
   </div>
+<<<<<<< HEAD
+=======
+  <div class="context-menu"></div>
+>>>>>>> tensorflow/master
 </div>
 </template>
 </dom-module>
@@ -137,9 +191,23 @@ Polymer({
     },
     // Private API: Data routing between child components.
     _selectedNode: String,
+<<<<<<< HEAD
     _highlightedNode: String,
     _renderHierarchy: Object,
   },
+=======
+    // The enum value of the include property of the selected node.
+    _selectedNodeInclude: Number,
+    _highlightedNode: String,
+    _renderHierarchy: Object,
+  },
+  listeners: {
+    'node-toggle-extract': '_nodeToggleExtract'
+  },
+  observers: [
+    '_updateNodeInclude(_selectedNode)'
+  ],
+>>>>>>> tensorflow/master
   /** True if the progress is not complete yet (< 100 %). */
   _isNotComplete: function(progress) {
     return progress.value < 100;
@@ -153,6 +221,17 @@ Polymer({
       result += ' loading';
     }
     return result;
+<<<<<<< HEAD
+=======
+  },
+  _updateNodeInclude: function(nodeName) {
+    var node = this.graphHierarchy.node(nodeName);
+    this.set("_selectedNodeInclude",
+      node ? node.include : tf.graph.InclusionType.UNSPECIFIED);
+  },
+  _nodeToggleExtract: function() {
+    this._updateNodeInclude(this._selectedNode);
+>>>>>>> tensorflow/master
   }
 });
 </script>

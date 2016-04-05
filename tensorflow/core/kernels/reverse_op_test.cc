@@ -1,6 +1,26 @@
+<<<<<<< HEAD
 #include <functional>
 #include <memory>
 #include <vector>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include <functional>
+#include <memory>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/common_runtime/device.h"
 #include "tensorflow/core/common_runtime/device_factory.h"
@@ -9,6 +29,10 @@
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/node_def_builder.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/tensor.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/kernels/ops_testutil.h"
@@ -16,8 +40,11 @@
 #include "tensorflow/core/lib/io/path.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/platform/test.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
 #include <gtest/gtest.h>
+=======
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -25,6 +52,7 @@ namespace {
 class ReverseOpTest : public OpsTestBase {
  protected:
   void MakeOp(DataType data_type) {
+<<<<<<< HEAD
     RequireDefaultOps();
     ASSERT_OK(NodeDefBuilder("myop", "Reverse")
                   .Input(FakeInput(data_type))
@@ -32,6 +60,14 @@ class ReverseOpTest : public OpsTestBase {
                   .Attr("T", data_type)
                   .Finalize(node_def()));
     ASSERT_OK(InitOp());
+=======
+    TF_ASSERT_OK(NodeDefBuilder("myop", "Reverse")
+                     .Input(FakeInput(data_type))
+                     .Input(FakeInput())
+                     .Attr("T", data_type)
+                     .Finalize(node_def()));
+    TF_ASSERT_OK(InitOp());
+>>>>>>> tensorflow/master
   }
 };
 
@@ -39,7 +75,11 @@ TEST_F(ReverseOpTest, Reverse_0) {
   MakeOp(DT_FLOAT);
   AddInputFromArray<float>(TensorShape({}), {3});
   AddInputFromArray<bool>(TensorShape({}), {true});
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   Tensor* output = GetOutput(0);
   Tensor expected(allocator(), DT_FLOAT, TensorShape({}));
@@ -58,7 +98,11 @@ TEST_F(ReverseOpTest, Reverse_234) {
                             15, 16, 17, 18, 19, 20, 21, 22, 23});
   AddInputFromArray<bool>(TensorShape({3}), {true, false, true});
 
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the new state of the input
   Tensor* params_tensor = GetOutput(0);
@@ -83,7 +127,11 @@ TEST_F(ReverseOpTest, Reverse_1234) {
                             15, 16, 17, 18, 19, 20, 21, 22, 23});
   AddInputFromArray<bool>(TensorShape({4}), {true, true, false, true});
 
+<<<<<<< HEAD
   ASSERT_OK(RunOpKernel());
+=======
+  TF_ASSERT_OK(RunOpKernel());
+>>>>>>> tensorflow/master
 
   // Check the new state of the input
   Tensor* params_tensor = GetOutput(0);

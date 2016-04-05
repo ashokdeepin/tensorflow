@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """## Arithmetic Operators
 
 TensorFlow provides several operations that you can use to add basic arithmetic
@@ -7,7 +25,14 @@ operators to your graph.
 @@sub
 @@mul
 @@div
+<<<<<<< HEAD
 @@mod
+=======
+@@truediv
+@@floordiv
+@@mod
+@@cross
+>>>>>>> tensorflow/master
 
 ## Basic Math Functions
 
@@ -32,6 +57,17 @@ mathematical functions to your graph.
 @@minimum
 @@cos
 @@sin
+<<<<<<< HEAD
+=======
+@@lbeta
+@@lgamma
+@@digamma
+@@erf
+@@erfc
+@@squared_difference
+@@igamma
+@@igammac
+>>>>>>> tensorflow/master
 
 ## Matrix Math Functions
 
@@ -39,6 +75,11 @@ TensorFlow provides several operations that you can use to add basic
 mathematical functions for matrices to your graph.
 
 @@diag
+<<<<<<< HEAD
+=======
+@@diag_part
+@@trace
+>>>>>>> tensorflow/master
 @@transpose
 
 @@matmul
@@ -53,6 +94,21 @@ mathematical functions for matrices to your graph.
 @@cholesky
 @@batch_cholesky
 
+<<<<<<< HEAD
+=======
+@@self_adjoint_eig
+@@batch_self_adjoint_eig
+
+@@matrix_solve
+@@batch_matrix_solve
+
+@@matrix_triangular_solve
+@@batch_matrix_triangular_solve
+
+@@matrix_solve_ls
+@@batch_matrix_solve_ls
+
+>>>>>>> tensorflow/master
 ## Complex Number Functions
 
 TensorFlow provides several operations that you can use to add complex number
@@ -63,6 +119,21 @@ functions to your graph.
 @@conj
 @@imag
 @@real
+<<<<<<< HEAD
+=======
+@@fft
+@@ifft
+@@fft2d
+@@ifft2d
+@@fft3d
+@@ifft3d
+@@batch_fft
+@@batch_ifft
+@@batch_fft2d
+@@batch_ifft2d
+@@batch_fft3d
+@@batch_ifft3d
+>>>>>>> tensorflow/master
 
 ## Reduction
 
@@ -110,6 +181,10 @@ tf.segment_sum(c, tf.constant([0, 0, 1]))
 
 @@sparse_segment_sum
 @@sparse_segment_mean
+<<<<<<< HEAD
+=======
+@@sparse_segment_sqrt_n
+>>>>>>> tensorflow/master
 
 
 ## Sequence Comparison and Indexing
@@ -134,6 +209,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -143,14 +219,31 @@ from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.framework import tensor_util
 from tensorflow.python.framework import types
+=======
+import numpy as np
+import six.moves
+
+from tensorflow.python.client import graph_util
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.framework import tensor_util
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import common_shapes
 from tensorflow.python.ops import gen_math_ops
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import gen_state_ops
+<<<<<<< HEAD
 # pylint: disable=wildcard-import,undefined-variable
 from tensorflow.python.ops.gen_math_ops import *
 
+=======
+# go/tf-wildcard-import
+# pylint: disable=wildcard-import
+from tensorflow.python.ops.gen_math_ops import *
+# pylint: enable=wildcard-import
+>>>>>>> tensorflow/master
 
 # Aliases for some automatically-generated names.
 argmax = gen_math_ops.arg_max
@@ -179,11 +272,45 @@ def abs(x, name=None):
   """
   with ops.op_scope([x], name, "Abs") as name:
     x = ops.convert_to_tensor(x, name="x")
+<<<<<<< HEAD
     if x.dtype == types.complex64:
+=======
+    if x.dtype == dtypes.complex64:
+>>>>>>> tensorflow/master
       return gen_math_ops.complex_abs(x, name=name)
     return gen_math_ops._abs(x, name=name)
 
 
+<<<<<<< HEAD
+=======
+def scalar_mul(scalar, x):
+  """Multiplies a scalar times a `Tensor` or `IndexedSlices` object.
+
+  Intended for use in gradient code which might deal with `IndexedSlices`
+  objects, which are easy to multiply by a scalar but more expensive to
+  multiply with arbitrary tensors.
+
+  Args:
+    scalar: A 0-D scalar `Tensor`. Must have known shape.
+    x: A `Tensor` or `IndexedSlices` to be scaled.
+
+  Returns:
+    `scalar * x` of the same type (`Tensor` or `IndexedSlices`) as `x`.
+
+  Raises:
+    ValueError: if scalar is not a 0-D `scalar`.
+  """
+  scalar = ops.convert_to_tensor(scalar, dtype=x.dtype, name="scalar")
+  shape = scalar.get_shape()
+  if shape.ndims == 0:
+    if isinstance(x, ops.IndexedSlices):
+      return ops.IndexedSlices(scalar * x.values, x.indices, x.dense_shape)
+    else:
+      return scalar * x
+  else:
+    raise ValueError("Only scalar multiply works, got shape %s" % shape)
+
+>>>>>>> tensorflow/master
 
 def pow(x, y, name=None):
   """Computes the power of one value to another.
@@ -192,7 +319,11 @@ def pow(x, y, name=None):
   corresponding elements in `x` and `y`. For example:
 
   ```
+<<<<<<< HEAD
   # tensor 'x' is [[2, 2]], [3, 3]]
+=======
+  # tensor 'x' is [[2, 2], [3, 3]]
+>>>>>>> tensorflow/master
   # tensor 'y' is [[8, 16], [2, 3]]
   tf.pow(x, y) ==> [[256, 65536], [9, 27]]
   ```
@@ -260,7 +391,11 @@ def round(x, name=None):
   if x.dtype.is_integer:
     return x
   else:
+<<<<<<< HEAD
     return floor(x + 0.5, name=name)
+=======
+    return gen_math_ops.floor(x + 0.5, name=name)
+>>>>>>> tensorflow/master
 
 
 def cast(x, dtype, name=None):
@@ -303,6 +438,38 @@ def cast(x, dtype, name=None):
       return gen_math_ops.cast(x, dtype, name=name)
 
 
+<<<<<<< HEAD
+=======
+def saturate_cast(value, dtype, name=None):
+  """Performs a safe saturating cast of `value` to `dtype`.
+
+  This function casts the input to `dtype` without applying any scaling.  If
+  there is a danger that values would over or underflow in the cast, this op
+  applies the appropriate clamping before the cast.
+
+  Args:
+    value: A `Tensor`.
+    dtype: The desired output `DType`.
+    name: A name for the operation (optional).
+
+  Returns:
+    `value` safely cast to `dtype`.
+  """
+  # When casting to a type with smaller representable range, clamp.
+  # Note that this covers casting to unsigned types as well.
+  with ops.op_scope([value], name, "saturate_cast") as name:
+    value = ops.convert_to_tensor(value, name="value")
+    dtype = dtypes.as_dtype(dtype).base_dtype
+    if value.dtype.min < dtype.min:
+      value = gen_math_ops.maximum(value, ops.convert_to_tensor(
+          dtype.min, dtype=value.dtype, name="min"))
+    if value.dtype.max > dtype.max:
+      value = gen_math_ops.minimum(value, ops.convert_to_tensor(
+          dtype.max, dtype=value.dtype, name="max"))
+    return cast(value, dtype, name=name)
+
+
+>>>>>>> tensorflow/master
 def to_float(x, name="ToFloat"):
   """Casts a tensor to type `float32`.
 
@@ -316,7 +483,11 @@ def to_float(x, name="ToFloat"):
   Raises:
     TypeError: If `x` cannot be cast to the `float32`.
   """
+<<<<<<< HEAD
   return cast(x, types.float32, name=name)
+=======
+  return cast(x, dtypes.float32, name=name)
+>>>>>>> tensorflow/master
 
 
 def to_double(x, name="ToDouble"):
@@ -332,7 +503,11 @@ def to_double(x, name="ToDouble"):
   Raises:
     TypeError: If `x` cannot be cast to the `float64`.
   """
+<<<<<<< HEAD
   return cast(x, types.float64, name=name)
+=======
+  return cast(x, dtypes.float64, name=name)
+>>>>>>> tensorflow/master
 
 
 def to_int32(x, name="ToInt32"):
@@ -348,7 +523,11 @@ def to_int32(x, name="ToInt32"):
   Raises:
     TypeError: If `x` cannot be cast to the `int32`.
   """
+<<<<<<< HEAD
   return cast(x, types.int32, name=name)
+=======
+  return cast(x, dtypes.int32, name=name)
+>>>>>>> tensorflow/master
 
 
 def to_int64(x, name="ToInt64"):
@@ -364,7 +543,11 @@ def to_int64(x, name="ToInt64"):
   Raises:
     TypeError: If `x` cannot be cast to the `int64`.
   """
+<<<<<<< HEAD
   return cast(x, types.int64, name=name)
+=======
+  return cast(x, dtypes.int64, name=name)
+>>>>>>> tensorflow/master
 
 
 def to_bfloat16(x, name="ToBFloat16"):
@@ -380,15 +563,26 @@ def to_bfloat16(x, name="ToBFloat16"):
   Raises:
     TypeError: If `x` cannot be cast to the `bfloat16`.
   """
+<<<<<<< HEAD
   return cast(x, types.bfloat16, name=name)
 
 
 ops.Tensor._override_operator("__neg__", neg)
+=======
+  return cast(x, dtypes.bfloat16, name=name)
+
+
+ops.Tensor._override_operator("__neg__", gen_math_ops.neg)
+>>>>>>> tensorflow/master
 ops.Tensor._override_operator("__abs__", abs)
 # __invert__ corresponds to the ~ operator.  Here we follow the numpy convention
 # ~ marks an elementwise bit-wise inverse.  This is only implemented for boolean
 # tensors and will throw a TypeError if used on nonboolean arrays
+<<<<<<< HEAD
 ops.Tensor._override_operator("__invert__", logical_not)
+=======
+ops.Tensor._override_operator("__invert__", gen_math_ops.logical_not)
+>>>>>>> tensorflow/master
 
 
 def _OverrideBinaryOperatorHelper(func, op_name):
@@ -420,6 +614,7 @@ def _OverrideBinaryOperatorHelper(func, op_name):
 
 # Conversion table for __truediv__.  None entries mean no conversion required.
 _TRUEDIV_TABLE = {
+<<<<<<< HEAD
     types.uint8: types.float32,
     types.int8: types.float32,
     types.int16: types.float32,
@@ -428,6 +623,16 @@ _TRUEDIV_TABLE = {
     types.float32: None,
     types.float64: None,
     types.complex64: None,
+=======
+    dtypes.uint8: dtypes.float32,
+    dtypes.int8: dtypes.float32,
+    dtypes.int16: dtypes.float32,
+    dtypes.int32: dtypes.float64,
+    dtypes.int64: dtypes.float64,
+    dtypes.float32: None,
+    dtypes.float64: None,
+    dtypes.complex64: None,
+>>>>>>> tensorflow/master
 }
 
 
@@ -471,12 +676,17 @@ def truediv(x, y, name=None):
     if dtype is not None:
       x = cast(x, dtype)
       y = cast(y, dtype)
+<<<<<<< HEAD
     return div(x, y, name=name)
+=======
+    return gen_math_ops.div(x, y, name=name)
+>>>>>>> tensorflow/master
 
 
 def floordiv(x, y, name=None):
   """Divides `x / y` elementwise, rounding down for floating point.
 
+<<<<<<< HEAD
   The same as `tf.div(x,y)`, but uses `tf.floor(tf.div(x,y))` for floating
   point arguments so that the result is always an integer (though possibly an
   integer represented as floating point).  This op is generated by `x // y`
@@ -484,6 +694,15 @@ def floordiv(x, y, name=None):
   `from __future__ import division`.
 
   Note that for efficiency, __floordiv__ uses C semantics for negative numbers
+=======
+  The same as `tf.div(x,y)` for integers, but uses `tf.floor(tf.div(x,y))` for
+  floating point arguments so that the result is always an integer (though
+  possibly an integer represented as floating point).  This op is generated by
+  `x // y` floor division in Python 3 and in Python 2.7 with
+  `from __future__ import division`.
+
+  Note that for efficiency, `floordiv` uses C semantics for negative numbers
+>>>>>>> tensorflow/master
   (unlike Python and Numpy).
 
   `x` and `y` must have the same type, and the result will have the same type
@@ -491,11 +710,19 @@ def floordiv(x, y, name=None):
 
   Args:
     x: `Tensor` numerator of real numeric type.
+<<<<<<< HEAD
     y: `Tensor` numerator of real numeric type.
     name: A name for the operation (optional).
 
   Returns:
     `x / y` rounded down (except possibly for integers in C).
+=======
+    y: `Tensor` denominator of real numeric type.
+    name: A name for the operation (optional).
+
+  Returns:
+    `x / y` rounded down (except possibly towards zero for negative integers).
+>>>>>>> tensorflow/master
 
   Raises:
     TypeError: If the inputs are complex.
@@ -504,6 +731,7 @@ def floordiv(x, y, name=None):
     x = ops.convert_to_tensor(x, name="x")
     dtype = x.dtype
     if dtype.is_floating:
+<<<<<<< HEAD
       return floor(div(x, y), name=name)
     else:
       if not dtype.is_integer:
@@ -518,11 +746,29 @@ _OverrideBinaryOperatorHelper(div, "div")
 _OverrideBinaryOperatorHelper(truediv, "truediv")
 _OverrideBinaryOperatorHelper(floordiv, "floordiv")
 _OverrideBinaryOperatorHelper(mod, "mod")
+=======
+      return gen_math_ops.floor(gen_math_ops.div(x, y), name=name)
+    else:
+      if not dtype.is_integer:
+        raise TypeError("Expected floating point or integer, got %r" % dtype)
+      return gen_math_ops.div(x, y, name=name)
+
+
+_OverrideBinaryOperatorHelper(gen_math_ops.add, "add")
+_OverrideBinaryOperatorHelper(gen_math_ops.sub, "sub")
+_OverrideBinaryOperatorHelper(gen_math_ops.mul, "mul")
+_OverrideBinaryOperatorHelper(gen_math_ops.div, "div")
+_OverrideBinaryOperatorHelper(truediv, "truediv")
+_OverrideBinaryOperatorHelper(floordiv, "floordiv")
+_OverrideBinaryOperatorHelper(gen_math_ops.mod, "mod")
+_OverrideBinaryOperatorHelper(pow, "pow")
+>>>>>>> tensorflow/master
 
 
 def logical_xor(x, y, name="LogicalXor"):
   """x ^ y = (x | y) & ~(x & y)."""
   # TODO(alemi) Make this a cwise op if people end up relying on it.
+<<<<<<< HEAD
   return logical_and(logical_or(x, y), logical_not(logical_and(x, y)),
                      name=name)
 
@@ -534,6 +780,21 @@ ops.Tensor._override_operator("__lt__", less)
 ops.Tensor._override_operator("__le__", less_equal)
 ops.Tensor._override_operator("__gt__", greater)
 ops.Tensor._override_operator("__ge__", greater_equal)
+=======
+  return gen_math_ops.logical_and(
+      gen_math_ops.logical_or(x, y),
+      gen_math_ops.logical_not(gen_math_ops.logical_and(x, y)),
+      name=name)
+
+_OverrideBinaryOperatorHelper(gen_math_ops.logical_and, "and")
+_OverrideBinaryOperatorHelper(gen_math_ops.logical_or, "or")
+_OverrideBinaryOperatorHelper(logical_xor, "xor")
+
+ops.Tensor._override_operator("__lt__", gen_math_ops.less)
+ops.Tensor._override_operator("__le__", gen_math_ops.less_equal)
+ops.Tensor._override_operator("__gt__", gen_math_ops.greater)
+ops.Tensor._override_operator("__ge__", gen_math_ops.greater_equal)
+>>>>>>> tensorflow/master
 
 
 def range(start, limit=None, delta=1, name="range"):
@@ -576,9 +837,15 @@ def range(start, limit=None, delta=1, name="range"):
 
 @ops.RegisterShape("Range")
 def _RangeShape(op):
+<<<<<<< HEAD
   start_value = tensor_util.ConstantValue(op.inputs[0])
   limit_value = tensor_util.ConstantValue(op.inputs[1])
   delta_value = tensor_util.ConstantValue(op.inputs[2])
+=======
+  start_value = tensor_util.constant_value(op.inputs[0])
+  limit_value = tensor_util.constant_value(op.inputs[1])
+  delta_value = tensor_util.constant_value(op.inputs[2])
+>>>>>>> tensorflow/master
   if start_value is None or limit_value is None or delta_value is None:
     return [tensor_shape.vector(None)]
   else:
@@ -610,7 +877,11 @@ def reduce_sum(input_tensor, reduction_indices=None, keep_dims=False,
   For example:
 
   ```python
+<<<<<<< HEAD
   # 'x' is [[1, 1, 1]]
+=======
+  # 'x' is [[1, 1, 1]
+>>>>>>> tensorflow/master
   #         [1, 1, 1]]
   tf.reduce_sum(x) ==> 6
   tf.reduce_sum(x, 0) ==> [2, 2, 2]
@@ -621,7 +892,11 @@ def reduce_sum(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The tensor to reduce. Should have numeric type.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -649,7 +924,11 @@ def reduce_mean(input_tensor, reduction_indices=None, keep_dims=False,
   For example:
 
   ```python
+<<<<<<< HEAD
   # 'x' is [[1., 1. ]]
+=======
+  # 'x' is [[1., 1.]
+>>>>>>> tensorflow/master
   #         [2., 2.]]
   tf.reduce_mean(x) ==> 1.5
   tf.reduce_mean(x, 0) ==> [1.5, 1.5]
@@ -658,7 +937,11 @@ def reduce_mean(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The tensor to reduce. Should have numeric type.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -685,7 +968,11 @@ def reduce_prod(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The tensor to reduce. Should have numeric type.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -712,7 +999,11 @@ def reduce_min(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The tensor to reduce. Should have numeric type.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -739,7 +1030,11 @@ def reduce_max(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The tensor to reduce. Should have numeric type.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -767,7 +1062,11 @@ def reduce_all(input_tensor, reduction_indices=None, keep_dims=False,
   For example:
 
   ```python
+<<<<<<< HEAD
   # 'x' is [[True,  True]]
+=======
+  # 'x' is [[True,  True]
+>>>>>>> tensorflow/master
   #         [False, False]]
   tf.reduce_all(x) ==> False
   tf.reduce_all(x, 0) ==> [False, False]
@@ -776,7 +1075,11 @@ def reduce_all(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The boolean tensor to reduce.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -804,7 +1107,11 @@ def reduce_any(input_tensor, reduction_indices=None, keep_dims=False,
   For example:
 
   ```python
+<<<<<<< HEAD
   # 'x' is [[True,  True]]
+=======
+  # 'x' is [[True,  True]
+>>>>>>> tensorflow/master
   #         [False, False]]
   tf.reduce_any(x) ==> True
   tf.reduce_any(x, 0) ==> [True, True]
@@ -813,7 +1120,11 @@ def reduce_any(input_tensor, reduction_indices=None, keep_dims=False,
 
   Args:
     input_tensor: The boolean tensor to reduce.
+<<<<<<< HEAD
     reduction_indices: The dimensions to reduce. If `None` (the defaut),
+=======
+    reduction_indices: The dimensions to reduce. If `None` (the default),
+>>>>>>> tensorflow/master
       reduces all dimensions.
     keep_dims: If true, retains reduced dimensions with length 1.
     name: A name for the operation (optional).
@@ -826,6 +1137,42 @@ def reduce_any(input_tensor, reduction_indices=None, keep_dims=False,
                            keep_dims, name=name)
 
 
+<<<<<<< HEAD
+=======
+def trace(x, name=None):
+  """ Compute the trace of a tensor `x`.
+
+  `trace(x)` returns the sum of along the diagonal.
+  
+  For example:
+
+  ```python
+  # 'x' is [[1, 1],
+  #         [1, 1]]
+  tf.trace(x) ==> 2
+  
+  # 'x' is [[1,2,3],
+  #         [4,5,6],
+  #         [7,8,9]]
+  tf.trace(x) ==> 15
+  ```
+
+  Args:
+    x: 2-D tensor.
+    name: A name for the operation (optional).
+
+  Returns:
+    The trace of input tensor.
+  """
+  with ops.op_scope([x], name, "Trace") as name:
+    x = ops.convert_to_tensor(x, name="x")
+    if len(x.get_shape()) != 2:
+      raise ValueError("Expected a tensor with rank 2, rank %d tensor received"
+                       % len(x.get_shape()))
+    return reduce_sum(array_ops.diag_part(x), name=name)
+
+
+>>>>>>> tensorflow/master
 def matmul(a, b,
            transpose_a=False, transpose_b=False,
            a_is_sparse=False, b_is_sparse=False,
@@ -874,7 +1221,11 @@ def matmul(a, b,
   with ops.op_scope([a, b], name, "MatMul") as name:
     a = ops.convert_to_tensor(a, name="a")
     b = ops.convert_to_tensor(b, name="b")
+<<<<<<< HEAD
     if a.dtype == types.float32 and (a_is_sparse or b_is_sparse):
+=======
+    if a.dtype == dtypes.float32 and (a_is_sparse or b_is_sparse):
+>>>>>>> tensorflow/master
       return sparse_matmul(a, b,
                            transpose_a=transpose_a,
                            transpose_b=transpose_b,
@@ -894,6 +1245,38 @@ ops.RegisterShape("MatMul")(common_shapes.matmul_shape)
 ops.RegisterShape("SparseMatMul")(common_shapes.matmul_shape)
 
 
+<<<<<<< HEAD
+=======
+@ops.RegisterStatistics("MatMul", "flops")
+def _calc_mat_mul_flops(graph, node):
+  """Calculates the compute resources needed for MatMul."""
+  transpose_a = node.attr["transpose_a"].b
+  a_shape = graph_util.tensor_shape_from_node_def_name(graph, node.input[0])
+  a_shape.assert_is_fully_defined()
+  if transpose_a:
+    k = int(a_shape[0])
+  else:
+    k = int(a_shape[1])
+  output_shape = graph_util.tensor_shape_from_node_def_name(graph, node.name)
+  output_shape.assert_is_fully_defined()
+  output_count = np.prod(output_shape.as_list())
+  return ops.OpStats("flops", (k * output_count * 2))
+
+
+@ops.RegisterStatistics("MatMul", "weight_parameters")
+def _calc_mat_mul_weight_parameters(graph, node):
+  """Calculates the on-disk size of the weights for MatMul."""
+  # We assume here that the weights are always in the second input to the op,
+  # which is generally true by convention for fully-connected layers, but not
+  # enforced or checked.
+  weights_shape = graph_util.tensor_shape_from_node_def_name(graph,
+                                                             node.input[1])
+  weights_shape.assert_is_fully_defined()
+  return ops.OpStats("weight_parameters",
+                     (int(weights_shape[1]) * int(weights_shape[0])))
+
+
+>>>>>>> tensorflow/master
 def _as_indexed_slices(x):
   """Convert 'x' to IndexedSlices.
 
@@ -936,14 +1319,24 @@ def _as_indexed_slices_list(inputs):
     raise TypeError("Expected a list or tuple, not a %s" % type(inputs))
   outputs = [_as_indexed_slices(i) for i in inputs]
   with_int32_index = [o.indices for o in outputs
+<<<<<<< HEAD
                       if o.indices.dtype == types.int32]
+=======
+                      if o.indices.dtype == dtypes.int32]
+>>>>>>> tensorflow/master
   if not with_int32_index or len(with_int32_index) == len(outputs):
     return outputs
   casted_outputs = []
   for o in outputs:
+<<<<<<< HEAD
     if o.indices.dtype == types.int32:
       casted_outputs.append(
           ops.IndexedSlices(o.values, cast(o.indices, types.int64),
+=======
+    if o.indices.dtype == dtypes.int32:
+      casted_outputs.append(
+          ops.IndexedSlices(o.values, cast(o.indices, dtypes.int64),
+>>>>>>> tensorflow/master
                             o.dense_shape))
     else:
       casted_outputs.append(o)
@@ -959,7 +1352,11 @@ def accumulate_n(inputs, shape=None, tensor_dtype=None, name=None):
   For example:
 
   ```python
+<<<<<<< HEAD
   # tensor 'a' is [[1, 2], [3, 4]
+=======
+  # tensor 'a' is [[1, 2], [3, 4]]
+>>>>>>> tensorflow/master
   # tensor `b` is [[5, 0], [0, 6]]
   tf.accumulate_n([a, b, a]) ==> [[7, 4], [6, 14]]
 
@@ -1028,7 +1425,11 @@ def _BatchMatMulShape(op):
   adj_a = op.get_attr("adj_x")
   b_shape = op.inputs[1].get_shape()
   adj_b = op.get_attr("adj_y")
+<<<<<<< HEAD
   if not a_shape.is_fully_defined() or not b_shape.is_fully_defined():
+=======
+  if a_shape.dims is None and b_shape.dims is None:
+>>>>>>> tensorflow/master
     return [tensor_shape.unknown_shape()]
   batch_dims = a_shape[:-2].merge_with(b_shape[:-2])
   output_rows = a_shape[-1] if adj_a else a_shape[-2]
@@ -1075,10 +1476,48 @@ def tanh(x, name=None):
     return gen_math_ops._tanh(x, name=name)
 
 
+<<<<<<< HEAD
+=======
+# TODO(b/27419586) Change docstring for required dtype of x once int allowed
+def lbeta(x, name="lbeta"):
+  """Computes `ln(|Beta(x)|)`, reducing along the last dimension.
+
+  Given one-dimensional `z = [z_0,...,z_{K-1}]`, we define
+
+  ```Beta(z) = \prod_j Gamma(z_j) / Gamma(\sum_j z_j)```
+
+  , and for `n + 1` dimensional `x` with shape `[N1, ..., Nn, K]`, we define
+  `lbeta(x)[i1, ..., in] = Log(|Beta(x[i1, ..., in, :])|)`.  In other words,
+  the last dimension is treated as the `z` vector.
+
+  Note that if `z = [u, v]`, then
+  `Beta(z) = int_0^1 t^{u-1} (1 - t)^{v-1} dt`, which defines the traditional
+  bivariate beta function.
+
+  Args:
+    x: A rank `n + 1` `Tensor` with type `float`, or `double`.
+    name: A name for the operation (optional).
+
+  Returns:
+    The logarithm of `|Beta(x)|` reducing along the last dimension.
+  """
+  with ops.op_scope([x], name):
+    x = ops.convert_to_tensor(x, name="x")
+    ndims = array_ops.size(array_ops.shape(x))
+    return (reduce_sum(
+        gen_math_ops.lgamma(x), reduction_indices=ndims - 1)
+            - gen_math_ops.lgamma(reduce_sum(x, reduction_indices=ndims - 1)))
+
+
+>>>>>>> tensorflow/master
 ops.RegisterShape("Abs")(common_shapes.unchanged_shape)
 ops.RegisterShape("Ceil")(common_shapes.unchanged_shape)
 ops.RegisterShape("Conj")(common_shapes.unchanged_shape)
 ops.RegisterShape("Cos")(common_shapes.unchanged_shape)
+<<<<<<< HEAD
+=======
+ops.RegisterShape("Cross")(common_shapes.unchanged_shape)
+>>>>>>> tensorflow/master
 ops.RegisterShape("Exp")(common_shapes.unchanged_shape)
 ops.RegisterShape("Floor")(common_shapes.unchanged_shape)
 ops.RegisterShape("Imag")(common_shapes.unchanged_shape)
@@ -1097,8 +1536,29 @@ ops.RegisterShape("Sqrt")(common_shapes.unchanged_shape)
 ops.RegisterShape("Square")(common_shapes.unchanged_shape)
 ops.RegisterShape("Sigmoid")(common_shapes.unchanged_shape)
 ops.RegisterShape("Tanh")(common_shapes.unchanged_shape)
+<<<<<<< HEAD
 ops.RegisterShape("Cast")(common_shapes.unchanged_shape)
 ops.RegisterShape("ComplexAbs")(common_shapes.unchanged_shape)
+=======
+ops.RegisterShape("Lgamma")(common_shapes.unchanged_shape)
+ops.RegisterShape("Digamma")(common_shapes.unchanged_shape)
+ops.RegisterShape("Erf")(common_shapes.unchanged_shape)
+ops.RegisterShape("Erfc")(common_shapes.unchanged_shape)
+ops.RegisterShape("Cast")(common_shapes.unchanged_shape)
+ops.RegisterShape("ComplexAbs")(common_shapes.unchanged_shape)
+ops.RegisterShape("FFT")(common_shapes.unchanged_shape)
+ops.RegisterShape("IFFT")(common_shapes.unchanged_shape)
+ops.RegisterShape("FFT2D")(common_shapes.unchanged_shape)
+ops.RegisterShape("IFFT2D")(common_shapes.unchanged_shape)
+ops.RegisterShape("FFT3D")(common_shapes.unchanged_shape)
+ops.RegisterShape("IFFT3D")(common_shapes.unchanged_shape)
+ops.RegisterShape("BatchFFT")(common_shapes.unchanged_shape)
+ops.RegisterShape("BatchIFFT")(common_shapes.unchanged_shape)
+ops.RegisterShape("BatchFFT2D")(common_shapes.unchanged_shape)
+ops.RegisterShape("BatchIFFT2D")(common_shapes.unchanged_shape)
+ops.RegisterShape("BatchFFT3D")(common_shapes.unchanged_shape)
+ops.RegisterShape("BatchIFFT3D")(common_shapes.unchanged_shape)
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterShape("Add")
@@ -1107,6 +1567,11 @@ ops.RegisterShape("ComplexAbs")(common_shapes.unchanged_shape)
 @ops.RegisterShape("Equal")
 @ops.RegisterShape("Greater")
 @ops.RegisterShape("GreaterEqual")
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("Igamma")
+@ops.RegisterShape("Igammac")
+>>>>>>> tensorflow/master
 @ops.RegisterShape("Less")
 @ops.RegisterShape("LessEqual")
 @ops.RegisterShape("LogicalAnd")
@@ -1118,6 +1583,10 @@ ops.RegisterShape("ComplexAbs")(common_shapes.unchanged_shape)
 @ops.RegisterShape("NotEqual")
 @ops.RegisterShape("Pow")
 @ops.RegisterShape("Sub")
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("SquaredDifference")
+>>>>>>> tensorflow/master
 def _BroadcastShape(op):
   """Common shape function for binary operators that broadcast their inputs."""
   shape_x = op.inputs[0].get_shape()
@@ -1173,10 +1642,34 @@ def _AddNShape(op):
 
 @ops.RegisterShape("Select")
 def _SelectShape(op):
+<<<<<<< HEAD
   # All three inputs must have the same shape.
   return [op.inputs[0].get_shape()
           .merge_with(op.inputs[1].get_shape())
           .merge_with(op.inputs[2].get_shape())]
+=======
+  """Shape function for SelectOp."""
+  # The inputs 'then' and 'else' must have the same shape.
+  # The input 'cond' must either have the same shape as 'then' and
+  # 'else', or be a vector if 'then' and 'else' are at least vectors.
+  c_shape = op.inputs[0].get_shape()
+  t_shape = op.inputs[1].get_shape()
+  e_shape = op.inputs[2].get_shape()
+  t_e_shape = t_shape.merge_with(e_shape)
+  c_shape_list = c_shape.as_list() if c_shape.ndims is not None else None
+  t_e_shape_list = t_e_shape.as_list() if t_e_shape.ndims is not None else None
+  if c_shape_list is not None and t_e_shape_list is not None:
+    if len(c_shape_list) != 1:
+      # If the rank of 'cond' is != 1, the shape must match 'then' and 'else'
+      t_e_shape = t_e_shape.merge_with(c_shape)
+    if t_e_shape_list:
+      # If then and else are not scalars, then cond must be at least
+      # a vector, and its first value must match that of 'else'
+      c_shape = c_shape.with_rank_at_least(1)
+      if len(c_shape.as_list()) == 1:
+        c_shape.merge_with(tensor_shape.vector(t_e_shape_list[0]))
+  return [t_e_shape]
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterShape("ArgMax")
@@ -1191,7 +1684,11 @@ def _ArgOpShape(op):
   elif input_shape.ndims <= 1:
     return [tensor_shape.scalar()]
 
+<<<<<<< HEAD
   dimension = tensor_util.ConstantValue(op.inputs[1])
+=======
+  dimension = tensor_util.constant_value(op.inputs[1])
+>>>>>>> tensorflow/master
   if dimension is None:
     return [tensor_shape.unknown_shape(ndims=input_shape.ndims - 1)]
   elif 0 <= dimension and dimension < input_shape.ndims:
@@ -1217,7 +1714,11 @@ def _ArgOpShape(op):
 def _ReductionShape(op):
   """Common shape function for reduction ops."""
   input_shape = op.inputs[0].get_shape()
+<<<<<<< HEAD
   reduction_indices = tensor_util.ConstantValue(op.inputs[1])
+=======
+  reduction_indices = tensor_util.constant_value(op.inputs[1])
+>>>>>>> tensorflow/master
   keep_dims = op.get_attr("keep_dims")
   if reduction_indices is None or input_shape.ndims is None:
     if keep_dims:
@@ -1261,6 +1762,10 @@ def _SegmentReductionShape(op):
 
 
 @ops.RegisterShape("SparseSegmentMean")
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("SparseSegmentSqrtN")
+>>>>>>> tensorflow/master
 @ops.RegisterShape("SparseSegmentSum")
 def _SparseSegmentReductionShape(op):
   """Common shape function for sparse segment reduction ops."""
@@ -1274,19 +1779,34 @@ def _SparseSegmentReductionShape(op):
 
 
 @ops.RegisterShape("SparseSegmentMeanGrad")
+<<<<<<< HEAD
 def _SparseSegmentMeanGradShape(op):
   """Shape function for the SparseSegmentMeanGrad op."""
+=======
+@ops.RegisterShape("SparseSegmentSqrtNGrad")
+
+
+# pylint: disable=invalid-name
+def _SparseSegmentReductionGradShape(op):
+  """Shape function for the SparseSegment[Mean|SqrtN]Grad ops."""
+>>>>>>> tensorflow/master
   input_shape = op.inputs[0].get_shape()
   indices_shape = op.inputs[1].get_shape().with_rank(1)
   unused_segment_ids_shape = op.inputs[2].get_shape().merge_with(indices_shape)
   unused_output_dim0_shape = op.inputs[3].get_shape().merge_with(
       tensor_shape.scalar())
+<<<<<<< HEAD
   output_dim0 = tensor_util.ConstantValue(op.inputs[3])
   if output_dim0 is not None:
     dim0 = output_dim0[0]
   else:
     dim0 = None
   return [tensor_shape.TensorShape([dim0]).concatenate(input_shape[1:])]
+=======
+  dim0 = tensor_util.constant_value(op.inputs[3])
+  return [tensor_shape.TensorShape([dim0]).concatenate(input_shape[1:])]
+# pylint: enable=invalid-name
+>>>>>>> tensorflow/master
 
 
 @ops.RegisterShape("UnsortedSegmentSum")
@@ -1298,12 +1818,20 @@ def _UnsortedSegmentSumShape(op):
   if mid is None:
     return [tensor_shape.unknown_shape()]
   else:
+<<<<<<< HEAD
     num_segments = tensor_util.ConstantValue(op.inputs[2])
+=======
+    num_segments = tensor_util.constant_value(op.inputs[2])
+>>>>>>> tensorflow/master
     return [tensor_shape.TensorShape([num_segments]).concatenate(
         data_shape[mid:])]
 
 
 @ops.RegisterShape("LinSpace")
 def _LinspaceShape(op):
+<<<<<<< HEAD
   num = tensor_util.ConstantValue(op.inputs[2])
+=======
+  num = tensor_util.constant_value(op.inputs[2])
+>>>>>>> tensorflow/master
   return [tensor_shape.vector(num)]

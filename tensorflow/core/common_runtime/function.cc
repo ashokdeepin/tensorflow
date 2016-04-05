@@ -1,17 +1,51 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/function.h"
 
 #include <deque>
 
 #include "tensorflow/core/common_runtime/device.h"
 #include "tensorflow/core/common_runtime/executor.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/function.h"
+
+#include <deque>
+#include <vector>
+
+#include "tensorflow/core/common_runtime/device.h"
+#include "tensorflow/core/common_runtime/executor.h"
+#include "tensorflow/core/common_runtime/graph_optimizer.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/function.h"
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/graph/algorithm.h"
+<<<<<<< HEAD
 #include "tensorflow/core/graph/graph_constructor.h"
 #include "tensorflow/core/graph/optimizer_cse.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
+=======
+#include "tensorflow/core/graph/gradients.h"
+#include "tensorflow/core/graph/graph_constructor.h"
+#include "tensorflow/core/graph/optimizer_cse.h"
+#include "tensorflow/core/lib/gtl/map_util.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -20,6 +54,11 @@ static const char* const kArgOp = "_Arg";
 static const char* const kRetOp = "_Retval";
 static const char* const kGradientOp = "SymbolicGradient";
 static const char* const kNodeLabel = "Func";
+<<<<<<< HEAD
+=======
+static const char* const kFuncAttr = "f";
+static const char* const kNoinlineAttr = "noinline";
+>>>>>>> tensorflow/master
 
 // Represents the index-th output of a node.
 struct Endpoint {
@@ -108,6 +147,7 @@ static Node* AddRet(Graph* g, Endpoint input, int index) {
   return ret;
 }
 
+<<<<<<< HEAD
 static Node* AddZerosLike(Graph* g, Endpoint input) {
   DCHECK_LT(0, input.dtype());
   DCHECK_LT(input.dtype(), DT_FLOAT_REF);
@@ -164,6 +204,8 @@ static Node* AddSymGrad(Graph* g, Node* n, gtl::ArraySlice<Endpoint> grads) {
   return ret;
 }
 
+=======
+>>>>>>> tensorflow/master
 class ArgOp : public OpKernel {
  public:
   explicit ArgOp(OpKernelConstruction* ctx) : OpKernel(ctx) {
@@ -221,12 +263,39 @@ class RetvalOp : public OpKernel {
 REGISTER_KERNEL_BUILDER(Name("_Retval").Device(DEVICE_CPU), RetvalOp);
 REGISTER_KERNEL_BUILDER(Name("_Retval").Device(DEVICE_GPU), RetvalOp);
 
+<<<<<<< HEAD
+=======
+class PassOn : public OpKernel {
+ public:
+  explicit PassOn(OpKernelConstruction* ctx) : OpKernel(ctx) {}
+
+  void Compute(OpKernelContext* ctx) override {
+    OP_REQUIRES(ctx, ctx->num_inputs() == ctx->num_outputs(),
+                errors::Internal("#inputs != #outputs : ", ctx->num_inputs(),
+                                 " vs. ", ctx->num_outputs()));
+    for (int i = 0; i < ctx->num_inputs(); ++i) {
+      ctx->set_output(i, ctx->input(i));
+    }
+  }
+};
+REGISTER_KERNEL_BUILDER(Name("_ListToArray").Device(DEVICE_CPU), PassOn);
+REGISTER_KERNEL_BUILDER(Name("_ListToArray").Device(DEVICE_GPU), PassOn);
+REGISTER_KERNEL_BUILDER(Name("_ArrayToList").Device(DEVICE_CPU), PassOn);
+REGISTER_KERNEL_BUILDER(Name("_ArrayToList").Device(DEVICE_GPU), PassOn);
+
+>>>>>>> tensorflow/master
 static const FunctionLibraryRuntime::Handle kInvalidHandle = -1;
 
 class FunctionLibraryRuntimeImpl : public FunctionLibraryRuntime {
  public:
   FunctionLibraryRuntimeImpl(Device* device, Runner runner,
+<<<<<<< HEAD
                              const FunctionLibraryDefinition* lib_def);
+=======
+                             int graph_def_version,
+                             const FunctionLibraryDefinition* lib_def,
+                             const OptimizerOptions& optimizer_options);
+>>>>>>> tensorflow/master
 
   ~FunctionLibraryRuntimeImpl() override;
 
@@ -241,14 +310,26 @@ class FunctionLibraryRuntimeImpl : public FunctionLibraryRuntime {
   void Run(const Options& opts, Handle handle, gtl::ArraySlice<Tensor> args,
            std::vector<Tensor>* rets, DoneCallback done) override;
 
+<<<<<<< HEAD
   bool IsDefined(const string& function_name) override;
+=======
+  bool IsStateful(const string& function) override;
+
+  Device* device() override { return device_; }
+>>>>>>> tensorflow/master
 
  private:
   typedef FunctionLibraryRuntimeImpl ME;
 
   Device* const device_;
   Runner runner_ = nullptr;
+<<<<<<< HEAD
   const FunctionLibraryDefinition* const lib_def_;
+=======
+  const int graph_def_version_;
+  const FunctionLibraryDefinition* const lib_def_;
+  GraphOptimizer optimizer_;
+>>>>>>> tensorflow/master
   std::function<Status(const string&, const OpDef**)> get_func_sig_;
   std::function<Status(const NodeDef&, OpKernel**)> create_kernel_;
 
@@ -276,15 +357,30 @@ class FunctionLibraryRuntimeImpl : public FunctionLibraryRuntime {
                            FunctionBody** fbody);
   Status CreateItem(Handle handle, Item** item);
   Status GetOrCreateItem(Handle handle, Item** item);
+<<<<<<< HEAD
   Status InstantiateSymbolicGradient(const InstantiateAttrValueMap& attrs,
+=======
+  Status InstantiateSymbolicGradient(const NameAttrList& func,
+>>>>>>> tensorflow/master
                                      FunctionBody** g_body);
 
   TF_DISALLOW_COPY_AND_ASSIGN(FunctionLibraryRuntimeImpl);
 };
 
 FunctionLibraryRuntimeImpl::FunctionLibraryRuntimeImpl(
+<<<<<<< HEAD
     Device* device, Runner runner, const FunctionLibraryDefinition* lib_def)
     : device_(device), runner_(runner), lib_def_(lib_def) {
+=======
+    Device* device, Runner runner, int graph_def_version,
+    const FunctionLibraryDefinition* lib_def,
+    const OptimizerOptions& optimizer_options)
+    : device_(device),
+      runner_(runner),
+      graph_def_version_(graph_def_version),
+      lib_def_(lib_def),
+      optimizer_(optimizer_options) {
+>>>>>>> tensorflow/master
   get_func_sig_ = [this](const string& op, const OpDef** sig) {
     Status s;
     *sig = lib_def_->LookUp(op, &s);
@@ -316,6 +412,10 @@ class CallOp : public AsyncOpKernel {
                       errors::Internal("No function library is provided."),
                       done);
     FunctionLibraryRuntime::Options opts;
+<<<<<<< HEAD
+=======
+    opts.step_id = ctx->step_id();
+>>>>>>> tensorflow/master
     std::vector<Tensor> args;
     args.reserve(ctx->num_inputs());
     for (int i = 0; i < ctx->num_inputs(); ++i) {
@@ -343,17 +443,83 @@ class CallOp : public AsyncOpKernel {
   TF_DISALLOW_COPY_AND_ASSIGN(CallOp);
 };
 
+<<<<<<< HEAD
 const FunctionBody* FunctionLibraryRuntimeImpl::GetFunctionBody(Handle h) {
   mutex_lock l(mu_);
   CHECK_LE(0, h);
+=======
+class SymbolicGradientOp : public AsyncOpKernel {
+ public:
+  SymbolicGradientOp(OpKernelConstruction* ctx)
+      : AsyncOpKernel(ctx), handle_(kInvalidHandle) {}
+
+  ~SymbolicGradientOp() override {}
+
+  void ComputeAsync(OpKernelContext* ctx, DoneCallback done) override {
+    FunctionLibraryRuntime* lib = ctx->function_library();
+    OP_REQUIRES_ASYNC(ctx, lib != nullptr,
+                      errors::Internal("No function library is provided."),
+                      done);
+
+    OP_REQUIRES_OK_ASYNC(
+        ctx, lib->Instantiate(kGradientOp, def().attr(), &handle_), done);
+
+    FunctionLibraryRuntime::Options opts;
+    opts.step_id = ctx->step_id();
+    std::vector<Tensor> args;
+    args.reserve(ctx->num_inputs());
+    for (int i = 0; i < ctx->num_inputs(); ++i) {
+      args.push_back(ctx->input(i));
+    }
+    std::vector<Tensor>* rets = new std::vector<Tensor>;
+    lib->Run(opts, handle_, args, rets,
+             [ctx, done, rets](const Status& status) {
+               if (!status.ok()) {
+                 ctx->SetStatus(status);
+               } else if (rets->size() != ctx->num_outputs()) {
+                 ctx->SetStatus(errors::InvalidArgument(
+                     "SymGrad expects to return ", ctx->num_outputs(),
+                     " tensor(s), but get ", rets->size(),
+                     " tensor(s) instead."));
+               } else {
+                 for (size_t i = 0; i < rets->size(); ++i) {
+                   ctx->set_output(i, (*rets)[i]);
+                 }
+               }
+               delete rets;
+               done();
+             });
+  }
+
+ private:
+  FunctionLibraryRuntime::Handle handle_;
+
+  TF_DISALLOW_COPY_AND_ASSIGN(SymbolicGradientOp);
+};
+
+REGISTER_KERNEL_BUILDER(Name(kGradientOp).Device(DEVICE_CPU),
+                        SymbolicGradientOp);
+REGISTER_KERNEL_BUILDER(Name(kGradientOp).Device(DEVICE_GPU),
+                        SymbolicGradientOp);
+
+const FunctionBody* FunctionLibraryRuntimeImpl::GetFunctionBody(Handle h) {
+  mutex_lock l(mu_);
+  CHECK_LE(static_cast<Handle>(0), h);
+>>>>>>> tensorflow/master
   CHECK_LT(h, func_graphs_.size());
   return func_graphs_[h];
 }
 
 Status FunctionLibraryRuntimeImpl::CreateKernel(const NodeDef& ndef,
                                                 OpKernel** kernel) {
+<<<<<<< HEAD
   if (ndef.op() != kGradientOp && (lib_def_->Find(ndef.op()) == nullptr)) {
     return CreateNonCachedKernel(device_, this, ndef, kernel);
+=======
+  if (lib_def_->Find(ndef.op()) == nullptr) {
+    return CreateNonCachedKernel(device_, this, ndef, graph_def_version_,
+                                 kernel);
+>>>>>>> tensorflow/master
   }
 
   // Try to instantiate this function for the func/attr. Maybe its
@@ -364,12 +530,33 @@ Status FunctionLibraryRuntimeImpl::CreateKernel(const NodeDef& ndef,
   const FunctionBody* fbody = GetFunctionBody(handle);
   CHECK_NOTNULL(fbody);
 
+<<<<<<< HEAD
+=======
+  // TODO(zhifengc): For now, we assume int32 is always on host memory
+  // and other types are always on device memory. We should do type
+  // inference over function body to derive the correct input/output
+  // memory types.
+  MemoryTypeVector input_memory_types;
+  for (const auto& t : fbody->arg_types) {
+    input_memory_types.push_back(t == DT_INT32 ? HOST_MEMORY : DEVICE_MEMORY);
+  }
+  MemoryTypeVector output_memory_types;
+  for (const auto& t : fbody->ret_types) {
+    output_memory_types.push_back(t == DT_INT32 ? HOST_MEMORY : DEVICE_MEMORY);
+  }
+
+>>>>>>> tensorflow/master
   // Constructs a CallOp kernel for running the instantiated function.
   Status s;
   auto device_type = DeviceType(device_->attributes().device_type());
   OpKernelConstruction construction(
       device_type, device_, device_->GetAllocator(AllocatorAttributes()), &ndef,
+<<<<<<< HEAD
       &fbody->fdef.signature(), this, fbody->arg_types, fbody->ret_types, &s);
+=======
+      &fbody->fdef.signature(), this, fbody->arg_types, input_memory_types,
+      fbody->ret_types, output_memory_types, graph_def_version_, &s);
+>>>>>>> tensorflow/master
   *kernel = new CallOp(handle, &construction);
   if (!s.ok()) {
     delete kernel;
@@ -398,6 +585,7 @@ Status FunctionLibraryRuntimeImpl::FunctionDefToBody(
 }
 
 Status FunctionLibraryRuntimeImpl::InstantiateSymbolicGradient(
+<<<<<<< HEAD
     const InstantiateAttrValueMap& attrs, FunctionBody** g_body) {
   const AttrValue* f = gtl::FindOrNull(attrs, "f");
   if (f == nullptr) {
@@ -407,6 +595,12 @@ Status FunctionLibraryRuntimeImpl::InstantiateSymbolicGradient(
   const FunctionDef* fdef = lib_def_->Find(func.name());
   if (fdef == nullptr) {
     // f is a primitve op.
+=======
+    const NameAttrList& func, FunctionBody** g_body) {
+  const FunctionDef* fdef = lib_def_->Find(func.name());
+  if (fdef == nullptr) {
+    // f is a primitive op.
+>>>>>>> tensorflow/master
     gradient::Creator creator;
     TF_RETURN_IF_ERROR(gradient::GetOpGradientCreator(func.name(), &creator));
     if (creator == nullptr) {
@@ -442,7 +636,23 @@ Status FunctionLibraryRuntimeImpl::Instantiate(
   Status s;
   FunctionBody* fbody = nullptr;
   if (function_name == kGradientOp) {
+<<<<<<< HEAD
     TF_RETURN_IF_ERROR(InstantiateSymbolicGradient(attrs, &fbody));
+=======
+    const AttrValue* f = gtl::FindOrNull(attrs, kFuncAttr);
+    if (f == nullptr) {
+      return errors::InvalidArgument("SymbolicGradient is missing attr: f");
+    }
+    const auto& func = f->func();
+    if (func.name() == kGradientOp) {
+      return errors::InvalidArgument("Can't take gradient of SymbolicGradient");
+    }
+    const string grad = lib_def_->FindGradient(func.name());
+    if (!grad.empty()) {
+      return Instantiate(grad, func.attr(), handle);
+    }
+    TF_RETURN_IF_ERROR(InstantiateSymbolicGradient(func, &fbody));
+>>>>>>> tensorflow/master
   } else {
     const FunctionDef* fdef = lib_def_->Find(function_name);
     if (fdef == nullptr) {
@@ -466,6 +676,7 @@ Status FunctionLibraryRuntimeImpl::Instantiate(
   return Status::OK();
 }
 
+<<<<<<< HEAD
 static void DumpGraph(const char* label, const Graph* g) {
   if (VLOG_IS_ON(1)) {
     LOG(INFO) << label << ": " << std::endl << DebugString(g);
@@ -513,6 +724,26 @@ void OptimizeGraph(FunctionLibraryRuntime* lib, Graph** g) {
   delete *g;
   *g = copy;
   DumpGraph("ReCopy", *g);
+=======
+void DumpGraph(StringPiece label, const Graph* g) {
+  // TODO(zhifengc): Change Graph to record #nodes.
+  VLOG(1) << "Graph " << label << " #nodes " << g->num_nodes() << " #edges "
+          << g->edges().size();
+  if (VLOG_IS_ON(2)) {
+    for (const auto& line : str_util::Split(DebugString(g), '\n')) {
+      VLOG(2) << "|| " << line;
+    }
+  }
+}
+
+void OptimizeGraph(FunctionLibraryRuntime* lib, Graph** g) {
+  OptimizerOptions opts;
+  opts.set_do_common_subexpression_elimination(true);
+  opts.set_do_function_inlining(true);
+  opts.set_do_constant_folding(true);
+  GraphOptimizer optimizer(opts);
+  optimizer.Optimize(lib, lib->device(), g);
+>>>>>>> tensorflow/master
 }
 
 Status FunctionLibraryRuntimeImpl::CreateItem(Handle handle, Item** item) {
@@ -520,14 +751,22 @@ Status FunctionLibraryRuntimeImpl::CreateItem(Handle handle, Item** item) {
   CHECK_NOTNULL(fbody);
   Graph* g = new Graph(lib_def_);
   CopyGraph(*fbody->graph, g);
+<<<<<<< HEAD
   OptimizeGraph(this, &g);
+=======
+
+  optimizer_.Optimize(this, device(), &g);
+>>>>>>> tensorflow/master
 
   // Creates an executor based on the g.  This must be done without
   // holding mu_ because create_kernel_ calls back into the library.
   LocalExecutorParams params;
   params.device = device_;
   params.function_library = this;
+<<<<<<< HEAD
   params.has_control_flow = false;
+=======
+>>>>>>> tensorflow/master
   params.create_kernel = create_kernel_;
   params.delete_kernel = [](OpKernel* kernel) {
     DeleteNonCachedKernel(kernel);
@@ -590,6 +829,11 @@ void FunctionLibraryRuntimeImpl::Run(const Options& opts, Handle handle,
     return done(s);
   }
   Executor::Args exec_args;
+<<<<<<< HEAD
+=======
+  // Inherit the step_id from the caller.
+  exec_args.step_id = opts.step_id;
+>>>>>>> tensorflow/master
   exec_args.call_frame = frame;
   exec_args.cancellation_manager = opts.cancellation_manager;
   exec_args.runner = runner_;
@@ -608,6 +852,7 @@ void FunctionLibraryRuntimeImpl::Run(const Options& opts, Handle handle,
       });
 }
 
+<<<<<<< HEAD
 bool FunctionLibraryRuntimeImpl::IsDefined(const string& function_name) {
   return lib_def_->Find(function_name) != nullptr;
 }
@@ -630,11 +875,37 @@ bool RemoveDeadNodes(Graph* g) {
     } else if (n->type_string() == kRetOp) {
       visited[n->id()] = true;
       q.push_back(n);
+=======
+bool FunctionLibraryRuntimeImpl::IsStateful(const string& func) {
+  Status s;
+  auto sig = lib_def_->LookUp(func, &s);
+  return s.ok() && sig->is_stateful();
+}
+
+FunctionLibraryRuntime* NewFunctionLibraryRuntime(
+    Device* device, Runner runner, int graph_def_version,
+    const FunctionLibraryDefinition* lib_def,
+    const OptimizerOptions& optimizer_options) {
+  return new FunctionLibraryRuntimeImpl(device, runner, graph_def_version,
+                                        lib_def, optimizer_options);
+}
+
+bool RemoveDeadNodes(Graph* g) {
+  VLOG(2) << "Removing dead nodes";
+  std::vector<bool> visited(g->num_node_ids(), false);
+  std::deque<Node*> q;
+  for (auto n : g->nodes()) {
+    if (n->IsSource() || n->IsSink() || n->IsControlFlow() ||
+        n->op_def().is_stateful()) {
+      q.push_back(n);
+      visited[n->id()] = true;
+>>>>>>> tensorflow/master
     }
   }
   while (!q.empty()) {
     const Node* n = q.front();
     q.pop_front();
+<<<<<<< HEAD
     visited[n->id()] = true;
     for (auto e : n->in_edges()) {
       q.push_back(e->src());
@@ -645,6 +916,24 @@ bool RemoveDeadNodes(Graph* g) {
     if (!visited[n->id()]) {
       g->RemoveNode(n);
       removed_any = true;
+=======
+    for (auto e : n->in_edges()) {
+      Node* p = e->src();
+      if (!visited[p->id()]) {
+        q.push_back(p);
+        visited[p->id()] = true;
+      }
+    }
+  }
+  bool removed_any = false;
+  for (std::size_t i = 0; i < visited.size(); ++i) {
+    if (!visited[i]) {
+      Node* n = g->FindNodeId(i);
+      if (n) {
+        g->RemoveNode(n);
+        removed_any = true;
+      }
+>>>>>>> tensorflow/master
     }
   }
   return removed_any;
@@ -656,7 +945,19 @@ namespace {
 const Edge* GetTheOnlyDataEdge(const EdgeSet& edges) {
   const Edge* ret = nullptr;
   for (const Edge* e : edges) {
+<<<<<<< HEAD
     if (e->IsControlEdge() || ret) return nullptr;
+=======
+    if (e->IsControlEdge() || ret) {
+      // Don't touch it if there is a control edge.
+      return nullptr;
+    }
+    if (IsRefType(e->src()->output_type(e->src_output()))) {
+      // Don't touch it if the identity node is effectively de-reffing
+      // a ref.
+      return nullptr;
+    }
+>>>>>>> tensorflow/master
     ret = e;
   }
   return ret;
@@ -664,10 +965,18 @@ const Edge* GetTheOnlyDataEdge(const EdgeSet& edges) {
 }  // end namespace
 
 bool RemoveIdentityNodes(Graph* g) {
+<<<<<<< HEAD
   bool removed_any = false;
   gtl::InlinedVector<Node*, 8> matches;
   for (Node* n : g->nodes()) {
     if ((n->type_string() == "Identity") && GetTheOnlyDataEdge(n->in_edges())) {
+=======
+  VLOG(2) << "Removing identity nodes";
+  bool removed_any = false;
+  gtl::InlinedVector<Node*, 8> matches;
+  for (Node* n : g->nodes()) {
+    if (n->IsIdentity() && GetTheOnlyDataEdge(n->in_edges())) {
+>>>>>>> tensorflow/master
       matches.push_back(n);
     }
   }
@@ -681,6 +990,10 @@ bool RemoveIdentityNodes(Graph* g) {
           g->AddEdge(in->src(), in->src_output(), out->dst(), out->dst_input());
         }
       }
+<<<<<<< HEAD
+=======
+      VLOG(2) << "Remove Identity: " << n->DebugString();
+>>>>>>> tensorflow/master
       g->RemoveNode(n);
       removed_any = true;
     }
@@ -689,6 +1002,10 @@ bool RemoveIdentityNodes(Graph* g) {
 }
 
 bool RemoveListArrayConverter(Graph* g) {
+<<<<<<< HEAD
+=======
+  VLOG(2) << "Removing list array converter";
+>>>>>>> tensorflow/master
   gtl::InlinedVector<Node*, 8> matches;
   for (Node* n : g->nodes()) {
     if ((n->type_string() == "_ListToArray") ||
@@ -818,10 +1135,21 @@ static void InlineFunctionBody(Graph* g, Node* caller,
   // If 'x' is a node in fbody->graph and its copy in 'g' is 'y', we
   // remember 'y' in node_map[x->id()].
   std::vector<Node*> node_map(fbody->graph->num_node_ids());
+<<<<<<< HEAD
   for (Node* n : fbody->graph->nodes()) {
     if (n->IsSource() || n->IsSink()) continue;
     CHECK(n->IsOp());
     node_map[n->id()] = g->CopyNode(n);
+=======
+  Status s;
+  for (Node* n : fbody->graph->nodes()) {
+    if (n->IsSource() || n->IsSink()) continue;
+    CHECK(n->IsOp());
+    NodeDef ndef = n->def();
+    ndef.set_name(strings::StrCat(caller->name(), "/", ndef.name()));
+    node_map[n->id()] = g->AddNode(ndef, &s);
+    TF_CHECK_OK(s);
+>>>>>>> tensorflow/master
   }
   for (const Edge* e : fbody->graph->edges()) {
     if (e->src()->IsSource() || e->src()->IsSink() || e->dst()->IsSource() ||
@@ -888,7 +1216,11 @@ static void InlineFunctionBody(Graph* g, Node* caller,
   // NoOp node "output_control_node". "output_control_node" depends on
   // all identity nodes added above. And nodes previously depend on
   // "callee" is changed to depend on "output_control_node".
+<<<<<<< HEAD
   std::vector<Node*> outputs(caller->num_inputs());
+=======
+  std::vector<Node*> outputs(caller->num_outputs());
+>>>>>>> tensorflow/master
   for (std::size_t i = 0; i < fbody->ret_nodes.size(); ++i) {
     Node* ret = node_map[fbody->ret_nodes[i]->id()];
     Endpoint data;  // Data input for the ret node.
@@ -925,17 +1257,66 @@ static void InlineFunctionBody(Graph* g, Node* caller,
   g->RemoveNode(caller);  // 'caller' is replaced with inlined nodes.
 }
 
+<<<<<<< HEAD
+=======
+// Given a node's NodeDef, returns false iff the node explicitly
+// specified noinline. This gives ExpandInlineFunctions a heuristic to
+// decide whether to inline the function.
+bool ShouldInline(const NodeDef& ndef) {
+  bool noinline = false;
+  if (GetNodeAttr(ndef, kNoinlineAttr, &noinline).ok()) {
+    // If the node specifies attribute 'noinlne', returns accordingly.
+    return !noinline;
+  }
+  if (ndef.op() != kGradientOp) {
+    // If the op is not SymbolicGradient, we should be free to decide
+    // whether to inline or not.
+    return true;
+  }
+  // If the node is a SymbolicGradient, we use the the forward
+  // function's attribute 'noinline' instead.
+  const NameAttrList* forward_func_attrs;
+  Status s =
+      GetNodeAttr(AttrSlice(&ndef.attr()), kFuncAttr, &forward_func_attrs);
+  if (!s.ok()) {
+    // The node def is malformed (missing attribute 'f'), we'll just
+    // continue and the runtime will error out.
+    return false;
+  }
+  s = GetNodeAttr(AttrSlice(&forward_func_attrs->attr()), kNoinlineAttr,
+                  &noinline);
+  if (!s.ok()) {
+    // The forward function doesn't specify 'noinline' attr, we should
+    // be free to decide.
+    return true;
+  }
+  // Otherwise, make inline decision according to the attr.
+  return !noinline;
+}
+
+>>>>>>> tensorflow/master
 bool ExpandInlineFunctions(FunctionLibraryRuntime* lib, Graph* graph) {
   std::vector<std::pair<Node*, const FunctionBody*>> candidates;
   for (Node* node : graph->nodes()) {
     VLOG(3) << "Expanding " << node->DebugString();
+<<<<<<< HEAD
+=======
+    if (!ShouldInline(node->def())) {
+      VLOG(3) << "noinline: " << node->DebugString();
+      continue;
+    }
+>>>>>>> tensorflow/master
     FunctionLibraryRuntime::Handle handle;
     Status s =
         lib->Instantiate(node->type_string(), node->def().attr(), &handle);
     if (!s.ok()) {
       // Either "node" is a primitive op, or the instantiation failed.
       if (errors::IsNotFound(s)) {
+<<<<<<< HEAD
         VLOG(2) << "ExpandInlineFunctions " << s;
+=======
+        VLOG(3) << "ExpandInlineFunctions " << s;
+>>>>>>> tensorflow/master
       } else {
         LOG(ERROR) << "ExpandInlineFunctions " << s;
       }
@@ -951,10 +1332,25 @@ bool ExpandInlineFunctions(FunctionLibraryRuntime* lib, Graph* graph) {
   return !candidates.empty();
 }
 
+<<<<<<< HEAD
 // TODO(zhifengc): Maybe this should be the default Graph::AsGraphDef.
 // and stash the original NodeDef name as an attr for documentation
 // purpose.
 static void ToGraphDef(const Graph* g, GraphDef* gdef) {
+=======
+string NewName(const Node* n, bool pretty) {
+  if (pretty) {
+    return strings::StrCat(n->type_string(), n->id());
+  } else {
+    return strings::StrCat("n", n->id());
+  }
+}
+
+// TODO(zhifengc): Maybe this should be the default Graph::AsGraphDef.
+// and stash the original NodeDef name as an attr for documentation
+// purpose.
+void ToGraphDef(const Graph* g, GraphDef* gdef, bool pretty) {
+>>>>>>> tensorflow/master
   // We visit nodes in forward topological sort order, which is a
   // possible execution order of the graph.
   std::vector<int> pending(g->num_node_ids());
@@ -965,6 +1361,10 @@ static void ToGraphDef(const Graph* g, GraphDef* gdef) {
   }
   gtl::InlinedVector<const Edge*, 4> inputs;
   gdef->Clear();
+<<<<<<< HEAD
+=======
+  gdef->mutable_versions()->CopyFrom(g->versions());
+>>>>>>> tensorflow/master
   while (!ready.empty()) {
     const Node* n = ready.front();
     ready.pop_front();
@@ -976,7 +1376,11 @@ static void ToGraphDef(const Graph* g, GraphDef* gdef) {
     }
     if (!n->IsOp()) continue;
     NodeDef* ndef = gdef->add_node();
+<<<<<<< HEAD
     ndef->set_name(strings::StrCat("n", n->id()));
+=======
+    ndef->set_name(NewName(n, pretty));
+>>>>>>> tensorflow/master
     ndef->set_op(n->type_string());
     *(ndef->mutable_attr()) = n->def().attr();
     inputs.clear();
@@ -997,16 +1401,28 @@ static void ToGraphDef(const Graph* g, GraphDef* gdef) {
     // to be unique and stable after optimization rewrites. Therefore,
     // we use "n<node id>" instead.
     for (const Edge* e : inputs) {
+<<<<<<< HEAD
+=======
+      const string srcname = NewName(e->src(), pretty);
+>>>>>>> tensorflow/master
       if (e == nullptr) {
         ndef->add_input("unknown");
       } else if (!e->src()->IsOp()) {
       } else if (e->IsControlEdge()) {
+<<<<<<< HEAD
         ndef->add_input(strings::StrCat("^n", e->src()->id()));
       } else if (e->src_output() == 0) {
         ndef->add_input(strings::StrCat("n", e->src()->id()));
       } else {
         ndef->add_input(
             strings::StrCat("n", e->src()->id(), ":", e->src_output()));
+=======
+        ndef->add_input(strings::StrCat("^", srcname));
+      } else if (e->src_output() == 0) {
+        ndef->add_input(srcname);
+      } else {
+        ndef->add_input(strings::StrCat(srcname, ":", e->src_output()));
+>>>>>>> tensorflow/master
       }
     }
   }
@@ -1057,6 +1473,7 @@ class SymbolicGradientHelper {
   const FunctionBody* fbody_;
   FunctionBody* gbody_ = nullptr;
 
+<<<<<<< HEAD
   // A vector of output endpoints which represents backpropagated
   // gradients
   typedef std::vector<Endpoint> BackpropedGradients;
@@ -1092,6 +1509,11 @@ class SymbolicGradientHelper {
 
   Endpoint SumGradients(const Endpoint& src);
 
+=======
+  // Makes a copy of fbody_ in gbody_.
+  void Copy();
+
+>>>>>>> tensorflow/master
   TF_DISALLOW_COPY_AND_ASSIGN(SymbolicGradientHelper);
 };
 
@@ -1133,6 +1555,7 @@ void SymbolicGradientHelper::Copy() {
   }
 }
 
+<<<<<<< HEAD
 void SymbolicGradientHelper::BackpropAlongEdge(const Endpoint& dst_grad,
                                                const Endpoint& src) {
   CHECK_NOTNULL(src.node);
@@ -1254,6 +1677,8 @@ static bool IsPrimitiveOpWithNoGrad(const string& func) {
   return s.ok() && (creator == nullptr);
 }
 
+=======
+>>>>>>> tensorflow/master
 FunctionBody* SymbolicGradientHelper::Compute() {
   CHECK(gbody_ == nullptr);
   gbody_ = new FunctionBody;
@@ -1261,6 +1686,7 @@ FunctionBody* SymbolicGradientHelper::Compute() {
   // Copy fbody_ into gbody_.
   Copy();
 
+<<<<<<< HEAD
   // Initialize backprops.
   InitBackprop();
 
@@ -1317,13 +1743,63 @@ FunctionBody* SymbolicGradientHelper::Compute() {
   }
 
   // The gradient's retval nodes.
+=======
+  Graph* g = gbody_->graph;
+
+  const int num_y = gbody_->ret_nodes.size();
+
+  // Populate 'y_node_outputs_' with node function body outputs.
+  // Populate 'y_grad_nodes' with initial gradient nodes for each return node of
+  // the original function body (these will be 'arg' nodes in the function
+  // gradient body).
+  std::vector<NodeOut> y_node_outputs;
+  y_node_outputs.reserve(num_y);
+  std::vector<NodeOut> y_grad_node_outputs;
+  y_grad_node_outputs.reserve(num_y);
+  for (int i = 0; i < num_y; ++i) {
+    Node* y = gbody_->ret_nodes[i];
+    y_node_outputs.push_back({y, 0});
+    DCHECK_EQ(y->type_string(), kRetOp);
+    const DataType dtype = y->input_type(0);
+    const int index = gbody_->arg_nodes.size();
+    Node* dy = AddArg(g, dtype, index);
+    gbody_->arg_types.push_back(dtype);
+    gbody_->arg_nodes.push_back(dy);
+    y_grad_node_outputs.push_back({dy, 0});
+  }
+
+  // Populate 'x_nodes' with function args (excluding 'y_grad_node_outputs').
+  const int num_x = fbody_->arg_nodes.size();
+  std::vector<NodeOut> x_node_outputs;
+  x_node_outputs.reserve(num_x);
+  for (size_t i = 0; i < fbody_->arg_nodes.size(); ++i) {
+    x_node_outputs.push_back({gbody_->arg_nodes[i], 0});
+  }
+
+  // Call AddSymbolicGradients which will add nodes to graph 'g' that
+  // compute the function gradient (adding an entry in 'x_grad_node_outputs' for
+  // each node in 'x_node_outputs').
+  std::vector<NodeOut> x_grad_node_outputs;
+  TF_CHECK_OK(AddSymbolicGradients(y_node_outputs, x_node_outputs,
+                                   y_grad_node_outputs, &x_grad_node_outputs,
+                                   g));
+
+  // Remove the old return nodes from the function body.
+>>>>>>> tensorflow/master
   for (Node* n : gbody_->ret_nodes) {
     g->RemoveNode(n);
   }
   gbody_->ret_types = fbody_->arg_types;
   gbody_->ret_nodes.clear();
+<<<<<<< HEAD
   for (size_t i = 0; i < fbody_->arg_types.size(); ++i) {
     Endpoint grad = SumGradients({gbody_->arg_nodes[i], 0});
+=======
+  // Add new return nodes to the function gradient body for each node
+  // in 'x_grad_nodes'.
+  for (size_t i = 0; i < fbody_->arg_types.size(); ++i) {
+    Endpoint grad = {x_grad_node_outputs[i].node, x_grad_node_outputs[i].index};
+>>>>>>> tensorflow/master
     Node* ret = AddRet(g, grad, i);
     gbody_->ret_nodes.push_back(ret);
   }

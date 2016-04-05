@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/executor.h"
 
 #include <atomic>
@@ -8,15 +9,53 @@
 #include <vector>
 #include <deque>
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/executor.h"
+
+#include <atomic>
+#include <deque>
+#include <memory>
+#include <string>
+#include <unordered_map>
+#include <vector>
+
+#include "tensorflow/core/common_runtime/pending_counts.h"
+#include "tensorflow/core/common_runtime/step_stats_collector.h"
+#include "tensorflow/core/framework/allocation_description.pb.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/allocator.h"
 #include "tensorflow/core/framework/cancellation.h"
 #include "tensorflow/core/framework/control_flow.h"
 #include "tensorflow/core/framework/device_attributes.pb.h"
 #include "tensorflow/core/framework/graph.pb.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/log_memory.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/node_def_util.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/op_segment.h"
 #include "tensorflow/core/framework/step_stats.pb.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_reference.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/graph/edgeset.h"
@@ -29,6 +68,7 @@
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/lib/strings/stringprintf.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/thread_annotations.h"
 #include "tensorflow/core/platform/tracing.h"
@@ -37,6 +77,16 @@
 
 namespace tensorflow {
 
+=======
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/thread_annotations.h"
+#include "tensorflow/core/platform/tracing.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/util/tensor_slice_reader_cache.h"
+
+namespace tensorflow {
+>>>>>>> tensorflow/master
 namespace {
 
 // 1-D, 0 element tensor.
@@ -121,12 +171,19 @@ void SetAllEnd(NodeExecStats* nt) {
   nt->set_all_end_rel_micros(NowInUsec() - nt->all_start_micros());
 }
 
+<<<<<<< HEAD
 void SetOutput(NodeExecStats* nt, int slot, AllocationType allocation_type,
                const Tensor* v) {
   DCHECK(v);
   NodeOutput* no = nt->add_output();
   no->set_slot(slot);
   no->set_allocation_type(allocation_type);
+=======
+void SetOutput(NodeExecStats* nt, int slot, const Tensor* v) {
+  DCHECK(v);
+  NodeOutput* no = nt->add_output();
+  no->set_slot(slot);
+>>>>>>> tensorflow/master
   v->FillDescription(no->mutable_tensor_description());
 }
 
@@ -145,6 +202,20 @@ void SetMemory(NodeExecStats* nt, OpKernelContext* ctx) {
     }
   }
 }
+<<<<<<< HEAD
+=======
+
+void SetReferencedTensors(NodeExecStats* nt,
+                          const TensorReferenceVector& tensors) {
+  // be careful not to increment the reference count on any tensor
+  // while recording the information
+  for (size_t i = 0; i < tensors.size(); ++i) {
+    AllocationDescription* description = nt->add_referenced_tensor();
+    tensors.at(i).FillDescription(description);
+  }
+}
+
+>>>>>>> tensorflow/master
 }  // namespace nodestats
 
 struct NodeItem {
@@ -154,6 +225,7 @@ struct NodeItem {
   // The kernel for this node.
   OpKernel* kernel = nullptr;
 
+<<<<<<< HEAD
   // ExecutorImpl::tensors_[input_start] is the 1st positional input
   // for this node.
   int input_start = 0;
@@ -169,6 +241,37 @@ struct pairhash {
 };
 typedef std::unordered_map<std::pair<int, int>, AllocatorAttributes, pairhash>
     DevAttrMap;
+=======
+  bool kernel_is_expensive = false;  // True iff kernel->IsExpensive()
+  bool kernel_is_async = false;      // True iff kernel->AsAsync() != nullptr
+  bool is_merge = false;             // True iff IsMerge(node)
+
+  // Cached values of node->num_inputs() and node->num_outputs(), to
+  // avoid levels of indirection.
+  int num_inputs;
+  int num_outputs;
+
+  // ExecutorImpl::tensors_[input_start] is the 1st positional input
+  // for this node.
+  int input_start = 0;
+
+  // ExecutorImpl::output_attrs_[output_attr_start] is the 1st
+  // positional attribute for the 0th output of this node.
+  int output_attr_start = 0;
+
+  DataType input_type(int i) const {
+    DCHECK_LT(i, num_inputs);
+    return (i < 4) ? inlined_input_type[i] : node->input_type(i);
+  }
+  DataType output_type(int i) const {
+    DCHECK_LT(i, num_outputs);
+    return (i < 4) ? inlined_output_type[i] : node->output_type(i);
+  }
+  // Cache first 4 input and output types to reduce levels of indirection
+  DataType inlined_input_type[4];
+  DataType inlined_output_type[4];
+};
+>>>>>>> tensorflow/master
 
 typedef gtl::InlinedVector<TensorValue, 4> TensorValueVec;
 typedef gtl::InlinedVector<DeviceContext*, 4> DeviceContextVec;
@@ -177,15 +280,26 @@ typedef gtl::InlinedVector<AllocatorAttributes, 4> AllocatorAttributeVec;
 class ExecutorImpl : public Executor {
  public:
   ExecutorImpl(const LocalExecutorParams& p, const Graph* g)
+<<<<<<< HEAD
       : params_(p), graph_(g) {
+=======
+      : params_(p), graph_(g), initial_pending_counts_(graph_->num_node_ids()) {
+>>>>>>> tensorflow/master
     CHECK(p.create_kernel != nullptr);
     CHECK(p.delete_kernel != nullptr);
   }
 
   ~ExecutorImpl() override {
+<<<<<<< HEAD
     for (NodeItem& item : nodes_) {
       params_.delete_kernel(item.kernel);
     }
+=======
+    for (int i = 0; i < graph_->num_node_ids(); i++) {
+      params_.delete_kernel(nodes_[i].kernel);
+    }
+    delete[] nodes_;
+>>>>>>> tensorflow/master
     delete graph_;
   }
 
@@ -209,45 +323,121 @@ class ExecutorImpl : public Executor {
 
  private:
   friend class ExecutorState;
+<<<<<<< HEAD
   friend class SimpleExecutorState;
+=======
+
+  static void InitializePending(const Graph* graph, PendingCounts* counts);
+>>>>>>> tensorflow/master
 
   // Owned.
   LocalExecutorParams params_;
   const Graph* graph_;
+<<<<<<< HEAD
   std::vector<NodeItem> nodes_;  // nodes_.size == graph_.num_node_ids().
   int total_tensors_ = 0;        // total_tensors_ = sum(nodes_[*].num_inputs())
+=======
+  NodeItem* nodes_ = nullptr;     // array of size "graph_.num_node_ids()"
+  int total_input_tensors_ = 0;   // == sum(nodes_[*].num_inputs())
+  int total_output_tensors_ = 0;  // == sum(nodes_[*].num_outputs())
+
+  // A cached value of params_
+  bool device_record_tensor_accesses_ = false;
+
+  // Root nodes (with no in edges) that should form the initial ready queue
+  std::vector<const Node*> root_nodes_;
+
+  PendingCounts initial_pending_counts_;
+>>>>>>> tensorflow/master
 
   // The number of inputs for each frame in this graph. This is static
   // information of the graph.
   std::unordered_map<string, int> frame_input_count_;
 
+<<<<<<< HEAD
   DevAttrMap alloc_attr_;
+=======
+  std::vector<AllocatorAttributes> output_attrs_;
+>>>>>>> tensorflow/master
 
   TF_DISALLOW_COPY_AND_ASSIGN(ExecutorImpl);
 };
 
 Status ExecutorImpl::Initialize() {
   const int num_nodes = graph_->num_node_ids();
+<<<<<<< HEAD
   nodes_.resize(num_nodes);
 
   Status s;
   total_tensors_ = 0;
+=======
+  delete[] nodes_;
+  nodes_ = new NodeItem[num_nodes];
+
+  Status s;
+  total_input_tensors_ = 0;
+  total_output_tensors_ = 0;
+
+  InitializePending(graph_, &initial_pending_counts_);
+
+  // Cache this value so we make this virtual function call once, rather
+  // that O(# steps * # nodes per step) times.
+  device_record_tensor_accesses_ =
+      params_.device->RequiresRecordingAccessedTensors();
+>>>>>>> tensorflow/master
 
   // Preprocess every node in the graph to create an instance of op
   // kernel for each node;
   for (const Node* n : graph_->nodes()) {
     const int id = n->id();
+<<<<<<< HEAD
     NodeItem* item = &nodes_[id];
     item->node = n;
     item->input_start = total_tensors_;
     total_tensors_ += n->num_inputs();
     s = params_.create_kernel(n->def(), &item->kernel);
     if (!s.ok()) {
+=======
+
+    // See if this node is a root node, and if so, add to root_nodes_
+    const int num_in_edges = n->in_edges().size();
+    if (num_in_edges == 0) {
+      root_nodes_.push_back(n);
+    }
+
+    NodeItem* item = &nodes_[id];
+    item->node = n;
+    item->num_inputs = n->num_inputs();
+    item->num_outputs = n->num_outputs();
+
+    for (int i = 0; i < std::min(4, item->num_inputs); i++) {
+      item->inlined_input_type[i] = n->input_type(i);
+    }
+    for (int i = 0; i < std::min(4, item->num_outputs); i++) {
+      item->inlined_output_type[i] = n->output_type(i);
+    }
+
+    item->input_start = total_input_tensors_;
+    total_input_tensors_ += n->num_inputs();
+
+    item->output_attr_start = total_output_tensors_;
+    total_output_tensors_ += n->num_outputs();
+
+    s = params_.create_kernel(n->def(), &item->kernel);
+    if (!s.ok()) {
+      item->kernel = nullptr;
+>>>>>>> tensorflow/master
       s = AttachDef(s, n->def());
       LOG(ERROR) << "Executor failed to create kernel. " << s;
       break;
     }
     CHECK(item->kernel);
+<<<<<<< HEAD
+=======
+    item->kernel_is_expensive = item->kernel->IsExpensive();
+    item->kernel_is_async = (item->kernel->AsAsync() != nullptr);
+    item->is_merge = IsMerge(n);
+>>>>>>> tensorflow/master
 
     // Initialize static information about the frames in the graph.
     if (IsEnter(n)) {
@@ -257,9 +447,12 @@ Status ExecutorImpl::Initialize() {
       ++frame_input_count_[frame_name];
     }
   }
+<<<<<<< HEAD
   if (params_.has_control_flow) {
     VLOG(2) << "Graph has control flow.";
   }
+=======
+>>>>>>> tensorflow/master
   if (!s.ok()) return s;
   return SetAllocAttrs();
 }
@@ -269,14 +462,26 @@ Status ExecutorImpl::SetAllocAttrs() {
   Device* device = params_.device;
   DeviceNameUtils::ParsedName local_dev_name = device->parsed_name();
 
+<<<<<<< HEAD
   for (const Node* n : graph_->nodes()) {
     // Examine the out edges of each node looking for special use
     // cases that may affect memory allocation attributes.
     for (auto e : n->out_edges()) {
+=======
+  output_attrs_.resize(total_output_tensors_);
+  for (const Node* n : graph_->nodes()) {
+    NodeItem* item = &nodes_[n->id()];
+    const int base_index = item->output_attr_start;
+    // Examine the out edges of each node looking for special use
+    // cases that may affect memory allocation attributes.
+    for (auto e : n->out_edges()) {
+      const int index = e->src_output();
+>>>>>>> tensorflow/master
       AllocatorAttributes attr;
       s = InferAllocAttr(n, e->dst(), local_dev_name, &attr);
       if (!s.ok()) return s;
       if (attr.value != 0) {
+<<<<<<< HEAD
         VLOG(2) << "node " << n->name() << " gets attr " << attr.value
                 << " for output " << e->src_output();
         alloc_attr_[std::make_pair(n->id(), e->src_output())].Merge(attr);
@@ -285,6 +490,22 @@ Status ExecutorImpl::SetAllocAttrs() {
                 << e->src_output();
       }
     }
+=======
+        if (!e->IsControlEdge()) {
+          output_attrs_[base_index + index].Merge(attr);
+        }
+      }
+    }
+
+    for (int out = 0; out < n->num_outputs(); out++) {
+      OpKernel* op_kernel = item->kernel;
+      DCHECK_LT(out, op_kernel->output_memory_types().size());
+      bool on_host = op_kernel->output_memory_types()[out] == HOST_MEMORY;
+      AllocatorAttributes h;
+      h.set_on_host(on_host);
+      output_attrs_[base_index + out].Merge(h);
+    }
+>>>>>>> tensorflow/master
   }
   return s;
 }
@@ -350,7 +571,11 @@ Status ExecutorImpl::InferAllocAttr(
   return s;
 }
 
+<<<<<<< HEAD
 // The state associated with one invokation of ExecutorImpl::Run.
+=======
+// The state associated with one invocation of ExecutorImpl::Run.
+>>>>>>> tensorflow/master
 // ExecutorState dispatches nodes when they become ready and keeps
 // track of how many predecessors of a node have not done (pending_).
 class ExecutorState {
@@ -370,13 +595,21 @@ class ExecutorState {
     Tensor* ref = nullptr;       // A tensor reference.
     mutex* ref_mu = nullptr;     // mutex for *ref if ref is not nullptr.
     bool has_value = false;      // Whether the value exists
+<<<<<<< HEAD
+=======
+    // The attributes of the allocator that creates the tensor.
+    AllocatorAttributes alloc_attr;
+>>>>>>> tensorflow/master
 
     // Every entry carries an optional DeviceContext containing
     // Device-specific information about how the Tensor was produced.
     DeviceContext* device_context = nullptr;
+<<<<<<< HEAD
 
     // The attributes of the allocator that creates the tensor.
     AllocatorAttributes alloc_attr;
+=======
+>>>>>>> tensorflow/master
   };
 
   // Contains a map from node id to the DeviceContext object that was
@@ -384,6 +617,7 @@ class ExecutorState {
   DeviceContextMap device_context_map_;
 
   struct IterationState {
+<<<<<<< HEAD
     // The state of an iteration.
 
     // The pending count for each graph node. One copy per iteration.
@@ -396,6 +630,17 @@ class ExecutorState {
 
     // The dead input count for each graph node. One copy per iteration.
     std::vector<int>* dead_count;
+=======
+    explicit IterationState(const ExecutorImpl* impl)
+        : input_tensors(new Entry[impl->total_input_tensors_]),
+          outstanding_ops(0),
+          outstanding_frame_count(0),
+          counts_(impl->graph_->num_node_ids()) {
+      counts_.InitializeFrom(impl->initial_pending_counts_);
+    }
+
+    // The state of an iteration.
+>>>>>>> tensorflow/master
 
     // One copy per iteration. For iteration k, i-th node's j-th input is in
     // input_tensors[k][impl_->nodes[i].input_start + j]. An entry is either
@@ -405,19 +650,48 @@ class ExecutorState {
     // is resized once. Each element of tensors_ is written once by the
     // source node of an edge and is cleared by the destination of the same
     // edge. The latter node is never run concurrently with the former node.
+<<<<<<< HEAD
     std::vector<Entry>* input_tensors;
+=======
+    Entry* input_tensors;
+>>>>>>> tensorflow/master
 
     // The number of outstanding ops for each iteration.
     int outstanding_ops;
 
     // The number of outstanding frames for each iteration.
     int outstanding_frame_count;
+<<<<<<< HEAD
 
     ~IterationState() {
       delete pending_count;
       delete dead_count;
       delete input_tensors;
     }
+=======
+    int pending(int id) { return counts_.pending(id); }
+    int decrement_pending(int id, int v) {
+      return counts_.decrement_pending(id, v);
+    }
+    // Mark a merge node as live
+    // REQUIRES: Node corresponding to "id" is a merge node
+    void mark_live(int id) { counts_.mark_live(id); }
+    // Mark a node to show that processing has started.
+    void mark_started(int id) { counts_.mark_started(id); }
+    // Mark a node to show that processing has completed.
+    void mark_completed(int id) { counts_.mark_completed(id); }
+    PendingCounts::NodeState node_state(int id) {
+      return counts_.node_state(id);
+    }
+
+    int dead_count(int id) { return counts_.dead_count(id); }
+    void increment_dead_count(int id) { counts_.increment_dead_count(id); }
+
+    ~IterationState() { delete[] input_tensors; }
+
+   private:
+    PendingCounts counts_;
+>>>>>>> tensorflow/master
   };
 
   struct FrameState {
@@ -479,7 +753,11 @@ class ExecutorState {
     int max_parallel_iterations = 1;
 
     // The iteration states of this frame.
+<<<<<<< HEAD
     std::vector<IterationState*> iterations;
+=======
+    gtl::InlinedVector<IterationState*, 12> iterations;
+>>>>>>> tensorflow/master
 
     // The NextIteration nodes to enter a new iteration. If the number of
     // outstanding iterations reaches the limit, we will defer the start of
@@ -535,11 +813,20 @@ class ExecutorState {
   typedef gtl::InlinedVector<TaggedNode, 8> TaggedNodeSeq;
   typedef gtl::InlinedVector<Entry, 4> EntryVector;
 
+<<<<<<< HEAD
   // Not owned.
   Rendezvous* rendezvous_;
   StepStatsCollector* stats_collector_;
   // QUESTION: Make it a checkpoint::TensorSliceReaderCacheWrapper instead of a
   // pointer?  (avoids having to delete).
+=======
+  int64 step_id_;
+  // Not owned.
+  Rendezvous* rendezvous_;
+  StepStatsCollector* stats_collector_;
+  // QUESTION: Make it a checkpoint::TensorSliceReaderCacheWrapper
+  // instead of a pointer?  (avoids having to delete).
+>>>>>>> tensorflow/master
   checkpoint::TensorSliceReaderCacheWrapper* slice_reader_cache_;
   FunctionCallFrame* call_frame_;
   const ExecutorImpl* impl_;
@@ -551,6 +838,13 @@ class ExecutorState {
   // Step-local resource manager.
   ResourceMgr step_resource_manager_;
 
+<<<<<<< HEAD
+=======
+  // A flag that is set on error after the frame state has been
+  // dumped for diagnostic purposes.
+  bool dumped_on_error_ = false;
+
+>>>>>>> tensorflow/master
   // The root frame in which the execution of this step is started.
   FrameState* root_frame_;
 
@@ -574,9 +868,12 @@ class ExecutorState {
     return strings::StrCat(frame->frame_name, ";", iter_id, ";", name);
   }
 
+<<<<<<< HEAD
   // Initialize the pending count for a graph.
   static void InitializePending(const Graph* graph, std::vector<int>* pending);
 
+=======
+>>>>>>> tensorflow/master
   // Find an existing or create a new child frame in the frame 'frame' at
   // iteration 'iter'.
   void FindOrCreateChildFrame(FrameState* frame, int64 iter, const Node* node,
@@ -655,12 +952,44 @@ class ExecutorState {
   void ScheduleReady(const TaggedNodeSeq& ready,
                      std::deque<TaggedNode>* inline_ready);
 
+<<<<<<< HEAD
   // One thread of control finishes.
   void Finish();
 };
 
 ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
     : rendezvous_(args.rendezvous),
+=======
+  // Provide debugging output about an outstanding node in the executor.
+  void DumpCompletedNodeState(const int node_id, const Entry* input_vector);
+  void DumpPendingNodeState(const int node_id, const Entry* input_vector,
+                            bool show_nodes_with_no_ready_inputs);
+  void DumpActiveNodeState(const int node_id, const Entry* input_vector);
+
+  // Provide debugging output about an outstanding iteration in the executor.
+  void DumpIterationState(IterationState* iteration);
+
+  // Provide debugging output of the state of the executor.
+  void DumpState();
+
+  // One thread of control finishes.
+  void Finish();
+
+  // A standalone routine for this expression so that we can express
+  // that we don't want thread safety analysis on this reference (it's
+  // safe to do without the lock because the iterations array never
+  // resizes and this particular iteration's array element will not
+  // be changed out from under us because the iteration is still alive).
+  Entry* GetInputTensors(FrameState* input_frame,
+                         int64 input_iter) const NO_THREAD_SAFETY_ANALYSIS {
+    return input_frame->GetIteration(input_iter)->input_tensors;
+  }
+};
+
+ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
+    : step_id_(args.step_id),
+      rendezvous_(args.rendezvous),
+>>>>>>> tensorflow/master
       stats_collector_(args.stats_collector),
       slice_reader_cache_(new checkpoint::TensorSliceReaderCacheWrapper),
       call_frame_(args.call_frame),
@@ -682,6 +1011,7 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
   VLOG(2) << "Create frame: " << root_frame_->frame_name;
 
   // Initialize the iteration.
+<<<<<<< HEAD
   IterationState* iter_state = new IterationState;
   root_frame_->iterations[0] = iter_state;
   iter_state->outstanding_ops = 0;
@@ -689,6 +1019,10 @@ ExecutorState::ExecutorState(const Executor::Args& args, ExecutorImpl* impl)
   iter_state->pending_count = new std::vector<int>;
   iter_state->dead_count = new std::vector<int>(impl->graph_->num_node_ids());
   iter_state->input_tensors = new std::vector<Entry>(impl_->total_tensors_);
+=======
+  IterationState* iter_state = new IterationState(impl);
+  root_frame_->iterations[0] = iter_state;
+>>>>>>> tensorflow/master
 
   // Initialize the executor state.
   outstanding_frames_.insert({root_frame_->frame_name, root_frame_});
@@ -706,12 +1040,24 @@ ExecutorState::~ExecutorState() {
   delete slice_reader_cache_;
 }
 
+<<<<<<< HEAD
 void ExecutorState::InitializePending(const Graph* graph,
                                       std::vector<int>* pending) {
   pending->resize(graph->num_node_ids());
   for (const Node* n : graph->nodes()) {
     const int id = n->id();
     const int num_in_edges = n->in_edges().size();
+=======
+void ExecutorImpl::InitializePending(const Graph* graph,
+                                     PendingCounts* counts) {
+  for (int id = 0; id < graph->num_node_ids(); id++) {
+    counts->set_initial_count(id, 0, 0);  // Make sure everything is initialized
+  }
+  for (const Node* n : graph->nodes()) {
+    const int id = n->id();
+    const int num_in_edges = n->in_edges().size();
+    int initial_count;
+>>>>>>> tensorflow/master
     if (IsMerge(n)) {
       // merge waits all control inputs so we initialize the pending
       // count to be the number of control edges.
@@ -721,11 +1067,20 @@ void ExecutorState::InitializePending(const Graph* graph,
           num_control_edges++;
         }
       }
+<<<<<<< HEAD
       // Use bit 0 to indicate if there is a ready live data input.
       (*pending)[id] = num_control_edges << 1;
     } else {
       (*pending)[id] = num_in_edges;
     }
+=======
+      // Use bit 0 to indicate if we are waiting for a ready live data input.
+      initial_count = 1 + (num_control_edges << 1);
+    } else {
+      initial_count = num_in_edges;
+    }
+    counts->set_initial_count(id, initial_count, num_in_edges);
+>>>>>>> tensorflow/master
   }
 }
 
@@ -733,6 +1088,7 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
   const Graph* graph = impl_->graph_;
   TaggedNodeSeq ready;
 
+<<<<<<< HEAD
   {
     // Initialize the executor state. We grab the mutex here just to
     // keep the thread safety analysis happy.
@@ -751,6 +1107,20 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
     if (num_in_edges == 0) {
       ready.push_back(TaggedNode{n, root_frame_, 0, false});
     }
+=======
+  // Ask the device to fill in the device context map.
+  Device* device = impl_->params_.device;
+  Status fill_status = device->FillContextMap(graph, &device_context_map_);
+  if (!fill_status.ok()) {
+    done(fill_status);
+    return;
+  }
+
+  // Initialize the ready queue.
+  for (const Node* n : impl_->root_nodes_) {
+    DCHECK_EQ(n->in_edges().size(), 0);
+    ready.push_back(TaggedNode{n, root_frame_, 0, false});
+>>>>>>> tensorflow/master
   }
   if (ready.empty()) {
     done(Status::OK());
@@ -765,6 +1135,7 @@ void ExecutorState::RunAsync(Executor::DoneCallback done) {
 
 namespace {
 
+<<<<<<< HEAD
 // This function is provided for use by OpKernelContext when allocating
 // the index'th output of node.  It provides access to the
 // AllocatorAttributes computed during initialization to determine in
@@ -791,6 +1162,8 @@ AllocatorAttributes OutputAttributes(const DevAttrMap* attr_map,
   return attr;
 }
 
+=======
+>>>>>>> tensorflow/master
 // Helpers to make a copy of 'p' and makes a copy of the input type
 // vector and the device context vector.
 //
@@ -801,6 +1174,12 @@ AllocatorAttributes OutputAttributes(const DevAttrMap* attr_map,
 OpKernelContext::Params* CopyParams(const OpKernelContext::Params& p) {
   OpKernelContext::Params* ret = new OpKernelContext::Params;
   *ret = p;
+<<<<<<< HEAD
+=======
+  // Ensure the copy of Params will make a new eigen GPU device if
+  // necessary.
+  ret->eigen_gpu_device = nullptr;
+>>>>>>> tensorflow/master
   ret->inputs = new TensorValueVec(*p.inputs);
   ret->input_device_contexts = new DeviceContextVec(*p.input_device_contexts);
   ret->input_alloc_attrs = new AllocatorAttributeVec(*p.input_alloc_attrs);
@@ -809,6 +1188,11 @@ OpKernelContext::Params* CopyParams(const OpKernelContext::Params& p) {
 
 // Helpers to delete 'p' and copies made by CopyParams.
 void DeleteParams(OpKernelContext::Params* p) {
+<<<<<<< HEAD
+=======
+  // No need to delete p->eigen_gpu_device since that is deleted in
+  // p's destructor
+>>>>>>> tensorflow/master
   delete p->inputs;
   delete p->input_device_contexts;
   delete p->input_alloc_attrs;
@@ -818,7 +1202,11 @@ void DeleteParams(OpKernelContext::Params* p) {
 }  // namespace
 
 void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
+<<<<<<< HEAD
   const std::vector<NodeItem>& nodes = impl_->nodes_;
+=======
+  const NodeItem* nodes = impl_->nodes_;
+>>>>>>> tensorflow/master
   TaggedNodeSeq ready;
   std::deque<TaggedNode> inline_ready;
 
@@ -828,6 +1216,10 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
   AllocatorAttributeVec input_alloc_attrs;
 
   OpKernelContext::Params params;
+<<<<<<< HEAD
+=======
+  params.step_id = step_id_;
+>>>>>>> tensorflow/master
   Device* device = impl_->params_.device;
   params.device = device;
   // track allocations if and only if we are collecting statistics
@@ -857,6 +1249,18 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
     const int id = node->id();
     const NodeItem& item = nodes[id];
 
+<<<<<<< HEAD
+=======
+    // TODO(misard) Replace with a finer-grain enabling flag once we
+    // add better optional debugging support.
+    if (VLOG_IS_ON(1)) {
+      mutex_lock l(mu_);
+
+      IterationState* iter_state = input_frame->GetIteration(input_iter);
+      iter_state->mark_started(id);
+    }
+
+>>>>>>> tensorflow/master
     // Set the device_context for this node id, if it exists.
     auto dc_it = device_context_map_.find(id);
     if (dc_it != device_context_map_.end()) {
@@ -870,6 +1274,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
       nodestats::SetAllStart(stats);
     }
 
+<<<<<<< HEAD
     VLOG(1) << "Process node: " << id << " " << SummarizeNodeDef(node->def());
 
     std::vector<Entry>* input_tensors;
@@ -887,12 +1292,44 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
     // transfer node. For transfer nodes, we need to propagate the "dead"
     // bit even when the node is dead.
     AsyncOpKernel* async = nullptr;
+=======
+    VLOG(1) << "Process node: " << id << " step " << params.step_id << " "
+            << SummarizeNodeDef(node->def());
+
+    Entry* input_tensors = GetInputTensors(input_frame, input_iter);
+    Entry* first_input = input_tensors + item.input_start;
+    outputs.clear();
+    outputs.resize(item.num_outputs);
+
+    TensorReferenceVector accessed_tensors;
+    DeviceContext* device_context = nullptr;
+    // Only execute this node if it is not dead or it is a send/recv
+    // transfer node. For transfer nodes, we need to propagate the "dead"
+    // bit even when the node is dead.
+    bool launched_asynchronously = false;
+>>>>>>> tensorflow/master
     if (!tagged_node.is_dead || IsTransferNode(node)) {
       // Prepares inputs.
       bool is_input_dead = false;
       s = PrepareInputs(item, first_input, &inputs, &input_device_contexts,
                         &input_alloc_attrs, &is_input_dead);
       if (!s.ok()) {
+<<<<<<< HEAD
+=======
+        // Clear the inputs to maintain the invariant that completed
+        // nodes have no valid input tensors.
+        int num_inputs = item.num_inputs;
+        for (int i = 0; i < num_inputs; ++i) {
+          (first_input + i)->val = *kEmptyTensor;
+        }
+        // TODO(misard) Replace with a finer-grain enabling flag once we
+        // add better optional debugging support.
+        if (VLOG_IS_ON(1)) {
+          mutex_lock l(mu_);
+          IterationState* iter_state = input_frame->GetIteration(input_iter);
+          iter_state->mark_completed(id);
+        }
+>>>>>>> tensorflow/master
         // Continue to process the nodes in 'inline_ready'.
         completed = NodeDone(s, item.node, ready, stats, &inline_ready);
         continue;
@@ -903,6 +1340,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
       params.op_kernel = op_kernel;
       params.frame_iter = FrameAndIter(input_frame->frame_id, input_iter);
       params.is_input_dead = is_input_dead;
+<<<<<<< HEAD
       params.output_alloc_attr = [this, node, op_kernel](int index) {
         return OutputAttributes(&impl_->alloc_attr_, node, op_kernel, index);
       };
@@ -914,6 +1352,20 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         auto ctx = new OpKernelContext(*pcopy);
         auto done = [this, tagged_node, item, first_input, ctx, stats,
                      pcopy]() {
+=======
+      params.output_attr_array =
+          gtl::vector_as_array(&impl_->output_attrs_) + item.output_attr_start;
+
+      if (item.kernel_is_async) {
+        // Asynchronous computes.
+        AsyncOpKernel* async = item.kernel->AsAsync();
+        DCHECK(async != nullptr);
+        launched_asynchronously = true;
+        auto pcopy = CopyParams(params);
+        auto ctx = new OpKernelContext(pcopy, item.num_outputs);
+        auto done = [this, tagged_node, item, first_input, ctx, stats, pcopy,
+                     device]() {
+>>>>>>> tensorflow/master
           VLOG(2) << this << " Async kernel done: "
                   << SummarizeNodeDef(item.node->def());
           if (stats_collector_) nodestats::SetOpEnd(stats);
@@ -921,15 +1373,43 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
           Status s = ProcessOutputs(item, ctx, &outputs, stats);
           if (stats_collector_) nodestats::SetMemory(stats, ctx);
           // Clears inputs.
+<<<<<<< HEAD
           int num_inputs = tagged_node.node->num_inputs();
           for (int i = 0; i < num_inputs; ++i) {
             (first_input + i)->val = *kEmptyTensor;
           }
+=======
+          int num_inputs = item.num_inputs;
+          for (int i = 0; i < num_inputs; ++i) {
+            (first_input + i)->val = *kEmptyTensor;
+          }
+          // TODO(misard) Replace with a finer-grain enabling flag once we
+          // add better optional debugging support.
+          if (VLOG_IS_ON(1)) {
+            mutex_lock l(mu_);
+            tagged_node.input_frame->GetIteration(tagged_node.input_iter)
+                ->mark_completed(tagged_node.node->id());
+          }
+>>>>>>> tensorflow/master
           TaggedNodeSeq ready;
           if (s.ok()) {
             PropagateOutputs(tagged_node, outputs, &ready);
           }
+<<<<<<< HEAD
           // Schedule to run all the ready ops in thread pool.
+=======
+          outputs.clear();
+          if (s.ok() && pcopy->device->RequiresRecordingAccessedTensors()) {
+            // Get the list of all tensors accessed during the execution
+            TensorReferenceVector accessed;
+            ctx->retrieve_accessed_tensors(&accessed);
+            if (stats_collector_)
+              nodestats::SetReferencedTensors(stats, accessed);
+            // callee takes ownership of the vector
+            device->ConsumeListOfAccessedTensors(ctx->op_device_context(),
+                                                 accessed);
+          }
+>>>>>>> tensorflow/master
           bool completed = NodeDone(s, item.node, ready, stats, nullptr);
           delete ctx;
           DeleteParams(pcopy);
@@ -939,6 +1419,7 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
         device->ComputeAsync(async, ctx, done);
       } else {
         // Synchronous computes.
+<<<<<<< HEAD
         OpKernelContext ctx(params);
         if (stats_collector_) nodestats::SetOpStart(stats);
         device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
@@ -946,20 +1427,68 @@ void ExecutorState::Process(TaggedNode tagged_node, int64 scheduled_usec) {
 
         // Processes outputs.
         s = ProcessOutputs(item, &ctx, &outputs, stats);
+=======
+        OpKernelContext ctx(&params, item.num_outputs);
+        if (stats_collector_) nodestats::SetOpStart(stats);
+        device->Compute(CHECK_NOTNULL(op_kernel), &ctx);
+        // The final node in the step is always a Sink node. Block
+        // this Op from completing until the device has finished all
+        // queued operations. For devices like GPUs that continue to
+        // execute Ops after their Compute methods have completed,
+        // this ensures that control is not returned to the user until
+        // the step (and its side-effects) has actually completed.
+        if (node->IsSink() && ctx.status().ok()) {
+          ctx.SetStatus(device->Sync());
+        }
+        if (stats_collector_) nodestats::SetOpEnd(stats);
+
+        s = ProcessOutputs(item, &ctx, &outputs, stats);
+        if (s.ok() && impl_->device_record_tensor_accesses_) {
+          // Get the list of all tensors accessed during the execution
+          ctx.retrieve_accessed_tensors(&accessed_tensors);
+          device_context = ctx.op_device_context();
+        }
+>>>>>>> tensorflow/master
         if (stats_collector_) nodestats::SetMemory(stats, &ctx);
       }
     }
 
+<<<<<<< HEAD
     if (!async) {
       // Clears inputs.
       int num_inputs = node->num_inputs();
       for (int i = 0; i < num_inputs; ++i) {
         (first_input + i)->val = *kEmptyTensor;
       }
+=======
+    if (!launched_asynchronously) {
+      // Clears inputs.
+      const int num_inputs = item.num_inputs;
+      for (int i = 0; i < num_inputs; ++i) {
+        (first_input + i)->val = *kEmptyTensor;
+      }
+      // TODO(misard) Replace with a finer-grain enabling flag once we
+      // add better optional debugging support.
+      if (VLOG_IS_ON(1)) {
+        mutex_lock l(mu_);
+        IterationState* iter_state = input_frame->GetIteration(input_iter);
+        iter_state->mark_completed(id);
+      }
+>>>>>>> tensorflow/master
       // Propagates outputs.
       if (s.ok()) {
         PropagateOutputs(tagged_node, outputs, &ready);
       }
+<<<<<<< HEAD
+=======
+      outputs.clear();
+      if (!accessed_tensors.empty()) {
+        if (stats_collector_)
+          nodestats::SetReferencedTensors(stats, accessed_tensors);
+        // device_context is set above in synchronous computes
+        device->ConsumeListOfAccessedTensors(device_context, accessed_tensors);
+      }
+>>>>>>> tensorflow/master
       if (stats_collector_) {
         scheduled_usec = nodestats::NowInUsec();
       }
@@ -980,6 +1509,7 @@ Status ExecutorState::PrepareInputs(const NodeItem& item, Entry* first_input,
   const Node* node = item.node;
 
   inputs->clear();
+<<<<<<< HEAD
   inputs->resize(node->num_inputs());
   input_device_contexts->clear();
   input_device_contexts->resize(node->num_inputs());
@@ -991,6 +1521,19 @@ Status ExecutorState::PrepareInputs(const NodeItem& item, Entry* first_input,
   bool is_merge = IsMerge(node);
   for (int i = 0; i < node->num_inputs(); ++i) {
     const bool expect_ref = IsRefType(node->input_type(i));
+=======
+  inputs->resize(item.num_inputs);
+  input_device_contexts->clear();
+  input_device_contexts->resize(item.num_inputs);
+  input_alloc_attrs->clear();
+  input_alloc_attrs->resize(item.num_inputs);
+
+  *is_input_dead = false;
+
+  bool is_merge = item.is_merge;
+  for (int i = 0; i < item.num_inputs; ++i) {
+    const bool expect_ref = IsRefType(item.input_type(i));
+>>>>>>> tensorflow/master
     Entry* entry = first_input + i;
     (*input_device_contexts)[i] = entry->device_context;
     (*input_alloc_attrs)[i] = entry->alloc_attr;
@@ -1044,12 +1587,25 @@ Status ExecutorState::ProcessOutputs(const NodeItem& item, OpKernelContext* ctx,
                                      NodeExecStats* stats) {
   const Node* node = item.node;
   outputs->clear();
+<<<<<<< HEAD
   outputs->resize(node->num_outputs());
+=======
+  outputs->resize(item.num_outputs);
+>>>>>>> tensorflow/master
 
   Status s = ctx->status();
   if (!s.ok()) {
     s = AttachDef(s, item.kernel->def());
+<<<<<<< HEAD
     LOG(WARNING) << this << " Compute status: " << s;
+=======
+    // TODO(misard) Replace with a finer-grain enabling flag once we
+    // add better optional debugging support.
+    if (VLOG_IS_ON(1)) {
+      LOG(WARNING) << this << " Compute status: " << s;
+      DumpState();
+    }
+>>>>>>> tensorflow/master
     return s;
   }
 
@@ -1060,15 +1616,33 @@ Status ExecutorState::ProcessOutputs(const NodeItem& item, OpKernelContext* ctx,
     device_context = dc_it->second;
   }
 
+<<<<<<< HEAD
   for (int i = 0; i < node->num_outputs(); ++i) {
     TensorValue val = ctx->release_output(i);
     // Only Switch and Recv nodes can generate new dead outputs
     if (*ctx->is_output_dead() || val.tensor == nullptr) {
       DCHECK(IsSwitch(node) || IsRecv(node));
+=======
+  for (int i = 0; i < item.num_outputs; ++i) {
+    TensorValue val = ctx->release_output(i);
+    if (*ctx->is_output_dead() || val.tensor == nullptr) {
+      // Unless it's a Switch or a Recv, the node must produce a
+      // tensor value at i-th output.
+      if (!IsSwitch(node) && !IsRecv(node)) {
+        s.Update(errors::Internal("Missing ", i, "-th output from ",
+                                  SummarizeNodeDef(node->def())));
+      }
+>>>>>>> tensorflow/master
     } else {
       Entry* out = &((*outputs)[i]);
       out->has_value = true;
 
+<<<<<<< HEAD
+=======
+      // This value is filled in below if LogMemory::IsEnabled.
+      Tensor value_to_log;
+
+>>>>>>> tensorflow/master
       // Set the device context of the output entry.
       out->device_context = device_context;
 
@@ -1078,6 +1652,7 @@ Status ExecutorState::ProcessOutputs(const NodeItem& item, OpKernelContext* ctx,
       // Sanity check of output tensor types.
       DataType dtype = val->dtype();
       if (val.is_ref()) dtype = MakeRefType(dtype);
+<<<<<<< HEAD
       if (dtype == node->output_type(i)) {
         if (val.is_ref()) {
           out->ref = val.tensor;
@@ -1088,14 +1663,43 @@ Status ExecutorState::ProcessOutputs(const NodeItem& item, OpKernelContext* ctx,
         if (stats_collector_ && val.tensor->IsInitialized()) {
           nodestats::SetOutput(stats, i, ctx->output_allocation_type(i),
                                val.tensor);
+=======
+      if (dtype == item.output_type(i)) {
+        if (val.is_ref()) {
+          out->ref = val.tensor;
+          out->ref_mu = val.mutex_if_ref;
+          if (LogMemory::IsEnabled()) {
+            // Dereference the tensor under the lock.
+            mutex_lock l(*out->ref_mu);
+            value_to_log = *out->ref;
+          }
+        } else {
+          out->val = *val.tensor;
+          if (LogMemory::IsEnabled()) {
+            value_to_log = out->val;
+          }
+        }
+        if (stats_collector_ && val.tensor->IsInitialized()) {
+          nodestats::SetOutput(stats, i, val.tensor);
+>>>>>>> tensorflow/master
         }
       } else {
         s.Update(errors::Internal("Output ", i, " of type ",
                                   DataTypeString(dtype),
                                   " does not match declared output type ",
+<<<<<<< HEAD
                                   DataTypeString(node->output_type(i)),
                                   " for node ", SummarizeNodeDef(node->def())));
       }
+=======
+                                  DataTypeString(item.output_type(i)),
+                                  " for node ", SummarizeNodeDef(node->def())));
+      }
+      if (LogMemory::IsEnabled()) {
+        LogMemory::RecordTensorOutput(ctx->op_kernel().name(), ctx->step_id(),
+                                      i, value_to_log);
+      }
+>>>>>>> tensorflow/master
     }
     if (!val.is_ref()) {
       // If OpKernelContext returns outputs via pass-by-value, we
@@ -1115,7 +1719,10 @@ void ExecutorState::PropagateOutputs(const TaggedNode& tagged_node,
   // Propagates outputs along out edges, and puts newly ready nodes
   // into the ready queue.
   ready->clear();
+<<<<<<< HEAD
 
+=======
+>>>>>>> tensorflow/master
   {
     FrameState* output_frame = input_frame;
     int64 output_iter = input_iter;
@@ -1135,7 +1742,12 @@ void ExecutorState::PropagateOutputs(const TaggedNode& tagged_node,
     CleanupFramesIterations(input_frame, input_iter, ready);
 
     // The execution of a node such as Enter may cause the completion of
+<<<<<<< HEAD
     // output_frame:output_iter, so perform cleanup if output_frame:output_iter
+=======
+    // output_frame:output_iter, so perform cleanup if
+    // output_frame:output_iter
+>>>>>>> tensorflow/master
     // is indeed completed.
     if (maybe_completed) {
       CleanupFramesIterations(output_frame, output_iter, ready);
@@ -1147,10 +1759,15 @@ void ExecutorState::ActivateNode(const Node* node, const bool is_dead,
                                  FrameState* output_frame, int64 output_iter,
                                  const EntryVector& outputs,
                                  TaggedNodeSeq* ready) {
+<<<<<<< HEAD
   const std::vector<NodeItem>& nodes = impl_->nodes_;
   IterationState* output_iter_state = output_frame->GetIteration(output_iter);
   std::vector<int>* pending = output_iter_state->pending_count;
   std::vector<int>* dead_count = output_iter_state->dead_count;
+=======
+  const NodeItem* nodes = impl_->nodes_;
+  IterationState* output_iter_state = output_frame->GetIteration(output_iter);
+>>>>>>> tensorflow/master
   for (const Edge* e : node->out_edges()) {
     const Node* dst_node = e->dst();
     const int dst_id = dst_node->id();
@@ -1158,6 +1775,7 @@ void ExecutorState::ActivateNode(const Node* node, const bool is_dead,
 
     bool dst_dead = false;
     bool dst_ready = false;
+<<<<<<< HEAD
     bool dst_need_input = !e->IsControlEdge();
     if (IsMerge(dst_node)) {
       // A merge node is ready if a) all control edges are enabled and a
@@ -1183,24 +1801,75 @@ void ExecutorState::ActivateNode(const Node* node, const bool is_dead,
         // This input for dst is not needed if !dst_ready. We suppress the
         // propagation to make the thread safety analysis happy.
         dst_need_input = dst_ready;
+=======
+    // True iff this input for dst is needed. We only set this input for
+    // dst if this flag is true. This is needed to make the thread safety
+    // analysis happy.
+    bool dst_need_input = !e->IsControlEdge();
+    if (IsMerge(dst_node)) {
+      // A merge node is ready if all control inputs have arrived and either
+      // a) a live data input becomes available or b) all data inputs are
+      // dead.
+      // For Merge, pending's LSB is set iff a live data input has arrived.
+      if (e->IsControlEdge()) {
+        output_iter_state->decrement_pending(dst_id, 2);
+        int count = output_iter_state->pending(dst_id);
+        dst_dead =
+            (output_iter_state->dead_count(dst_id) == dst_node->num_inputs());
+        dst_ready = (count == 0) || ((count == 1) && dst_dead);
+      } else {
+        if (outputs[src_slot].has_value) {
+          // This is a live data input.
+          int count = output_iter_state->pending(dst_id);
+          output_iter_state->mark_live(dst_id);
+          // Only the first live edge sets the input and (potentially)
+          // triggers execution. The low bit of count is set if and
+          // only if no live input has been used yet (mark_live clears
+          // it). The node should be started if and only if this is
+          // the first live input and there are no pending control
+          // edges, i.e. count == 1.
+          dst_ready = (count == 1);
+          dst_need_input = ((count & 0x1) == 1);
+        } else {
+          // This is a dead data input.
+          output_iter_state->increment_dead_count(dst_id);
+          dst_dead =
+              (output_iter_state->dead_count(dst_id) == dst_node->num_inputs());
+          dst_ready = (output_iter_state->pending(dst_id) == 1) && dst_dead;
+          dst_need_input = false;
+        }
+>>>>>>> tensorflow/master
       }
     } else {
       // A non-merge node is ready if all its inputs are ready. We wait
       // for all inputs to come in even if we know the node is dead. This
       // ensures that all input tensors get cleaned up.
       if (is_dead || (!e->IsControlEdge() && !outputs[src_slot].has_value)) {
+<<<<<<< HEAD
         ++(*dead_count)[dst_id];
       }
       dst_dead = (*dead_count)[dst_id] > 0;
       dst_ready = (--(*pending)[dst_id] == 0);
+=======
+        output_iter_state->increment_dead_count(dst_id);
+      }
+      dst_dead = output_iter_state->dead_count(dst_id) > 0;
+      dst_ready = (output_iter_state->decrement_pending(dst_id, 1) == 0);
+>>>>>>> tensorflow/master
     }
 
     if (dst_need_input) {
       const NodeItem& dst_item = nodes[dst_id];
       const int dst_slot = e->dst_input();
+<<<<<<< HEAD
       std::vector<Entry>* input_tensors = output_iter_state->input_tensors;
       int dst_loc = dst_item.input_start + dst_slot;
       (*input_tensors)[dst_loc] = outputs[src_slot];
+=======
+      Entry* input_tensors = output_iter_state->input_tensors;
+      int dst_loc = dst_item.input_start + dst_slot;
+      input_tensors[dst_loc] = outputs[src_slot];
+>>>>>>> tensorflow/master
     }
 
     // Add dst to the ready queue if it's ready
@@ -1253,6 +1922,10 @@ bool ExecutorState::NodeDone(const Status& s, const Node* node,
                              std::deque<TaggedNode>* inline_ready) {
   if (stats_collector_) {
     nodestats::SetAllEnd(stats);
+<<<<<<< HEAD
+=======
+    stats_collector_->UpdateCostModel(stats, impl_->graph_, node);
+>>>>>>> tensorflow/master
     if (!SetTimelineLabel(node, stats)) {
       // Only record non-transfer nodes.
       stats_collector_->Save(impl_->params_.device->name(), stats);
@@ -1320,11 +1993,19 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
     }
     return;
   }
+<<<<<<< HEAD
   const std::vector<NodeItem>& nodes = impl_->nodes_;
   const TaggedNode* curr_expensive_node = nullptr;
   for (auto& tagged_node : ready) {
     const NodeItem& item = nodes[tagged_node.node->id()];
     if (tagged_node.is_dead || !item.kernel->IsExpensive()) {
+=======
+  const NodeItem* nodes = impl_->nodes_;
+  const TaggedNode* curr_expensive_node = nullptr;
+  for (auto& tagged_node : ready) {
+    const NodeItem& item = nodes[tagged_node.node->id()];
+    if (tagged_node.is_dead || !item.kernel_is_expensive) {
+>>>>>>> tensorflow/master
       // Inline this inexpensive node.
       inline_ready->push_back(tagged_node);
     } else {
@@ -1350,6 +2031,144 @@ void ExecutorState::ScheduleReady(const TaggedNodeSeq& ready,
   }
 }
 
+<<<<<<< HEAD
+=======
+void ExecutorState::DumpCompletedNodeState(const int node_id,
+                                           const Entry* input_vector) {
+  const NodeItem& node_item = impl_->nodes_[node_id];
+  const Node& node = *node_item.node;
+  LOG(WARNING) << "    Completed Node: " << node.DebugString();
+  const int input_base = node_item.input_start;
+  for (int i = 0; i < node.num_inputs(); ++i) {
+    const Entry& input = input_vector[input_base + i];
+    CHECK(!input.val.IsInitialized());
+  }
+}
+
+void ExecutorState::DumpPendingNodeState(
+    const int node_id, const Entry* input_vector,
+    const bool show_nodes_with_no_ready_inputs) {
+  const NodeItem& node_item = impl_->nodes_[node_id];
+  const Node& node = *node_item.node;
+  const int input_base = node_item.input_start;
+  if (!show_nodes_with_no_ready_inputs) {
+    bool has_ready_input = false;
+    for (int i = 0; i < node.num_inputs(); ++i) {
+      const Entry& input = input_vector[input_base + i];
+      const Tensor* tensor;
+      if (input.ref == nullptr) {
+        tensor = &input.val;
+      } else {
+        tensor = input.ref;
+      }
+      if (tensor->IsInitialized()) {
+        has_ready_input = true;
+        break;
+      }
+    }
+    if (!has_ready_input) {
+      return;
+    }
+  }
+  LOG(WARNING) << "    Pending Node: " << node.DebugString();
+  for (int i = 0; i < node.num_inputs(); ++i) {
+    const Entry& input = input_vector[input_base + i];
+    const Tensor* tensor;
+    if (input.ref == nullptr) {
+      tensor = &input.val;
+    } else {
+      tensor = input.ref;
+    }
+    if (tensor->IsInitialized()) {
+      LOG(WARNING) << "      Input " << i << ": "
+                   << strings::StrCat(
+                          "Tensor<type: ", DataTypeString(tensor->dtype()),
+                          " shape: ", tensor->shape().DebugString(), ">");
+    } else {
+      LOG(WARNING) << "      Input " << i << ": not present";
+    }
+  }
+}
+
+void ExecutorState::DumpActiveNodeState(const int node_id,
+                                        const Entry* input_vector) {
+  const NodeItem& node_item = impl_->nodes_[node_id];
+  const Node& node = *node_item.node;
+  LOG(WARNING) << "    Active Node: " << node.DebugString();
+  const int input_base = node_item.input_start;
+  for (int i = 0; i < node.num_inputs(); ++i) {
+    const Entry& input = input_vector[input_base + i];
+    const Tensor* tensor;
+    if (input.ref == nullptr) {
+      tensor = &input.val;
+    } else {
+      tensor = input.ref;
+    }
+    if (tensor->IsInitialized()) {
+      LOG(WARNING) << "      Input " << i << ": "
+                   << strings::StrCat(
+                          "Tensor<type: ", DataTypeString(tensor->dtype()),
+                          " shape: ", tensor->shape().DebugString(), ">");
+    } else {
+      LOG(WARNING) << "      Input " << i << ": not present";
+    }
+  }
+}
+
+void ExecutorState::DumpIterationState(IterationState* iteration) {
+  // Dump any waiting nodes that are holding on to tensors.
+  for (int i = 0; i < impl_->graph_->num_node_ids(); ++i) {
+    if (iteration->node_state(i) == PendingCounts::PENDING_NOTREADY ||
+        iteration->node_state(i) == PendingCounts::PENDING_READY) {
+      DumpPendingNodeState(i, iteration->input_tensors, false);
+    }
+  }
+  // Then the active nodes.
+  for (int i = 0; i < impl_->graph_->num_node_ids(); ++i) {
+    if (iteration->node_state(i) == PendingCounts::STARTED) {
+      DumpActiveNodeState(i, iteration->input_tensors);
+    }
+  }
+  // Show all input tensors in use.
+  size_t total_bytes = 0;
+  for (int i = 0; i < impl_->total_input_tensors_; ++i) {
+    const Entry& input = iteration->input_tensors[i];
+    const Tensor* tensor;
+    if (input.ref == nullptr) {
+      tensor = &input.val;
+    } else {
+      tensor = input.ref;
+    }
+    if (tensor->IsInitialized()) {
+      LOG(WARNING) << "    Input " << i << ": "
+                   << strings::StrCat("Tensor<type: ",
+                                      DataTypeString(tensor->dtype()),
+                                      " shape: ", tensor->shape().DebugString(),
+                                      ", bytes: ", tensor->TotalBytes(),
+                                      ", hash: ", tensor->BufferHash(), ">");
+      total_bytes += tensor->TotalBytes();
+    }
+  }
+  LOG(WARNING) << "    Total bytes " << total_bytes;
+}
+
+void ExecutorState::DumpState() {
+  mutex_lock l(mu_);
+  if (!dumped_on_error_) {
+    LOG(WARNING) << "Dumping state";
+    for (auto& frame : outstanding_frames_) {
+      LOG(WARNING) << frame.first;
+      FrameState* frame_state = frame.second;
+      for (IterationState* iteration : frame_state->iterations) {
+        LOG(WARNING) << "  Iteration:";
+        DumpIterationState(iteration);
+      }
+    }
+    dumped_on_error_ = true;
+  }
+}
+
+>>>>>>> tensorflow/master
 void ExecutorState::Finish() {
   mu_.lock();
   auto status = status_;
@@ -1407,6 +2226,7 @@ void ExecutorState::FindOrCreateChildFrame(FrameState* frame, int64 iter,
     CHECK(s.ok()) << s;
     // 'iterations' is a fixed-length circular buffer.
     temp->iterations.resize(temp->max_parallel_iterations + 1);
+<<<<<<< HEAD
     IterationState* iter_state = new IterationState;
     temp->iterations[0] = iter_state;
 
@@ -1418,6 +2238,11 @@ void ExecutorState::FindOrCreateChildFrame(FrameState* frame, int64 iter,
         new std::vector<int>(impl_->graph_->num_node_ids());
     iter_state->input_tensors = new std::vector<Entry>(impl_->total_tensors_);
 
+=======
+    IterationState* iter_state = new IterationState(impl_);
+    temp->iterations[0] = iter_state;
+
+>>>>>>> tensorflow/master
     auto frame_pending = impl_->frame_input_count_.find(enter_name);
     DCHECK(frame_pending != impl_->frame_input_count_.end());
     temp->num_pending_inputs = frame_pending->second;
@@ -1437,11 +2262,16 @@ void ExecutorState::IncrementIteration(FrameState* frame,
   VLOG(2) << "Create iteration: [" << frame->frame_name << ", " << next_iter
           << "]";
 
+<<<<<<< HEAD
   IterationState* iter_state = new IterationState;
+=======
+  IterationState* iter_state = new IterationState(impl_);
+>>>>>>> tensorflow/master
   frame->SetIteration(next_iter, iter_state);
   frame->num_outstanding_iterations++;
   frame->dead_exits.clear();
 
+<<<<<<< HEAD
   iter_state->outstanding_ops = 0;
   iter_state->outstanding_frame_count = 0;
   iter_state->pending_count = new std::vector<int>;
@@ -1449,6 +2279,8 @@ void ExecutorState::IncrementIteration(FrameState* frame,
   iter_state->dead_count = new std::vector<int>(impl_->graph_->num_node_ids());
   iter_state->input_tensors = new std::vector<Entry>(impl_->total_tensors_);
 
+=======
+>>>>>>> tensorflow/master
   // Activate the successors of the deferred roots in the new iteration.
   ActivateNexts(frame, next_iter, ready);
 
@@ -1539,15 +2371,23 @@ void ExecutorState::CleanupFramesIterations(FrameState* frame, int64 iter,
     // Propagate all the dead exits to the parent frame.
     for (const Node* node : frame->dead_exits) {
       auto parent_iter_state = parent_frame->GetIteration(parent_iter);
+<<<<<<< HEAD
       std::vector<int>* pending = parent_iter_state->pending_count;
       std::vector<int>* dead_count = parent_iter_state->dead_count;
       for (const Edge* e : node->out_edges()) {
         const Node* dst_node = e->dst();
         const int dst_id = dst_node->id();
+=======
+      for (const Edge* e : node->out_edges()) {
+        const Node* dst_node = e->dst();
+        const int dst_id = dst_node->id();
+        const NodeItem* dst_item = &(impl_->nodes_[dst_id]);
+>>>>>>> tensorflow/master
 
         bool dst_dead = true;
         bool dst_ready = false;
         // We know this is a dead input to dst
+<<<<<<< HEAD
         if (IsMerge(dst_node)) {
           if (e->IsControlEdge()) {
             (*pending)[dst_id] -= 2;
@@ -1562,6 +2402,24 @@ void ExecutorState::CleanupFramesIterations(FrameState* frame, int64 iter,
         } else {
           ++(*dead_count)[dst_id];
           dst_ready = (--(*pending)[dst_id] == 0);
+=======
+        if (dst_item->is_merge) {
+          if (e->IsControlEdge()) {
+            parent_iter_state->decrement_pending(dst_id, 2);
+            int count = parent_iter_state->pending(dst_id);
+            dst_dead = (parent_iter_state->dead_count(dst_id) ==
+                        dst_node->num_inputs());
+            dst_ready = (count == 0) || ((count == 1) && dst_dead);
+          } else {
+            parent_iter_state->increment_dead_count(dst_id);
+            dst_dead = (parent_iter_state->dead_count(dst_id) ==
+                        dst_node->num_inputs());
+            dst_ready = (parent_iter_state->pending(dst_id) == 1) && dst_dead;
+          }
+        } else {
+          parent_iter_state->increment_dead_count(dst_id);
+          dst_ready = (parent_iter_state->decrement_pending(dst_id, 1) == 0);
+>>>>>>> tensorflow/master
         }
         if (dst_ready) {
           ready->push_back(
@@ -1585,6 +2443,7 @@ void ExecutorState::CleanupFramesIterations(FrameState* frame, int64 iter,
   }
 }
 
+<<<<<<< HEAD
 // When ExecutorImpl graph has no control flow nodes,
 // SimpleExecutorState is used instead of ExecutorState.  It maintains
 // fewer internal state and is convenient for experimenting with async
@@ -2099,6 +2958,10 @@ void ExecutorImpl::RunAsync(const Args& args, DoneCallback done) {
   } else {
     (new SimpleExecutorState(args, this))->RunAsync(done);
   }
+=======
+void ExecutorImpl::RunAsync(const Args& args, DoneCallback done) {
+  (new ExecutorState(args, this))->RunAsync(done);
+>>>>>>> tensorflow/master
 }
 
 }  // end namespace
@@ -2116,20 +2979,36 @@ Status NewLocalExecutor(const LocalExecutorParams& params, const Graph* graph,
 }
 
 Status CreateNonCachedKernel(Device* device, FunctionLibraryRuntime* flib,
+<<<<<<< HEAD
                              const NodeDef& ndef, OpKernel** kernel) {
   auto device_type = DeviceType(device->attributes().device_type());
   auto allocator = device->GetAllocator(AllocatorAttributes());
   return CreateOpKernel(device_type, device, allocator, flib, ndef, kernel);
+=======
+                             const NodeDef& ndef, int graph_def_version,
+                             OpKernel** kernel) {
+  auto device_type = DeviceType(device->attributes().device_type());
+  auto allocator = device->GetAllocator(AllocatorAttributes());
+  return CreateOpKernel(device_type, device, allocator, flib, ndef,
+                        graph_def_version, kernel);
+>>>>>>> tensorflow/master
 }
 
 void DeleteNonCachedKernel(OpKernel* kernel) { delete kernel; }
 
 Status CreateCachedKernel(Device* device, const string& session,
                           FunctionLibraryRuntime* flib, const NodeDef& ndef,
+<<<<<<< HEAD
                           OpKernel** kernel) {
   auto op_seg = device->op_segment();
   auto create_fn = [device, flib, &ndef](OpKernel** kernel) {
     return CreateNonCachedKernel(device, flib, ndef, kernel);
+=======
+                          int graph_def_version, OpKernel** kernel) {
+  auto op_seg = device->op_segment();
+  auto create_fn = [device, flib, &ndef, graph_def_version](OpKernel** kernel) {
+    return CreateNonCachedKernel(device, flib, ndef, graph_def_version, kernel);
+>>>>>>> tensorflow/master
   };
   return op_seg->FindOrCreate(session, ndef.name(), kernel, create_fn);
 }

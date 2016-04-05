@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // DEPRECATED: Use GraphDefBuilder instead.
 
 #ifndef TENSORFLOW_GRAPH_TESTLIB_H_
@@ -6,11 +24,19 @@
 #include <string>
 #include <vector>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/graph/types.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/graph/graph.h"
+#include "tensorflow/core/graph/types.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace test {
@@ -26,6 +52,17 @@ void ToGraphDef(Graph* g, GraphDef* def);
 Node* Constant(Graph* g, const Tensor& tensor);
 Node* Constant(Graph* g, const Tensor& tensor, const string& name);
 
+<<<<<<< HEAD
+=======
+// Adds a node in "g" producing a constant "tensor" on the host.
+// The given node which, unlike the regular Constant above, always
+// stores its output on the host.  This is necessary for use
+// in GPU tests where the test Op in question runs on the device
+// but requires some arguments to be pinned to the host.
+Node* HostConstant(Graph* g, const Tensor& tensor);
+Node* HostConstant(Graph* g, const Tensor& tensor, const string& name);
+
+>>>>>>> tensorflow/master
 // Adds a variable in "g" of the given "shape" and "dtype".
 Node* Var(Graph* g, const DataType dtype, const TensorShape& shape);
 
@@ -80,7 +117,11 @@ Node* RandomGaussian(Graph* g, Node* input, DataType dtype);
 
 // Generates random parameters from the truncated standard normal distribution
 // of the nput shape
+<<<<<<< HEAD
 Node* RandomParameters(Graph* g, Node* input, DataType dtype);
+=======
+Node* TruncatedNormal(Graph* g, Node* input, DataType dtype);
+>>>>>>> tensorflow/master
 
 // Adds an error node in "g". The node's computation always
 // generates an error with the given error message "errmsg".
@@ -132,6 +173,15 @@ Node* Select(Graph* g, Node* c, Node* inx, Node* iny);
 // Casts "in" into data type "dst".
 Node* Cast(Graph* g, Node* in, DataType dst);
 
+<<<<<<< HEAD
+=======
+// Perform gather op on params "in0" with indicies "in1".
+Node* Gather(Graph* g, Node* in0, Node* in1);
+
+// Computes the args needed broadcast gradient function.
+Node* BroadcastGradientArgs(Graph* g, Node* s0, Node* s1);
+
+>>>>>>> tensorflow/master
 }  // end namespace graph
 }  // end namespace test
 }  // end namespace tensorflow

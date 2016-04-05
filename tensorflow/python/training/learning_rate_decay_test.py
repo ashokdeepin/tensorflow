@@ -1,12 +1,35 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional test for learning rate decay."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 from tensorflow.python.framework import test_util
 from tensorflow.python.framework import types
+=======
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import test_util
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import state_ops
 from tensorflow.python.ops import variables
 from tensorflow.python.platform import googletest
@@ -24,7 +47,11 @@ class LRDecayTest(test_util.TensorFlowTestCase):
 
   def testStaircase(self):
     with self.test_session():
+<<<<<<< HEAD
       step = state_ops.variable_op([], types.int32)
+=======
+      step = state_ops.variable_op([], dtypes.int32)
+>>>>>>> tensorflow/master
       assign_100 = state_ops.assign(step, 100)
       assign_1 = state_ops.assign(step, 1)
       assign_2 = state_ops.assign(step, 2)

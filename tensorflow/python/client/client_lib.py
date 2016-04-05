@@ -1,4 +1,23 @@
+<<<<<<< HEAD
 # pylint: disable=wildcard-import,unused-import,g-bad-import-order,line-too-long
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+# pylint: disable=unused-import
+>>>>>>> tensorflow/master
 """This library contains classes for launching graphs and executing operations.
 
 The [basic usage](../../get_started/index.md#basic-usage) guide has
@@ -36,6 +55,16 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
+=======
+# NOTE(mrry): Support for `tf.GrpcServer` is currently experimental.
+from tensorflow.core.protobuf.tensorflow_server_pb2 import ClusterDef
+from tensorflow.core.protobuf.tensorflow_server_pb2 import JobDef
+from tensorflow.core.protobuf.tensorflow_server_pb2 import ServerDef
+from tensorflow.python.client.server_lib import ClusterSpec
+from tensorflow.python.client.server_lib import GrpcServer
+
+>>>>>>> tensorflow/master
 from tensorflow.python.client.session import InteractiveSession
 from tensorflow.python.client.session import Session
 

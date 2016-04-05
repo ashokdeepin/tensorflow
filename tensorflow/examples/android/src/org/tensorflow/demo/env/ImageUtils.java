@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 package org.tensorflow.demo.env;
 
 import android.graphics.Bitmap;
@@ -73,6 +91,35 @@ public class ImageUtils {
       byte[] input, int[] output, int width, int height, boolean halfSize);
 
   /**
+<<<<<<< HEAD
+=======
+   * Converts YUV420 semi-planar data to ARGB 8888 data using the supplied width
+   * and height. The input and output must already be allocated and non-null.
+   * For efficiency, no error checking is performed.
+   *
+   * @param y
+   * @param u
+   * @param v
+   * @param uvPixelStride
+   * @param width The width of the input image.
+   * @param height The height of the input image.
+   * @param halfSize If true, downsample to 50% in each dimension, otherwise not.
+   * @param output A pre-allocated array for the ARGB 8:8:8:8 output data.
+   */
+  public static native void convertYUV420ToARGB8888(
+      byte[] y,
+      byte[] u,
+      byte[] v,
+      int[] output,
+      int width,
+      int height,
+      int yRowStride,
+      int uvRowStride,
+      int uvPixelStride,
+      boolean halfSize);
+
+  /**
+>>>>>>> tensorflow/master
    * Converts YUV420 semi-planar data to RGB 565 data using the supplied width
    * and height. The input and output must already be allocated and non-null.
    * For efficiency, no error checking is performed.

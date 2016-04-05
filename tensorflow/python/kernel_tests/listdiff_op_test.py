@@ -1,15 +1,37 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.kernels.listdiff_op."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
+<<<<<<< HEAD
 
 class ListDiffTest(tf.test.TestCase):
 
@@ -29,38 +51,78 @@ class ListDiffTest(tf.test.TestCase):
     self.assertAllEqual(tf_idx, idx)
     self.assertEqual(1, out_tensor.get_shape().ndims)
     self.assertEqual(1, idx_tensor.get_shape().ndims)
+=======
+_TYPES = [tf.int32, tf.int64, tf.float32, tf.float64, tf.string]
+
+
+class ListDiffTest(tf.test.TestCase):
+
+  def _testListDiff(self, x, y, out, idx):
+    for dtype in _TYPES:
+      if dtype == tf.string:
+        x = [tf.compat.as_bytes(str(a)) for a in x]
+        y = [tf.compat.as_bytes(str(a)) for a in y]
+        out = [tf.compat.as_bytes(str(a)) for a in out]
+
+      with self.test_session() as sess:
+        x_tensor = tf.convert_to_tensor(x, dtype=dtype)
+        y_tensor = tf.convert_to_tensor(y, dtype=dtype)
+        out_tensor, idx_tensor = tf.listdiff(x_tensor, y_tensor)
+        tf_out, tf_idx = sess.run([out_tensor, idx_tensor])
+
+      self.assertAllEqual(tf_out, out)
+      self.assertAllEqual(tf_idx, idx)
+      self.assertEqual(1, out_tensor.get_shape().ndims)
+      self.assertEqual(1, idx_tensor.get_shape().ndims)
+>>>>>>> tensorflow/master
 
   def testBasic1(self):
     x = [1, 2, 3, 4]
     y = [1, 2]
     out = [3, 4]
     idx = [2, 3]
+<<<<<<< HEAD
     for t in [np.int32, np.int64, np.float, np.double]:
       self._testListDiff(x, y, out, idx, dtype=t)
+=======
+    self._testListDiff(x, y, out, idx)
+>>>>>>> tensorflow/master
 
   def testBasic2(self):
     x = [1, 2, 3, 4]
     y = [2]
     out = [1, 3, 4]
     idx = [0, 2, 3]
+<<<<<<< HEAD
     for t in [np.int32, np.int64, np.float, np.double]:
       self._testListDiff(x, y, out, idx, dtype=t)
+=======
+    self._testListDiff(x, y, out, idx)
+>>>>>>> tensorflow/master
 
   def testBasic3(self):
     x = [1, 4, 3, 2]
     y = [4, 2]
     out = [1, 3]
     idx = [0, 2]
+<<<<<<< HEAD
     for t in [np.int32, np.int64, np.float, np.double]:
       self._testListDiff(x, y, out, idx, dtype=t)
+=======
+    self._testListDiff(x, y, out, idx)
+>>>>>>> tensorflow/master
 
   def testDuplicates(self):
     x = [1, 2, 4, 3, 2, 3, 3, 1]
     y = [4, 2]
     out = [1, 3, 3, 3, 1]
     idx = [0, 3, 5, 6, 7]
+<<<<<<< HEAD
     for t in [np.int32, np.int64, np.float, np.double]:
       self._testListDiff(x, y, out, idx, dtype=t)
+=======
+    self._testListDiff(x, y, out, idx)
+>>>>>>> tensorflow/master
 
   def testRandom(self):
     num_random_tests = 10
@@ -78,38 +140,60 @@ class ListDiffTest(tf.test.TestCase):
       else:
         out = []
         idx = []
+<<<<<<< HEAD
       for t in [np.int32, np.int64, np.float, np.double]:
         self._testListDiff(x, y, out, idx, dtype=t)
 
   def testInt32FullyOverlapping(self):
+=======
+      self._testListDiff(list(x), list(y), out, idx)
+
+  def testFullyOverlapping(self):
+>>>>>>> tensorflow/master
     x = [1, 2, 3, 4]
     y = [1, 2, 3, 4]
     out = []
     idx = []
     self._testListDiff(x, y, out, idx)
 
+<<<<<<< HEAD
   def testInt32NonOverlapping(self):
+=======
+  def testNonOverlapping(self):
+>>>>>>> tensorflow/master
     x = [1, 2, 3, 4]
     y = [5, 6]
     out = x
     idx = np.arange(len(x))
     self._testListDiff(x, y, out, idx)
 
+<<<<<<< HEAD
   def testInt32EmptyX(self):
+=======
+  def testEmptyX(self):
+>>>>>>> tensorflow/master
     x = []
     y = [1, 2]
     out = []
     idx = []
     self._testListDiff(x, y, out, idx)
 
+<<<<<<< HEAD
   def testInt32EmptyY(self):
+=======
+  def testEmptyY(self):
+>>>>>>> tensorflow/master
     x = [1, 2, 3, 4]
     y = []
     out = x
     idx = np.arange(len(x))
     self._testListDiff(x, y, out, idx)
 
+<<<<<<< HEAD
   def testInt32EmptyXY(self):
+=======
+  def testEmptyXY(self):
+>>>>>>> tensorflow/master
     x = []
     y = []
     out = []

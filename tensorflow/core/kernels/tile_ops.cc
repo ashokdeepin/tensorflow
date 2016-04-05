@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/array_ops.cc.
 
 #define EIGEN_USE_THREADS
@@ -8,11 +26,22 @@
 
 #include "tensorflow/core/kernels/tile_ops.h"
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/numeric_op.h"
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/lib/core/errors.h"
+=======
+#include <vector>
+#include "tensorflow/core/framework/numeric_op.h"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/type_index.h"
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -30,13 +59,20 @@ class TileOp : public OpKernel {
     const Tensor& multiples = context->input(1);
 
     OP_REQUIRES(
+<<<<<<< HEAD
         context, TensorShapeUtils::IsLegacyVector(multiples.shape()),
         errors::InvalidArgument("Expected multiples to be 1-D, but got shape ",
                                 multiples.shape().ShortDebugString()));
+=======
+        context, IsLegacyVector(multiples.shape()),
+        errors::InvalidArgument("Expected multiples to be 1-D, but got shape ",
+                                multiples.shape().DebugString()));
+>>>>>>> tensorflow/master
     OP_REQUIRES(context, input.dims() == multiples.NumElements(),
                 errors::InvalidArgument(
                     "Expected multiples argument to be a vector of length ",
                     input.dims(), " but got length ", multiples.dim_size(0)));
+<<<<<<< HEAD
 
     const int input_dims = input.dims();
     const gtl::ArraySlice<int32> multiples_array(multiples.flat<int32>().data(),
@@ -47,12 +83,35 @@ class TileOp : public OpKernel {
       OP_REQUIRES(
           context, multiples_array[i] > 0,
           errors::InvalidArgument("Expected multiples[", i, "] > 0, but got ",
+=======
+    const int input_dims = input.dims();
+
+    // Eigen doesn't support scalars on the GPU, so handle 0-D specially
+    if (input_dims == 0) {
+      context->set_output(0, input);
+      return;
+    }
+
+    const gtl::ArraySlice<int32> multiples_array(multiples.flat<int32>().data(),
+                                                 input_dims);
+    TensorShape output_shape;
+    for (int i = 0; i < input_dims; ++i) {
+      OP_REQUIRES(
+          context, multiples_array[i] >= 0,
+          errors::InvalidArgument("Expected multiples[", i, "] >= 0, but got ",
+>>>>>>> tensorflow/master
                                   multiples_array[i]));
       output_shape.AddDim(input.dim_size(i) * multiples_array[i]);
     }
     Tensor* result = nullptr;
     OP_REQUIRES_OK(context, context->allocate_output(0, output_shape, &result));
 
+<<<<<<< HEAD
+=======
+    // If there's no output, there's nothing to do.
+    if (output_shape.num_elements() == 0) return;
+
+>>>>>>> tensorflow/master
 #define HANDLE_DIM(DT, NDIM)                                   \
   if (context->input(0).dtype() == DT && input_dims == NDIM) { \
     HandleCase<DT, NDIM>(context, multiples_array, result);    \
@@ -60,7 +119,10 @@ class TileOp : public OpKernel {
   }
 
 #define HANDLE_TYPE(T) \
+<<<<<<< HEAD
   HANDLE_DIM(T, 0)     \
+=======
+>>>>>>> tensorflow/master
   HANDLE_DIM(T, 1)     \
   HANDLE_DIM(T, 2)     \
   HANDLE_DIM(T, 3)     \
@@ -113,9 +175,17 @@ template <DataType DT, int NDIM>
 inline void TileOp<Device>::HandleCase(
     OpKernelContext* context, const gtl::ArraySlice<int32>& multiples_array,
     Tensor* result) {
+<<<<<<< HEAD
   LOG(FATAL) << "TileOp: Invalid combination of Device, DT and NDIM: "
              << typeid(Device).name() << ", " << DataTypeString(DT) << ", "
              << NDIM;
+=======
+  // TODO(vrv): print out the device name if useful. Currently disabled to avoid
+  // having to use RTTI.
+  LOG(FATAL) << "TileOp: Invalid combination of Device, DT and NDIM: "
+             // << typeid(Device).name() << ", "
+             << DataTypeString(DT) << ", " << NDIM;
+>>>>>>> tensorflow/master
 }
 
 #define HANDLE_CASE(device, dtype, ndim)                               \
@@ -127,6 +197,7 @@ inline void TileOp<Device>::HandleCase(
     HandleCaseImpl<dtype, ndim>(context, multiples_array, result);     \
   }
 
+<<<<<<< HEAD
 #define HANDLE_CASE_DIM_POSITIVE(device, dtype) \
   HANDLE_CASE(device, dtype, 1);                \
   HANDLE_CASE(device, dtype, 2);                \
@@ -137,6 +208,15 @@ inline void TileOp<Device>::HandleCase(
 #define HANDLE_CASE_DIM(device, dtype) \
   HANDLE_CASE(device, dtype, 0);       \
   HANDLE_CASE_DIM_POSITIVE(device, dtype);
+=======
+// 0-D handled above
+#define HANDLE_CASE_DIM(device, dtype) \
+  HANDLE_CASE(device, dtype, 1);       \
+  HANDLE_CASE(device, dtype, 2);       \
+  HANDLE_CASE(device, dtype, 3);       \
+  HANDLE_CASE(device, dtype, 4);       \
+  HANDLE_CASE(device, dtype, 5);
+>>>>>>> tensorflow/master
 
 HANDLE_CASE_DIM(CPUDevice, DT_BOOL);
 HANDLE_CASE_DIM(CPUDevice, DT_FLOAT);
@@ -148,6 +228,7 @@ HANDLE_CASE_DIM(CPUDevice, DT_INT64);
 HANDLE_CASE_DIM(CPUDevice, DT_STRING);
 
 #if GOOGLE_CUDA
+<<<<<<< HEAD
 // Eigen on GPU does not handle 0-dimension data types yet.
 HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_FLOAT);
 HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_DOUBLE);
@@ -157,6 +238,15 @@ HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_INT64);
 #endif  // GOOGLE_CUDA
 
 #undef HANDLE_CASE_DIM_POSITIVE
+=======
+HANDLE_CASE_DIM(GPUDevice, DT_FLOAT);
+HANDLE_CASE_DIM(GPUDevice, DT_DOUBLE);
+HANDLE_CASE_DIM(GPUDevice, DT_INT16);
+HANDLE_CASE_DIM(GPUDevice, DT_INT32);
+HANDLE_CASE_DIM(GPUDevice, DT_INT64);
+#endif  // GOOGLE_CUDA
+
+>>>>>>> tensorflow/master
 #undef HANDLE_CASE_DIM
 #undef HANDLE_CASE
 
@@ -164,24 +254,48 @@ HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_INT64);
 template <typename Device>
 class TileGradientOp : public OpKernel {
  public:
+<<<<<<< HEAD
   explicit TileGradientOp(OpKernelConstruction* context) : OpKernel(context) {}
+=======
+  explicit TileGradientOp(OpKernelConstruction* context) : OpKernel(context) {
+    OP_DEPRECATED(context, 3, "TileGrad has been replaced with reduce_sum");
+  }
+>>>>>>> tensorflow/master
 
   void Compute(OpKernelContext* context) override {
     const Tensor& input = context->input(0);
     const Tensor& multiples = context->input(1);
     OP_REQUIRES(
+<<<<<<< HEAD
         context, TensorShapeUtils::IsLegacyVector(multiples.shape()),
         errors::InvalidArgument("Expected multiples to be 1-D, but got shape ",
                                 multiples.shape().ShortDebugString()));
+=======
+        context, IsLegacyVector(multiples.shape()),
+        errors::InvalidArgument("Expected multiples to be 1-D, but got shape ",
+                                multiples.shape().DebugString()));
+>>>>>>> tensorflow/master
     OP_REQUIRES(context, input.dims() == multiples.NumElements(),
                 errors::InvalidArgument(
                     "Expected multiples argument to be a vector of length ",
                     input.dims(), " but got length ", multiples.dim_size(0)));
 
     const int input_dims = input.dims();
+<<<<<<< HEAD
     const gtl::ArraySlice<int32> multiples_array(multiples.flat<int32>().data(),
                                                  input_dims);
 
+=======
+
+    // Eigen doesn't support scalars on the GPU, so handle 0-D specially
+    if (input_dims == 0) {
+      context->set_output(0, input);
+      return;
+    }
+
+    const gtl::ArraySlice<int32> multiples_array(multiples.flat<int32>().data(),
+                                                 input_dims);
+>>>>>>> tensorflow/master
     TensorShape output_shape;
     std::vector<int32> input_dim_size_vec;
     for (int i = 0; i < input_dims; ++i) {
@@ -208,7 +322,10 @@ class TileGradientOp : public OpKernel {
   }
 
 #define HANDLE_TYPE(T) \
+<<<<<<< HEAD
   HANDLE_DIM(T, 0)     \
+=======
+>>>>>>> tensorflow/master
   HANDLE_DIM(T, 1)     \
   HANDLE_DIM(T, 2)     \
   HANDLE_DIM(T, 3)     \
@@ -267,7 +384,11 @@ class TileGradientOp : public OpKernel {
       // NOTE(keveman): Handling the most common case here.
       // Adding more cases here would require more templating and code
       // explosion. For instance, HANDLE_DIM(2) wouldn't make sense for NDIM=1.
+<<<<<<< HEAD
       HANDLE_DIM(NDIM > 0 ? 1 : 0);
+=======
+      HANDLE_DIM(1);
+>>>>>>> tensorflow/master
 
 // Fall through to the unoptimized version.
 #undef HANDLE_DIM
@@ -334,8 +455,13 @@ inline void TileGradientOp<Device>::HandleCase(
     OpKernelContext* context, const std::vector<int32>& input_dims,
     const gtl::ArraySlice<int32>& multiples_array, Tensor* result) {
   LOG(FATAL) << "TileGradientOp: Invalid combination of Device, DT and NDIM: "
+<<<<<<< HEAD
              << typeid(Device).name() << ", " << DataTypeString(DT) << ", "
              << NDIM;
+=======
+             << MakeTypeIndex<Device>().name() << ", " << DataTypeString(DT)
+             << ", " << NDIM;
+>>>>>>> tensorflow/master
 }
 
 #define HANDLE_CASE(device, dtype, ndim)                                       \
@@ -347,6 +473,7 @@ inline void TileGradientOp<Device>::HandleCase(
     HandleCaseImpl<dtype, ndim>(context, input_dims, multiples_array, result); \
   }
 
+<<<<<<< HEAD
 #define HANDLE_CASE_DIM_POSITIVE(device, dtype) \
   HANDLE_CASE(device, dtype, 1);                \
   HANDLE_CASE(device, dtype, 2);                \
@@ -357,6 +484,15 @@ inline void TileGradientOp<Device>::HandleCase(
 #define HANDLE_CASE_DIM(device, dtype) \
   HANDLE_CASE(device, dtype, 0);       \
   HANDLE_CASE_DIM_POSITIVE(device, dtype);
+=======
+// 0-D handled specially above
+#define HANDLE_CASE_DIM(device, dtype) \
+  HANDLE_CASE(device, dtype, 1);       \
+  HANDLE_CASE(device, dtype, 2);       \
+  HANDLE_CASE(device, dtype, 3);       \
+  HANDLE_CASE(device, dtype, 4);       \
+  HANDLE_CASE(device, dtype, 5);
+>>>>>>> tensorflow/master
 
 HANDLE_CASE_DIM(CPUDevice, DT_FLOAT);
 HANDLE_CASE_DIM(CPUDevice, DT_DOUBLE);
@@ -365,6 +501,7 @@ HANDLE_CASE_DIM(CPUDevice, DT_INT32);
 HANDLE_CASE_DIM(CPUDevice, DT_INT64);
 
 #if GOOGLE_CUDA
+<<<<<<< HEAD
 // Eigen on GPU does not handle 0-dimension data types yet.
 HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_FLOAT);
 HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_DOUBLE);
@@ -374,6 +511,15 @@ HANDLE_CASE_DIM_POSITIVE(GPUDevice, DT_INT64);
 #endif  // GOOGLE_CUDA
 
 #undef HANDLE_CASE_DIM_POSITIVE
+=======
+HANDLE_CASE_DIM(GPUDevice, DT_FLOAT);
+HANDLE_CASE_DIM(GPUDevice, DT_DOUBLE);
+HANDLE_CASE_DIM(GPUDevice, DT_INT16);
+HANDLE_CASE_DIM(GPUDevice, DT_INT32);
+HANDLE_CASE_DIM(GPUDevice, DT_INT64);
+#endif  // GOOGLE_CUDA
+
+>>>>>>> tensorflow/master
 #undef HANDLE_CASE_DIM
 #undef HANDLE_CASE
 

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/graph/equal_graph_def.h"
 
 #include "tensorflow/core/framework/op.h"
@@ -5,13 +6,42 @@
 #include "tensorflow/core/graph/graph_def_builder.h"
 #include "tensorflow/core/kernels/ops_util.h"
 #include <gtest/gtest.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/graph/equal_graph_def.h"
+
+#include "tensorflow/core/framework/node_def_util.h"
+#include "tensorflow/core/framework/op.h"
+#include "tensorflow/core/graph/graph_def_builder.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
 
 REGISTER_OP("Input").Output("o: float");
 REGISTER_OP("Alternate").Output("o: float");
+<<<<<<< HEAD
 REGISTER_OP("Cross").Input("a: float").Input("b: float").Output("o: float");
+=======
+REGISTER_OP("Combine").Input("a: float").Input("b: float").Output("o: float");
+>>>>>>> tensorflow/master
 
 Node* Input(const GraphDefBuilder::Options& opts) {
   return ops::SourceOp("Input", opts);
@@ -21,9 +51,15 @@ Node* Alternate(const GraphDefBuilder::Options& opts) {
   return ops::SourceOp("Alternate", opts);
 }
 
+<<<<<<< HEAD
 Node* Cross(ops::NodeOut a, ops::NodeOut b,
             const GraphDefBuilder::Options& opts) {
   return ops::BinaryOp("Cross", a, b, opts);
+=======
+Node* Combine(ops::NodeOut a, ops::NodeOut b,
+              const GraphDefBuilder::Options& opts) {
+  return ops::BinaryOp("Combine", a, b, opts);
+>>>>>>> tensorflow/master
 }
 
 class EqualGraphDefTest : public ::testing::Test {
@@ -31,7 +67,10 @@ class EqualGraphDefTest : public ::testing::Test {
   EqualGraphDefTest()
       : e_(GraphDefBuilder::kFailImmediately),
         a_(GraphDefBuilder::kFailImmediately) {
+<<<<<<< HEAD
     RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   }
 
   bool Match() {
@@ -73,20 +112,36 @@ TEST_F(EqualGraphDefTest, ExtraNode) {
   Input(a_.opts().WithName("A"));
   Input(a_.opts().WithName("B"));
   EXPECT_FALSE(Match());
+<<<<<<< HEAD
   EXPECT_EQ(
       "Found unexpected node 'B = Input[]()' not in expected graph:\n"
       "A = Input[]();\n",
       diff_);
+=======
+  EXPECT_EQ(strings::StrCat(
+                "Found unexpected node 'B = Input[]()' not in expected graph:\n"
+                "versions = producer: ",
+                TF_GRAPH_DEF_VERSION, ";\n", "A = Input[]();\n"),
+            diff_);
+>>>>>>> tensorflow/master
 }
 
 TEST_F(EqualGraphDefTest, NodeOrder) {
   Node* a = Input(e_.opts().WithName("A"));
   Node* b = Input(e_.opts().WithName("B"));
+<<<<<<< HEAD
   Cross(a, b, e_.opts().WithName("C"));
 
   b = Input(a_.opts().WithName("B"));
   a = Input(a_.opts().WithName("A"));
   Cross(a, b, a_.opts().WithName("C"));
+=======
+  Combine(a, b, e_.opts().WithName("C"));
+
+  b = Input(a_.opts().WithName("B"));
+  a = Input(a_.opts().WithName("A"));
+  Combine(a, b, a_.opts().WithName("C"));
+>>>>>>> tensorflow/master
   EXPECT_TRUE(Match()) << diff_;
 }
 
@@ -124,11 +179,19 @@ TEST_F(EqualGraphDefTest, DeviceMismatch) {
 TEST_F(EqualGraphDefTest, InputMismatch) {
   Node* a = Input(e_.opts().WithName("A"));
   Node* b = Input(e_.opts().WithName("B"));
+<<<<<<< HEAD
   Cross(a, a, e_.opts().WithName("C"));
 
   a = Input(a_.opts().WithName("A"));
   b = Input(a_.opts().WithName("B"));
   Cross(b, b, a_.opts().WithName("C"));
+=======
+  Combine(a, a, e_.opts().WithName("C"));
+
+  a = Input(a_.opts().WithName("A"));
+  b = Input(a_.opts().WithName("B"));
+  Combine(b, b, a_.opts().WithName("C"));
+>>>>>>> tensorflow/master
   EXPECT_FALSE(Match());
   EXPECT_EQ("Node named 'C' has input 0 'B' that doesn't match expected 'A'",
             diff_);
@@ -137,11 +200,19 @@ TEST_F(EqualGraphDefTest, InputMismatch) {
 TEST_F(EqualGraphDefTest, InputOrderMismatch) {
   Node* a = Input(e_.opts().WithName("A"));
   Node* b = Input(e_.opts().WithName("B"));
+<<<<<<< HEAD
   Cross(a, b, e_.opts().WithName("C"));
 
   a = Input(a_.opts().WithName("A"));
   b = Input(a_.opts().WithName("B"));
   Cross(b, a, a_.opts().WithName("C"));
+=======
+  Combine(a, b, e_.opts().WithName("C"));
+
+  a = Input(a_.opts().WithName("A"));
+  b = Input(a_.opts().WithName("B"));
+  Combine(b, a, a_.opts().WithName("C"));
+>>>>>>> tensorflow/master
   EXPECT_FALSE(Match());
   EXPECT_EQ("Node named 'C' has input 0 'B' that doesn't match expected 'A'",
             diff_);
@@ -152,21 +223,37 @@ TEST_F(EqualGraphDefTest, ControlInputOrder) {
   Node* b = Input(e_.opts().WithName("B"));
   Node* c = Input(e_.opts().WithName("C"));
   Node* d = Input(e_.opts().WithName("D"));
+<<<<<<< HEAD
   Cross(a, a, e_.opts()
                   .WithName("E")
                   .WithControlInput(b)
                   .WithControlInput(c)
                   .WithControlInput(d));
+=======
+  Combine(a, a, e_.opts()
+                    .WithName("E")
+                    .WithControlInput(b)
+                    .WithControlInput(c)
+                    .WithControlInput(d));
+>>>>>>> tensorflow/master
 
   a = Input(a_.opts().WithName("A"));
   b = Input(a_.opts().WithName("B"));
   c = Input(a_.opts().WithName("C"));
   d = Input(a_.opts().WithName("D"));
+<<<<<<< HEAD
   Cross(a, a, a_.opts()
                   .WithName("E")
                   .WithControlInput(c)
                   .WithControlInput(d)
                   .WithControlInput(b));
+=======
+  Combine(a, a, a_.opts()
+                    .WithName("E")
+                    .WithControlInput(c)
+                    .WithControlInput(d)
+                    .WithControlInput(b));
+>>>>>>> tensorflow/master
   EXPECT_TRUE(Match()) << diff_;
 }
 
@@ -175,13 +262,23 @@ TEST_F(EqualGraphDefTest, ControlInputMismatch) {
   Node* b = Input(e_.opts().WithName("B"));
   Node* c = Input(e_.opts().WithName("C"));
   Node* d = Input(e_.opts().WithName("D"));
+<<<<<<< HEAD
   Cross(a, a, e_.opts().WithName("E").WithControlInput(b).WithControlInput(c));
+=======
+  Combine(a, a,
+          e_.opts().WithName("E").WithControlInput(b).WithControlInput(c));
+>>>>>>> tensorflow/master
 
   a = Input(a_.opts().WithName("A"));
   b = Input(a_.opts().WithName("B"));
   c = Input(a_.opts().WithName("C"));
   d = Input(a_.opts().WithName("D"));
+<<<<<<< HEAD
   Cross(a, a, a_.opts().WithName("E").WithControlInput(b).WithControlInput(d));
+=======
+  Combine(a, a,
+          a_.opts().WithName("E").WithControlInput(b).WithControlInput(d));
+>>>>>>> tensorflow/master
   EXPECT_FALSE(Match());
   EXPECT_EQ("Node named 'E' missing expected control input '^C'", diff_);
 }
@@ -190,12 +287,21 @@ TEST_F(EqualGraphDefTest, ControlInputAdded) {
   Node* a = Input(e_.opts().WithName("A"));
   Node* b = Input(e_.opts().WithName("B"));
   Node* c = Input(e_.opts().WithName("C"));
+<<<<<<< HEAD
   Cross(a, a, e_.opts().WithName("D").WithControlInput(b));
+=======
+  Combine(a, a, e_.opts().WithName("D").WithControlInput(b));
+>>>>>>> tensorflow/master
 
   a = Input(a_.opts().WithName("A"));
   b = Input(a_.opts().WithName("B"));
   c = Input(a_.opts().WithName("C"));
+<<<<<<< HEAD
   Cross(a, a, a_.opts().WithName("D").WithControlInput(b).WithControlInput(c));
+=======
+  Combine(a, a,
+          a_.opts().WithName("D").WithControlInput(b).WithControlInput(c));
+>>>>>>> tensorflow/master
   EXPECT_FALSE(Match());
   EXPECT_EQ(
       "Node named 'D' has inputs 'A, A, ^B, ^C' that don't match "
@@ -207,12 +313,21 @@ TEST_F(EqualGraphDefTest, ControlInputRemoved) {
   Node* a = Input(e_.opts().WithName("A"));
   Node* b = Input(e_.opts().WithName("B"));
   Node* c = Input(e_.opts().WithName("C"));
+<<<<<<< HEAD
   Cross(a, a, e_.opts().WithName("D").WithControlInput(b).WithControlInput(c));
+=======
+  Combine(a, a,
+          e_.opts().WithName("D").WithControlInput(b).WithControlInput(c));
+>>>>>>> tensorflow/master
 
   a = Input(a_.opts().WithName("A"));
   b = Input(a_.opts().WithName("B"));
   c = Input(a_.opts().WithName("C"));
+<<<<<<< HEAD
   Cross(a, a, a_.opts().WithName("D").WithControlInput(b));
+=======
+  Combine(a, a, a_.opts().WithName("D").WithControlInput(b));
+>>>>>>> tensorflow/master
   EXPECT_FALSE(Match());
   EXPECT_EQ(
       "Node named 'D' has inputs 'A, A, ^B' that don't match "
@@ -275,5 +390,21 @@ TEST_F(EqualGraphDefTest, AttrMismatch) {
       diff_);
 }
 
+<<<<<<< HEAD
+=======
+TEST_F(EqualGraphDefTest, IgnoreInternalAttrs) {
+  Node* a = Input(e_.opts().WithName("A"));
+  NodeDef actual(a->def());
+  AddNodeAttr("foo", "bar", &actual);
+  // Internal attrs are ignored.
+  AddNodeAttr("_class", 5, &actual);
+
+  NodeDef expected(a->def());
+  AddNodeAttr("foo", "bar", &expected);
+  AddNodeAttr("_kernel", "eigen", &actual);
+  EXPECT_TRUE(EqualNodeDef(actual, expected, &diff_));
+}
+
+>>>>>>> tensorflow/master
 }  // namespace
 }  // namespace tensorflow

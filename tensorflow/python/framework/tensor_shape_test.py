@@ -1,10 +1,32 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for shape inference helper classes."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+from tensorflow.core.framework import tensor_shape_pb2
+>>>>>>> tensorflow/master
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.framework import test_util
 from tensorflow.python.platform import googletest
@@ -239,6 +261,57 @@ class ShapeTest(test_util.TensorFlowTestCase):
     with self.assertRaisesRegexp(TypeError, r"unsupported operand type"):
       unknown / unknown  # pylint: disable=pointless-statement
 
+<<<<<<< HEAD
+=======
+  def testConvertFromProto(self):
+    def make_tensor_shape_proto(shape):
+      return tensor_shape_pb2.TensorShapeProto(
+          dim=[tensor_shape_pb2.TensorShapeProto.Dim(size=x) for x in shape])
+    proto = make_tensor_shape_proto([])
+    self.assertEqual(tensor_shape.TensorShape([]),
+                     tensor_shape.TensorShape(proto))
+    self.assertEqual(tensor_shape.TensorShape([]),
+                     tensor_shape.as_shape(proto))
+
+    proto = make_tensor_shape_proto([1, 37, 42])
+    self.assertEqual(tensor_shape.TensorShape([1, 37, 42]),
+                     tensor_shape.TensorShape(proto))
+    self.assertEqual(tensor_shape.TensorShape([1, 37, 42]),
+                     tensor_shape.as_shape(proto))
+
+    partial_proto_shape = tensor_shape.as_shape(
+        make_tensor_shape_proto([-1, 37, 42]))
+    partial_shape = tensor_shape.TensorShape([None, 37, 42])
+    self.assertNotEqual(partial_proto_shape, partial_shape)
+    self.assertEqual(partial_proto_shape[0].value, None)
+    self.assertEqual(partial_proto_shape[1].value, 37)
+    self.assertEqual(partial_proto_shape[2].value, 42)
+    self.assertTrue(partial_shape.is_compatible_with(partial_proto_shape))
+
+  def testStr(self):
+    self.assertEqual("<unknown>", str(tensor_shape.unknown_shape()))
+    self.assertEqual("(?,)", str(tensor_shape.unknown_shape(ndims=1)))
+    self.assertEqual("(?, ?)", str(tensor_shape.unknown_shape(ndims=2)))
+    self.assertEqual("(?, ?, ?)", str(tensor_shape.unknown_shape(ndims=3)))
+
+    self.assertEqual("()", str(tensor_shape.scalar()))
+    self.assertEqual("(7,)", str(tensor_shape.vector(7)))
+    self.assertEqual("(3, 8)", str(tensor_shape.matrix(3, 8)))
+    self.assertEqual("(4, 5, 2)", str(tensor_shape.TensorShape([4, 5, 2])))
+
+    self.assertEqual("(32, ?, 1, 9)",
+                     str(tensor_shape.TensorShape([32, None, 1, 9])))
+
+  def testAsProto(self):
+    self.assertTrue(tensor_shape.unknown_shape().as_proto().unknown_rank)
+    self.assertFalse(
+        tensor_shape.unknown_shape(ndims=3).as_proto().unknown_rank)
+    self.assertFalse(
+        tensor_shape.TensorShape([1, 2, 3]).as_proto().unknown_rank)
+    self.assertFalse(
+        tensor_shape.TensorShape([1, None, 3]).as_proto().unknown_rank)
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   googletest.main()

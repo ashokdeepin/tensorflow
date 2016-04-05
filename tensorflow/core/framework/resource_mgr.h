@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_RESOURCE_MGR_H_
 #define TENSORFLOW_FRAMEWORK_RESOURCE_MGR_H_
 
@@ -8,11 +26,21 @@
 
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/lib/core/refcount.h"
 #include "tensorflow/core/lib/hash/hash.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/thread_annotations.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/framework/type_index.h"
+#include "tensorflow/core/lib/core/refcount.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/hash/hash.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/thread_annotations.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -107,7 +135,11 @@ class ResourceMgr {
   void Clear();
 
  private:
+<<<<<<< HEAD
   typedef std::pair<std::type_index, string> Key;
+=======
+  typedef std::pair<TypeIndex, string> Key;
+>>>>>>> tensorflow/master
   struct KeyHash {
     std::size_t operator()(const Key& k) const {
       return Hash64(k.second.data(), k.second.size(), k.first.hash_code());
@@ -124,6 +156,7 @@ class ResourceMgr {
   mutable mutex mu_;
   std::unordered_map<string, Container*> containers_ GUARDED_BY(mu_);
 
+<<<<<<< HEAD
   Status DoCreate(const string& container, std::type_index type,
                   const string& name,
                   ResourceBase* resource) TF_MUST_USE_RESULT;
@@ -131,6 +164,13 @@ class ResourceMgr {
                   const string& name,
                   ResourceBase** resource) const TF_MUST_USE_RESULT;
   Status DoDelete(const string& container, std::type_index type,
+=======
+  Status DoCreate(const string& container, TypeIndex type, const string& name,
+                  ResourceBase* resource) TF_MUST_USE_RESULT;
+  Status DoLookup(const string& container, TypeIndex type, const string& name,
+                  ResourceBase** resource) const TF_MUST_USE_RESULT;
+  Status DoDelete(const string& container, TypeIndex type,
+>>>>>>> tensorflow/master
                   const string& name) TF_MUST_USE_RESULT;
 
   TF_DISALLOW_COPY_AND_ASSIGN(ResourceMgr);
@@ -208,7 +248,11 @@ Status ResourceMgr::Create(const string& container, const string& name,
                            T* resource) {
   CheckDeriveFromResourceBase<T>();
   CHECK(resource != nullptr);
+<<<<<<< HEAD
   return DoCreate(container, std::type_index(typeid(T)), name, resource);
+=======
+  return DoCreate(container, MakeTypeIndex<T>(), name, resource);
+>>>>>>> tensorflow/master
 }
 
 template <typename T>
@@ -216,7 +260,11 @@ Status ResourceMgr::Lookup(const string& container, const string& name,
                            T** resource) const {
   CheckDeriveFromResourceBase<T>();
   ResourceBase* found = nullptr;
+<<<<<<< HEAD
   Status s = DoLookup(container, std::type_index(typeid(T)), name, &found);
+=======
+  Status s = DoLookup(container, MakeTypeIndex<T>(), name, &found);
+>>>>>>> tensorflow/master
   if (s.ok()) {
     // It's safe to down cast 'found' to T* since
     // typeid(T).hash_code() is part of the map key.
@@ -250,7 +298,11 @@ Status ResourceMgr::LookupOrCreate(const string& container, const string& name,
 template <typename T>
 Status ResourceMgr::Delete(const string& container, const string& name) {
   CheckDeriveFromResourceBase<T>();
+<<<<<<< HEAD
   return DoDelete(container, std::type_index(typeid(T)), name);
+=======
+  return DoDelete(container, MakeTypeIndex<T>(), name);
+>>>>>>> tensorflow/master
 }
 
 template <typename T>

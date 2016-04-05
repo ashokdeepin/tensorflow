@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Multi-threaded word2vec unbatched skip-gram model.
 
 Trains the model described in:
@@ -17,12 +35,19 @@ from __future__ import division
 from __future__ import print_function
 
 import os
+<<<<<<< HEAD
 from six.moves import xrange  # pylint: disable=redefined-builtin
+=======
+>>>>>>> tensorflow/master
 import sys
 import threading
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
+=======
+from six.moves import xrange  # pylint: disable=redefined-builtin
+>>>>>>> tensorflow/master
 
 import numpy as np
 import tensorflow as tf
@@ -142,11 +167,19 @@ class Word2Vec(object):
     """
     questions = []
     questions_skipped = 0
+<<<<<<< HEAD
     with open(self._options.eval_data) as analogy_f:
       for line in analogy_f:
         if line.startswith(":"):  # Skip comments.
           continue
         words = line.strip().lower().split(" ")
+=======
+    with open(self._options.eval_data, "rb") as analogy_f:
+      for line in analogy_f:
+        if line.startswith(b":"):  # Skip comments.
+          continue
+        words = line.strip().lower().split(b" ")
+>>>>>>> tensorflow/master
         ids = [self._word2id.get(w.strip()) for w in words]
         if None in ids or len(ids) != 4:
           questions_skipped += 1
@@ -224,7 +257,12 @@ class Word2Vec(object):
     opts = self._options
     with open(os.path.join(opts.save_path, "vocab.txt"), "w") as f:
       for i in xrange(opts.vocab_size):
+<<<<<<< HEAD
         f.write(opts.vocab_words[i] + " " + str(opts.vocab_counts[i]) + "\n")
+=======
+        f.write("%s %d\n" % (tf.compat.as_text(opts.vocab_words[i]),
+                             opts.vocab_counts[i]))
+>>>>>>> tensorflow/master
 
   def build_eval_graph(self):
     """Build the evaluation graph."""
@@ -397,7 +435,12 @@ def main(_):
     sys.exit(1)
   opts = Options()
   with tf.Graph().as_default(), tf.Session() as session:
+<<<<<<< HEAD
     model = Word2Vec(opts, session)
+=======
+    with tf.device("/cpu:0"):
+      model = Word2Vec(opts, session)
+>>>>>>> tensorflow/master
     for _ in xrange(opts.epochs_to_train):
       model.train()  # Process one epoch
       model.eval()  # Eval analogies.

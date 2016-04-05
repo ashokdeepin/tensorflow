@@ -1,6 +1,23 @@
+<<<<<<< HEAD
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/lib/io/table.h"
 
@@ -10,7 +27,11 @@
 #include "tensorflow/core/lib/io/format.h"
 #include "tensorflow/core/lib/io/table_options.h"
 #include "tensorflow/core/lib/io/two_level_iterator.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/env.h"
+=======
+#include "tensorflow/core/platform/env.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace table {
@@ -27,8 +48,13 @@ struct Table::Rep {
   Block* index_block;
 };
 
+<<<<<<< HEAD
 Status Table::Open(const Options& options, RandomAccessFile* file,
                         uint64 size, Table** table) {
+=======
+Status Table::Open(const Options& options, RandomAccessFile* file, uint64 size,
+                   Table** table) {
+>>>>>>> tensorflow/master
   *table = NULL;
   if (size < Footer::kEncodedLength) {
     return errors::DataLoss("file is too short to be an sstable");
@@ -36,9 +62,14 @@ Status Table::Open(const Options& options, RandomAccessFile* file,
 
   char footer_space[Footer::kEncodedLength];
   StringPiece footer_input;
+<<<<<<< HEAD
   Status s =
       file->Read(size - Footer::kEncodedLength, Footer::kEncodedLength,
                  &footer_input, footer_space);
+=======
+  Status s = file->Read(size - Footer::kEncodedLength, Footer::kEncodedLength,
+                        &footer_input, footer_space);
+>>>>>>> tensorflow/master
   if (!s.ok()) return s;
 
   Footer footer;
@@ -117,8 +148,13 @@ Iterator* Table::NewIterator() const {
 }
 
 Status Table::InternalGet(const StringPiece& k, void* arg,
+<<<<<<< HEAD
                                void (*saver)(void*, const StringPiece&,
                                              const StringPiece&)) {
+=======
+                          void (*saver)(void*, const StringPiece&,
+                                        const StringPiece&)) {
+>>>>>>> tensorflow/master
   Status s;
   Iterator* iiter = rep_->index_block->NewIterator();
   iiter->Seek(k);

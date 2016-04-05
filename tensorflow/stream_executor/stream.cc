@@ -1,8 +1,30 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/stream.h"
 
 #include "tensorflow/stream_executor/platform/port.h"
 
 #include "tensorflow/stream_executor/blas.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/stream_executor/lib/stacktrace.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/lib/strcat.h"
 #include "tensorflow/stream_executor/platform.h"
 #include "tensorflow/stream_executor/platform/logging.h"
@@ -14,6 +36,7 @@ namespace perftools {
 namespace gputools {
 
 namespace {
+<<<<<<< HEAD
 static internal::StreamInterface *CreateStreamImplementation(
     StreamExecutor *parent) {
   PlatformKind platform_kind = parent->platform_kind();
@@ -30,6 +53,8 @@ static internal::StreamInterface *CreateStreamImplementation(
   }
 }
 
+=======
+>>>>>>> tensorflow/master
 // Code to turn parameters to functions on stream into strings that
 // will be VLOG'ed. We need overloads, instead of
 // e.g. BatchDescriptorToVlogString(), as the code that calls these
@@ -62,6 +87,13 @@ string ToVlogString(dnn::ElementwiseOperation op) {
   return dnn::ElementwiseOperationString(op);
 }
 
+<<<<<<< HEAD
+=======
+string ToVlogString(dnn::QuantizedActivationMode mode) {
+  return dnn::QuantizedActivationModeString(mode);
+}
+
+>>>>>>> tensorflow/master
 string ToVlogString(blas::Transpose t) { return blas::TransposeString(t); }
 
 string ToVlogString(blas::UpperLower ul) { return blas::UpperLowerString(ul); }
@@ -108,6 +140,11 @@ string ToVlogString(uint32 i) { return port::StrCat(i); }
 
 string ToVlogString(uint64 i) { return port::StrCat(i); }
 
+<<<<<<< HEAD
+=======
+string ToVlogString(int64 i) { return port::StrCat(i); }
+
+>>>>>>> tensorflow/master
 string ToVlogString(float f) { return port::StrCat(f); }
 
 string ToVlogString(double d) { return port::StrCat(d); }
@@ -166,6 +203,12 @@ string CallStr(const char *function_name, Stream *stream,
     separator = ", ";
   }
   port::StrAppend(&str, ") stream=", ToVlogString(stream));
+<<<<<<< HEAD
+=======
+  if (VLOG_IS_ON(10)) {
+    port::StrAppend(&str, " ", port::CurrentStackTrace(), "\n");
+  }
+>>>>>>> tensorflow/master
   return str;
 }
 
@@ -191,8 +234,13 @@ string CallStr(const char *function_name, Stream *stream,
 }  // namespace
 
 Stream::Stream(StreamExecutor *parent)
+<<<<<<< HEAD
     : implementation_(CreateStreamImplementation(parent)),
       parent_(parent),
+=======
+    : parent_(parent),
+      implementation_(parent->implementation()->GetStreamImplementation()),
+>>>>>>> tensorflow/master
       allocated_(false),
       ok_(false),
       temporary_memory_manager_(this) {
@@ -201,8 +249,13 @@ Stream::Stream(StreamExecutor *parent)
 
 Stream::Stream(StreamExecutor *parent,
                internal::StreamInterface *implementation)
+<<<<<<< HEAD
     : implementation_(implementation),
       parent_(parent),
+=======
+    : parent_(parent),
+      implementation_(implementation),
+>>>>>>> tensorflow/master
       allocated_(false),
       ok_(false),
       temporary_memory_manager_(this) {
@@ -268,15 +321,26 @@ Stream &Stream::ThenRecordEvent(Event *event) {
   return *this;
 }
 
+<<<<<<< HEAD
 Stream &Stream::ThenConvolve(
     const dnn::BatchDescriptor &batch_descriptor,
+=======
+Stream &Stream::ThenConvolveWithScratch(
+    const dnn::BatchDescriptor &input_descriptor,
+>>>>>>> tensorflow/master
     const DeviceMemory<float> &input_data,
     const dnn::FilterDescriptor &filter_descriptor,
     const DeviceMemory<float> &filter_data,
     const dnn::ConvolutionDescriptor &convolution_descriptor,
+<<<<<<< HEAD
     const dnn::BatchDescriptor &output_descriptor,
     DeviceMemory<float> *output) {
   VLOG_CALL(PARAM(batch_descriptor), PARAM(input_data),
+=======
+    const dnn::BatchDescriptor &output_descriptor, DeviceMemory<float> *output,
+    ScratchAllocator *scratch_allocator) {
+  VLOG_CALL(PARAM(input_descriptor), PARAM(input_data),
+>>>>>>> tensorflow/master
             PARAM(filter_descriptor), PARAM(filter_data),
             PARAM(convolution_descriptor), PARAM(output_descriptor),
             PARAM(output));
@@ -284,8 +348,14 @@ Stream &Stream::ThenConvolve(
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(dnn->DoConvolve(
+<<<<<<< HEAD
           this, batch_descriptor, input_data, filter_descriptor, filter_data,
           convolution_descriptor, output_descriptor, output));
+=======
+          this, input_descriptor, input_data, filter_descriptor, filter_data,
+          convolution_descriptor, output_descriptor, output,
+          /*scratch_allocator=*/scratch_allocator));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -296,6 +366,23 @@ Stream &Stream::ThenConvolve(
   return *this;
 }
 
+<<<<<<< HEAD
+=======
+Stream &Stream::ThenConvolve(
+    const dnn::BatchDescriptor &input_descriptor,
+    const DeviceMemory<float> &input_data,
+    const dnn::FilterDescriptor &filter_descriptor,
+    const DeviceMemory<float> &filter_data,
+    const dnn::ConvolutionDescriptor &convolution_descriptor,
+    const dnn::BatchDescriptor &output_descriptor,
+    DeviceMemory<float> *output) {
+  return ThenConvolveWithScratch(input_descriptor, input_data,
+                                 filter_descriptor, filter_data,
+                                 convolution_descriptor, output_descriptor,
+                                 output, /*scratch_allocator=*/nullptr);
+}
+
+>>>>>>> tensorflow/master
 Stream &Stream::ThenSeparableConvolve(
     const dnn::BatchDescriptor &batch_descriptor,
     const DeviceMemory<float> &input_data,
@@ -326,14 +413,23 @@ Stream &Stream::ThenSeparableConvolve(
   return *this;
 }
 
+<<<<<<< HEAD
 Stream &Stream::ThenConvolveBackwardData(
+=======
+Stream &Stream::ThenConvolveBackwardDataWithScratch(
+>>>>>>> tensorflow/master
     const dnn::FilterDescriptor &filter_descriptor,
     const DeviceMemory<float> &filter_data,
     const dnn::BatchDescriptor &output_descriptor,
     DeviceMemory<float> backward_output_data,
     const dnn::ConvolutionDescriptor &convolution_descriptor,
     const dnn::BatchDescriptor &input_descriptor,
+<<<<<<< HEAD
     DeviceMemory<float> *backward_input_data) {
+=======
+    DeviceMemory<float> *backward_input_data,
+    ScratchAllocator *scratch_allocator) {
+>>>>>>> tensorflow/master
   VLOG_CALL(PARAM(filter_descriptor), PARAM(filter_data),
             PARAM(output_descriptor), PARAM(backward_output_data),
             PARAM(convolution_descriptor), PARAM(input_descriptor),
@@ -344,7 +440,11 @@ Stream &Stream::ThenConvolveBackwardData(
       CheckError(dnn->DoConvolveBackwardData(
           this, filter_descriptor, filter_data, output_descriptor,
           backward_output_data, convolution_descriptor, input_descriptor,
+<<<<<<< HEAD
           backward_input_data));
+=======
+          backward_input_data, scratch_allocator));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -355,14 +455,37 @@ Stream &Stream::ThenConvolveBackwardData(
   return *this;
 }
 
+<<<<<<< HEAD
 Stream &Stream::ThenConvolveBackwardFilter(
+=======
+Stream &Stream::ThenConvolveBackwardData(
+    const dnn::FilterDescriptor &filter_descriptor,
+    const DeviceMemory<float> &filter_data,
+    const dnn::BatchDescriptor &output_descriptor,
+    DeviceMemory<float> backward_output_data,
+    const dnn::ConvolutionDescriptor &convolution_descriptor,
+    const dnn::BatchDescriptor &input_descriptor,
+    DeviceMemory<float> *backward_input_data) {
+  return ThenConvolveBackwardDataWithScratch(
+      filter_descriptor, filter_data, output_descriptor, backward_output_data,
+      convolution_descriptor, input_descriptor, backward_input_data,
+      /*scratch_allocator=*/nullptr);
+}
+
+Stream &Stream::ThenConvolveBackwardFilterWithScratch(
+>>>>>>> tensorflow/master
     const dnn::BatchDescriptor &input_descriptor,
     const DeviceMemory<float> &input_data,
     const dnn::BatchDescriptor &output_descriptor,
     DeviceMemory<float> backward_output_data,
     const dnn::ConvolutionDescriptor &convolution_descriptor,
     const dnn::FilterDescriptor &filter_descriptor,
+<<<<<<< HEAD
     DeviceMemory<float> *backward_filter_data) {
+=======
+    DeviceMemory<float> *backward_filter_data,
+    ScratchAllocator *scratch_allocator) {
+>>>>>>> tensorflow/master
   VLOG_CALL(PARAM(input_descriptor), PARAM(input_data),
             PARAM(output_descriptor), PARAM(backward_output_data),
             PARAM(convolution_descriptor), PARAM(filter_descriptor),
@@ -373,7 +496,11 @@ Stream &Stream::ThenConvolveBackwardFilter(
       CheckError(dnn->DoConvolveBackwardFilter(
           this, input_descriptor, input_data, output_descriptor,
           backward_output_data, convolution_descriptor, filter_descriptor,
+<<<<<<< HEAD
           backward_filter_data));
+=======
+          backward_filter_data, scratch_allocator));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -384,6 +511,23 @@ Stream &Stream::ThenConvolveBackwardFilter(
   return *this;
 }
 
+<<<<<<< HEAD
+=======
+Stream &Stream::ThenConvolveBackwardFilter(
+    const dnn::BatchDescriptor &input_descriptor,
+    const DeviceMemory<float> &input_data,
+    const dnn::BatchDescriptor &output_descriptor,
+    DeviceMemory<float> backward_output_data,
+    const dnn::ConvolutionDescriptor &convolution_descriptor,
+    const dnn::FilterDescriptor &filter_descriptor,
+    DeviceMemory<float> *backward_filter_data) {
+  return ThenConvolveBackwardFilterWithScratch(
+      input_descriptor, input_data, output_descriptor, backward_output_data,
+      convolution_descriptor, filter_descriptor, backward_filter_data,
+      /*scratch_allocator=*/nullptr);
+}
+
+>>>>>>> tensorflow/master
 Stream &Stream::ThenMatMul(const DeviceMemory<float> &input_data,
                            const DeviceMemory<float> &weights,
                            const dnn::BatchDescriptor &input_dimensions,
@@ -574,6 +718,22 @@ Stream &Stream::ThenDepthConcatenate(
     DeviceMemory<float> *output_data) {
   VLOG_CALL(PARAM(input_dimensions), PARAM(input_data), PARAM(output_data));
 
+<<<<<<< HEAD
+=======
+  for (size_t i = 1; i < input_dimensions.size(); ++i) {
+    if (input_dimensions[i].count() != input_dimensions[0].count() ||
+        input_dimensions[i].height() != input_dimensions[0].height() ||
+        input_dimensions[i].width() != input_dimensions[0].width()) {
+      SetError();
+      LOG(ERROR) << "Incompatible dimensions for depth concatenation.\n"
+                 << "input_dimensions[0]: " << input_dimensions[0].ToString()
+                 << "input_dimensions[" << i
+                 << "]: " << input_dimensions[i].ToString();
+      return *this;
+    }
+  }
+
+>>>>>>> tensorflow/master
   if (ok()) {
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(dnn->DoDepthConcatenate(this, input_dimensions, input_data,
@@ -612,6 +772,7 @@ Stream &Stream::ThenElementwiseOperate(
   return *this;
 }
 
+<<<<<<< HEAD
 Stream &Stream::ThenMemcpyD2HQuantized(
     const DeviceMemory<float> &gpu_unquantized_src,
     port::MutableArraySlice<uint8> host_dst) {
@@ -621,6 +782,20 @@ Stream &Stream::ThenMemcpyD2HQuantized(
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(
           dnn->DoMemcpyD2HQuantized(this, gpu_unquantized_src, host_dst));
+=======
+Stream &Stream::ThenXYPad(const dnn::BatchDescriptor &dimensions,
+                          const DeviceMemory<float> &input_data, int64 left_pad,
+                          int64 right_pad, int64 top_pad, int64 bottom_pad,
+                          DeviceMemory<float> *output_data) {
+  VLOG_CALL(PARAM(dimensions), PARAM(input_data), PARAM(left_pad),
+            PARAM(right_pad), PARAM(top_pad), PARAM(bottom_pad),
+            PARAM(output_data));
+
+  if (ok()) {
+    if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
+      CheckError(dnn->DoXYPad(this, dimensions, input_data, left_pad, right_pad,
+                              top_pad, bottom_pad, output_data));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -631,6 +806,7 @@ Stream &Stream::ThenMemcpyD2HQuantized(
   return *this;
 }
 
+<<<<<<< HEAD
 Stream &Stream::ThenMemcpyD2HQuantized(
     const DeviceMemory<float> &gpu_unquantized_src,
     port::MutableArraySlice<uint16> host_dst) {
@@ -640,6 +816,22 @@ Stream &Stream::ThenMemcpyD2HQuantized(
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(
           dnn->DoMemcpyD2HQuantized(this, gpu_unquantized_src, host_dst));
+=======
+Stream &Stream::ThenXYSlice(const dnn::BatchDescriptor &dimensions,
+                            const DeviceMemory<float> &input_data,
+                            int64 left_trim, int64 right_trim, int64 top_trim,
+                            int64 bottom_trim,
+                            DeviceMemory<float> *output_data) {
+  VLOG_CALL(PARAM(dimensions), PARAM(input_data), PARAM(left_trim),
+            PARAM(right_trim), PARAM(top_trim), PARAM(bottom_trim),
+            PARAM(output_data));
+
+  if (ok()) {
+    if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
+      CheckError(dnn->DoXYSlice(this, dimensions, input_data, left_trim,
+                                right_trim, top_trim, bottom_trim,
+                                output_data));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -652,6 +844,7 @@ Stream &Stream::ThenMemcpyD2HQuantized(
 
 Stream &Stream::ThenMemcpyD2HQuantized(
     const DeviceMemory<float> &gpu_unquantized_src,
+<<<<<<< HEAD
     port::MutableArraySlice<int32> host_dst) {
   VLOG_CALL(PARAM(gpu_unquantized_src), PARAM(host_dst));
 
@@ -659,6 +852,16 @@ Stream &Stream::ThenMemcpyD2HQuantized(
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(
           dnn->DoMemcpyD2HQuantized(this, gpu_unquantized_src, host_dst));
+=======
+    dnn::QuantizedActivationMode mode, void *host_dst, uint64 size) {
+  VLOG_CALL(PARAM(gpu_unquantized_src), PARAM(mode), PARAM(host_dst),
+            PARAM(size));
+
+  if (ok()) {
+    if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
+      CheckError(dnn->DoMemcpyD2HQuantized(this, gpu_unquantized_src, mode,
+                                           host_dst, size));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -670,6 +873,7 @@ Stream &Stream::ThenMemcpyD2HQuantized(
 }
 
 Stream &Stream::ThenMemcpyH2DQuantized(
+<<<<<<< HEAD
     port::ArraySlice<uint8> host_src,
     DeviceMemory<float> *gpu_unquantized_dst) {
   VLOG_CALL(PARAM(host_src), PARAM(gpu_unquantized_dst));
@@ -678,6 +882,17 @@ Stream &Stream::ThenMemcpyH2DQuantized(
     if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
       CheckError(
           dnn->DoMemcpyH2DQuantized(this, host_src, gpu_unquantized_dst));
+=======
+    const void *host_src, uint64 size, dnn::QuantizedActivationMode mode,
+    DeviceMemory<float> *gpu_unquantized_dst) {
+  VLOG_CALL(PARAM(host_src), PARAM(size), PARAM(mode),
+            PARAM(gpu_unquantized_dst));
+
+  if (ok()) {
+    if (dnn::DnnSupport *dnn = parent_->AsDnn()) {
+      CheckError(dnn->DoMemcpyH2DQuantized(this, host_src, size, mode,
+                                           gpu_unquantized_dst));
+>>>>>>> tensorflow/master
     } else {
       SetError();
       LOG(WARNING)
@@ -2909,6 +3124,20 @@ Stream &Stream::ThenBlasGemmBatched(
     int lda, const port::ArraySlice<DeviceMemory<float> *> &b, int ldb,
     float beta, const port::ArraySlice<DeviceMemory<float> *> &c, int ldc,
     int batch_count) {
+<<<<<<< HEAD
+=======
+  return ThenBlasGemmBatchedWithScratch(transa, transb, m, n, k, alpha, a, lda,
+                                        b, ldb, beta, c, ldc, batch_count,
+                                        nullptr);
+}
+
+Stream &Stream::ThenBlasGemmBatchedWithScratch(
+    blas::Transpose transa, blas::Transpose transb, uint64 m, uint64 n,
+    uint64 k, float alpha, const port::ArraySlice<DeviceMemory<float> *> &a,
+    int lda, const port::ArraySlice<DeviceMemory<float> *> &b, int ldb,
+    float beta, const port::ArraySlice<DeviceMemory<float> *> &c, int ldc,
+    int batch_count, ScratchAllocator *scratch_allocator) {
+>>>>>>> tensorflow/master
   VLOG_CALL(PARAM(transa), PARAM(transb), PARAM(m), PARAM(n), PARAM(k),
             PARAM(alpha), PARAM(a), PARAM(lda), PARAM(b), PARAM(ldb),
             PARAM(beta), PARAM(c), PARAM(ldc), PARAM(batch_count));
@@ -2916,9 +3145,18 @@ Stream &Stream::ThenBlasGemmBatched(
   ThenBlasImpl<blas::Transpose, blas::Transpose, uint64, uint64, uint64, float,
                const port::ArraySlice<DeviceMemory<float> *> &, int,
                const port::ArraySlice<DeviceMemory<float> *> &, int, float,
+<<<<<<< HEAD
                const port::ArraySlice<DeviceMemory<float> *> &, int, int> impl;
   return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
               k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count);
+=======
+               const port::ArraySlice<DeviceMemory<float> *> &, int, int,
+               ScratchAllocator *>
+      impl;
+  return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
+              k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count,
+              scratch_allocator);
+>>>>>>> tensorflow/master
 }
 
 Stream &Stream::ThenBlasGemmBatched(
@@ -2927,6 +3165,20 @@ Stream &Stream::ThenBlasGemmBatched(
     int lda, const port::ArraySlice<DeviceMemory<double> *> &b, int ldb,
     double beta, const port::ArraySlice<DeviceMemory<double> *> &c, int ldc,
     int batch_count) {
+<<<<<<< HEAD
+=======
+  return ThenBlasGemmBatchedWithScratch(transa, transb, m, n, k, alpha, a, lda,
+                                        b, ldb, beta, c, ldc, batch_count,
+                                        nullptr);
+}
+
+Stream &Stream::ThenBlasGemmBatchedWithScratch(
+    blas::Transpose transa, blas::Transpose transb, uint64 m, uint64 n,
+    uint64 k, double alpha, const port::ArraySlice<DeviceMemory<double> *> &a,
+    int lda, const port::ArraySlice<DeviceMemory<double> *> &b, int ldb,
+    double beta, const port::ArraySlice<DeviceMemory<double> *> &c, int ldc,
+    int batch_count, ScratchAllocator *scratch_allocator) {
+>>>>>>> tensorflow/master
   VLOG_CALL(PARAM(transa), PARAM(transb), PARAM(m), PARAM(n), PARAM(k),
             PARAM(alpha), PARAM(a), PARAM(lda), PARAM(b), PARAM(ldb),
             PARAM(beta), PARAM(c), PARAM(ldc), PARAM(batch_count));
@@ -2934,9 +3186,18 @@ Stream &Stream::ThenBlasGemmBatched(
   ThenBlasImpl<blas::Transpose, blas::Transpose, uint64, uint64, uint64, double,
                const port::ArraySlice<DeviceMemory<double> *> &, int,
                const port::ArraySlice<DeviceMemory<double> *> &, int, double,
+<<<<<<< HEAD
                const port::ArraySlice<DeviceMemory<double> *> &, int, int> impl;
   return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
               k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count);
+=======
+               const port::ArraySlice<DeviceMemory<double> *> &, int, int,
+               ScratchAllocator *>
+      impl;
+  return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
+              k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count,
+              scratch_allocator);
+>>>>>>> tensorflow/master
 }
 
 Stream &Stream::ThenBlasGemmBatched(
@@ -2947,6 +3208,22 @@ Stream &Stream::ThenBlasGemmBatched(
     std::complex<float> beta,
     const port::ArraySlice<DeviceMemory<std::complex<float>> *> &c, int ldc,
     int batch_count) {
+<<<<<<< HEAD
+=======
+  return ThenBlasGemmBatchedWithScratch(transa, transb, m, n, k, alpha, a, lda,
+                                        b, ldb, beta, c, ldc, batch_count,
+                                        nullptr);
+}
+
+Stream &Stream::ThenBlasGemmBatchedWithScratch(
+    blas::Transpose transa, blas::Transpose transb, uint64 m, uint64 n,
+    uint64 k, std::complex<float> alpha,
+    const port::ArraySlice<DeviceMemory<std::complex<float>> *> &a, int lda,
+    const port::ArraySlice<DeviceMemory<std::complex<float>> *> &b, int ldb,
+    std::complex<float> beta,
+    const port::ArraySlice<DeviceMemory<std::complex<float>> *> &c, int ldc,
+    int batch_count, ScratchAllocator *scratch_allocator) {
+>>>>>>> tensorflow/master
   VLOG_CALL(PARAM(transa), PARAM(transb), PARAM(m), PARAM(n), PARAM(k),
             PARAM(alpha), PARAM(a), PARAM(lda), PARAM(b), PARAM(ldb),
             PARAM(beta), PARAM(c), PARAM(ldc), PARAM(batch_count));
@@ -2958,9 +3235,17 @@ Stream &Stream::ThenBlasGemmBatched(
                const port::ArraySlice<DeviceMemory<std::complex<float>> *> &,
                int, std::complex<float>,
                const port::ArraySlice<DeviceMemory<std::complex<float>> *> &,
+<<<<<<< HEAD
                int, int> impl;
   return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
               k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count);
+=======
+               int, int, ScratchAllocator *>
+      impl;
+  return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
+              k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count,
+              scratch_allocator);
+>>>>>>> tensorflow/master
 }
 
 Stream &Stream::ThenBlasGemmBatched(
@@ -2971,6 +3256,22 @@ Stream &Stream::ThenBlasGemmBatched(
     std::complex<double> beta,
     const port::ArraySlice<DeviceMemory<std::complex<double>> *> &c, int ldc,
     int batch_count) {
+<<<<<<< HEAD
+=======
+  return ThenBlasGemmBatchedWithScratch(transa, transb, m, n, k, alpha, a, lda,
+                                        b, ldb, beta, c, ldc, batch_count,
+                                        nullptr);
+}
+
+Stream &Stream::ThenBlasGemmBatchedWithScratch(
+    blas::Transpose transa, blas::Transpose transb, uint64 m, uint64 n,
+    uint64 k, std::complex<double> alpha,
+    const port::ArraySlice<DeviceMemory<std::complex<double>> *> &a, int lda,
+    const port::ArraySlice<DeviceMemory<std::complex<double>> *> &b, int ldb,
+    std::complex<double> beta,
+    const port::ArraySlice<DeviceMemory<std::complex<double>> *> &c, int ldc,
+    int batch_count, ScratchAllocator *scratch_allocator) {
+>>>>>>> tensorflow/master
   VLOG_CALL(PARAM(transa), PARAM(transb), PARAM(m), PARAM(n), PARAM(k),
             PARAM(alpha), PARAM(a), PARAM(lda), PARAM(b), PARAM(ldb),
             PARAM(beta), PARAM(c), PARAM(ldc), PARAM(batch_count));
@@ -2982,9 +3283,17 @@ Stream &Stream::ThenBlasGemmBatched(
                const port::ArraySlice<DeviceMemory<std::complex<double>> *> &,
                int, std::complex<double>,
                const port::ArraySlice<DeviceMemory<std::complex<double>> *> &,
+<<<<<<< HEAD
                int, int> impl;
   return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
               k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count);
+=======
+               int, int, ScratchAllocator *>
+      impl;
+  return impl(this, &blas::BlasSupport::DoBlasGemmBatched, transa, transb, m, n,
+              k, alpha, a, lda, b, ldb, beta, c, ldc, batch_count,
+              scratch_allocator);
+>>>>>>> tensorflow/master
 }
 
 Stream &Stream::ThenSetRngSeed(const uint8 *seed, uint64 seed_bytes) {

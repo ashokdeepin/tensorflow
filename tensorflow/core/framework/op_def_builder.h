@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Class and associated machinery for specifying an Op's OpDef for Op
 // registration.
 
@@ -7,8 +25,13 @@
 #include <string>
 #include <vector>
 #include "tensorflow/core/framework/op_def.pb.h"
+<<<<<<< HEAD
 #include "tensorflow/core/lib/core/stringpiece.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/core/stringpiece.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -49,7 +72,11 @@ class OpDefBuilder {
   // Perhaps by linking the type of the tensor to a type attr?
   OpDefBuilder& Attr(StringPiece spec);
 
+<<<<<<< HEAD
   // Adds an input or ouput to this OpDefBuilder (and returns *this).
+=======
+  // Adds an input or output to this OpDefBuilder (and returns *this).
+>>>>>>> tensorflow/master
   // The spec has form "<name>:<type-expr>" or "<name>:Ref(<type-expr>)"
   // where <name> matches regexp [a-z][a-z0-9_]* and <type-expr> can be:
   // * For a single tensor: <type>
@@ -87,7 +114,15 @@ class OpDefBuilder {
   // may start the description with an "=" (like name:= <description>)
   // to suppress the automatically-generated type documentation in
   // generated output.
+<<<<<<< HEAD
   OpDefBuilder& Doc(StringPiece text);
+=======
+#ifndef TF_LEAN_BINARY
+  OpDefBuilder& Doc(StringPiece text);
+#else
+  OpDefBuilder& Doc(StringPiece text) { return *this; }
+#endif
+>>>>>>> tensorflow/master
 
   // Sets *op_def to the requested OpDef, or returns an error.
   // Must be called after all of the above methods.

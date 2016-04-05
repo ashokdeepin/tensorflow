@@ -1,9 +1,33 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_slice.h"
 
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/platform/logging.h"
 #include <gtest/gtest.h>
 #include "tensorflow/core/lib/core/status_test_util.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/tensor_slice.h"
+
+#include "tensorflow/core/lib/core/status_test_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -141,6 +165,7 @@ TEST(TensorSliceTest, SliceTensorShape) {
     TensorSlice a = TensorSlice::ParseOrDie("1,1:-:4,1:2,6");
     TensorShape x({2, 4, 5, 8});
     TensorShape y;
+<<<<<<< HEAD
     EXPECT_OK(a.SliceTensorShape(x, &y));
     EXPECT_EQ(
         "dim { size: 1 } "
@@ -151,6 +176,13 @@ TEST(TensorSliceTest, SliceTensorShape) {
   }
 
   // An invalid application -- dimension 2 is out of bound
+=======
+    TF_EXPECT_OK(a.SliceTensorShape(x, &y));
+    EXPECT_EQ("[1,4,1,6]", y.DebugString());
+  }
+
+  // An invalid application -- dimension 2 is out of bounds
+>>>>>>> tensorflow/master
   {
     TensorSlice a = TensorSlice::ParseOrDie("1,1:1,4:-:-");
     TensorShape x({2, 4, 5, 8});
@@ -158,6 +190,7 @@ TEST(TensorSliceTest, SliceTensorShape) {
     EXPECT_EQ(
         "Internal: "
         "Extent in dimension 1 out of bounds: "
+<<<<<<< HEAD
         "shape = dim { size: 2 } "
         "dim { size: 4 } "
         "dim { size: 5 } "
@@ -165,6 +198,11 @@ TEST(TensorSliceTest, SliceTensorShape) {
         "slice = 1,1:1,4:-:-",
         a.SliceTensorShape(x, &y).ToString());
     EXPECT_EQ("", y.DebugString());
+=======
+        "shape = [2,4,5,8], slice = 1,1:1,4:-:-",
+        a.SliceTensorShape(x, &y).ToString());
+    EXPECT_EQ("[]", y.DebugString());
+>>>>>>> tensorflow/master
   }
 }
 
@@ -242,5 +280,19 @@ TEST(TensorSliceTest, Deserialization) {
   EXPECT_EQ("0,5:0,10:14,1:-:-", ts3.DebugString());
 }
 
+<<<<<<< HEAD
+=======
+TEST(TensorSliceTest, UpdateToCover) {
+  // [2:4, :, 3:]
+  TensorSlice s({{2, 2}, {0, -1}, {3, 7}});
+  // [:, 1:4, 2:4]
+  TensorSlice other({{0, -1}, {1, 3}, {2, 2}});
+
+  s.UpdateToCover(other);
+  // [:, :, 2:]
+  EXPECT_EQ("-:-:2,8", s.DebugString());
+}
+
+>>>>>>> tensorflow/master
 }  // namespace
 }  // namespace tensorflow

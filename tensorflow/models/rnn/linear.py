@@ -1,11 +1,30 @@
+<<<<<<< HEAD
 """Basic linear combinations that implicitly generate variables."""
 
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+"""Import linear python op for backward compatibility."""
+>>>>>>> tensorflow/master
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
 import tensorflow as tf
 
+<<<<<<< HEAD
 
 def linear(args, output_size, bias, bias_start=0.0, scope=None):
   """Linear map: sum_i(args[i] * W[i]), where W[i] is a variable.
@@ -51,3 +70,6 @@ def linear(args, output_size, bias, bias_start=0.0, scope=None):
     bias_term = tf.get_variable("Bias", [output_size],
                                 initializer=tf.constant_initializer(bias_start))
   return res + bias_term
+=======
+linear = tf.nn.linear
+>>>>>>> tensorflow/master

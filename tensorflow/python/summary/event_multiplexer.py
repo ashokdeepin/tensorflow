@@ -1,3 +1,20 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+>>>>>>> tensorflow/master
 """Provides an interface for working with multiple event files."""
 
 from __future__ import absolute_import
@@ -7,10 +24,19 @@ from __future__ import print_function
 import os
 import threading
 
+<<<<<<< HEAD
 from tensorflow.python.platform import gfile
 from tensorflow.python.platform import logging
 from tensorflow.python.summary import event_accumulator
 import six
+=======
+import six
+
+from tensorflow.python.platform import gfile
+from tensorflow.python.platform import logging
+from tensorflow.python.summary import event_accumulator
+from tensorflow.python.summary.impl import gcs
+>>>>>>> tensorflow/master
 
 
 class EventMultiplexer(object):
@@ -53,7 +79,10 @@ class EventMultiplexer(object):
   @@AddRun
   @@AddRunsFromDirectory
   @@Reload
+<<<<<<< HEAD
   @@AutoUpdate
+=======
+>>>>>>> tensorflow/master
   @@Runs
   @@Scalars
   @@Graph
@@ -62,8 +91,15 @@ class EventMultiplexer(object):
   @@Images
   """
 
+<<<<<<< HEAD
   def __init__(self, run_path_map=None,
                size_guidance=event_accumulator.DEFAULT_SIZE_GUIDANCE):
+=======
+  def __init__(self,
+               run_path_map=None,
+               size_guidance=event_accumulator.DEFAULT_SIZE_GUIDANCE,
+               purge_orphaned_data=True):
+>>>>>>> tensorflow/master
     """Constructor for the `EventMultiplexer`.
 
     Args:
@@ -73,14 +109,24 @@ class EventMultiplexer(object):
       size_guidance: A dictionary mapping from `tagType` to the number of items
         to store for each tag of that type. See
         `event_ccumulator.EventAccumulator` for details.
+<<<<<<< HEAD
+=======
+      purge_orphaned_data: Whether to discard any events that were "orphaned" by
+        a TensorFlow restart.
+>>>>>>> tensorflow/master
     """
     self._accumulators_mutex = threading.Lock()
     self._accumulators = {}
     self._paths = {}
     self._reload_called = False
+<<<<<<< HEAD
     self._autoupdate_called = False
     self._autoupdate_interval = None
     self._size_guidance = size_guidance
+=======
+    self._size_guidance = size_guidance
+    self.purge_orphaned_data = purge_orphaned_data
+>>>>>>> tensorflow/master
     if run_path_map is not None:
       for (run, path) in six.iteritems(run_path_map):
         self.AddRun(path, run)
@@ -94,9 +140,15 @@ class EventMultiplexer(object):
       do nothing. If we are watching a different path, replace the event
       accumulator.
 
+<<<<<<< HEAD
     If `AutoUpdate` or `Reload` have been called, it will `AutoUpdate` or
     `Reload` the newly created accumulators. This maintains the invariant that
     once the Multiplexer was activated, all of its accumulators are active.
+=======
+    If `Reload` has been called, it will `Reload` the newly created
+    accumulators. This maintains the invariant that once the Multiplexer was
+    activated, all of its accumulators are active.
+>>>>>>> tensorflow/master
 
     Args:
       path: Path to the event files (or event directory) for given run.
@@ -116,29 +168,53 @@ class EventMultiplexer(object):
           logging.warning('Conflict for name %s: old path %s, new path %s',
                           name, self._paths[name], path)
         logging.info('Constructing EventAccumulator for %s', path)
+<<<<<<< HEAD
         accumulator = event_accumulator.EventAccumulator(path,
                                                          self._size_guidance)
+=======
+        accumulator = event_accumulator.EventAccumulator(
+            path,
+            size_guidance=self._size_guidance,
+            purge_orphaned_data=self.purge_orphaned_data)
+>>>>>>> tensorflow/master
         self._accumulators[name] = accumulator
         self._paths[name] = path
     if accumulator:
       if self._reload_called:
         accumulator.Reload()
+<<<<<<< HEAD
       if self._autoupdate_called:
         accumulator.AutoUpdate(self._autoupdate_interval)
     return self
 
   def AddRunsFromDirectory(self, path, name=None):
     """Load runs from a directory, assuming each subdirectory is a run.
+=======
+    return self
+
+  def AddRunsFromDirectory(self, path, name=None):
+    """Load runs from a directory; recursively walks subdirectories.
+>>>>>>> tensorflow/master
 
     If path doesn't exist, no-op. This ensures that it is safe to call
       `AddRunsFromDirectory` multiple times, even before the directory is made.
 
+<<<<<<< HEAD
     If the directory contains TensorFlow event files, it is itself treated as a
       run.
 
     If the `EventMultiplexer` is already loaded or autoupdating, this will cause
     the newly created accumulators to also `Reload()` or `AutoUpdate()`.
 
+=======
+    If path is a directory, load event files in the directory (if any exist) and
+      recursively call AddRunsFromDirectory on any subdirectories. This mean you
+      can call AddRunsFromDirectory at the root of a tree of event logs and
+      TensorBoard will load them all.
+
+    If the `EventMultiplexer` is already loaded this will cause
+    the newly created accumulators to `Reload()`.
+>>>>>>> tensorflow/master
     Args:
       path: A string path to a directory to load runs from.
       name: Optionally, what name to apply to the runs. If name is provided
@@ -153,6 +229,7 @@ class EventMultiplexer(object):
     Returns:
       The `EventMultiplexer`.
     """
+<<<<<<< HEAD
     if not gfile.Exists(path):
       return  # Maybe it hasn't been created yet, fail silently to retry later
     if not gfile.IsDirectory(path):
@@ -175,6 +252,33 @@ class EventMultiplexer(object):
       else:
         dname = directory_name
       self.AddRun(path, dname)
+=======
+    subdirs = []
+    if gcs.IsGCSPath(path):
+      subdirs = [
+          subdir
+          for (subdir, files) in gcs.ListRecursively(path)
+          if list(filter(event_accumulator.IsTensorFlowEventsFile, files))
+      ]
+    else:
+      if not gfile.Exists(path):
+        return  # Maybe it hasn't been created yet, fail silently to retry later
+      if not gfile.IsDirectory(path):
+        raise ValueError('AddRunsFromDirectory: path exists and is not a '
+                         'directory, %s' % path)
+      subdirs = [
+          subdir
+          for (subdir, _, files) in gfile.Walk(path)
+          if list(filter(event_accumulator.IsTensorFlowEventsFile, files))
+      ]
+
+    for subdir in subdirs:
+      logging.info('Adding events from directory %s', subdir)
+      rpath = os.path.relpath(subdir, path)
+      subname = os.path.join(name, rpath) if name else rpath
+      self.AddRun(subdir, name=subname)
+
+>>>>>>> tensorflow/master
     return self
 
   def Reload(self):
@@ -187,6 +291,7 @@ class EventMultiplexer(object):
       l.Reload()
     return self
 
+<<<<<<< HEAD
   def AutoUpdate(self, interval=60):
     """Call `AutoUpdate(interval)` on every `EventAccumulator`."""
     self._autoupdate_interval = interval
@@ -197,6 +302,8 @@ class EventMultiplexer(object):
       l.AutoUpdate(interval)
     return self
 
+=======
+>>>>>>> tensorflow/master
   def Scalars(self, run, tag):
     """Retrieve the scalar events associated with a run and tag.
 
@@ -216,7 +323,11 @@ class EventMultiplexer(object):
     return accumulator.Scalars(tag)
 
   def Graph(self, run):
+<<<<<<< HEAD
     """Retrieve the graphs associated with the provided run.
+=======
+    """Retrieve the graph associated with the provided run.
+>>>>>>> tensorflow/master
 
     Args:
       run: A string name of a run to load the graph for.
@@ -232,6 +343,27 @@ class EventMultiplexer(object):
     accumulator = self._GetAccumulator(run)
     return accumulator.Graph()
 
+<<<<<<< HEAD
+=======
+  def RunMetadata(self, run, tag):
+    """Get the session.run() metadata associated with a TensorFlow run and tag.
+
+    Args:
+      run: A string name of a TensorFlow run.
+      tag: A string name of the tag associated with a particular session.run().
+
+    Raises:
+      KeyError: If the run is not found, or the tag is not available for the
+        given run.
+      RuntimeError: If the run's EventAccumulator has not been activated.
+
+    Returns:
+      The metadata in the form of `RunMetadata` protobuf data structure.
+    """
+    accumulator = self._GetAccumulator(run)
+    return accumulator.RunMetadata(tag)
+
+>>>>>>> tensorflow/master
   def Histograms(self, run, tag):
     """Retrieve the histogram events associated with a run and tag.
 
@@ -301,14 +433,19 @@ class EventMultiplexer(object):
     with self._accumulators_mutex:
       # To avoid nested locks, we construct a copy of the run-accumulator map
       items = list(six.iteritems(self._accumulators))
+<<<<<<< HEAD
     return {
         run_name: accumulator.Tags()
         for run_name, accumulator in items
     }
+=======
+    return {run_name: accumulator.Tags() for run_name, accumulator in items}
+>>>>>>> tensorflow/master
 
   def _GetAccumulator(self, run):
     with self._accumulators_mutex:
       return self._accumulators[run]
+<<<<<<< HEAD
 
 
 def AutoloadingMultiplexer(path_to_run, interval_secs=60,
@@ -349,3 +486,5 @@ def AutoloadingMultiplexer(path_to_run, interval_secs=60,
   t.daemon = True
   t.start()
   return multiplexer
+=======
+>>>>>>> tensorflow/master

@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #include "tensorflow/core/util/tensor_slice_writer.h"
 
 #include "tensorflow/core/lib/core/errors.h"
@@ -6,6 +7,32 @@
 #include "tensorflow/core/lib/random/random.h"
 #include "tensorflow/core/lib/strings/strcat.h"
 #include "tensorflow/core/public/env.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/util/tensor_slice_writer.h"
+
+#include "tensorflow/core/lib/core/errors.h"
+#include "tensorflow/core/lib/io/table_builder.h"
+#include "tensorflow/core/lib/random/random.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/public/version.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/saved_tensor_slice_util.h"
 
 namespace tensorflow {
@@ -48,8 +75,13 @@ class TableBuilder : public TensorSliceWriter::Builder {
 };
 }  // anonymous namespace
 
+<<<<<<< HEAD
 Status CreateTableTensorSliceBuilder(
     const string& name, TensorSliceWriter::Builder** builder) {
+=======
+Status CreateTableTensorSliceBuilder(const string& name,
+                                     TensorSliceWriter::Builder** builder) {
+>>>>>>> tensorflow/master
   *builder = nullptr;
   WritableFile* f;
   Status s = Env::Default()->NewWritableFile(name, &f);
@@ -66,7 +98,15 @@ TensorSliceWriter::TensorSliceWriter(const string& filename,
     : filename_(filename),
       create_builder_(create_builder),
       tmpname_(strings::StrCat(filename, ".tempstate", random::New64())),
+<<<<<<< HEAD
       slices_(0) {}
+=======
+      slices_(0) {
+  VersionDef* versions = sts_.mutable_meta()->mutable_versions();
+  versions->set_producer(TF_CHECKPOINT_VERSION);
+  versions->set_min_consumer(TF_CHECKPOINT_VERSION_MIN_CONSUMER);
+}
+>>>>>>> tensorflow/master
 
 Status TensorSliceWriter::Finish() {
   Builder* b;

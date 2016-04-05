@@ -1,9 +1,32 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/graph/algorithm.h"
 
 #include <algorithm>
 #include <deque>
 #include <vector>
 
+<<<<<<< HEAD
+=======
+#include "tensorflow/core/platform/logging.h"
+
+>>>>>>> tensorflow/master
 namespace tensorflow {
 
 void DFS(const Graph& g, std::function<void(Node*)> enter,
@@ -44,6 +67,47 @@ void DFS(const Graph& g, std::function<void(Node*)> enter,
   }
 }
 
+<<<<<<< HEAD
+=======
+void ReverseDFS(const Graph& g, std::function<void(Node*)> enter,
+                std::function<void(Node*)> leave) {
+  // Stack of work to do.
+  struct Work {
+    Node* node;
+    bool leave;  // Are we entering or leaving n?
+  };
+  std::vector<Work> stack;
+  stack.push_back(Work{g.sink_node(), false});
+
+  std::vector<bool> visited(g.num_node_ids(), false);
+  while (!stack.empty()) {
+    Work w = stack.back();
+    stack.pop_back();
+
+    Node* n = w.node;
+    if (w.leave) {
+      leave(n);
+      continue;
+    }
+
+    if (visited[n->id()]) continue;
+    visited[n->id()] = true;
+    if (enter) enter(n);
+
+    // Arrange to call leave(n) when all done with descendants.
+    if (leave) stack.push_back(Work{n, true});
+
+    // Arrange to work on parents.
+    for (Node* in : n->in_nodes()) {
+      if (!visited[in->id()]) {
+        // Note; we must not mark as visited until we actually process it.
+        stack.push_back(Work{in, false});
+      }
+    }
+  }
+}
+
+>>>>>>> tensorflow/master
 void GetPostOrder(const Graph& g, std::vector<Node*>* order) {
   order->clear();
   DFS(g, nullptr, [order](Node* n) { order->push_back(n); });
@@ -63,14 +127,28 @@ void PruneForReverseReachability(Graph* g,
   // nodes, and accumulating the visited nodes.
   std::deque<const Node*> queue;
   for (const Node* n : nodes) {
+<<<<<<< HEAD
     queue.push_back(n);
+=======
+    if (visited.insert(n).second) {
+      VLOG(2) << "Reverse reach init: " << n->name();
+      queue.push_back(n);
+    }
+>>>>>>> tensorflow/master
   }
   while (!queue.empty()) {
     const Node* n = queue.front();
     queue.pop_front();
+<<<<<<< HEAD
     if (visited.insert(n).second) {
       for (const Node* in : n->in_nodes()) {
         queue.push_back(in);
+=======
+    for (const Node* in : n->in_nodes()) {
+      if (visited.insert(in).second) {
+        queue.push_back(in);
+        VLOG(2) << "Reverse reach : " << n->name() << " from " << in->name();
+>>>>>>> tensorflow/master
       }
     }
   }
@@ -91,6 +169,7 @@ void PruneForReverseReachability(Graph* g,
   FixupSourceAndSinkEdges(g);
 }
 
+<<<<<<< HEAD
 void FixupSourceAndSinkEdges(Graph* g) {
   // Connect all nodes with no incoming edges to source.
   // Connect all nodes with no outgoing edges to sink.
@@ -102,6 +181,23 @@ void FixupSourceAndSinkEdges(Graph* g) {
       g->AddControlEdge(n, g->sink_node());
     }
   }
+=======
+bool FixupSourceAndSinkEdges(Graph* g) {
+  // Connect all nodes with no incoming edges to source.
+  // Connect all nodes with no outgoing edges to sink.
+  bool changed = false;
+  for (Node* n : g->nodes()) {
+    if (!n->IsSource() && n->in_edges().empty()) {
+      g->AddControlEdge(g->source_node(), n);
+      changed = true;
+    }
+    if (!n->IsSink() && n->out_edges().empty()) {
+      g->AddControlEdge(n, g->sink_node());
+      changed = true;
+    }
+  }
+  return changed;
+>>>>>>> tensorflow/master
 }
 
 }  // namespace tensorflow

@@ -1,14 +1,39 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/platform/tracing.h"
 
 #include <atomic>
 #include <map>
 #include <string>
+<<<<<<< HEAD
 #include "tensorflow/core/framework/step_stats.pb.h"
 #include "tensorflow/core/lib/strings/str_util.h"
+=======
+#include <vector>
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/platform/logging.h"
 
 namespace tensorflow {
 
+<<<<<<< HEAD
 StepStatsCollector::StepStatsCollector(StepStats* ss) : step_stats_(ss) {}
 
 void StepStatsCollector::Save(const string& device, NodeExecStats* nt) {
@@ -40,6 +65,8 @@ void StepStatsCollector::Swap(StepStats* ss) {
   ss->Swap(step_stats_);
 }
 
+=======
+>>>>>>> tensorflow/master
 namespace port {
 
 int32 Tracing::category_id_[kEventCategoryMax];
@@ -103,6 +130,7 @@ bool Tracing::ParseEventMask(const char* flagname, const string& value) {
   return true;
 }
 
+<<<<<<< HEAD
 static std::atomic<Tracing::Engine*> tracing_engine;
 
 void Tracing::RegisterEngine(Engine* e) {
@@ -111,12 +139,19 @@ void Tracing::RegisterEngine(Engine* e) {
 
 static Tracing::Engine* engine() {
   return tracing_engine.load(std::memory_order_acquire);
+=======
+/*static*/ std::atomic<Tracing::Engine*> Tracing::tracing_engine_;
+
+void Tracing::RegisterEngine(Engine* e) {
+  tracing_engine_.store(e, std::memory_order_release);
+>>>>>>> tensorflow/master
 }
 
 Tracing::Engine::~Engine() {}
 Tracing::Engine::Annotation::~Annotation() {}
 Tracing::Engine::Tracer::~Tracer() {}
 
+<<<<<<< HEAD
 Tracing::ScopedAnnotation::ScopedAnnotation(StringPiece name) {
   auto e = engine();
   if (e) {
@@ -131,5 +166,7 @@ Tracing::TraceMe::TraceMe(StringPiece name) {
   }
 }
 
+=======
+>>>>>>> tensorflow/master
 }  // namespace port
 }  // namespace tensorflow

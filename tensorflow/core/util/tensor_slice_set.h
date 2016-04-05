@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // A class to manage slices of a tensor. You can "register" set of slices for a
 // tensor and then "query" if we have data for a given slice.
 
@@ -7,6 +25,7 @@
 #ifndef TENSORFLOW_UTIL_TENSOR_SLICE_SET_H_
 #define TENSORFLOW_UTIL_TENSOR_SLICE_SET_H_
 
+<<<<<<< HEAD
 #include <string>                 // for string
 #include <unordered_map>
 
@@ -16,6 +35,18 @@
 #include "tensorflow/core/public/tensor_shape.h"
 #include "tensorflow/core/lib/core/stringpiece.h"  // for StringPiece
 #include "tensorflow/core/public/status.h"         // for Status
+=======
+#include <string>  // for string
+#include <unordered_map>
+#include <vector>
+
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_slice.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/lib/core/status.h"       // for Status
+#include "tensorflow/core/lib/core/stringpiece.h"  // for StringPiece
+#include "tensorflow/core/platform/types.h"        // for int64
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -37,11 +68,19 @@ class TensorSliceSet {
   // the data is always available during the life time of the tensor slice set
   // if it is not nullptr.
   Status Register(const TensorSlice& slice, const string& tag,
+<<<<<<< HEAD
                        const float* data);
 
   // Query about a new slice: checks if we have data for "slice" and if we have
   // the data and "data" is not nullptr, fill "data" with the slice data. The
   // caller needs to make sure "data" point to a large eough buffer.
+=======
+                  const float* data);
+
+  // Query about a new slice: checks if we have data for "slice" and if we have
+  // the data and "data" is not nullptr, fill "data" with the slice data. The
+  // caller needs to make sure "data" point to a large enough buffer.
+>>>>>>> tensorflow/master
   // TODO(yangke): avoid unnecessary copying by using a core::RefCounted
   // pointer.
   bool Query(const TensorSlice& slice, float* data) const;
@@ -53,17 +92,38 @@ class TensorSliceSet {
       const TensorSlice& slice,
       std::vector<std::pair<tensorflow::TensorSlice, string>>* results) const;
 
+<<<<<<< HEAD
  private:
   const TensorShape shape_;
   const DataType type_;
+=======
+>>>>>>> tensorflow/master
   struct SliceInfo {
     TensorSlice slice;
     const string tag;
     const float* data;
     int64 num_floats;
   };
+<<<<<<< HEAD
   // We maintain a mapping from the slice string to the slice information.
   std::unordered_map<string, SliceInfo> slices_;
+=======
+
+  // Returns the map from slice string to SliceInfo.
+  const std::unordered_map<string, SliceInfo>& Slices() const {
+    return slices_;
+  }
+
+ private:
+  const TensorShape shape_;
+  const DataType type_;
+  // We maintain a mapping from the slice string to the slice information.
+  std::unordered_map<string, SliceInfo> slices_;
+
+  // Minimal slice which contains all presented slices. Used for speeding up
+  // overlap check when slices are being added consequently.
+  TensorSlice slices_hull_;
+>>>>>>> tensorflow/master
 };
 
 }  // namespace checkpoint

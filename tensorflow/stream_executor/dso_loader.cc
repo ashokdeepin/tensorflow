@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/dso_loader.h"
 
 #include <dlfcn.h>
@@ -20,13 +38,24 @@ namespace perftools {
 namespace gputools {
 namespace internal {
 
+<<<<<<< HEAD
 /* static */ port::Status DsoLoader::GetCublasDsoHandle(void** dso_handle) {
   return GetDsoHandle(FindDsoPath("libcublas.so.7.0",
+=======
+// TensorFlow OSS configure uses the following lines to configure versions. For
+// any modifications of the format, please make sure the script still works.
+string GetCudaVersion() { return ""; }
+string GetCudnnVersion() { return ""; }
+
+/* static */ port::Status DsoLoader::GetCublasDsoHandle(void** dso_handle) {
+  return GetDsoHandle(FindDsoPath("libcublas.so" + GetCudaVersion(),
+>>>>>>> tensorflow/master
                                   "third_party/gpus/cuda/lib64"),
                       dso_handle);
 }
 
 /* static */ port::Status DsoLoader::GetCudnnDsoHandle(void** dso_handle) {
+<<<<<<< HEAD
   // libcudnn is versioned differently than the other libraries.  See b/22397368
   // for some details about the complications surrounding this.
   return GetDsoHandle(FindDsoPath("libcudnn.so.6.5",
@@ -36,25 +65,52 @@ namespace internal {
 
 /* static */ port::Status DsoLoader::GetCufftDsoHandle(void** dso_handle) {
   return GetDsoHandle(FindDsoPath("libcufft.so.7.0",
+=======
+  // libcudnn is versioned differently than the other libraries and may have a
+  // different version number than other CUDA libraries.  See b/22397368 for
+  // some details about the complications surrounding this.
+  return GetDsoHandle(
+      FindDsoPath("libcudnn.so" + GetCudnnVersion(),
+                  "third_party/gpus/cuda/lib64"),
+      dso_handle);
+}
+
+/* static */ port::Status DsoLoader::GetCufftDsoHandle(void** dso_handle) {
+  return GetDsoHandle(FindDsoPath("libcufft.so" + GetCudaVersion(),
+>>>>>>> tensorflow/master
                                   "third_party/gpus/cuda/lib64"),
                       dso_handle);
 }
 
 /* static */ port::Status DsoLoader::GetCurandDsoHandle(void** dso_handle) {
+<<<<<<< HEAD
   return GetDsoHandle(FindDsoPath("libcurand.so.7.0",
+=======
+  return GetDsoHandle(FindDsoPath("libcurand.so" + GetCudaVersion(),
+>>>>>>> tensorflow/master
                                   "third_party/gpus/cuda/lib64"),
                       dso_handle);
 }
 
 /* static */ port::Status DsoLoader::GetLibcudaDsoHandle(void** dso_handle) {
+<<<<<<< HEAD
   return GetDsoHandle(FindDsoPath("libcuda.so",
                                   "third_party/gpus/cuda/driver/lib64"),
                       dso_handle);
+=======
+  return GetDsoHandle(
+      FindDsoPath("libcuda.so.1", "third_party/gpus/cuda/driver/lib64"),
+      dso_handle);
+>>>>>>> tensorflow/master
 }
 
 /* static */ port::Status DsoLoader::GetLibcuptiDsoHandle(void** dso_handle) {
   return GetDsoHandle(
+<<<<<<< HEAD
       FindDsoPath("libcupti.so.7.0",
+=======
+      FindDsoPath("libcupti.so" + GetCudaVersion(),
+>>>>>>> tensorflow/master
                   "third_party/gpus/cuda/extras/CUPTI/lib64"),
       dso_handle);
 }
@@ -74,16 +130,26 @@ namespace internal {
   string path_string = path.ToString();
   *dso_handle = dlopen(path_string.c_str(), dynload_flags);
   if (*dso_handle == nullptr) {
+<<<<<<< HEAD
     LOG(INFO) << "LD_LIBRARY_PATH: " << getenv("LD_LIBRARY_PATH");
     // TODO(b/22689637): Eliminate unnecessary ToString once StrCat has been
     // moved to the open-sourceable version.
+=======
+    LOG(INFO) << "Couldn't open CUDA library " << path
+              << ". LD_LIBRARY_PATH: " << getenv("LD_LIBRARY_PATH");
+>>>>>>> tensorflow/master
     return port::Status(
         port::error::FAILED_PRECONDITION,
         port::StrCat("could not dlopen DSO: ", path, "; dlerror: ", dlerror()));
   }
+<<<<<<< HEAD
 
   VLOG(2) << "loaded path \"" << path << "\" "
           << (load_kind == LoadKind::kLocal ? "locally" : "globally");
+=======
+  LOG(INFO) << "successfully opened CUDA library " << path
+            << (load_kind == LoadKind::kLocal ? " locally" : " globally");
+>>>>>>> tensorflow/master
   return port::Status::OK();
 }
 

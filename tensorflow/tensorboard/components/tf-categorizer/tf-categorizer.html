@@ -1,5 +1,10 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-toggle-button/paper-toggle-button.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-toggle-button/paper-toggle-button.html">
+>>>>>>> tensorflow/master
 
 <link rel="import" href="../tf-regex-group/tf-regex-group.html">
 <link rel="import" href="../tf-dashboard-common/tensorboard-color.html">
@@ -29,12 +34,19 @@ categories are exclusive.
       <tf-regex-group id="regex-group" regexes="{{regexes}}"></tf-regex-group>
     </div>
     <div id="underscore-categorization">
+<<<<<<< HEAD
       <span>Split On Underscores:</span>
       <paper-toggle-button checked="{{splitOnUnderscore}}"></paper-toggle-button>
+=======
+      <paper-checkbox
+        checked="{{splitOnUnderscore}}"
+      >Split on underscores</paper-checkbox>
+>>>>>>> tensorflow/master
     </div>
     <style>
       :host {
         display: block;
+<<<<<<< HEAD
         padding-bottom: 5px;
         padding-top: 5px;
       }
@@ -51,6 +63,17 @@ categories are exclusive.
         padding-left: 94px;
         color: var(--paper-grey-700);
         font-size: 14px;
+=======
+        padding-bottom: 15px;
+      }
+      paper-checkbox {
+        --paper-checkbox-checked-color: var(--paper-grey-600);
+        --paper-checkbox-unchecked-color: var(--paper-grey-600);
+        font-size: 14px;
+      }
+      #underscore-categorization {
+        color: var(--paper-grey-700);
+>>>>>>> tensorflow/master
       }
     </style>
   </template>

@@ -1,9 +1,18 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../imports/plottable.html">
 <link rel="import" href="../imports/lodash.html">
 
 <!--
 tf-chart (TFChart) creates an element that draws a line chart for dispalying event values.
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../tf-imports/plottable.html">
+<link rel="import" href="../tf-imports/lodash.html">
+
+<!--
+tf-chart (TFChart) creates an element that draws a line chart for displaying event values.
+>>>>>>> tensorflow/master
 It has the following settable properties:
   tag: (required, string) - the name of the tag to load for this chart
   selectedRuns: (required, string[]) - the runs the chart should display
@@ -53,15 +62,29 @@ The wall_time is serialized as seconds since epoch.
         tag: String,
         selectedRuns: Array,
         xType: String,
+<<<<<<< HEAD
         dataCoordinator: Object,
+=======
+        dataProvider: Function,
+>>>>>>> tensorflow/master
         tooltipUpdater: Function,
         _initialized: Boolean,
       },
       observers: [
+<<<<<<< HEAD
         "_makeChart(type, tag, dataCoordinator, tooltipUpdater, xType, colorScale, _initialized)",
         "_changeRuns(_chart, selectedRuns.*)"
       ],
       _changeRuns: function(chart, change) {
+=======
+        "_makeChart(type, tag, dataProvider, tooltipUpdater, xType, colorScale, _initialized)",
+        "_changeRuns(_chart, selectedRuns.*)"
+      ],
+      _changeRuns: function(chart) {
+        if (chart.tag !== this.tag) {
+          return; // hack around some weird polymer bug :(
+        }
+>>>>>>> tensorflow/master
         this._chart.changeRuns(this.selectedRuns);
         this.redraw();
       },
@@ -77,13 +100,21 @@ The wall_time is serialized as seconds since epoch.
           throw new Error("Unrecognized chart type");
         }
       },
+<<<<<<< HEAD
       _makeChart: function(type, tag, dataCoordinator, tooltipUpdater, xType, colorScale, _initialized) {
+=======
+      _makeChart: function(type, tag, dataProvider, tooltipUpdater, xType, colorScale, _initialized) {
+>>>>>>> tensorflow/master
         if (!_initialized) {
           return;
         }
         if (this._chart) this._chart.destroy();
         var cns = this._constructor(type);
+<<<<<<< HEAD
         var chart = new cns(tag, dataCoordinator, tooltipUpdater, xType, colorScale);
+=======
+        var chart = new cns(tag, dataProvider, tooltipUpdater, xType, colorScale);
+>>>>>>> tensorflow/master
         var svg = d3.select(this.$.chartsvg);
         this.async(function() {
           chart.renderTo(svg);

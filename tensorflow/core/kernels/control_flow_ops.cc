@@ -1,9 +1,33 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/kernels/control_flow_ops.h"
 
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/public/tensor.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/platform/macros.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -17,11 +41,18 @@ class SwitchOp : public OpKernel {
 
   void Compute(OpKernelContext* context) override {
     const Tensor& outputPorts = context->input(1);
+<<<<<<< HEAD
     OP_REQUIRES(
         context, TensorShapeUtils::IsScalar(outputPorts.shape()),
         errors::InvalidArgument("The second input must be a scalar, "
                                 "but it has shape ",
                                 outputPorts.shape().ShortDebugString()));
+=======
+    OP_REQUIRES(context, TensorShapeUtils::IsScalar(outputPorts.shape()),
+                errors::InvalidArgument("The second input must be a scalar, "
+                                        "but it has shape ",
+                                        outputPorts.shape().DebugString()));
+>>>>>>> tensorflow/master
 
     bool pred = outputPorts.scalar<bool>()();
     int port = (pred) ? 1 : 0;
@@ -70,17 +101,23 @@ class SwitchOp : public OpKernel {
 TF_CALL_ALL_TYPES(REGISTER_CPU_SWITCH);
 TF_CALL_ALL_TYPES(REGISTER_CPU_REF_SWITCH);
 
+<<<<<<< HEAD
 TF_CALL_GPU_NUMBER_TYPES(REGISTER_GPU_SWITCH);
 REGISTER_GPU_SWITCH(bool);
 TF_CALL_GPU_NUMBER_TYPES(REGISTER_GPU_REF_SWITCH);
 REGISTER_GPU_REF_SWITCH(int32);
 REGISTER_GPU_REF_SWITCH(bool);
+=======
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_SWITCH);
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_REF_SWITCH);
+>>>>>>> tensorflow/master
 
 #undef REGISTER_CPU_SWITCH
 #undef REGISTER_CPU_REF_SWITCH
 #undef REGISTER_GPU_SWITCH
 #undef REGISTER_GPU_REF_SWITCH
 
+<<<<<<< HEAD
 // A special GPU kernel for int32.
 // TODO(b/25387198): Also enable int32 in device memory. This kernel
 // registration requires all int32 inputs and outputs to be in host memory.
@@ -92,6 +129,40 @@ REGISTER_KERNEL_BUILDER(Name("Switch")
                             .HostMemory("output_true")
                             .TypeConstraint<int32>("T"),
                         SwitchOp);
+=======
+// Special GPU kernels for int32 and string.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+#define REGISTER_GPU_HOST_KERNEL(type)                    \
+  REGISTER_KERNEL_BUILDER(Name("Switch")                  \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("pred")         \
+                              .HostMemory("output_false") \
+                              .HostMemory("output_true")  \
+                              .TypeConstraint<type>("T"), \
+                          SwitchOp)
+
+#define REGISTER_GPU_HOST_REF_KERNEL(type)                \
+  REGISTER_KERNEL_BUILDER(Name("RefSwitch")               \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("pred")         \
+                              .HostMemory("output_false") \
+                              .HostMemory("output_true")  \
+                              .TypeConstraint<type>("T"), \
+                          SwitchOp)
+
+REGISTER_GPU_HOST_KERNEL(int32);
+REGISTER_GPU_HOST_REF_KERNEL(int32);
+REGISTER_GPU_HOST_KERNEL(bool);
+REGISTER_GPU_HOST_REF_KERNEL(bool);
+REGISTER_GPU_HOST_KERNEL(string);
+REGISTER_GPU_HOST_REF_KERNEL(string);
+
+#undef REGISTER_GPU_HOST_KERNEL
+#undef REGISTER_GPU_HOST_REF_KERNEL
+>>>>>>> tensorflow/master
 
 class RefSelectOp : public OpKernel {
  public:
@@ -101,11 +172,18 @@ class RefSelectOp : public OpKernel {
 
   void Compute(OpKernelContext* context) override {
     const Tensor& index_tensor = context->input(0);
+<<<<<<< HEAD
     OP_REQUIRES(
         context, TensorShapeUtils::IsScalar(index_tensor.shape()),
         errors::InvalidArgument("Index must be a scalar, "
                                 "but it has shape ",
                                 index_tensor.shape().ShortDebugString()));
+=======
+    OP_REQUIRES(context, TensorShapeUtils::IsScalar(index_tensor.shape()),
+                errors::InvalidArgument("Index must be a scalar, "
+                                        "but it has shape ",
+                                        index_tensor.shape().DebugString()));
+>>>>>>> tensorflow/master
 
     int32 index = index_tensor.scalar<int32>()();
 
@@ -158,7 +236,15 @@ class MergeOp : public OpKernel {
         }
         input_seen = true;
 
+<<<<<<< HEAD
         context->set_output(0, context->input(i));
+=======
+        if (IsRefType(context->input_dtype(i))) {
+          context->forward_ref_input_to_ref_output(i, 0);
+        } else {
+          context->set_output(0, context->input(i));
+        }
+>>>>>>> tensorflow/master
         Tensor* value_index = nullptr;
         OP_REQUIRES_OK(context, context->allocate_output(1, TensorShape({}),
                                                          &value_index));
@@ -175,6 +261,10 @@ class MergeOp : public OpKernel {
 };
 
 REGISTER_KERNEL_BUILDER(Name("Merge").Device(DEVICE_CPU), MergeOp);
+<<<<<<< HEAD
+=======
+REGISTER_KERNEL_BUILDER(Name("RefMerge").Device(DEVICE_CPU), MergeOp);
+>>>>>>> tensorflow/master
 
 #define REGISTER_GPU_KERNEL(type)                         \
   REGISTER_KERNEL_BUILDER(Name("Merge")                   \
@@ -183,6 +273,7 @@ REGISTER_KERNEL_BUILDER(Name("Merge").Device(DEVICE_CPU), MergeOp);
                               .HostMemory("value_index"), \
                           MergeOp);
 
+<<<<<<< HEAD
 TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
 
 #undef REGISTER_GPU_KERNEL
@@ -197,6 +288,46 @@ REGISTER_KERNEL_BUILDER(Name("Merge")
                             .HostMemory("value_index")
                             .TypeConstraint<int32>("T"),
                         MergeOp);
+=======
+#define REGISTER_GPU_REF_KERNEL(type)                     \
+  REGISTER_KERNEL_BUILDER(Name("RefMerge")                \
+                              .Device(DEVICE_GPU)         \
+                              .TypeConstraint<type>("T")  \
+                              .HostMemory("value_index"), \
+                          MergeOp);
+
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_REF_KERNEL);
+REGISTER_GPU_KERNEL(bool);
+REGISTER_GPU_REF_KERNEL(bool);
+
+#undef REGISTER_GPU_KERNEL
+#undef REGISTER_GPU_REF_KERNEL
+
+// Special GPU kernels for int32 and string.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+#define REGISTER_GPU_HOST_KERNEL(type)                    \
+  REGISTER_KERNEL_BUILDER(Name("Merge")                   \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("inputs")       \
+                              .HostMemory("output")       \
+                              .HostMemory("value_index")  \
+                              .TypeConstraint<type>("T"), \
+                          MergeOp);                       \
+  REGISTER_KERNEL_BUILDER(Name("RefMerge")                \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("inputs")       \
+                              .HostMemory("output")       \
+                              .HostMemory("value_index")  \
+                              .TypeConstraint<type>("T"), \
+                          MergeOp)
+
+REGISTER_GPU_HOST_KERNEL(int32);
+REGISTER_GPU_HOST_KERNEL(string);
+
+#undef REGISTER_GPU_HOST_KERNEL
+>>>>>>> tensorflow/master
 
 // An enter op has one input and one output. It creates or finds
 // the child frame that is uniquely identified by the frame_name,
@@ -225,6 +356,7 @@ REGISTER_KERNEL_BUILDER(Name("RefEnter").Device(DEVICE_CPU), EnterOp);
 
 #define REGISTER_GPU_KERNEL(type) \
   REGISTER_KERNEL_BUILDER(        \
+<<<<<<< HEAD
       Name("Enter").Device(DEVICE_GPU).TypeConstraint<type>("T"), EnterOp);
 #define REGISTER_GPU_REF_KERNEL(type) \
   REGISTER_KERNEL_BUILDER(            \
@@ -232,10 +364,22 @@ REGISTER_KERNEL_BUILDER(Name("RefEnter").Device(DEVICE_CPU), EnterOp);
 
 TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
 TF_CALL_NUMBER_TYPES(REGISTER_GPU_REF_KERNEL);
+=======
+      Name("Enter").Device(DEVICE_GPU).TypeConstraint<type>("T"), EnterOp)
+#define REGISTER_GPU_REF_KERNEL(type) \
+  REGISTER_KERNEL_BUILDER(            \
+      Name("RefEnter").Device(DEVICE_GPU).TypeConstraint<type>("T"), EnterOp)
+
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_REF_KERNEL);
+REGISTER_GPU_KERNEL(bool);
+REGISTER_GPU_REF_KERNEL(bool);
+>>>>>>> tensorflow/master
 
 #undef REGISTER_GPU_KERNEL
 #undef REGISTER_GPU_REF_KERNEL
 
+<<<<<<< HEAD
 // A special GPU kernel for int32.
 // TODO(b/25387198): Also enable int32 in device memory. This kernel
 // registration requires all int32 inputs and outputs to be in host memory.
@@ -245,6 +389,34 @@ REGISTER_KERNEL_BUILDER(Name("Enter")
                             .HostMemory("output")
                             .TypeConstraint<int32>("T"),
                         EnterOp);
+=======
+// Special GPU kernels for int32 and string.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+#define REGISTER_GPU_HOST_KERNEL(type)                    \
+  REGISTER_KERNEL_BUILDER(Name("Enter")                   \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          EnterOp)
+
+#define REGISTER_GPU_HOST_REF_KERNEL(type)                \
+  REGISTER_KERNEL_BUILDER(Name("RefEnter")                \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          EnterOp)
+
+REGISTER_GPU_HOST_KERNEL(int32);
+REGISTER_GPU_HOST_REF_KERNEL(int32);
+REGISTER_GPU_HOST_KERNEL(string);
+REGISTER_GPU_HOST_REF_KERNEL(string);
+
+#undef REGISTER_GPU_HOST_KERNEL
+#undef REGISTER_GPU_HOST_REF_KERNEL
+>>>>>>> tensorflow/master
 
 // An exit op has one input and one output. It exits the current
 // frame to its parent frame, and makes its input available to the
@@ -254,7 +426,15 @@ class ExitOp : public OpKernel {
   explicit ExitOp(OpKernelConstruction* context) : OpKernel(context) {}
 
   void Compute(OpKernelContext* context) override {
+<<<<<<< HEAD
     context->set_output(0, context->input(0));
+=======
+    if (IsRefType(context->input_dtype(0))) {
+      context->forward_ref_input_to_ref_output(0, 0);
+    } else {
+      context->set_output(0, context->input(0));
+    }
+>>>>>>> tensorflow/master
   }
 
   bool IsExpensive() override { return false; }
@@ -265,10 +445,15 @@ class ExitOp : public OpKernel {
 };
 
 REGISTER_KERNEL_BUILDER(Name("Exit").Device(DEVICE_CPU), ExitOp);
+<<<<<<< HEAD
+=======
+REGISTER_KERNEL_BUILDER(Name("RefExit").Device(DEVICE_CPU), ExitOp);
+>>>>>>> tensorflow/master
 
 #define REGISTER_GPU_KERNEL(type) \
   REGISTER_KERNEL_BUILDER(        \
       Name("Exit").Device(DEVICE_GPU).TypeConstraint<type>("T"), ExitOp);
+<<<<<<< HEAD
 
 TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
 
@@ -283,6 +468,39 @@ REGISTER_KERNEL_BUILDER(Name("Exit")
                             .HostMemory("output")
                             .TypeConstraint<int32>("T"),
                         ExitOp);
+=======
+#define REGISTER_GPU_REF_KERNEL(type) \
+  REGISTER_KERNEL_BUILDER(            \
+      Name("RefExit").Device(DEVICE_GPU).TypeConstraint<type>("T"), ExitOp);
+
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
+REGISTER_GPU_KERNEL(bool);
+
+#undef REGISTER_GPU_KERNEL
+#undef REGISTER_GPU_REF_KERNEL
+
+// Special GPU kernels for int32 and string.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+#define REGISTER_GPU_HOST_KERNEL(type)                    \
+  REGISTER_KERNEL_BUILDER(Name("Exit")                    \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          ExitOp);                        \
+  REGISTER_KERNEL_BUILDER(Name("RefExit")                 \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          ExitOp)
+
+REGISTER_GPU_HOST_KERNEL(int32);
+REGISTER_GPU_HOST_KERNEL(string);
+
+#undef REGISTER_GPU_HOST_KERNEL
+>>>>>>> tensorflow/master
 
 // A next_iteration op has one input and one output. It makes its input
 // available to the next iteration.
@@ -291,7 +509,15 @@ class NextIterationOp : public OpKernel {
   explicit NextIterationOp(OpKernelConstruction* context) : OpKernel(context) {}
 
   void Compute(OpKernelContext* context) override {
+<<<<<<< HEAD
     context->set_output(0, context->input(0));
+=======
+    if (IsRefType(context->input_dtype(0))) {
+      context->forward_ref_input_to_ref_output(0, 0);
+    } else {
+      context->set_output(0, context->input(0));
+    }
+>>>>>>> tensorflow/master
   }
 
   bool IsExpensive() override { return false; }
@@ -303,6 +529,7 @@ class NextIterationOp : public OpKernel {
 
 REGISTER_KERNEL_BUILDER(Name("NextIteration").Device(DEVICE_CPU),
                         NextIterationOp);
+<<<<<<< HEAD
 
 #define REGISTER_GPU_KERNEL(type)                                         \
   REGISTER_KERNEL_BUILDER(                                                \
@@ -322,6 +549,45 @@ REGISTER_KERNEL_BUILDER(Name("NextIteration")
                             .HostMemory("output")
                             .TypeConstraint<int32>("T"),
                         NextIterationOp);
+=======
+REGISTER_KERNEL_BUILDER(Name("RefNextIteration").Device(DEVICE_CPU),
+                        NextIterationOp);
+
+#define REGISTER_GPU_KERNEL(type)                                            \
+  REGISTER_KERNEL_BUILDER(                                                   \
+      Name("NextIteration").Device(DEVICE_GPU).TypeConstraint<type>("T"),    \
+      NextIterationOp);                                                      \
+  REGISTER_KERNEL_BUILDER(                                                   \
+      Name("RefNextIteration").Device(DEVICE_GPU).TypeConstraint<type>("T"), \
+      NextIterationOp)
+
+TF_CALL_NUMBER_TYPES_NO_INT32(REGISTER_GPU_KERNEL);
+REGISTER_GPU_KERNEL(bool);
+
+#undef REGISTER_GPU_KERNEL
+
+// Special GPU kernels for int32 and string.
+// TODO(b/25387198): Also enable int32 in device memory. This kernel
+// registration requires all int32 inputs and outputs to be in host memory.
+#define REGISTER_GPU_HOST_KERNEL(type)                    \
+  REGISTER_KERNEL_BUILDER(Name("NextIteration")           \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          NextIterationOp);               \
+  REGISTER_KERNEL_BUILDER(Name("RefNextIteration")        \
+                              .Device(DEVICE_GPU)         \
+                              .HostMemory("data")         \
+                              .HostMemory("output")       \
+                              .TypeConstraint<type>("T"), \
+                          NextIterationOp)
+
+REGISTER_GPU_HOST_KERNEL(int32);
+REGISTER_GPU_HOST_KERNEL(string);
+
+#undef REGISTER_GPU_HOST_KERNEL
+>>>>>>> tensorflow/master
 
 // A LoopCond op has one input and one output. The input is a boolean
 // scalar representing the taken branches of the "pivot" Switch that
@@ -356,4 +622,24 @@ REGISTER_KERNEL_BUILDER(Name("ControlTrigger").Device(DEVICE_CPU),
 REGISTER_KERNEL_BUILDER(Name("ControlTrigger").Device(DEVICE_GPU),
                         ControlTriggerOp);
 
+<<<<<<< HEAD
+=======
+// When called, abort op will abort the current process. This can be used to
+// abort remote PSs when needed.
+class AbortOp : public OpKernel {
+ public:
+  explicit AbortOp(OpKernelConstruction* context) : OpKernel(context) {
+    OP_REQUIRES_OK(context, context->GetAttr("error_msg", &error_msg_));
+  }
+
+  void Compute(OpKernelContext* context) override {
+    CHECK(false) << "Abort_op intentional failure; " << error_msg_;
+  }
+
+ private:
+  string error_msg_;
+};
+
+REGISTER_KERNEL_BUILDER(Name("Abort").Device(DEVICE_CPU), AbortOp);
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

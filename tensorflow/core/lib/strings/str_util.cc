@@ -1,5 +1,26 @@
+<<<<<<< HEAD
 #include "tensorflow/core/lib/strings/str_util.h"
 #include <ctype.h>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/lib/strings/str_util.h"
+#include <ctype.h>
+#include <vector>
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace str_util {
@@ -296,6 +317,28 @@ bool ConsumeLeadingDigits(StringPiece* s, uint64* val) {
   }
 }
 
+<<<<<<< HEAD
+=======
+bool ConsumeNonWhitespace(StringPiece* s, StringPiece* val) {
+  const char* p = s->data();
+  const char* limit = p + s->size();
+  while (p < limit) {
+    const char c = *p;
+    if (isspace(c)) break;
+    p++;
+  }
+  const size_t n = p - s->data();
+  if (n > 0) {
+    val->set(s->data(), n);
+    s->remove_prefix(n);
+    return true;
+  } else {
+    val->clear();
+    return false;
+  }
+}
+
+>>>>>>> tensorflow/master
 bool SplitAndParseAsInts(StringPiece text, char delim,
                          std::vector<int32>* result) {
   result->clear();

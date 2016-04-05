@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_TENSOR_SLICE_H_
 #define TENSORFLOW_FRAMEWORK_TENSOR_SLICE_H_
 
 #include <string>
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_slice.pb.h"
 #include "tensorflow/core/lib/gtl/inlined_vector.h"
 #include "tensorflow/core/platform/logging.h"
@@ -9,6 +28,15 @@
 #include "tensorflow/core/lib/core/stringpiece.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 #include "tensorflow/core/public/status.h"
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/tensor_slice.pb.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/gtl/inlined_vector.h"
+#include "tensorflow/core/platform/logging.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -23,7 +51,11 @@ class TensorSlice {
   // -- from just a dimension (in this case it will create a full slice)
   // -- from an array of pairs of integers.
   // -- from a TensorSliceProto protocol buffer
+<<<<<<< HEAD
   // -- from a string format of "start,lenth:start,length..." where each
+=======
+  // -- from a string format of "start,length:start,length..." where each
+>>>>>>> tensorflow/master
   //    "start,length" pair represents the slice on one dimension. We allow a
   //    special "-" that means "everything for this dimension". One such example
   //    is:  0,10:-:14,1:-:-
@@ -121,7 +153,11 @@ class TensorSlice {
   // For example, given a tensor shape of {3, 4, 5}, and a slice of
   // 1,2:-:0,2, the result shape is {2, 4, 2}.
   Status SliceTensorShape(const TensorShape& shape,
+<<<<<<< HEAD
                                TensorShape* result_shape) const;
+=======
+                          TensorShape* result_shape) const;
+>>>>>>> tensorflow/master
 
   // Given slice "sub" where "sub" is fully contained in *this,
   // (meaning that the intersection of "sub" and *this equals "sub"), computes
@@ -143,6 +179,19 @@ class TensorSlice {
   // otherwise the result is undefined.
   void ComputeRelative(const TensorSlice& sub, TensorSlice* relative) const;
 
+<<<<<<< HEAD
+=======
+  // Updates the slice in such a way that it fully covers "other" slice.
+  // Note, "other" slice should refer to the same tensor shape.
+  // Example:
+  //   given a slice [2:4, :, 3:] and "other" slice [:, 1:4, 2:4] the
+  //   updated slice would be [:, :, 2:]. Here is why:
+  //   dim 0: "2:4"  U  ":"    ->  ":"
+  //   dim 1: ":"    U  "1-4"  ->  ":"
+  //   dim 2: "3:"   U  "2:4"  ->  "2:"
+  void UpdateToCover(const TensorSlice& other);
+
+>>>>>>> tensorflow/master
   // Returns true if the length field was specified in an Extent.
   static bool HasExtentLength(const TensorSliceProto::Extent& extent);
 

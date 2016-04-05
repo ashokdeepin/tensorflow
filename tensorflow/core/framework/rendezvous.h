@@ -1,13 +1,39 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_FRAMEWORK_RENDEZVOUS_H_
 #define TENSORFLOW_FRAMEWORK_RENDEZVOUS_H_
 
 #include <string>
 
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/lib/core/refcount.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/framework/control_flow.h"
 #include "tensorflow/core/framework/device_base.h"
+=======
+#include "tensorflow/core/framework/control_flow.h"
+#include "tensorflow/core/framework/device_base.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/refcount.h"
+#include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/device_name_utils.h"
 
 namespace tensorflow {
@@ -29,7 +55,11 @@ class Rendezvous : public core::RefCounted {
     AllocatorAttributes alloc_attrs;
   };
 
+<<<<<<< HEAD
   // Constructs a rendezvouz key for the tensor of "name" sent from
+=======
+  // Constructs a rendezvous key for the tensor of "name" sent from
+>>>>>>> tensorflow/master
   // "src_device" to "dst_device". The tensor is generated in the frame
   // and iteration specified by "frame_iter".
   static string CreateKey(const string& src_device, uint64 src_incarnation,

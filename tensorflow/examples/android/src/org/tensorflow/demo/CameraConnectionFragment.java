@@ -180,9 +180,25 @@ public class CameraConnectionFragment extends Fragment {
   private Handler backgroundHandler;
 
   /**
+<<<<<<< HEAD
    * An {@link ImageReader} that handles still image capture.
    */
   private ImageReader imageReader;
+=======
+   * An additional thread for running inference so as not to block the camera.
+   */
+  private HandlerThread inferenceThread;
+
+  /**
+   * A {@link Handler} for running tasks in the background.
+   */
+  private Handler inferenceHandler;
+
+  /**
+   * An {@link ImageReader} that handles preview frame capture.
+   */
+  private ImageReader previewReader;
+>>>>>>> tensorflow/master
 
   /**
    * {@link android.hardware.camera2.CaptureRequest.Builder} for the camera preview
@@ -231,7 +247,11 @@ public class CameraConnectionFragment extends Fragment {
   private static Size chooseOptimalSize(
       final Size[] choices, final int width, final int height, final Size aspectRatio) {
     // Collect the supported resolutions that are at least as big as the preview Surface
+<<<<<<< HEAD
     final List<Size> bigEnough = new ArrayList<>();
+=======
+    final List<Size> bigEnough = new ArrayList<Size>();
+>>>>>>> tensorflow/master
     for (final Size option : choices) {
       if (option.getHeight() >= MINIMUM_PREVIEW_SIZE && option.getWidth() >= MINIMUM_PREVIEW_SIZE) {
         LOGGER.i("Adding size: " + option.getWidth() + "x" + option.getHeight());
@@ -328,10 +348,13 @@ public class CameraConnectionFragment extends Fragment {
                 Arrays.asList(map.getOutputSizes(ImageFormat.YUV_420_888)),
                 new CompareSizesByArea());
 
+<<<<<<< HEAD
         imageReader =
             ImageReader.newInstance(
                 largest.getWidth(), largest.getHeight(), ImageFormat.YUV_420_888, /*maxImages*/ 2);
 
+=======
+>>>>>>> tensorflow/master
         // Danger, W.R.! Attempting to use too large a preview size could  exceed the camera
         // bus' bandwidth limitation, resulting in gorgeous previews but the storage of
         // garbage capture data.
@@ -393,9 +416,15 @@ public class CameraConnectionFragment extends Fragment {
         cameraDevice.close();
         cameraDevice = null;
       }
+<<<<<<< HEAD
       if (null != imageReader) {
         imageReader.close();
         imageReader = null;
+=======
+      if (null != previewReader) {
+        previewReader.close();
+        previewReader = null;
+>>>>>>> tensorflow/master
       }
     } catch (final InterruptedException e) {
       throw new RuntimeException("Interrupted while trying to lock camera closing.", e);
@@ -408,9 +437,19 @@ public class CameraConnectionFragment extends Fragment {
    * Starts a background thread and its {@link Handler}.
    */
   private void startBackgroundThread() {
+<<<<<<< HEAD
     backgroundThread = new HandlerThread("CameraBackground");
     backgroundThread.start();
     backgroundHandler = new Handler(backgroundThread.getLooper());
+=======
+    backgroundThread = new HandlerThread("ImageListener");
+    backgroundThread.start();
+    backgroundHandler = new Handler(backgroundThread.getLooper());
+    
+    inferenceThread = new HandlerThread("InferenceThread");
+    inferenceThread.start();
+    inferenceHandler = new Handler(inferenceThread.getLooper());
+>>>>>>> tensorflow/master
   }
 
   /**
@@ -418,10 +457,21 @@ public class CameraConnectionFragment extends Fragment {
    */
   private void stopBackgroundThread() {
     backgroundThread.quitSafely();
+<<<<<<< HEAD
+=======
+    inferenceThread.quitSafely();
+>>>>>>> tensorflow/master
     try {
       backgroundThread.join();
       backgroundThread = null;
       backgroundHandler = null;
+<<<<<<< HEAD
+=======
+      
+      inferenceThread.join();
+      inferenceThread = null;
+      inferenceThread = null;
+>>>>>>> tensorflow/master
     } catch (final InterruptedException e) {
       LOGGER.e(e, "Exception!");
     }
@@ -465,7 +515,11 @@ public class CameraConnectionFragment extends Fragment {
       LOGGER.i("Opening camera preview: " + previewSize.getWidth() + "x" + previewSize.getHeight());
 
       // Create the reader for the preview frames.
+<<<<<<< HEAD
       final ImageReader previewReader =
+=======
+      previewReader =
+>>>>>>> tensorflow/master
           ImageReader.newInstance(
               previewSize.getWidth(), previewSize.getHeight(), ImageFormat.YUV_420_888, 2);
 
@@ -474,7 +528,11 @@ public class CameraConnectionFragment extends Fragment {
 
       // Here, we create a CameraCaptureSession for camera preview.
       cameraDevice.createCaptureSession(
+<<<<<<< HEAD
           Arrays.asList(surface, imageReader.getSurface(), previewReader.getSurface()),
+=======
+          Arrays.asList(surface, previewReader.getSurface()),
+>>>>>>> tensorflow/master
           new CameraCaptureSession.StateCallback() {
 
             @Override
@@ -515,7 +573,11 @@ public class CameraConnectionFragment extends Fragment {
     }
 
     LOGGER.i("Getting assets.");
+<<<<<<< HEAD
     tfPreviewListener.initialize(getActivity().getAssets(), scoreView);
+=======
+    tfPreviewListener.initialize(getActivity().getAssets(), scoreView, inferenceHandler);
+>>>>>>> tensorflow/master
     LOGGER.i("Tensorflow initialized.");
   }
 

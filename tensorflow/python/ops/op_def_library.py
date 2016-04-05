@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Class to hold a library of OpDefs and use it to create Brain operations."""
 
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import numbers
+=======
+>>>>>>> tensorflow/master
 import six
 
 from tensorflow.core.framework import attr_value_pb2
@@ -12,11 +33,20 @@ from tensorflow.core.framework import op_def_pb2
 from tensorflow.core.framework import tensor_pb2
 from tensorflow.core.framework import tensor_shape_pb2
 from tensorflow.core.framework import types_pb2
+<<<<<<< HEAD
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.framework import types as types_lib
 from tensorflow.python.ops import constant_op
 from tensorflow.python.platform import logging
+=======
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.ops import constant_op
+from tensorflow.python.platform import logging
+from tensorflow.python.util import compat
+>>>>>>> tensorflow/master
 
 
 def _Attr(op_def, name):
@@ -40,8 +70,13 @@ def _SatisfiesTypeConstraint(dtype, attr_def):
     if dtype not in allowed_list:
       raise TypeError(
           "DataType %s for attr '%s' not in list of allowed values: %s" %
+<<<<<<< HEAD
           (types_lib.as_dtype(dtype).name, attr_def.name,
            ", ".join(types_lib.as_dtype(x).name for x in allowed_list)))
+=======
+          (dtypes.as_dtype(dtype).name, attr_def.name,
+           ", ".join(dtypes.as_dtype(x).name for x in allowed_list)))
+>>>>>>> tensorflow/master
 
 
 def _IsListParameter(arg):
@@ -122,7 +157,11 @@ def _Restructure(l, structure):
 
 
 def _MakeFloat(v, arg_name):
+<<<<<<< HEAD
   if not isinstance(v, numbers.Real):
+=======
+  if not isinstance(v, compat.real_types):
+>>>>>>> tensorflow/master
     raise TypeError("Expected float for argument '%s' not %s." %
                     (arg_name, repr(v)))
   return float(v)
@@ -140,11 +179,18 @@ def _MakeInt(v, arg_name):
 
 
 def _MakeStr(v, arg_name):
+<<<<<<< HEAD
   if not isinstance(v, six.string_types):
     raise TypeError("Expected string for argument '%s' not %s." %
                     (arg_name, repr(v)))
   # TODO(irving): Figure out what to do here from Python 3
   return str(v)  # Convert unicode strings to bytes.
+=======
+  if not isinstance(v, compat.bytes_or_text_types):
+    raise TypeError("Expected string for argument '%s' not %s." %
+                    (arg_name, repr(v)))
+  return compat.as_bytes(v)  # Convert unicode strings to bytes.
+>>>>>>> tensorflow/master
 
 
 def _MakeBool(v, arg_name):
@@ -156,7 +202,11 @@ def _MakeBool(v, arg_name):
 
 def _MakeType(v, attr_def):
   try:
+<<<<<<< HEAD
     v = types_lib.as_dtype(v)
+=======
+    v = dtypes.as_dtype(v)
+>>>>>>> tensorflow/master
   except TypeError:
     raise TypeError("Expected DataType for argument '%s' not %s." %
                     (attr_def.name, repr(v)))
@@ -180,11 +230,15 @@ def _MakeShape(v, arg_name):
                         str(v))
         break
     return v
+<<<<<<< HEAD
   s = tensor_shape.as_shape(v)
   ret = tensor_shape_pb2.TensorShapeProto()
   for i in s.as_dimension_list():
     ret.dim.add(size = i)
   return ret
+=======
+  return tensor_shape.as_shape(v).as_proto()
+>>>>>>> tensorflow/master
 
 
 def _MakeTensor(v, arg_name):
@@ -253,7 +307,11 @@ class OpDefLibrary(object):
     for op_def in op_list.op:
       self.add_op(op_def)
 
+<<<<<<< HEAD
   def apply_op(self, op_type_name, g=None, name=None, **keywords):
+=======
+  def apply_op(self, op_type_name, name=None, **keywords):
+>>>>>>> tensorflow/master
     # pylint: disable=g-doc-args
     """Add a node invoking a registered Op to a graph.
 
@@ -262,9 +320,12 @@ class OpDefLibrary(object):
        # input1 and input2 can be Tensors or anything ops.convert_to_tensor()
        # will convert to a Tensor.
        op_def_library.apply_op("op", input1=input1, input2=input2)
+<<<<<<< HEAD
        # If none of the inputs are Tensors and your session doesn't have a
        # default graph, you will have to specify the graph.
        op_def_library.apply_op("op", input1=input1, g=g)
+=======
+>>>>>>> tensorflow/master
        # Can specify a node name.
        op_def_library.apply_op("op", input1=input1, name="node_name")
        # Must use keyword arguments, with the names specified in the OpDef.
@@ -277,7 +338,10 @@ class OpDefLibrary(object):
 
     Args:
       op_type_name: string. Must match the name field of a registered Op.
+<<<<<<< HEAD
       g: The graph context (optional)
+=======
+>>>>>>> tensorflow/master
       name: string. Optional name of the created op.
       **keywords: input Tensor and attr arguments specified by name,
         and optional parameters to pass when constructing the Operation.
@@ -300,12 +364,21 @@ class OpDefLibrary(object):
     try:
       # Need to flatten all the arguments into a list.
       # pylint: disable=protected-access
+<<<<<<< HEAD
       g = ops._get_graph_from_inputs(_Flatten(keywords.values()), graph=g)
       # pyline: enable=protected-access
     except AssertionError as e:
       raise RuntimeError(
           "Need to specify g=graph to Op '%s' (could not determine graph due "
           "to: %s)" % (op_type_name, e.message))
+=======
+      g = ops._get_graph_from_inputs(_Flatten(keywords.values()))
+      # pyline: enable=protected-access
+    except AssertionError as e:
+      raise RuntimeError(
+          "Cannot determine graph for Op '%s' due to: %s"
+          % (op_type_name, e.message))
+>>>>>>> tensorflow/master
 
     # Default name if not specified.
     if name is None:
@@ -364,14 +437,26 @@ class OpDefLibrary(object):
                   break
 
           try:
+<<<<<<< HEAD
             values = ops.convert_n_to_tensor_or_indexed_slices(
                 values, name=input_arg.name,
                 dtype=types_lib.as_dtype(dtype).base_dtype if dtype else None)
+=======
+            if not input_arg.is_ref and dtype:
+              dtype = dtypes.as_dtype(dtype).base_dtype
+            values = ops.convert_n_to_tensor(
+                values, name=input_arg.name, dtype=dtype if dtype else None,
+                as_ref=input_arg.is_ref)
+>>>>>>> tensorflow/master
           except (TypeError, ValueError):
             assert dtype is not None, "Should not fail if dtype is None"
             assert input_arg.number_attr, "Should be number_attr case"
             # What types does the conversion function think values have?
+<<<<<<< HEAD
             values = ops.convert_n_to_tensor_or_indexed_slices(values)
+=======
+            values = ops.convert_n_to_tensor(values, as_ref=input_arg.is_ref)
+>>>>>>> tensorflow/master
             observed = ", ".join(v.dtype.base_dtype.name for v in values)
 
             prefix = (
@@ -379,11 +464,19 @@ class OpDefLibrary(object):
                 (input_name, op_type_name, observed))
             if input_arg.type != types_pb2.DT_INVALID:
               raise TypeError("%s that do not match expected type %s." %
+<<<<<<< HEAD
                               (prefix, types_lib.as_dtype(dtype).name))
             elif input_arg.type_attr in attrs:
               raise TypeError("%s that do not match type %s inferred from "
                               "earlier arguments." %
                               (prefix, types_lib.as_dtype(dtype).name))
+=======
+                              (prefix, dtype.name))
+            elif input_arg.type_attr in attrs:
+              raise TypeError("%s that do not match type %s inferred from "
+                              "earlier arguments." %
+                              (prefix, dtype.name))
+>>>>>>> tensorflow/master
             else:
               raise TypeError("%s that don't all match." % prefix)
 
@@ -397,6 +490,7 @@ class OpDefLibrary(object):
             dtype = input_arg.type
           elif input_arg.type_attr in attrs:
             dtype = attrs[input_arg.type_attr]
+<<<<<<< HEAD
 
           try:
             values = ops.convert_to_tensor(
@@ -404,15 +498,33 @@ class OpDefLibrary(object):
           except ValueError:
             # What type does convert_to_tensor think it has?
             observed = ops.convert_to_tensor(values).dtype.name
+=======
+          try:
+            values = ops.convert_to_tensor(
+                values, name=input_arg.name, dtype=dtype,
+                as_ref=input_arg.is_ref)
+          except ValueError:
+            # What type does convert_to_tensor think it has?
+            observed = ops.convert_to_tensor(values,
+                                             as_ref=input_arg.is_ref).dtype.name
+>>>>>>> tensorflow/master
             prefix = ("Input '%s' of '%s' Op has type %s that does not match" %
                       (input_name, op_type_name, observed))
             if input_arg.type != types_pb2.DT_INVALID:
               raise TypeError("%s expected type of %s." %
+<<<<<<< HEAD
                               (prefix, types_lib.as_dtype(input_arg.type).name))
             else:
               raise TypeError(
                   "%s type %s of argument '%s'." %
                   (prefix, types_lib.as_dtype(attrs[input_arg.type_attr]).name,
+=======
+                              (prefix, dtypes.as_dtype(input_arg.type).name))
+            else:
+              raise TypeError(
+                  "%s type %s of argument '%s'." %
+                  (prefix, dtypes.as_dtype(attrs[input_arg.type_attr]).name,
+>>>>>>> tensorflow/master
                    inferred_from[input_arg.type_attr]))
 
           types = [values.dtype]
@@ -486,8 +598,13 @@ class OpDefLibrary(object):
                   "Input '%s' of '%s' Op has type list of %s that does not "
                   "match type list %s of argument '%s'." %
                   (input_name, op_type_name,
+<<<<<<< HEAD
                    ", ".join(types_lib.as_dtype(x).name for x in attr_value),
                    ", ".join(types_lib.as_dtype(x).name
+=======
+                   ", ".join(dtypes.as_dtype(x).name for x in attr_value),
+                   ", ".join(dtypes.as_dtype(x).name
+>>>>>>> tensorflow/master
                              for x in attrs[input_arg.type_list_attr]),
                    inferred_from[input_arg.type_list_attr]))
           else:
@@ -546,14 +663,24 @@ class OpDefLibrary(object):
                                "less than minimum %d." %
                                (key, op_type_name, len(value),
                                 attr_def.minimum))
+<<<<<<< HEAD
+=======
+          attr_value.list.SetInParent()
+>>>>>>> tensorflow/master
         if attr_def.type == "string":
           attr_value.s = _MakeStr(value, key)
           if attr_def.HasField("allowed_values"):
             if attr_value.s not in attr_def.allowed_values.list.s:
               raise ValueError(
                   "Attr '%s' of '%s' Op passed string '%s' not in: \"%s\"." %
+<<<<<<< HEAD
                   (key, op_type_name, attr_value.s,
                    '", "'.join(attr_def.allowed_values.list.s)))
+=======
+                  (key, op_type_name, compat.as_text(attr_value.s),
+                   '", "'.join(map(compat.as_text,
+                                   attr_def.allowed_values.list.s))))
+>>>>>>> tensorflow/master
         elif attr_def.type == "list(string)":
           attr_value.list.s.extend([_MakeStr(x, key) for x in value])
           if attr_def.HasField("allowed_values"):
@@ -561,8 +688,14 @@ class OpDefLibrary(object):
               if x not in attr_def.allowed_values.list.s:
                 raise ValueError(
                     "Attr '%s' of '%s' Op passed string '%s' not in: \"%s\"." %
+<<<<<<< HEAD
                     (key, op_type_name, x,
                      '", "'.join(attr_def.allowed_values.list.s)))
+=======
+                    (key, op_type_name, compat.as_text(x),
+                     '", "'.join(map(compat.as_text,
+                                     attr_def.allowed_values.list.s))))
+>>>>>>> tensorflow/master
         elif attr_def.type == "int":
           attr_value.i = _MakeInt(value, key)
           if attr_def.has_minimum:
@@ -595,6 +728,13 @@ class OpDefLibrary(object):
         elif attr_def.type == "list(tensor)":
           attr_value.list.tensor.extend(
               [_MakeTensor(x, key) for x in value])
+<<<<<<< HEAD
+=======
+        elif attr_def.type == "func":
+          if not isinstance(value, compat.bytes_or_text_types):
+            raise TypeError("Expects a string for the func name")
+          attr_value.func.name = value
+>>>>>>> tensorflow/master
         else:
           raise TypeError("Unrecognized Attr type " + attr_def.type)
 
@@ -625,7 +765,11 @@ class OpDefLibrary(object):
           types = [arg.type]
           output_structure.append(None)
         if arg.is_ref:
+<<<<<<< HEAD
           types = [types_lib.as_dtype(x).as_ref for x in types]
+=======
+          types = [dtypes.as_dtype(x).as_ref for x in types]
+>>>>>>> tensorflow/master
         output_types.extend(types)
 
       if keywords:
@@ -638,8 +782,12 @@ class OpDefLibrary(object):
                          input_types=input_types, attrs=attr_protos,
                          op_def=op_def)
         outputs = op.outputs
+<<<<<<< HEAD
         return _Restructure(ops.convert_n_to_tensor_or_indexed_slices(outputs),
                             output_structure)
+=======
+        return _Restructure(ops.convert_n_to_tensor(outputs), output_structure)
+>>>>>>> tensorflow/master
       else:
         return g.create_op(op_type_name, inputs, output_types, name=scope,
                            input_types=input_types, attrs=attr_protos,

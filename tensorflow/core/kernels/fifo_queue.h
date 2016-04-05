@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_FIFO_QUEUE_H_
 #define TENSORFLOW_KERNELS_FIFO_QUEUE_H_
 
@@ -5,11 +23,21 @@
 #include <vector>
 
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/kernels/typed_queue.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/kernels/typed_queue.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -35,18 +63,30 @@ class FIFOQueue : public TypedQueue<std::deque<PersistentTensor> > {
     return queues_[0].size();
   }
 
+<<<<<<< HEAD
  private:
+=======
+ protected:
+>>>>>>> tensorflow/master
   ~FIFOQueue() override {}
 
   // Helper for dequeuing a single element from queues_.
   void DequeueLocked(OpKernelContext* ctx, Tuple* tuple)
       EXCLUSIVE_LOCKS_REQUIRED(mu_);
 
+<<<<<<< HEAD
   static Status GetElementComponentFromBatch(const Tuple& tuple, int index,
+=======
+  static Status GetElementComponentFromBatch(const Tuple& tuple, int64 index,
+>>>>>>> tensorflow/master
                                              int component,
                                              OpKernelContext* ctx,
                                              PersistentTensor* out_element);
 
+<<<<<<< HEAD
+=======
+ private:
+>>>>>>> tensorflow/master
   TF_DISALLOW_COPY_AND_ASSIGN(FIFOQueue);
 };
 

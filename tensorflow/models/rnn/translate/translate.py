@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Binary for training translation models and decoding from them.
 
 Running this program without --decode will download the WMT corpus into
@@ -10,7 +28,11 @@ the current checkpoint translates English sentences into French.
 See the following papers for more information on neural translation models.
  * http://arxiv.org/abs/1409.3215
  * http://arxiv.org/abs/1409.0473
+<<<<<<< HEAD
  * http://arxiv.org/pdf/1412.2007v2.pdf
+=======
+ * http://arxiv.org/abs/1412.2007
+>>>>>>> tensorflow/master
 """
 from __future__ import absolute_import
 from __future__ import division
@@ -22,15 +44,21 @@ import random
 import sys
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
 from tensorflow.models.rnn.translate import data_utils
 from tensorflow.models.rnn.translate import seq2seq_model
+<<<<<<< HEAD
 from tensorflow.python.platform import gfile
+=======
+>>>>>>> tensorflow/master
 
 
 tf.app.flags.DEFINE_float("learning_rate", 0.5, "Learning rate.")
@@ -80,8 +108,13 @@ def read_data(source_path, target_path, max_size=None):
       len(target) < _buckets[n][1]; source and target are lists of token-ids.
   """
   data_set = [[] for _ in _buckets]
+<<<<<<< HEAD
   with gfile.GFile(source_path, mode="r") as source_file:
     with gfile.GFile(target_path, mode="r") as target_file:
+=======
+  with tf.gfile.GFile(source_path, mode="r") as source_file:
+    with tf.gfile.GFile(target_path, mode="r") as target_file:
+>>>>>>> tensorflow/master
       source, target = source_file.readline(), target_file.readline()
       counter = 0
       while source and target and (not max_size or counter < max_size):
@@ -108,12 +141,20 @@ def create_model(session, forward_only):
       FLAGS.learning_rate, FLAGS.learning_rate_decay_factor,
       forward_only=forward_only)
   ckpt = tf.train.get_checkpoint_state(FLAGS.train_dir)
+<<<<<<< HEAD
   if ckpt and gfile.Exists(ckpt.model_checkpoint_path):
+=======
+  if ckpt and tf.gfile.Exists(ckpt.model_checkpoint_path):
+>>>>>>> tensorflow/master
     print("Reading model parameters from %s" % ckpt.model_checkpoint_path)
     model.saver.restore(session, ckpt.model_checkpoint_path)
   else:
     print("Created model with fresh parameters.")
+<<<<<<< HEAD
     session.run(tf.variables.initialize_all_variables())
+=======
+    session.run(tf.initialize_all_variables())
+>>>>>>> tensorflow/master
   return model
 
 
@@ -181,6 +222,12 @@ def train():
         step_time, loss = 0.0, 0.0
         # Run evals on development set and print their perplexity.
         for bucket_id in xrange(len(_buckets)):
+<<<<<<< HEAD
+=======
+          if len(dev_set[bucket_id]) == 0:
+            print("  eval: empty bucket %d" % (bucket_id))
+            continue
+>>>>>>> tensorflow/master
           encoder_inputs, decoder_inputs, target_weights = model.get_batch(
               dev_set, bucket_id)
           _, eval_loss, _ = model.step(sess, encoder_inputs, decoder_inputs,
@@ -210,7 +257,11 @@ def decode():
     sentence = sys.stdin.readline()
     while sentence:
       # Get token-ids for the input sentence.
+<<<<<<< HEAD
       token_ids = data_utils.sentence_to_token_ids(sentence, en_vocab)
+=======
+      token_ids = data_utils.sentence_to_token_ids(tf.compat.as_bytes(sentence), en_vocab)
+>>>>>>> tensorflow/master
       # Which bucket does it belong to?
       bucket_id = min([b for b in xrange(len(_buckets))
                        if _buckets[b][0] > len(token_ids)])
@@ -226,7 +277,11 @@ def decode():
       if data_utils.EOS_ID in outputs:
         outputs = outputs[:outputs.index(data_utils.EOS_ID)]
       # Print out French sentence corresponding to outputs.
+<<<<<<< HEAD
       print(" ".join([rev_fr_vocab[output] for output in outputs]))
+=======
+      print(" ".join([tf.compat.as_str(rev_fr_vocab[output]) for output in outputs]))
+>>>>>>> tensorflow/master
       print("> ", end="")
       sys.stdout.flush()
       sentence = sys.stdin.readline()
@@ -239,7 +294,11 @@ def self_test():
     # Create model with vocabularies of 10, 2 small buckets, 2 layers of 32.
     model = seq2seq_model.Seq2SeqModel(10, 10, [(3, 3), (6, 6)], 32, 2,
                                        5.0, 32, 0.3, 0.99, num_samples=8)
+<<<<<<< HEAD
     sess.run(tf.variables.initialize_all_variables())
+=======
+    sess.run(tf.initialize_all_variables())
+>>>>>>> tensorflow/master
 
     # Fake data set for both the (3, 3) and (6, 6) bucket.
     data_set = ([([1, 1], [2, 2]), ([3, 3], [4]), ([5], [6])],

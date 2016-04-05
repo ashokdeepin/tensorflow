@@ -1,16 +1,40 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for Unpack Op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
+<<<<<<< HEAD
 from tensorflow.python.kernel_tests import gradient_checker
 
+=======
+>>>>>>> tensorflow/master
 
 class UnpackOpTest(tf.test.TestCase):
 
@@ -38,8 +62,12 @@ class UnpackOpTest(tf.test.TestCase):
           with self.test_session(use_gpu=use_gpu):
             x = tf.constant(data)
             cs = tf.unpack(x, num=shape[0])
+<<<<<<< HEAD
             err = gradient_checker.ComputeGradientError(x, shape, cs[i],
                                                         shapes[i])
+=======
+            err = tf.test.compute_gradient_error(x, shape, cs[i], shapes[i])
+>>>>>>> tensorflow/master
             self.assertLess(err, 1e-6)
 
   def testInferNum(self):
@@ -53,7 +81,11 @@ class UnpackOpTest(tf.test.TestCase):
   def testCannotInferNum(self):
     x = tf.placeholder(np.float32)
     with self.assertRaisesRegexp(
+<<<<<<< HEAD
         ValueError, r'Cannot infer num from shape TensorShape\(None\)'):
+=======
+        ValueError, r'Cannot infer num from shape <unknown>'):
+>>>>>>> tensorflow/master
       tf.unpack(x)
 
 

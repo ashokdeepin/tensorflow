@@ -1,7 +1,17 @@
 # Platform-specific build configurations.
 
+<<<<<<< HEAD
 load("/google/protobuf/protobuf", "cc_proto_library")
 load("/google/protobuf/protobuf", "py_proto_library")
+=======
+load("//google/protobuf:protobuf.bzl", "cc_proto_library")
+load("//google/protobuf:protobuf.bzl", "py_proto_library")
+
+# configure may change the following lines to '.X.Y' or similar
+CUDA_VERSION = ""
+
+CUDNN_VERSION = ""
+>>>>>>> tensorflow/master
 
 # Appends a suffix to a list of deps.
 def tf_deps(deps, suffix):
@@ -20,15 +30,27 @@ def tf_deps(deps, suffix):
 
   return tf_deps
 
+<<<<<<< HEAD
 def tf_proto_library(name, srcs = [], has_services = False,
                      deps = [], visibility = [], testonly = 0,
                      cc_api_version = 2, go_api_version = 2,
                      java_api_version = 2,
                      py_api_version = 2):
+=======
+def tf_proto_library_cc(name, srcs = [], has_services = None,
+                        deps = [], visibility = [], testonly = 0,
+                        cc_libs = [],
+                        cc_stubby_versions = None,
+                        cc_grpc_version = None,
+                        cc_api_version = 2, go_api_version = 2,
+                        java_api_version = 2,
+                        py_api_version = 2):
+>>>>>>> tensorflow/master
   native.filegroup(name=name + "_proto_srcs",
                    srcs=srcs + tf_deps(deps, "_proto_srcs"),
                    testonly=testonly,)
 
+<<<<<<< HEAD
   cc_proto_library(name=name + "_cc",
                    srcs=srcs + tf_deps(deps, "_proto_srcs"),
                    deps=deps,
@@ -46,10 +68,51 @@ def tf_proto_library(name, srcs = [], has_services = False,
 def tf_proto_library_py(name, srcs=[], deps=[], visibility=[], testonly=0):
   py_proto_library(name = name + "_py",
                    srcs = srcs,
+=======
+  use_grpc_plugin = None
+  if cc_grpc_version:
+    use_grpc_plugin = True
+  cc_proto_library(name=name + "_cc",
+                   srcs=srcs + tf_deps(deps, "_proto_srcs"),
+                   deps=deps + ["//google/protobuf:cc_wkt_protos"],
+                   cc_libs = cc_libs + ["//google/protobuf:protobuf"],
+                   use_grpc_plugin = use_grpc_plugin,
+                   testonly=testonly,
+                   visibility=visibility,)
+
+def tf_proto_library_py(name, srcs=[], deps=[], visibility=[], testonly=0,
+                        srcs_version="PY2AND3"):
+  py_proto_library(name = name + "_py",
+                   srcs = srcs,
+                   srcs_version = srcs_version,
+>>>>>>> tensorflow/master
                    deps = deps,
                    visibility = visibility,
                    testonly = testonly)
 
+<<<<<<< HEAD
+=======
+def tf_proto_library(name, srcs = [], has_services = None,
+                     deps = [], visibility = [], testonly = 0,
+                     cc_libs = [],
+                     cc_api_version = 2, go_api_version = 2,
+                     java_api_version = 2,
+                     py_api_version = 2):
+  tf_proto_library_cc(name=name,
+                      srcs=srcs + tf_deps(deps, "_proto_srcs"),
+                      deps=deps,
+                      cc_libs=cc_libs,
+                      testonly=testonly,
+                      visibility=visibility,)
+
+  tf_proto_library_py(name=name,
+                      srcs=srcs + tf_deps(deps, "_proto_srcs"),
+                      srcs_version="PY2AND3",
+                      deps=deps + ["//google/protobuf:protobuf_python"],
+                      testonly=testonly,
+                      visibility=visibility,)
+
+>>>>>>> tensorflow/master
 def tf_additional_lib_srcs():
   return [
       "platform/default/*.h",
@@ -58,8 +121,28 @@ def tf_additional_lib_srcs():
       "platform/posix/*.cc",
   ]
 
+<<<<<<< HEAD
 def tf_additional_test_srcs():
   return ["platform/default/test_benchmark.cc"]
 
 def tf_kernel_tests_linkstatic():
   return 0
+=======
+def tf_additional_stream_executor_srcs():
+  return ["platform/default/stream_executor.h"]
+
+def tf_additional_test_deps():
+  return []
+
+def tf_additional_test_srcs():
+  return ["platform/default/test_benchmark.cc", "platform/posix/test.cc"]
+
+def tf_kernel_tests_linkstatic():
+  return 0
+
+def tf_get_cuda_version():
+  return CUDA_VERSION
+
+def tf_get_cudnn_version():
+  return CUDNN_VERSION
+>>>>>>> tensorflow/master

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/lib/random/random_distributions.h"
 
 #include <math.h>
@@ -10,7 +28,11 @@
 #include "tensorflow/core/lib/random/philox_random_test_utils.h"
 #include "tensorflow/core/lib/random/random.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace random {
@@ -21,7 +43,11 @@ namespace {
 static constexpr float kZLimit = 6.0;
 
 // A utility function to fill the given array with samples from the given
+<<<<<<< HEAD
 // distribution, using the single adatper of the underlying generator
+=======
+// distribution, using the single adapter of the underlying generator
+>>>>>>> tensorflow/master
 template <class Distribution>
 void FillRandomsWithSingles(PhiloxRandom gen,
                             typename Distribution::ResultElementType* p,
@@ -72,7 +98,11 @@ bool CheckSamplesMoments(const std::vector<T>& samples,
         break;
       }
       // moments[i] store the i-th order measured moments.
+<<<<<<< HEAD
       // bypass std::vector::opeartor[] because they are too slow in the debug
+=======
+      // bypass std::vector::operator[] because they are too slow in the debug
+>>>>>>> tensorflow/master
       // mode, given the large number of samples.
       moments_data[i] += moment;
       ++moments_sample_count_data[i];

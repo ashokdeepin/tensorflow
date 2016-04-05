@@ -1,4 +1,24 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/function.h"
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/function.h"
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/function.pb.h"
 #include "tensorflow/core/framework/function_testlib.h"
 #include "tensorflow/core/framework/graph.pb.h"
@@ -9,8 +29,13 @@
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -35,7 +60,10 @@ y: A scalar in type T.
 static InstantiateAttrValueMap kNoAttrs;
 
 TEST(TFunc, SquarePlusOne) {
+<<<<<<< HEAD
   RequireDefaultOps();
+=======
+>>>>>>> tensorflow/master
   auto fdef = FDH::Define(
       // Name
       "SquarePlusOne",
@@ -221,25 +249,47 @@ TEST(TFunc, Body_TypeList) {
       // Nodes
       {{{"zero"}, "Const", {}, {{"value", kZero}, {"dtype", DT_INT32}}},
        {{"s"}, "Split", {"zero", "i"}, {{"num_split", 4}, {"T", DT_FLOAT}}},
+<<<<<<< HEAD
        {{"a", "b", "c", "d"},
+=======
+       {{"lst"},
+>>>>>>> tensorflow/master
         "_ArrayToList",
         {"s"},
         {{"N", 4},
          {"T", DT_FLOAT},
          {"out_types", DataTypeSlice{DT_FLOAT, DT_FLOAT, DT_FLOAT, DT_FLOAT}}}},
+<<<<<<< HEAD
        {{"l"}, "Mul", {"a", "b"}, {{"T", DT_FLOAT}}},
        {{"r"}, "Mul", {"c", "d"}, {{"T", DT_FLOAT}}},
        {{"x"}, "_ListToArray", {"l", "r"}, {{"N", 2}, {"T", DT_FLOAT}}},
+=======
+       {{"l"}, "Mul", {"lst:0", "lst:1"}, {{"T", DT_FLOAT}}},
+       {{"r"}, "Mul", {"lst:2", "lst:3"}, {{"T", DT_FLOAT}}},
+       {{"x"},
+        "_ListToArray",
+        {"l", "r"},
+        {{"N", 2},
+         {"T", DT_FLOAT},
+         {"Tin", DataTypeSlice{DT_FLOAT, DT_FLOAT}}}},
+>>>>>>> tensorflow/master
        {{"o"}, "AddN", {"x"}, {{"N", 2}, {"T", DT_FLOAT}}}});
 
   const char* e = R"P(
 Test(i:float) -> (o:float) {
   zero = Const[dtype=int32, value=Tensor<type: int32 shape: [] values: 0>]()
   s = Split[T=float, num_split=4](zero, i)
+<<<<<<< HEAD
   a, b, c, d = _ArrayToList[N=4, T=float, out_types={float, float, float, float}](s)
   l = Mul[T=float](a, b)
   r = Mul[T=float](c, d)
   x = _ListToArray[N=2, T=float](l, r)
+=======
+  lst = _ArrayToList[N=4, T=float, out_types={float, float, float, float}](s)
+  l = Mul[T=float](lst:0, lst:1)
+  r = Mul[T=float](lst:2, lst:3)
+  x = _ListToArray[N=2, T=float, Tin={float, float}](l, r)
+>>>>>>> tensorflow/master
   o = AddN[N=2, T=float](x)
 }
 )P";
@@ -275,8 +325,13 @@ REGISTER_OP("Cond")
 output = Cond(input) ? then_branch(input) : else_branch(input)
 
 cond: A function takes 'input' and returns a scalar.
+<<<<<<< HEAD
 then_branch: A funcion takes 'input' and returns 'output'.
 else_branch: A funcion takes 'input' and returns 'output'.
+=======
+then_branch: A function takes 'input' and returns 'output'.
+else_branch: A function takes 'input' and returns 'output'.
+>>>>>>> tensorflow/master
 )doc");
 
 TEST(TFunc, Body_Array_List_Converter) {
@@ -457,7 +512,11 @@ TEST(InstantiateErrors, FuncRet_Mismatch) {
                           });
   InstantiationResult result;
   HasError(InstantiateFunction(fdef, kNoAttrs, GetOpSig, &result),
+<<<<<<< HEAD
            "Invalid ret name.\n\t In y");
+=======
+           "Invalid ret types y : float vs. double\n\t In y");
+>>>>>>> tensorflow/master
 }
 
 TEST(InstantiateErrors, TypeList_Missing_Retval_Attr) {
@@ -482,7 +541,11 @@ TEST(InstantiateErrors, TypeList_Missing_Retval_Attr) {
       });
   InstantiationResult result;
   HasError(InstantiateFunction(fdef, kNoAttrs, GetOpSig, &result),
+<<<<<<< HEAD
            "Missing attr out_types");
+=======
+           "type attr not found: out_types");
+>>>>>>> tensorflow/master
 }
 
 TEST(InstantiateErrors, TypeList_Num_Retval_Mismatch) {
@@ -508,7 +571,11 @@ TEST(InstantiateErrors, TypeList_Num_Retval_Mismatch) {
       });
   InstantiationResult result;
   HasError(InstantiateFunction(fdef, kNoAttrs, GetOpSig, &result),
+<<<<<<< HEAD
            "Wrong #ret: 0 2 1");
+=======
+           "Invalid ret types");
+>>>>>>> tensorflow/master
 }
 
 TEST(InstantiateErrors, TypeList_Missing_Arg) {
@@ -526,7 +593,12 @@ TEST(InstantiateErrors, TypeList_Missing_Arg) {
           {{"y"},
            "Cond",
            {"x", "unknown"},
+<<<<<<< HEAD
            {{"out_types", DataTypeSlice{DT_FLOAT}},
+=======
+           {{"Tin", DataTypeSlice{DT_FLOAT, DT_FLOAT}},
+            {"out_types", DataTypeSlice{DT_FLOAT}},
+>>>>>>> tensorflow/master
             {"cond", FDH::FunctionRef("MyCond2")},
             {"then_branch", FDH::FunctionRef("MyThen2")},
             {"else_branch", FDH::FunctionRef("MyElse2")}}},
@@ -538,14 +610,22 @@ TEST(InstantiateErrors, TypeList_Missing_Arg) {
 
 TEST(FunctionCallFrame, Void_Void) {
   FunctionCallFrame frame({}, {});
+<<<<<<< HEAD
   EXPECT_OK(frame.SetArgs({}));
+=======
+  TF_EXPECT_OK(frame.SetArgs({}));
+>>>>>>> tensorflow/master
   auto a = test::AsTensor<float>({100});
   HasError(frame.SetArgs({a}), "Invalid argument");
   Tensor v;
   HasError(frame.GetArg(0, &v), "Out of range");
   HasError(frame.SetRetval(0, v), "Out of range");
   std::vector<Tensor> rets;
+<<<<<<< HEAD
   EXPECT_OK(frame.GetRetvals(&rets));
+=======
+  TF_EXPECT_OK(frame.GetRetvals(&rets));
+>>>>>>> tensorflow/master
   EXPECT_EQ(rets.size(), 0);
 }
 
@@ -557,14 +637,24 @@ TEST(FunctionCallFrame, Float_Float_Float) {
   auto c = test::AsTensor<int64>({300});
   HasError(frame.SetArgs({a, c}),
            "Invalid argument: Expects arg[1] to be float");
+<<<<<<< HEAD
   EXPECT_OK(frame.SetArgs({a, b}));
+=======
+  TF_EXPECT_OK(frame.SetArgs({a, b}));
+>>>>>>> tensorflow/master
 
   Tensor v;
   HasError(frame.GetArg(-1, &v), "Out of range");
   HasError(frame.GetArg(2, &v), "Out of range");
+<<<<<<< HEAD
   EXPECT_OK(frame.GetArg(0, &v));
   test::ExpectTensorEqual<float>(a, v);
   EXPECT_OK(frame.GetArg(1, &v));
+=======
+  TF_EXPECT_OK(frame.GetArg(0, &v));
+  test::ExpectTensorEqual<float>(a, v);
+  TF_EXPECT_OK(frame.GetArg(1, &v));
+>>>>>>> tensorflow/master
   test::ExpectTensorEqual<float>(b, v);
 
   v = test::AsTensor<float>({-100});
@@ -575,10 +665,17 @@ TEST(FunctionCallFrame, Float_Float_Float) {
 
   std::vector<Tensor> rets;
   HasError(frame.GetRetvals(&rets), "does not have value");
+<<<<<<< HEAD
   EXPECT_OK(frame.SetRetval(0, v));
   HasError(frame.SetRetval(0, v), "has already been set");
 
   EXPECT_OK(frame.GetRetvals(&rets));
+=======
+  TF_EXPECT_OK(frame.SetRetval(0, v));
+  HasError(frame.SetRetval(0, v), "has already been set");
+
+  TF_EXPECT_OK(frame.GetRetvals(&rets));
+>>>>>>> tensorflow/master
   EXPECT_EQ(rets.size(), 1);
   test::ExpectTensorEqual<float>(rets[0], v);
 }

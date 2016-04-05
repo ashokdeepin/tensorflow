@@ -1,9 +1,32 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/util/device_name_utils.h"
 
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/test_benchmark.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/platform/test.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -285,11 +308,19 @@ static void MergeDevNamesHelperImpl(const string& name_a, const string& name_b,
                                     const string& expected_merge_name,
                                     bool allow_soft_placement) {
   DeviceNameUtils::ParsedName target_a = Name(name_a);
+<<<<<<< HEAD
   EXPECT_OK(DeviceNameUtils::MergeDevNames(&target_a, Name(name_b),
                                            allow_soft_placement));
   DeviceNameUtils::ParsedName target_b = Name(name_b);
   EXPECT_OK(DeviceNameUtils::MergeDevNames(&target_b, Name(name_a),
                                            allow_soft_placement));
+=======
+  TF_EXPECT_OK(DeviceNameUtils::MergeDevNames(&target_a, Name(name_b),
+                                              allow_soft_placement));
+  DeviceNameUtils::ParsedName target_b = Name(name_b);
+  TF_EXPECT_OK(DeviceNameUtils::MergeDevNames(&target_b, Name(name_a),
+                                              allow_soft_placement));
+>>>>>>> tensorflow/master
   EXPECT_EQ(target_a, target_b);
   EXPECT_EQ(target_a, Name(expected_merge_name));
   EXPECT_EQ(target_b, Name(expected_merge_name));

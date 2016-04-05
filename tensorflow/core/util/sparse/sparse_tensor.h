@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_UTIL_SPARSE_SPARSE_TENSOR_H_
 #define TENSORFLOW_UTIL_SPARSE_SPARSE_TENSOR_H_
 
 #include <limits>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/tensor_types.h"
 #include "tensorflow/core/framework/types.pb.h"
 #include "tensorflow/core/framework/types.h"
@@ -14,6 +33,21 @@
 #include "tensorflow/core/util/sparse/dim_comparator.h"
 #include "tensorflow/core/util/sparse/group_iterator.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+=======
+#include <vector>
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/framework/types.pb.h"
+#include "tensorflow/core/kernels/bounds_check.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/util/sparse/dim_comparator.h"
+#include "tensorflow/core/util/sparse/group_iterator.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace sparse {
@@ -44,12 +78,18 @@ class SparseTensor {
 
   std::size_t num_entries() const { return ix_.dim_size(0); }
 
+<<<<<<< HEAD
+=======
+  int dims() const { return shape_.dims(); }
+
+>>>>>>> tensorflow/master
   const Tensor& indices() const { return ix_; }
 
   const Tensor& values() const { return vals_; }
 
   DataType dtype() const { return vals_.dtype(); }
 
+<<<<<<< HEAD
   bool IndicesValid() const {
     const auto ix_t = ix_.matrix<int64>();
     for (int64 ord : order_) {
@@ -62,6 +102,23 @@ class SparseTensor {
     }
 
     return true;
+=======
+  Status IndicesValid() const {
+    const auto ix_t = ix_.matrix<int64>();
+    for (int64 ord : order_) {
+      if (ord < 0) {
+        return errors::FailedPrecondition(
+            "Order was not provided.  Provide an order at "
+            "construction time or run ReorderInPlace");
+      }
+    }
+
+    for (std::size_t n = 0; n < num_entries(); ++n) {
+      TF_RETURN_IF_ERROR(IndexValid(ix_t, n));
+    }
+
+    return Status::OK();
+>>>>>>> tensorflow/master
   }
 
   // Returns the tensor shape (the dimensions of the "densified"
@@ -116,6 +173,18 @@ class SparseTensor {
   template <typename T>
   static SparseTensor Concat(const gtl::ArraySlice<SparseTensor>& tensors);
 
+<<<<<<< HEAD
+=======
+  // Split() will split the input SparseTensor into a list of num_split
+  // SparseTensor given a splitting dimension. If the input dimension range
+  // isn't an integer multiple of split_dim, we add one extra dimension for
+  // each slice.
+  template <typename T>
+  static std::vector<SparseTensor> Split(const SparseTensor& tensor,
+                                         const int split_dim,
+                                         const int num_split);
+
+>>>>>>> tensorflow/master
  private:
   static int GetDimsFromIx(const Tensor& ix) {
     CHECK(TensorShapeUtils::IsMatrix(ix.shape()));
@@ -127,11 +196,19 @@ class SparseTensor {
   }
 
   // Helper for IndicesValid()
+<<<<<<< HEAD
   inline bool IndexValid(const TTypes<int64>::ConstMatrix& ix_t,
                          int64 n) const {
     bool different = false;
     bool bad_order = false;
     bool valid = true;
+=======
+  inline Status IndexValid(const TTypes<int64>::ConstMatrix& ix_t,
+                           int n) const {
+    bool valid = true;
+    bool different = false;
+    bool increasing = true;
+>>>>>>> tensorflow/master
     if (n == 0) {
       for (int di = 0; di < dims_; ++di) {
         if (ix_t(n, di) < 0 || ix_t(n, di) >= shape_.dim_size(di))
@@ -144,6 +221,7 @@ class SparseTensor {
           valid = false;
         int64 diff = ix_t(n, order_[di]) - ix_t(n - 1, order_[di]);
         if (diff > 0) different = true;
+<<<<<<< HEAD
         if (!different && diff < 0) bad_order = true;
       }
     }
@@ -151,12 +229,79 @@ class SparseTensor {
     if (!different) return false;  // The past two indices are identical...
     if (bad_order) return false;   // Decreasing in order.
     return true;
+=======
+        if (!different && diff < 0) increasing = false;
+      }
+    }
+    if (TF_PREDICT_FALSE(!valid || !increasing || !different)) {
+      string index = strings::StrCat("indices[", n, "] = [");
+      for (int di = 0; di < dims_; ++di) {
+        strings::StrAppend(&index, ix_t(n, di), di < dims_ - 1 ? "," : "]");
+      }
+      if (!valid) {
+        return errors::InvalidArgument(index,
+                                       " is out of bounds: need 0 <= index < ",
+                                       shape_.DebugString());
+      }
+      if (!increasing) {
+        return errors::InvalidArgument(index, " is out of order");
+      }
+      if (!different) {
+        return errors::InvalidArgument(index, " is repeated");
+      }
+    }
+    return Status::OK();
+>>>>>>> tensorflow/master
   }
 
   // Helper for ToDense<T>()
   template <typename T>
   bool ValidateAndInitializeToDense(Tensor* out, bool initialize);
 
+<<<<<<< HEAD
+=======
+  // Helper for Split() that returns the slice index.
+  static inline int GetSliceIndex(const int dim, const int split_size,
+                                  const int residual) {
+    CHECK_GT(split_size, 0);
+    CHECK_GE(dim, 0);
+    if (residual == 0) return dim / split_size;
+    const int offset = residual * (split_size + 1);
+    if (dim < offset) {
+      return dim / (split_size + 1);
+    } else {
+      return residual + ((dim - offset) / split_size);
+    }
+  }
+
+  // Helper for Split() that returns the dimension in the slice.
+  static inline int GetDimensionInSlice(const int dim, const int split_size,
+                                        const int residual) {
+    CHECK_GT(split_size, 0);
+    CHECK_GE(dim, 0);
+    if (residual == 0) return dim % split_size;
+    const int offset = residual * (split_size + 1);
+    if (dim < offset) {
+      return dim % (split_size + 1);
+    } else {
+      return (dim - offset) % split_size;
+    }
+  }
+
+  // Helper for Split() that returns the shape given a slice index.
+  static inline int GetSliceShape(const int slice_index, const int split_size,
+                                  const int residual) {
+    CHECK_GT(split_size, 0);
+    CHECK_GE(slice_index, 0);
+    if (residual == 0) return split_size;
+    if (slice_index < residual) {
+      return split_size + 1;
+    } else {
+      return split_size;
+    }
+  }
+
+>>>>>>> tensorflow/master
   Tensor ix_;
   Tensor vals_;
   TensorShape shape_;
@@ -253,12 +398,21 @@ bool SparseTensor::ToDense(Tensor* out, bool initialize) {
     strides[d] = strides[d + 1] * out_shape.dim_size(d + 1);
   }
 
+<<<<<<< HEAD
   for (std::size_t n = 0; n < vals_t.dimension(0); ++n) {
     bool invalid_dims = false;
     int64 ix = 0;
     for (int d = 0; d < dims_; ++d) {
       const int64 ix_n_d = ix_t(n, d);
       if (ix_n_d < 0 || ix_n_d >= out_shape.dim_size(d)) {
+=======
+  for (int n = 0; n < vals_t.dimension(0); ++n) {
+    bool invalid_dims = false;
+    int64 ix = 0;
+    for (int d = 0; d < dims_; ++d) {
+      const int64 ix_n_d = internal::SubtleMustCopy(ix_t(n, d));
+      if (!FastBoundsCheck(ix_n_d, out_shape.dim_size(d))) {
+>>>>>>> tensorflow/master
         invalid_dims = true;
       }
       ix += strides[d] * ix_n_d;
@@ -272,7 +426,11 @@ bool SparseTensor::ToDense(Tensor* out, bool initialize) {
 template <typename T>
 SparseTensor SparseTensor::Concat(
     const gtl::ArraySlice<SparseTensor>& tensors) {
+<<<<<<< HEAD
   CHECK_GE(tensors.size(), 1) << "Cannot concat 0 SparseTensors";
+=======
+  CHECK_GE(tensors.size(), size_t{1}) << "Cannot concat 0 SparseTensors";
+>>>>>>> tensorflow/master
   const int dims = tensors[0].dims_;
   CHECK_GE(dims, 1) << "Cannot concat 0-dimensional SparseTensors";
   auto order_0 = tensors[0].order();
@@ -347,6 +505,83 @@ SparseTensor SparseTensor::Concat(
   return SparseTensor(output_ix, output_vals, final_shape, final_order);
 }
 
+<<<<<<< HEAD
+=======
+template <typename T>
+std::vector<SparseTensor> SparseTensor::Split(const SparseTensor& input_tensor,
+                                              const int split_dim,
+                                              const int num_split) {
+  std::vector<Tensor> output_indices;
+  std::vector<Tensor> output_values;
+  std::vector<TensorShape> output_shapes;
+  output_indices.reserve(num_split);
+  output_values.reserve(num_split);
+  output_shapes.reserve(num_split);
+
+  std::vector<typename TTypes<int64>::Matrix> output_indices_t;
+  std::vector<typename TTypes<T>::Vec> output_values_t;
+  output_indices_t.reserve(num_split);
+  output_values_t.reserve(num_split);
+  auto input_values_t = input_tensor.values().vec<T>();
+  auto input_indices_t = input_tensor.indices().matrix<int64>();
+
+  std::vector<int> num_values(num_split, 0);
+  const int num_dim = input_tensor.shape().dims();
+  const int split_dim_size = input_tensor.shape().dim_size(split_dim);
+  const int split_size = split_dim_size / num_split;
+
+  CHECK(num_split > 0 && num_split <= split_dim_size) << "num_split must be in "
+                                                         "the interval (0, "
+                                                      << split_dim_size << "]";
+  CHECK(split_dim >= 0 && split_dim < num_dim) << "num_dim must be in "
+                                                  "the interval [0, "
+                                               << num_dim << ")";
+
+  const int residual = split_dim_size % num_split;
+  for (int i = 0; i < input_tensor.indices().dim_size(0); ++i) {
+    const int dim = input_tensor.indices().matrix<int64>()(i, split_dim);
+    int slice_index = GetSliceIndex(dim, split_size, residual);
+    num_values[slice_index]++;
+  }
+
+  for (int i = 0; i < num_split; ++i) {
+    // TODO(ataei): Pass an allocator to avoid allocating large memory buffer.
+    output_indices.emplace_back(DT_INT64,
+                                TensorShape({num_values[i], num_dim}));
+    output_values.emplace_back(DataTypeToEnum<T>::v(),
+                               TensorShape({num_values[i]}));
+    output_shapes.emplace_back(input_tensor.shape());
+    output_indices_t.emplace_back(output_indices[i].matrix<int64>());
+    output_values_t.emplace_back(output_values[i].vec<T>());
+    const int size = GetSliceShape(i, split_size, residual);
+    output_shapes[i].set_dim(split_dim, size);
+  }
+
+  std::vector<int> values_inserted_in_slice(num_split, 0);
+  for (int i = 0; i < input_tensor.indices().dim_size(0); ++i) {
+    const int dim = input_indices_t(i, split_dim);
+    const int slice_index = GetSliceIndex(dim, split_size, residual);
+    const int slice_dim = values_inserted_in_slice[slice_index]++;
+    output_values_t[slice_index](slice_dim) = input_values_t(i);
+    for (int j = 0; j < num_dim; ++j) {
+      const int64 original_dim = input_indices_t(i, j);
+      output_indices_t[slice_index](slice_dim, j) =
+          (j == split_dim)
+              ? GetDimensionInSlice(original_dim, split_size, residual)
+              : original_dim;
+    }
+  }
+
+  std::vector<SparseTensor> output_tensors;
+  output_tensors.reserve(num_split);
+  for (int i = 0; i < num_split; ++i) {
+    output_tensors.emplace_back(output_indices[i], output_values[i],
+                                output_shapes[i]);
+  }
+  return output_tensors;
+}
+
+>>>>>>> tensorflow/master
 }  // namespace sparse
 }  // namespace tensorflow
 

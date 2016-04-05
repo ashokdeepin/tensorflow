@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 /// <reference path="../../typings/tsd.d.ts" />
 /// <reference path="../../bower_components/plottable/plottable.d.ts" />
 
@@ -5,15 +6,42 @@ module TF {
   type TFDatum = [number, number, number];
   type tooltipMap = {[run: string]: string};
   type TooltipUpdater = (tooltipMap, xValue, closestRun) => void;
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+module TF {
+  type tooltipMap = {[run: string]: string};
+  export type DataFn = (run: string, tag: string) => Promise<Array<Backend.Datum>>;
+  export type TooltipUpdater = (tooltipMap, xValue, closestRun) => void;
+>>>>>>> tensorflow/master
 
   let Y_TOOLTIP_FORMATTER_PRECISION = 4;
   let STEP_AXIS_FORMATTER_PRECISION = 4;
   let Y_AXIS_FORMATTER_PRECISION = 3;
 
   export class BaseChart {
+<<<<<<< HEAD
     protected dataCoordinator: TF.DataCoordinator;
     protected tag: string;
     protected tooltipUpdater: TooltipUpdater;
+=======
+    protected dataFn: DataFn;
+    protected tag: string;
+    protected tooltipUpdater: TooltipUpdater;
+    private datasets: {[run: string]: Plottable.Dataset};
+>>>>>>> tensorflow/master
 
     protected xAccessor: Plottable.Accessor<number | Date>;
     protected xScale: Plottable.QuantitativeScale<number | Date>;
@@ -29,12 +57,21 @@ module TF {
     protected xTooltipFormatter: (d: number) => string;
     constructor(
         tag: string,
+<<<<<<< HEAD
         dataCoordinator: TF.DataCoordinator,
+=======
+        dataFn: DataFn,
+>>>>>>> tensorflow/master
         tooltipUpdater: TooltipUpdater,
         xType: string,
         colorScale: Plottable.Scales.Color
       ) {
+<<<<<<< HEAD
       this.dataCoordinator = dataCoordinator;
+=======
+      this.dataFn = dataFn;
+      this.datasets = {};
+>>>>>>> tensorflow/master
       this.tag = tag;
       this.colorScale = colorScale;
       this.tooltipUpdater = tooltipUpdater;
@@ -45,6 +82,17 @@ module TF {
       throw new Error("Abstract method not implemented");
     }
 
+<<<<<<< HEAD
+=======
+    public getDataset(run: string) {
+      if (this.datasets[run] === undefined) {
+        this.datasets[run] = new Plottable.Dataset([], {run: run, tag: this.tag});
+      }
+      this.dataFn(this.tag, run).then((x) => this.datasets[run].data(x));
+      return this.datasets[run];
+    }
+
+>>>>>>> tensorflow/master
     protected addCrosshairs(plot: Plottable.XYPlot<number | Date, number>, yAccessor): Plottable.Components.Group {
       var pi = new Plottable.Interactions.Pointer();
       pi.attachTo(plot);
@@ -65,12 +113,21 @@ module TF {
         let yValueForCrosshairs: number = p.y;
         plot.datasets().forEach((dataset) => {
           let run: string = dataset.metadata().run;
+<<<<<<< HEAD
           let data: TFDatum[] = dataset.data();
+=======
+          let data: Backend.Datum[] = dataset.data();
+>>>>>>> tensorflow/master
           let xs: number[] = data.map((d, i) => this.xAccessor(d, i, dataset).valueOf());
           let idx: number = _.sortedIndex(xs, x);
           if (idx === 0 || idx === data.length) {
             // Only find a point when the cursor is inside the range of the data
+<<<<<<< HEAD
             // if the cursor is to the left or right of all the data, dont attach.
+=======
+            // if the cursor is to the left or right of all the data, don't
+            // attach.
+>>>>>>> tensorflow/master
             return;
           }
           let previous = data[idx - 1];
@@ -163,35 +220,59 @@ module TF {
   export class LineChart extends BaseChart {
     private plot: Plottable.Plots.Line<number | Date>;
     protected buildPlot(xAccessor, xScale, yScale): Plottable.Component {
+<<<<<<< HEAD
       var yAccessor = accessorize("2");
       var plot = new Plottable.Plots.Line<number | Date>();
       plot.x(xAccessor, xScale);
       plot.y(yAccessor, yScale);
       plot.attr("stroke", (d: any, i: number, m: any) => m.run, this.colorScale);
+=======
+      var yAccessor = (d: Backend.ScalarDatum) => d.scalar;
+      var plot = new Plottable.Plots.Line<number | Date>();
+      plot.x(xAccessor, xScale);
+      plot.y(yAccessor, yScale);
+      plot.attr("stroke",
+        (d: Backend.Datum, i: number, dataset: Plottable.Dataset) => dataset.metadata().run,
+        this.colorScale);
+>>>>>>> tensorflow/master
       this.plot = plot;
       var group = this.addCrosshairs(plot, yAccessor);
       return group;
     }
 
     public changeRuns(runs: string[]) {
+<<<<<<< HEAD
       var datasets = this.dataCoordinator.getDatasets(this.tag, runs);
       this.plot.datasets(datasets);
     }
 
+=======
+      var datasets = runs.map((r) => this.getDataset(r));
+      this.plot.datasets(datasets);
+    }
+>>>>>>> tensorflow/master
   }
 
   export class HistogramChart extends BaseChart {
     private plots: Plottable.XYPlot<number | Date, number>[];
 
     public changeRuns(runs: string[]) {
+<<<<<<< HEAD
       var datasets = this.dataCoordinator.getDatasets(this.tag, runs);
+=======
+      var datasets = runs.map((r) => this.getDataset(r));
+>>>>>>> tensorflow/master
       this.plots.forEach((p) => p.datasets(datasets));
     }
 
     protected buildPlot(xAccessor, xScale, yScale): Plottable.Component {
       var percents =  [0, 228, 1587, 3085, 5000, 6915, 8413, 9772, 10000];
       var opacities = _.range(percents.length - 1).map((i) => (percents[i + 1] - percents[i]) / 2500);
+<<<<<<< HEAD
       var accessors = percents.map((p, i) => (datum) => datum[2][i][1]);
+=======
+      var accessors = percents.map((p, i) => (datum) => datum[i][1]);
+>>>>>>> tensorflow/master
       var median = 4;
       var medianAccessor = accessors[median];
 
@@ -203,8 +284,19 @@ module TF {
         var y  = i > median ? accessors[i + 1] : accessors[i];
         p.y(y, yScale);
         p.y0(y0);
+<<<<<<< HEAD
         p.attr("fill", (d: any, i: number, m: any) => m.run, this.colorScale);
         p.attr("stroke", (d: any, i: number, m: any) => m.run, this.colorScale);
+=======
+        p.attr("fill",
+          (d: any, i: number, dataset: Plottable.Dataset) =>
+            dataset.metadata().run,
+          this.colorScale);
+        p.attr("stroke",
+          (d: any, i: number, dataset: Plottable.Dataset) =>
+            dataset.metadata().run,
+          this.colorScale);
+>>>>>>> tensorflow/master
         p.attr("stroke-weight", (d: any, i: number, m: any) => "0.5px");
         p.attr("stroke-opacity", () => opacities[i]);
         p.attr("fill-opacity", () => opacities[i]);
@@ -266,7 +358,11 @@ module TF {
     return {
       scale: scale,
       axis: axis,
+<<<<<<< HEAD
       accessor: accessorize("1"),
+=======
+      accessor: (d: Backend.Datum) => d.step,
+>>>>>>> tensorflow/master
       tooltipFormatter: formatter,
     };
   }
@@ -277,9 +373,13 @@ module TF {
     return {
       scale: scale,
       axis: new Plottable.Axes.Time(scale, "bottom"),
+<<<<<<< HEAD
       accessor: (d: any, index: number, dataset: Plottable.Dataset) => {
         return d[0] * 1000; // convert seconds to ms
       },
+=======
+      accessor: (d: Backend.Datum) => d.wall_time,
+>>>>>>> tensorflow/master
       tooltipFormatter: (d: number) => formatter(new Date(d)),
     };
   }
@@ -301,12 +401,21 @@ module TF {
     return {
       scale: scale,
       axis: new Plottable.Axes.Numeric(scale, "bottom"),
+<<<<<<< HEAD
       accessor: (d: any, index: number, dataset: Plottable.Dataset) => {
         var data = dataset && dataset.data();
         // I can't imagine how this function would be called when the data is empty
         // (after all, it iterates over the data), but lets guard just to be safe.
         var first = data.length > 0 ? data[0][0] : 0;
         return (d[0] - first) / (60 * 60); // convert seconds to hours
+=======
+      accessor: (d: Backend.Datum, index: number, dataset: Plottable.Dataset) => {
+        var data = dataset.data();
+        // I can't imagine how this function would be called when the data is empty
+        // (after all, it iterates over the data), but lets guard just to be safe.
+        var first = data.length > 0 ? +data[0].wall_time : 0;
+        return (+d.wall_time - first) / (60 * 60 * 1000); // ms to hours
+>>>>>>> tensorflow/master
       },
       tooltipFormatter: formatter,
     };

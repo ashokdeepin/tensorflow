@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_PLATFORM_TRACING_H_
 #define TENSORFLOW_PLATFORM_TRACING_H_
 
 // Tracing interface
 
+<<<<<<< HEAD
 #include <map>
 #include <memory>
 
@@ -29,13 +48,32 @@ class StepStatsCollector {
   StepStats* step_stats_ GUARDED_BY(mu_);
 };
 
+=======
+#include <atomic>
+#include <map>
+#include <memory>
+
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/platform.h"
+#include "tensorflow/core/platform/types.h"
+
+namespace tensorflow {
+
+>>>>>>> tensorflow/master
 namespace port {
 
 class Tracing {
  public:
   // This enumeration contains the identifiers of all TensorFlow
   // threadscape events and code regions.  Threadscape assigns its
+<<<<<<< HEAD
   // own identiers at runtime when we register our events and we
+=======
+  // own identifiers at runtime when we register our events and we
+>>>>>>> tensorflow/master
   // cannot know in advance what IDs it will choose.  The "RecordEvent"
   // method and "ScopedActivity" use these event IDs for consistency
   // and remap them to threadscape IDs at runtime.  This enum is limited
@@ -79,8 +117,15 @@ class Tracing {
     ~ScopedActivity();
 
    private:
+<<<<<<< HEAD
     const bool enabled_;
     const int32 region_id_;
+=======
+#if defined(PLATFORM_GOOGLE)
+    const bool enabled_;
+    const int32 region_id_;
+#endif
+>>>>>>> tensorflow/master
 
     TF_DISALLOW_COPY_AND_ASSIGN(ScopedActivity);
   };
@@ -96,6 +141,16 @@ class Tracing {
 
  private:
   friend class TracingTest;
+<<<<<<< HEAD
+=======
+  friend class ScopedAnnotation;
+  friend class TraceMe;
+
+  static std::atomic<Tracing::Engine*> tracing_engine_;
+  static Tracing::Engine* engine() {
+    return tracing_engine_.load(std::memory_order_acquire);
+  }
+>>>>>>> tensorflow/master
 
   static void RegisterEvent(EventCategory id, const char* name);
   static const char* EventCategoryString(EventCategory category);
@@ -128,6 +183,12 @@ class Tracing::Engine {
   Engine() {}
   virtual ~Engine();
 
+<<<<<<< HEAD
+=======
+  // Returns true if Tracing is currently enabled.
+  virtual bool IsEnabled() const = 0;
+
+>>>>>>> tensorflow/master
   // Represents an active annotation.
   class Annotation {
    public:
@@ -177,6 +238,15 @@ class Tracing::ScopedAnnotation {
  public:
   explicit ScopedAnnotation(StringPiece name);
 
+<<<<<<< HEAD
+=======
+  // If tracing is enabled, set up an annotation with a label of
+  // "<name_part1>:<name_part2>".  Can be cheaper than the
+  // single-argument constructor because the concatenation of the
+  // label string is only done if tracing is enabled.
+  ScopedAnnotation(StringPiece name_part1, StringPiece name_part2);
+
+>>>>>>> tensorflow/master
  private:
   std::unique_ptr<Engine::Annotation> annotation_;
 };
@@ -193,6 +263,32 @@ class Tracing::TraceMe {
   std::unique_ptr<Engine::Tracer> tracer_;
 };
 
+<<<<<<< HEAD
+=======
+inline Tracing::ScopedAnnotation::ScopedAnnotation(StringPiece name) {
+  auto e = Tracing::engine();
+  if (e && e->IsEnabled()) {
+    annotation_.reset(e->PushAnnotation(name));
+  }
+}
+
+inline Tracing::ScopedAnnotation::ScopedAnnotation(StringPiece name_part1,
+                                                   StringPiece name_part2) {
+  auto e = Tracing::engine();
+  if (e && e->IsEnabled()) {
+    annotation_.reset(
+        e->PushAnnotation(strings::StrCat(name_part1, ":", name_part2)));
+  }
+}
+
+inline Tracing::TraceMe::TraceMe(StringPiece name) {
+  auto e = Tracing::engine();
+  if (e && e->IsEnabled()) {
+    tracer_.reset(e->StartTracing(name));
+  }
+}
+
+>>>>>>> tensorflow/master
 }  // namespace port
 }  // namespace tensorflow
 

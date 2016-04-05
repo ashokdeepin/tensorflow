@@ -1,13 +1,38 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_COMMON_RUNTIME_GPU_GPU_UTIL_H_
 #define TENSORFLOW_COMMON_RUNTIME_GPU_GPU_UTIL_H_
 
 #include "tensorflow/core/common_runtime/device.h"
+<<<<<<< HEAD
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/status.h"
 #include "tensorflow/core/common_runtime/gpu/dma_helper.h"
 #include "tensorflow/stream_executor/device_memory.h"
 
 #include "tensorflow/stream_executor/stream.h"
+=======
+#include "tensorflow/core/common_runtime/dma_helper.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/stream_executor.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -21,7 +46,11 @@ class GPUUtil {
   // "tensor" is GPU-local.  "dev" is the hosting GPU.
   // "device_context" should be the context of the GPU "_Send" op
   // which provides the Tensor.
+<<<<<<< HEAD
   // Sets all necessasry fields of "proto" by transferring value
+=======
+  // Sets all necessary fields of "proto" by transferring value
+>>>>>>> tensorflow/master
   // bytes from GPU to CPU RAM. "is_dead" indicates that the
   // tensor is dead with an uninit value.
   static void SetProtoFromGPU(const Tensor& tensor, Device* dev,
@@ -29,6 +58,7 @@ class GPUUtil {
                               TensorProto* proto, bool is_dead,
                               StatusCallback done);
 
+<<<<<<< HEAD
   // Copies "input" to "output" between devices accessible to the
   // local process via some DMA-like method.  "edge_name" is the name
   // of the tensor being copied, for debugging purposes. Depending on
@@ -43,6 +73,8 @@ class GPUUtil {
                          const Tensor* input, Tensor* output,
                          StatusCallback done);
 
+=======
+>>>>>>> tensorflow/master
   // Copies the data in 'gpu_tensor' into 'cpu_tensor'.
   // 'gpu_tensor''s backing memory must be on 'gpu_device' and
   // 'cpu_tensor' must be allocated to be of the same size as
@@ -83,6 +115,17 @@ class GPUUtil {
                                  const DeviceContext* device_context,
                                  Device* gpu_device, Tensor* gpu_tensor,
                                  StatusCallback done);
+<<<<<<< HEAD
+=======
+
+  static void DeviceToDeviceCopy(DeviceContext* send_dev_context,
+                                 DeviceContext* recv_dev_context, Device* src,
+                                 Device* dst,
+                                 AllocatorAttributes src_alloc_attr,
+                                 AllocatorAttributes dst_alloc_attr,
+                                 const Tensor* input, Tensor* output,
+                                 StatusCallback done);
+>>>>>>> tensorflow/master
 };
 
 }  // namespace tensorflow

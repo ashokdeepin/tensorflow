@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // The CUDA-specific DNN library support, implementing the general DnnSupport
 // interface.
 
@@ -35,7 +53,12 @@ class CudnnSupport : public dnn::DnnSupport {
                   const DeviceMemory<float>& filter_data,
                   const dnn::ConvolutionDescriptor& convolution_descriptor,
                   const dnn::BatchDescriptor& output_descriptor,
+<<<<<<< HEAD
                   DeviceMemory<float>* output_data) override;
+=======
+                  DeviceMemory<float>* output_data,
+                  ScratchAllocator* scratch_allocator) override;
+>>>>>>> tensorflow/master
 
   bool DoConvolve(Stream* stream, const dnn::BatchDescriptor& batch_descriptor,
                   const DeviceMemory<double>& input_data,
@@ -65,7 +88,12 @@ class CudnnSupport : public dnn::DnnSupport {
       DeviceMemory<float> backward_output_data,
       const dnn::ConvolutionDescriptor& convolution_descriptor,
       const dnn::BatchDescriptor& input_descriptor,
+<<<<<<< HEAD
       DeviceMemory<float>* backward_input_data) override;
+=======
+      DeviceMemory<float>* backward_input_data,
+      ScratchAllocator* scratch_allocator) override;
+>>>>>>> tensorflow/master
 
   bool DoConvolveBackwardFilter(
       Stream* stream, const dnn::BatchDescriptor& input_descriptor,
@@ -74,7 +102,12 @@ class CudnnSupport : public dnn::DnnSupport {
       DeviceMemory<float> backward_output_data,
       const dnn::ConvolutionDescriptor& convolution_descriptor,
       const dnn::FilterDescriptor& filter_descriptor,
+<<<<<<< HEAD
       DeviceMemory<float>* backward_filter_data) override;
+=======
+      DeviceMemory<float>* backward_filter_data,
+      ScratchAllocator* scratch_allocator) override;
+>>>>>>> tensorflow/master
 
   bool DoMatMul(Stream* stream, const DeviceMemory<float>& input_data,
                 const DeviceMemory<float>& weights,
@@ -145,6 +178,7 @@ class CudnnSupport : public dnn::DnnSupport {
       const dnn::BatchDescriptor& output_dimensions,
       DeviceMemory<float>* output_data) override;
 
+<<<<<<< HEAD
   bool DoMemcpyD2HQuantized(Stream* stream,
                             const DeviceMemory<float>& device_unquantized_src,
                             port::MutableArraySlice<uint8> host_dst) override;
@@ -159,6 +193,26 @@ class CudnnSupport : public dnn::DnnSupport {
 
   bool DoMemcpyH2DQuantized(
       Stream* stream, port::ArraySlice<uint8> host_src,
+=======
+  bool DoXYPad(Stream* stream, const dnn::BatchDescriptor &dimensions,
+               const DeviceMemory<float> &input_data,
+               int64 left_pad, int64 right_pad, int64 top_pad,
+               int64 bottom_pad, DeviceMemory<float> *output_data) override;
+
+  bool DoXYSlice(Stream* stream, const dnn::BatchDescriptor &dimensions,
+                 const DeviceMemory<float> &input_data,
+                 int64 left_trim, int64 right_trim, int64 top_trim,
+                 int64 bottom_trim, DeviceMemory<float> *output_data) override;
+
+  bool DoMemcpyD2HQuantized(Stream* stream,
+                            const DeviceMemory<float>& device_unquantized_src,
+                            dnn::QuantizedActivationMode mode, void* host_dst,
+                            int64 size) override;
+
+  bool DoMemcpyH2DQuantized(
+      Stream* stream, const void* host_src, int64 size,
+      dnn::QuantizedActivationMode mode,
+>>>>>>> tensorflow/master
       DeviceMemory<float>* device_unquantized_dst) override;
 
   // Derives an output batch descriptor from an input batch and convolution

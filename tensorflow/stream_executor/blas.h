@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Exposes the family of BLAS routines as pre-canned high performance calls for
 // use in conjunction with the StreamExecutor abstraction.
 //
@@ -35,6 +53,10 @@ namespace perftools {
 namespace gputools {
 
 class Stream;
+<<<<<<< HEAD
+=======
+class ScratchAllocator;
+>>>>>>> tensorflow/master
 
 template <typename ElemT>
 class DeviceMemory;
@@ -865,14 +887,22 @@ class BlasSupport {
       const port::ArraySlice<DeviceMemory<float> *> &a, int lda,
       const port::ArraySlice<DeviceMemory<float> *> &b, int ldb, float beta,
       const port::ArraySlice<DeviceMemory<float> *> &c, int ldc,
+<<<<<<< HEAD
       int batch_count) = 0;
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) = 0;
+>>>>>>> tensorflow/master
   virtual bool DoBlasGemmBatched(
       Stream *stream, blas::Transpose transa, blas::Transpose transb, uint64 m,
       uint64 n, uint64 k, double alpha,
       const port::ArraySlice<DeviceMemory<double> *> &a, int lda,
       const port::ArraySlice<DeviceMemory<double> *> &b, int ldb, double beta,
       const port::ArraySlice<DeviceMemory<double> *> &c, int ldc,
+<<<<<<< HEAD
       int batch_count) = 0;
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) = 0;
+>>>>>>> tensorflow/master
   virtual bool DoBlasGemmBatched(
       Stream *stream, blas::Transpose transa, blas::Transpose transb, uint64 m,
       uint64 n, uint64 k, std::complex<float> alpha,
@@ -880,7 +910,11 @@ class BlasSupport {
       const port::ArraySlice<DeviceMemory<std::complex<float>> *> &b, int ldb,
       std::complex<float> beta,
       const port::ArraySlice<DeviceMemory<std::complex<float>> *> &c, int ldc,
+<<<<<<< HEAD
       int batch_count) = 0;
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) = 0;
+>>>>>>> tensorflow/master
   virtual bool DoBlasGemmBatched(
       Stream *stream, blas::Transpose transa, blas::Transpose transb, uint64 m,
       uint64 n, uint64 k, std::complex<double> alpha,
@@ -888,7 +922,11 @@ class BlasSupport {
       const port::ArraySlice<DeviceMemory<std::complex<double>> *> &b, int ldb,
       std::complex<double> beta,
       const port::ArraySlice<DeviceMemory<std::complex<double>> *> &c, int ldc,
+<<<<<<< HEAD
       int batch_count) = 0;
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) = 0;
+>>>>>>> tensorflow/master
 
   // Computes a matrix-matrix product where one input matrix is Hermitian:
   //
@@ -1611,14 +1649,22 @@ class BlasSupport {
       const port::ArraySlice<DeviceMemory<float> *> &a, int lda,               \
       const port::ArraySlice<DeviceMemory<float> *> &b, int ldb, float beta,   \
       const port::ArraySlice<DeviceMemory<float> *> &c, int ldc,               \
+<<<<<<< HEAD
       int batch_count) override;                                               \
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) override;          \
+>>>>>>> tensorflow/master
   bool DoBlasGemmBatched(                                                      \
       Stream *stream, blas::Transpose transa, blas::Transpose transb,          \
       uint64 m, uint64 n, uint64 k, double alpha,                              \
       const port::ArraySlice<DeviceMemory<double> *> &a, int lda,              \
       const port::ArraySlice<DeviceMemory<double> *> &b, int ldb, double beta, \
       const port::ArraySlice<DeviceMemory<double> *> &c, int ldc,              \
+<<<<<<< HEAD
       int batch_count) override;                                               \
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) override;          \
+>>>>>>> tensorflow/master
   bool DoBlasGemmBatched(                                                      \
       Stream *stream, blas::Transpose transa, blas::Transpose transb,          \
       uint64 m, uint64 n, uint64 k, std::complex<float> alpha,                 \
@@ -1626,7 +1672,11 @@ class BlasSupport {
       const port::ArraySlice<DeviceMemory<std::complex<float>> *> &b, int ldb, \
       std::complex<float> beta,                                                \
       const port::ArraySlice<DeviceMemory<std::complex<float>> *> &c, int ldc, \
+<<<<<<< HEAD
       int batch_count) override;                                               \
+=======
+      int batch_count, ScratchAllocator *scratch_allocator) override;          \
+>>>>>>> tensorflow/master
   bool DoBlasGemmBatched(                                                      \
       Stream *stream, blas::Transpose transa, blas::Transpose transb,          \
       uint64 m, uint64 n, uint64 k, std::complex<double> alpha,                \
@@ -1635,7 +1685,11 @@ class BlasSupport {
       const port::ArraySlice<DeviceMemory<std::complex<double>> *> &b,         \
       int ldb, std::complex<double> beta,                                      \
       const port::ArraySlice<DeviceMemory<std::complex<double>> *> &c,         \
+<<<<<<< HEAD
       int ldc, int batch_count) override;                                      \
+=======
+      int ldc, int batch_count, ScratchAllocator *scratch_allocator) override; \
+>>>>>>> tensorflow/master
   bool DoBlasHemm(Stream *stream, blas::Side side, blas::UpperLower uplo,      \
                   uint64 m, uint64 n, std::complex<float> alpha,               \
                   const DeviceMemory<std::complex<float>> &a, int lda,         \

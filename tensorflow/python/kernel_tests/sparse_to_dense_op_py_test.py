@@ -1,18 +1,47 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.kernels.sparse_op."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
 
 def _SparseToDense(sparse_indices, output_size, sparse_values,
+<<<<<<< HEAD
                    default_value):
   return tf.sparse_to_dense(sparse_indices, output_size,
                             sparse_values, default_value)
+=======
+                   default_value, validate_indices=True):
+  return tf.sparse_to_dense(sparse_indices, output_size,
+                            sparse_values,
+                            default_value=default_value,
+                            validate_indices=validate_indices)
+>>>>>>> tensorflow/master
 
 
 class SparseToDenseTest(tf.test.TestCase):
@@ -56,6 +85,14 @@ class SparseToDenseTest(tf.test.TestCase):
                        [ 1, -1, -1, -1]]).astype(np.int32)
     self.assertAllClose(np_ans, tf_ans)
 
+<<<<<<< HEAD
+=======
+  def testZeroDefault(self):
+    with self.test_session():
+      x = tf.sparse_to_dense(2, [4], 7).eval()
+      self.assertAllEqual(x, [0, 0, 7, 0])
+
+>>>>>>> tensorflow/master
   def test3d(self):
     with self.test_session(use_gpu=False):
       tf_ans = _SparseToDense([[1, 3, 0], [2, 0, 1]], [3, 4, 2], 1, -1).eval()
@@ -87,10 +124,59 @@ class SparseToDenseTest(tf.test.TestCase):
 
   def testBadDefault(self):
     with self.test_session():
+<<<<<<< HEAD
       dense = _SparseToDense([1, 3], [5], [1, 2], [1, 2])
       with self.assertRaisesOpError("default_value should be a scalar"):
         dense.eval()
 
+=======
+      dense = _SparseToDense([1, 3], [5], [1, 2], [0])
+      with self.assertRaisesOpError("default_value should be a scalar"):
+        dense.eval()
+
+  def testOutOfBoundsIndicesWithWithoutValidation(self):
+    with self.test_session():
+      dense = _SparseToDense(
+          sparse_indices=[[1], [10]], output_size=[5],
+          sparse_values=[-1.0, 1.0], default_value=0.0)
+      with self.assertRaisesOpError(
+          r"indices\[1\] = \[10\] is out of bounds: need 0 <= index < \[5\]"):
+        dense.eval()
+      # Disable checks, the allocation should still fail.
+      with self.assertRaisesOpError("out of bounds"):
+        dense_without_validation = _SparseToDense(
+            sparse_indices=[[1], [10]], output_size=[5],
+            sparse_values=[-1.0, 1.0], default_value=0.0,
+            validate_indices=False)
+        dense_without_validation.eval()
+
+  def testRepeatingIndicesWithWithoutValidation(self):
+    with self.test_session():
+      dense = _SparseToDense(
+          sparse_indices=[[1], [1]], output_size=[5],
+          sparse_values=[-1.0, 1.0], default_value=0.0)
+      with self.assertRaisesOpError(r"indices\[1\] = \[1\] is repeated"):
+        dense.eval()
+      # Disable checks
+      dense_without_validation = _SparseToDense(
+          sparse_indices=[[1], [1]], output_size=[5],
+          sparse_values=[-1.0, 1.0], default_value=0.0, validate_indices=False)
+      dense_without_validation.eval()
+
+  def testUnsortedIndicesWithWithoutValidation(self):
+    with self.test_session():
+      dense = _SparseToDense(
+          sparse_indices=[[2], [1]], output_size=[5],
+          sparse_values=[-1.0, 1.0], default_value=0.0)
+      with self.assertRaisesOpError(r"indices\[1\] = \[1\] is out of order"):
+        dense.eval()
+      # Disable checks
+      dense_without_validation = _SparseToDense(
+          sparse_indices=[[2], [1]], output_size=[5],
+          sparse_values=[-1.0, 1.0], default_value=0.0, validate_indices=False)
+      dense_without_validation.eval()
+
+>>>>>>> tensorflow/master
   def testShapeInferenceKnownShape(self):
     with self.test_session(use_gpu=False):
       indices = tf.placeholder(tf.int64)

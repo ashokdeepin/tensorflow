@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #ifndef EIGEN_LU_MODULE_H
 #define EIGEN_LU_MODULE_H
 
@@ -41,3 +42,6 @@
 
 #endif // EIGEN_LU_MODULE_H
 /* vim: set filetype=cpp et sw=2 ts=2 ai: */
+=======
+#include "eigen-eigen-3d9f227afae2/Eigen/LU"
+>>>>>>> tensorflow/master

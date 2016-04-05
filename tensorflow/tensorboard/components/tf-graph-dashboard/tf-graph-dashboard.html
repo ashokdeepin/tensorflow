@@ -1,8 +1,17 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../tf-graph-loader/tf-graph-loader.html">
 <link rel="import" href="../tf-graph-board/tf-graph-board.html">
 <link rel="import" href="../tf-graph/tf-graph-controls.html">
 <link rel="import" href="../tf-dashboard-common/warning-style.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../tf-graph-loader/tf-graph-loader.html">
+<link rel="import" href="../tf-graph-board/tf-graph-board.html">
+<link rel="import" href="../tf-graph/tf-graph-controls.html">
+<link rel="import" href="../tf-dashboard-common/tf-no-data-warning.html">
+<link rel="import" href="../tf-backend/tf-backend.html">
+>>>>>>> tensorflow/master
 
 <!--
 tf-graph-dashboard displays a graph from a TensorFlow run.
@@ -17,6 +26,7 @@ by default. The user can select a different run from a dropdown menu.
 
 <dom-module id="tf-graph-dashboard">
 <template>
+<<<<<<< HEAD
 <div id="plumbing">
   <tf-url-generator
       out-runs-url="{{_runsUrl}}"
@@ -42,6 +52,12 @@ by default. The user can select a different run from a dropdown menu.
   </p>
 </div>
 </template>
+=======
+<tf-no-data-warning
+  data-type="graph"
+  show-warning="[[_datasetsEmpty(_datasets)]]"
+></tf-no-data-warning>
+>>>>>>> tensorflow/master
 <template is="dom-if" if="[[!_datasetsEmpty(_datasets)]]">
 <tf-dashboard-layout>
 <div class="sidebar">
@@ -62,6 +78,10 @@ by default. The user can select a different run from a dropdown menu.
           out-graph-name="{{_graphName}}"
           has-stats="{{_hasStats}}"
           progress="{{_progress}}"
+<<<<<<< HEAD
+=======
+          out-hierarchy-params="{{_hierarchyParams}}"
+>>>>>>> tensorflow/master
   ></tf-graph-loader>
 </div>
 <div class="center">
@@ -72,9 +92,17 @@ by default. The user can select a different run from a dropdown menu.
                 graph-name="[[_graphName]]"
                 progress="[[_progress]]"
                 color-by="[[_colorBy]]"
+<<<<<<< HEAD
                 color-by-params="{{_colorByParams}}">
     </tf-graph-board>
 </div>
+=======
+                color-by-params="{{_colorByParams}}"
+                hierarchy-params="[[_hierarchyParams]]">
+    </tf-graph-board>
+</div>
+</tf-dashboard-layout>
+>>>>>>> tensorflow/master
 </template>
 <style>
 
@@ -83,11 +111,18 @@ by default. The user can select a different run from a dropdown menu.
 }
 
 .center {
+<<<<<<< HEAD
+=======
+  position: relative;
+>>>>>>> tensorflow/master
   height: 100%;
 }
 
 </style>
+<<<<<<< HEAD
 <style include="warning-style"></style>
+=======
+>>>>>>> tensorflow/master
 </template>
 </dom-module>
 
@@ -96,6 +131,7 @@ by default. The user can select a different run from a dropdown menu.
 Polymer({
   is: 'tf-graph-dashboard',
   properties: {
+<<<<<<< HEAD
     _runsWithGraph: Array,
     _datasets: {
       type: Object,
@@ -107,6 +143,28 @@ Polymer({
       return {
         name: runName,
         path: graphUrlGen(runName)
+=======
+    _datasets: {
+      type: Object,
+      computed: '_getDatasets(runs.*, router)'
+    },
+    backend: {type: Object, observer: 'reload'},
+    router: {type: Object},
+    runs: Array,
+  },
+  reload: function() {
+    var _this = this;
+    this.backend.graphRuns().then(function(x) {
+      _this.runs = x;
+    });
+  },
+  _getDatasets: function(runs, router) {
+    return _.map(this.runs, function(runName) {
+      return {
+        name: runName,
+        path: router.graph(runName, tf.graph.LIMIT_ATTR_SIZE,
+            tf.graph.LARGE_ATTRS_KEY)
+>>>>>>> tensorflow/master
       };
     });
   },

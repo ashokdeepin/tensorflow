@@ -1,8 +1,16 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/iron-collapse/iron-collapse.html">
 <link rel="import" href="../../bower_components/iron-list/iron-list.html">
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-icon-button/paper-icon-button.html">
 <link rel="import" href="../../bower_components/paper-item/all-imports.html">
+=======
+<link rel="import" href="../iron-collapse/iron-collapse.html">
+<link rel="import" href="../iron-list/iron-list.html">
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-icon-button/paper-icon-button.html">
+<link rel="import" href="../paper-item/all-imports.html">
+>>>>>>> tensorflow/master
 <link rel="import" href="../tf-graph-common/tf-graph-common.html">
 <link rel="import" href="../tf-graph/tf-graph-icon.html">
 <link rel="import" href="tf-node-list-item.html">
@@ -89,6 +97,26 @@
     padding: 0;
   }
 
+<<<<<<< HEAD
+=======
+  .toggle-include-group {
+    padding-top: 4px;
+  }
+
+  .toggle-include {
+    margin: 5px 6px;
+    text-transform: none;
+    padding: 4px 6px;
+    font-size: 10pt;
+    background-color: #fafafa;
+    color: #666;
+  }
+
+  .toggle-include:hover {
+    background-color: var(--google-yellow-100);
+  }
+
+>>>>>>> tensorflow/master
   .non-control-list-item {
     padding-left: 10px;
   }
@@ -102,7 +130,11 @@
             on-click="_toggleExpanded"
             class="toggle-button">
           </paper-icon-button>
+<<<<<<< HEAD
           <div class="node-name">[[_getNodeName(nodeName)]]</div>
+=======
+          <div class="node-name" id="nodetitle"></div>
+>>>>>>> tensorflow/master
         </div>
         <div secondary>
           <tf-graph-icon class="node-icon" node="[[_node]]"
@@ -159,6 +191,10 @@
                   class="non-control-list-item"
                   card-node="[[_node]]"
                   item-node="[[_getNode(item, graphHierarchy)]]"
+<<<<<<< HEAD
+=======
+                  edge-label="[[_getPredEdgeLabel(item)]]"
+>>>>>>> tensorflow/master
                   item-render-info="[[_getRenderInfo(item, renderHierarchy)]]"
                   name="[[item]]"
                   item-type="predecessors"
@@ -177,7 +213,11 @@
                 </paper-icon-button>
                 Control dependencies
               </div>
+<<<<<<< HEAD
               <iron-collapse opened="{{_openedControlPred}}">
+=======
+              <iron-collapse opened="{{_openedControlPred}}" no-animation>
+>>>>>>> tensorflow/master
                 <template is="dom-if" if="{{_openedControlPred}}" restamp="true">
                   <iron-list class="sub-list" items="[[_predecessors.control]]">
                     <template>
@@ -209,6 +249,10 @@
                   class="non-control-list-item"
                   card-node="[[_node]]"
                   item-node="[[_getNode(item, graphHierarchy)]]"
+<<<<<<< HEAD
+=======
+                  edge-label="[[_getSuccEdgeLabel(item)]]"
+>>>>>>> tensorflow/master
                   item-render-info="[[_getRenderInfo(item, renderHierarchy)]]"
                   name="[[item]]"
                   item-type="successor"
@@ -227,7 +271,11 @@
                 </paper-icon-button>
                 Control dependencies
               </div>
+<<<<<<< HEAD
               <iron-collapse opened="{{_openedControlSucc}}">
+=======
+              <iron-collapse opened="{{_openedControlSucc}}" no-animation>
+>>>>>>> tensorflow/master
                 <template is="dom-if" if="{{_openedControlSucc}}" restamp="true">
                   <iron-list class="sub-list" items="[[_successors.control]]">
                     <template>
@@ -248,6 +296,21 @@
             </div>
           </template>
         </div>
+<<<<<<< HEAD
+=======
+        <div class="toggle-include-group">
+          <paper-button raised class="toggle-include" on-click="_toggleInclude">
+            <span>[[_auxButtonText]]</span>
+          </paper-button>
+        </div>
+        <template is="dom-if" if="{{_isInSeries(_node)}}">
+          <div class="toggle-include-group">
+            <paper-button raised class="toggle-include" on-click="_toggleGroup">
+              <span>[[_groupButtonText]]</span>
+            </paper-button>
+          </div>
+        </template>
+>>>>>>> tensorflow/master
       </div>
     </template>
     </iron-collapse>
@@ -273,6 +336,14 @@
             computed: '_getNode(nodeName, graphHierarchy)',
             observer: '_resetState'
           },
+<<<<<<< HEAD
+=======
+          // The enum value of the include property of the selected node.
+          nodeInclude: {
+            type: Number,
+            observer: '_nodeIncludeStateChanged'
+          },
+>>>>>>> tensorflow/master
           _attributes: {
             type: Array,
             computed: '_getAttributes(_node)'
@@ -313,6 +384,11 @@
             type: Boolean,
             value: false
           },
+<<<<<<< HEAD
+=======
+          _auxButtonText: String,
+          _groupButtonText: String
+>>>>>>> tensorflow/master
         },
         expandNode: function() {
           this.fire('_node.expand', this.node);
@@ -323,20 +399,74 @@
         _getNode: function(nodeName, graphHierarchy) {
           return graphHierarchy.node(nodeName);
         },
+<<<<<<< HEAD
         _getNodeName: function(nodeName) {
           // Insert a zero-width whitespace character before each slash so that
           // long node names wrap cleanly at path boundaries.
           return (nodeName || '').replace(/\//g, '\u200B/');
+=======
+        _getPrintableHTMLNodeName: function(nodeName) {
+          // Insert an optional line break before each slash so that
+          // long node names wrap cleanly at path boundaries.
+          return (nodeName || '').replace(/\//g, '<wbr>/');
+        },
+        _getPredEdgeLabel: function(sourceName) {
+          return this._getEdgeLabel(sourceName, this.nodeName);
+        },
+        _getSuccEdgeLabel: function(destName) {
+          return this._getEdgeLabel(this.nodeName, destName);
+        },
+        _getEdgeLabel: function(sourceName, destName) {
+          if (!this._node) {
+            // The user clicked outside, thus no node is selected and
+            // the info card should be hidden.
+            return;
+          }
+          var parent = this._node.parentNode;
+          var sourceNode = this.graphHierarchy.node(sourceName);
+          if (!sourceNode.isGroupNode) {
+            // Show the tensor shape directly.
+            return tf.graph.scene.edge.getShapeLabelFromNode(sourceNode);
+          }
+          sourceName = this.renderHierarchy.getNearestVisibleAncestor(sourceName);
+          destName = this.renderHierarchy.getNearestVisibleAncestor(destName);
+          var metaedge = parent.metagraph.edge(sourceName, destName) ||
+              parent.bridgegraph.edge(sourceName, destName);
+          return tf.graph.scene.edge.getLabelForEdge(metaedge,
+              this.renderHierarchy);
+>>>>>>> tensorflow/master
         },
         _getRenderInfo: function(nodeName, renderHierarchy) {
           return this.renderHierarchy.getOrCreateRenderNodeByName(nodeName);
         },
         _getAttributes: function(node) {
           this.async(this._resizeList.bind(this, "#attributesList"));
+<<<<<<< HEAD
           return node && node.attr ? node.attr.map(function(entry) {
             return {key: entry.key, value: JSON.stringify(entry.value)};
           }) : [];
 
+=======
+          if (!node || !node.attr) {
+            return [];
+          }
+          var attrs = [];
+          _.each(node.attr, function(entry) {
+            // Unpack the "too large" attributes into separate attributes
+            // in the info card, with values "too large to show".
+            if (entry.key === tf.graph.LARGE_ATTRS_KEY) {
+              attrs = attrs.concat(entry.value.list.s.map(function(key) {
+                return {key: key, value: "Too large to show..."};
+              }));
+            } else {
+              attrs.push({
+                key: entry.key,
+                value: JSON.stringify(entry.value)
+              });
+            }
+          });
+          return attrs;
+>>>>>>> tensorflow/master
         },
         _getDevice: function(node) {
           return node ? node.device : null;
@@ -373,12 +503,44 @@
         _resetState: function() {
           this._openedControlPred = false;
           this._openedControlSucc = false;
+<<<<<<< HEAD
+=======
+
+          this.set("_groupButtonText",
+            tf.graph.scene.node.getGroupSettingLabel(this._node));
+
+          if (this._node) {
+            Polymer.dom(this.$.nodetitle).innerHTML =
+              this._getPrintableHTMLNodeName(this._node.name);
+          }
+>>>>>>> tensorflow/master
         },
         _resizeList: function(selector) {
           var list = document.querySelector(selector);
           if (list) {
             list.fire('iron-resize');
           }
+<<<<<<< HEAD
+=======
+        },
+        _toggleInclude: function() {
+          var graphElem = document.querySelector("#graph");
+          graphElem.fire("node-toggle-extract", { name: this.nodeName });
+          var graphBoardElem = document.querySelector("#graphboard");
+          graphBoardElem.fire("node-toggle-extract");
+        },
+        _nodeIncludeStateChanged: function(include, oldInclude) {
+          this.set("_auxButtonText",
+            tf.graph.getIncludeNodeButtonString(include));
+        },
+        _toggleGroup: function() {
+          var graphElem = document.querySelector("#graph");
+          var seriesName = tf.graph.scene.node.getSeriesName(this._node);
+          graphElem.fire("node-toggle-seriesgroup", { name: seriesName });
+        },
+        _isInSeries: function(node) {
+          return tf.graph.scene.node.canBeInSeries(node);
+>>>>>>> tensorflow/master
         }
       });
     })();

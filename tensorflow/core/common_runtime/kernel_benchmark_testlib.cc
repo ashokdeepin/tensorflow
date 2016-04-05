@@ -1,9 +1,31 @@
+<<<<<<< HEAD
 #include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/common_runtime/kernel_benchmark_testlib.h"
+
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/common_runtime/device.h"
 #include "tensorflow/core/common_runtime/device_factory.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/op_kernel.h"
+<<<<<<< HEAD
 #include "tensorflow/core/graph/graph.h"
 #include "tensorflow/core/framework/op_segment.h"
 #include "tensorflow/core/platform/logging.h"
@@ -21,15 +43,33 @@ DECLARE_bool(brain_gpu_use_bfc_allocator);
 #else
 extern bool FLAGS_brain_gpu_use_bfc_allocator;
 #endif
+=======
+#include "tensorflow/core/framework/op_segment.h"
+#include "tensorflow/core/graph/graph.h"
+#include "tensorflow/core/kernels/ops_util.h"
+#include "tensorflow/core/lib/core/notification.h"
+#include "tensorflow/core/lib/core/threadpool.h"
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/platform/host_info.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/test_benchmark.h"
+#include "tensorflow/core/platform/types.h"
+#include "tensorflow/core/public/session_options.h"
+#include "tensorflow/core/public/version.h"
+#include "tensorflow/core/util/device_name_utils.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace test {
 
 Benchmark::Benchmark(const string& device, Graph* g,
                      const SessionOptions* options, Graph* init) {
+<<<<<<< HEAD
   RequireDefaultOps();
 
   FLAGS_brain_gpu_use_bfc_allocator = true;
+=======
+>>>>>>> tensorflow/master
 
   SessionOptions default_options;
   if (!options) {
@@ -51,6 +91,7 @@ Benchmark::Benchmark(const string& device, Graph* g,
 
   rendez_ = NewLocalRendezvous();
 
+<<<<<<< HEAD
   if (init) {
     Executor* init_exec;
     TF_CHECK_OK(NewLocalExecutor(
@@ -62,6 +103,25 @@ Benchmark::Benchmark(const string& device, Graph* g,
             [](OpKernel* kernel) { DeleteNonCachedKernel(kernel); },
         },
         init, &init_exec));
+=======
+  const int graph_def_version = g->versions().producer();
+
+  LocalExecutorParams params;
+  params.device = device_;
+  params.function_library = nullptr;
+  params.create_kernel = [this, graph_def_version](const NodeDef& ndef,
+                                                   OpKernel** kernel) {
+    return CreateNonCachedKernel(device_, nullptr, ndef, graph_def_version,
+                                 kernel);
+  };
+  params.delete_kernel = [](OpKernel* kernel) {
+    DeleteNonCachedKernel(kernel);
+  };
+
+  if (init) {
+    Executor* init_exec;
+    TF_CHECK_OK(NewLocalExecutor(params, init, &init_exec));
+>>>>>>> tensorflow/master
     Executor::Args args;
     args.rendezvous = rendez_;
     args.runner = runner;
@@ -69,6 +129,7 @@ Benchmark::Benchmark(const string& device, Graph* g,
     delete init_exec;
   }
 
+<<<<<<< HEAD
   TF_CHECK_OK(NewLocalExecutor(
       {
           device_,
@@ -80,6 +141,9 @@ Benchmark::Benchmark(const string& device, Graph* g,
           [](OpKernel* kernel) { DeleteNonCachedKernel(kernel); },
       },
       g, &exec_));
+=======
+  TF_CHECK_OK(NewLocalExecutor(params, g, &exec_));
+>>>>>>> tensorflow/master
 }
 
 Benchmark::~Benchmark() {

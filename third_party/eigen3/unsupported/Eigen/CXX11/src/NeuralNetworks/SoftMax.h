@@ -23,10 +23,18 @@ namespace Eigen {
 */
 
 namespace {
+<<<<<<< HEAD
 struct SoftmaxOp {
   SoftmaxOp(const float beta) : beta_(beta) { }
 
   template <typename Input>
+=======
+class SoftmaxOp {
+ public:
+  EIGEN_ALWAYS_INLINE SoftmaxOp(const float beta) : beta_(beta) { }
+
+  template <typename Input> EIGEN_ALWAYS_INLINE
+>>>>>>> tensorflow/master
   typename Input::Dimensions dimensions(const Input& input) const {
     return input.dimensions();
   }

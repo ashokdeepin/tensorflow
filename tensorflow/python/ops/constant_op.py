@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """## Constant Value Tensors
 
 TensorFlow provides several operations that you can use to generate constants.
@@ -47,6 +65,7 @@ shuff = tf.random_shuffle(c)
 
 # Each time we run these ops, different results are generated
 sess = tf.Session()
+<<<<<<< HEAD
 print sess.run(norm)
 print sess.run(norm)
 
@@ -56,6 +75,19 @@ sess = tf.Session()
 norm = tf.random_normal(c, seed=1234)
 print sess.run(norm)
 print sess.run(norm)
+=======
+print(sess.run(norm))
+print(sess.run(norm))
+
+# Set an op-level seed to generate repeatable sequences across sessions.
+norm = tf.random_normal([2, 3], seed=1234)
+sess = tf.Session()
+print(sess.run(norm))
+print(sess.run(norm))
+sess = tf.Session()
+print(sess.run(norm))
+print(sess.run(norm))
+>>>>>>> tensorflow/master
 ```
 
 Another common use of random values is the initialization of variables. Also see
@@ -69,13 +101,21 @@ init = tf.initialize_all_variables()
 
 sess = tf.Session()
 sess.run(init)
+<<<<<<< HEAD
 print sess.run(var)
+=======
+print(sess.run(var))
+>>>>>>> tensorflow/master
 ```
 
 @@random_normal
 @@truncated_normal
 @@random_uniform
 @@random_shuffle
+<<<<<<< HEAD
+=======
+@@random_crop
+>>>>>>> tensorflow/master
 @@set_random_seed
 
 """
@@ -86,6 +126,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 import numpy as np
 
@@ -94,6 +135,15 @@ from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.framework import tensor_util
 from tensorflow.python.framework import types
+=======
+import numpy as np
+
+from tensorflow.core.framework import attr_value_pb2
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+from tensorflow.python.framework import tensor_util
+>>>>>>> tensorflow/master
 
 
 def constant(value, dtype=None, shape=None, name="Const"):
@@ -110,9 +160,14 @@ def constant(value, dtype=None, shape=None, name="Const"):
    elements specified by `shape`, the last element in the list will be used
    to fill the remaining entries.
 
+<<<<<<< HEAD
    The argument `shape` is optional. If present, it specifies the dimensions
    of the resulting tensor. If not present, then the tensor is a scalar (0-D)
    if `value` is a scalar, or 1-D otherwise.
+=======
+   The argument `shape` is optional. If present, it specifies the dimensions of
+   the resulting tensor. If not present, the shape of `value` is used.
+>>>>>>> tensorflow/master
 
    If the argument `dtype` is not specified, then the type is inferred from
    the type of `value`.
@@ -157,20 +212,48 @@ def _ConstantShape(op):
       [d.size for d in op.get_attr("value").tensor_shape.dim])]
 
 
+<<<<<<< HEAD
 ops.register_tensor_conversion_function((list, tuple), constant, 100)
 ops.register_tensor_conversion_function(np.ndarray, constant, 100)
 ops.register_tensor_conversion_function(np.generic, constant, 100)
 ops.register_tensor_conversion_function(object, constant, 200)
 
 def _tensor_shape_tensor_conversion_function(s, dtype=None, name=None):
+=======
+def _constant_tensor_conversion_function(v, dtype=None, name=None,
+                                         as_ref=False):
+  _ = as_ref
+  return constant(v, dtype=dtype, name=name)
+
+
+ops.register_tensor_conversion_function(
+    (list, tuple), _constant_tensor_conversion_function, 100)
+ops.register_tensor_conversion_function(
+    np.ndarray, _constant_tensor_conversion_function, 100)
+ops.register_tensor_conversion_function(
+    np.generic, _constant_tensor_conversion_function, 100)
+ops.register_tensor_conversion_function(
+    object, _constant_tensor_conversion_function, 200)
+
+def _tensor_shape_tensor_conversion_function(s, dtype=None, name=None,
+                                             as_ref=False):
+  _ = as_ref
+>>>>>>> tensorflow/master
   if not s.is_fully_defined():
     raise ValueError(
         "Cannot convert a partially known TensorShape to a Tensor: %s" % s)
   if dtype is not None:
+<<<<<<< HEAD
     if dtype not in (types.int32, types.int64):
       raise TypeError("Cannot convert a TensorShape to dtype: %s" % dtype)
   else:
     dtype = types.int32
+=======
+    if dtype not in (dtypes.int32, dtypes.int64):
+      raise TypeError("Cannot convert a TensorShape to dtype: %s" % dtype)
+  else:
+    dtype = dtypes.int32
+>>>>>>> tensorflow/master
   if name is None:
     name = "shape_as_tensor"
   return constant(s.as_list(), dtype=dtype, name=name)
@@ -178,6 +261,7 @@ def _tensor_shape_tensor_conversion_function(s, dtype=None, name=None):
 ops.register_tensor_conversion_function(
     tensor_shape.TensorShape, _tensor_shape_tensor_conversion_function, 100)
 
+<<<<<<< HEAD
 def _dimension_tensor_conversion_function(d, dtype=None, name=None):
   if d.value is None:
     raise ValueError("Cannot convert an unknown Dimension to a Tensor: %s" % d)
@@ -186,6 +270,18 @@ def _dimension_tensor_conversion_function(d, dtype=None, name=None):
       raise TypeError("Cannot convert a TensorShape to dtype: %s" % dtype)
   else:
     dtype = types.int32
+=======
+def _dimension_tensor_conversion_function(d, dtype=None, name=None,
+                                          as_ref=False):
+  _ = as_ref
+  if d.value is None:
+    raise ValueError("Cannot convert an unknown Dimension to a Tensor: %s" % d)
+  if dtype is not None:
+    if dtype not in (dtypes.int32, dtypes.int64):
+      raise TypeError("Cannot convert a TensorShape to dtype: %s" % dtype)
+  else:
+    dtype = dtypes.int32
+>>>>>>> tensorflow/master
   if name is None:
     name = "shape_as_tensor"
   return constant(d.value, dtype=dtype, name=name)

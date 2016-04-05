@@ -1,19 +1,49 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Helper macros and typemaps for use in Tensorflow swig files.
 //
 %{
   #include <memory>
+<<<<<<< HEAD
   #include "tensorflow/core/platform/port.h"
+=======
+  #include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
   using tensorflow::uint64;
   using tensorflow::string;
 
   template<class T>
       bool _PyObjAs(PyObject *pystr, T* cstr) {
     T::undefined;  // You need to define specialization _PyObjAs<T>
+<<<<<<< HEAD
+=======
+    return false;
+>>>>>>> tensorflow/master
   }
 
   template<class T>
       PyObject *_PyObjFrom(const T& c) {
     T::undefined;  // You need to define specialization _PyObjFrom<T>
+<<<<<<< HEAD
+=======
+    return NULL;
+>>>>>>> tensorflow/master
   }
 
 #ifdef HAS_GLOBAL_STRING
@@ -45,9 +75,25 @@
     return PyBytes_FromStringAndSize(c.data(), c.size());
   }
 
+<<<<<<< HEAD
   PyObject* _SwigString_FromString(const string& s) {
     return PyBytes_FromStringAndSize(s.data(), s.size());
   }
+=======
+  PyObject* _SwigBytes_FromString(const string& s) {
+    return PyBytes_FromStringAndSize(s.data(), s.size());
+  }
+
+  // The string must be both ASCII and Unicode compatible, so this routine
+  // should be used only for error messages and the like.
+  PyObject* _SwigSimpleStr_FromString(const string& s) {
+#if PY_MAJOR_VERSION < 3
+    return PyString_FromStringAndSize(s.data(), s.size());
+#else
+    return PyUnicode_FromStringAndSize(s.data(), s.size());
+#endif
+  }
+>>>>>>> tensorflow/master
 %}
 
 %typemap(in) string {
@@ -118,7 +164,11 @@ std::vector<type>* OUTPUT (std::vector<type> temp),
 }
 %enddef
 
+<<<<<<< HEAD
 _LIST_OUTPUT_TYPEMAP(string, _SwigString_FromString);
+=======
+_LIST_OUTPUT_TYPEMAP(string, _SwigBytes_FromString);
+>>>>>>> tensorflow/master
 _LIST_OUTPUT_TYPEMAP(unsigned long long, PyLong_FromUnsignedLongLong);
 
 %typemap(in) uint64 {

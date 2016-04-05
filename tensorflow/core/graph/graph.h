@@ -1,6 +1,27 @@
+<<<<<<< HEAD
 // A Graph describes a set of computations that are to be
 // performed, as well as the dependencies between those
 // compuations. The basic model is a DAG (directed acyclic graph) with
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+// A Graph describes a set of computations that are to be
+// performed, as well as the dependencies between those
+// computations. The basic model is a DAG (directed acyclic graph) with
+>>>>>>> tensorflow/master
 // * internal nodes representing computational operations to be performed;
 // * edges represent dependencies, indicating the target may only be
 //   executed once the source has completed; and
@@ -28,6 +49,7 @@
 #include "tensorflow/core/framework/graph.pb.h"
 #include "tensorflow/core/framework/op.h"
 #include "tensorflow/core/framework/types.h"
+<<<<<<< HEAD
 #include "tensorflow/core/graph/edgeset.h"
 #include "tensorflow/core/lib/core/arena.h"
 #include "tensorflow/core/lib/core/refcount.h"
@@ -35,6 +57,17 @@
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/framework/versions.pb.h"
+#include "tensorflow/core/graph/edgeset.h"
+#include "tensorflow/core/lib/core/arena.h"
+#include "tensorflow/core/lib/core/refcount.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/lib/gtl/iterator_range.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -88,6 +121,28 @@ class Node {
   // Anything other than the special Source & Sink nodes.
   bool IsOp() const { return id() > 1; }
 
+<<<<<<< HEAD
+=======
+  // Node class helpers
+  bool IsSwitch() const { return (class_ == NC_SWITCH); }
+  bool IsMerge() const { return (class_ == NC_MERGE); }
+  bool IsEnter() const { return (class_ == NC_ENTER); }
+  bool IsExit() const { return (class_ == NC_EXIT); }
+  bool IsNextIteration() const { return (class_ == NC_NEXT_ITERATION); }
+  bool IsLoopCond() const { return (class_ == NC_LOOP_COND); }
+  bool IsControlTrigger() const { return (class_ == NC_CONTROL_TRIGGER); }
+  bool IsSend() const { return (class_ == NC_SEND); }
+  bool IsRecv() const { return (class_ == NC_RECV); }
+  bool IsConstant() const { return (class_ == NC_CONSTANT); }
+  bool IsVariable() const { return (class_ == NC_VARIABLE); }
+  bool IsIdentity() const { return (class_ == NC_IDENTITY); }
+  bool IsControlFlow() const {
+    return (class_ != NC_OTHER) &&  // Fast path
+           (IsSwitch() || IsMerge() || IsEnter() || IsExit() ||
+            IsNextIteration());
+  }
+
+>>>>>>> tensorflow/master
  private:
   friend class Graph;
   Node();
@@ -119,8 +174,34 @@ class Node {
   // uninitialized state.
   void Clear();
 
+<<<<<<< HEAD
   int id_;       // -1 until Initialize() is called
   int cost_id_;  // -1 if there is no corresponding cost accounting node
+=======
+  // A set of mutually exclusive classes for different kinds of nodes,
+  // class_ is initialized in the Node::Initialize routine based on the
+  // node's type_string().
+  enum NodeClass {
+    NC_UNINITIALIZED,
+    NC_SWITCH,
+    NC_MERGE,
+    NC_ENTER,
+    NC_EXIT,
+    NC_NEXT_ITERATION,
+    NC_LOOP_COND,
+    NC_CONTROL_TRIGGER,
+    NC_SEND,
+    NC_RECV,
+    NC_CONSTANT,
+    NC_VARIABLE,
+    NC_IDENTITY,
+    NC_OTHER  // Not a special kind of node
+  };
+
+  int id_;       // -1 until Initialize() is called
+  int cost_id_;  // -1 if there is no corresponding cost accounting node
+  NodeClass class_;
+>>>>>>> tensorflow/master
 
   EdgeSet in_edges_;
   EdgeSet out_edges_;
@@ -177,6 +258,13 @@ class Graph {
 
   static const int kControlSlot = -1;
 
+<<<<<<< HEAD
+=======
+  // The GraphDef version range of this graph (see graph.proto).
+  const VersionDef& versions() const { return versions_; }
+  void set_versions(const VersionDef& versions) { versions_ = versions; }
+
+>>>>>>> tensorflow/master
   // Adds a new node to this graph, and returns it. Infers the Op and
   // input/output types for the node. *this owns the returned instance.
   // Returns nullptr and sets *status on error.
@@ -206,8 +294,26 @@ class Graph {
   // REQUIRES: The edge must exist.
   void RemoveEdge(const Edge* edge);
 
+<<<<<<< HEAD
   // Returns one more than the maximum id assigned to any node.
   int num_node_ids() const { return nodes_.size(); }
+=======
+  // The number of live nodes in the graph.
+  //
+  // Because nodes can be removed from the graph, num_nodes() is often
+  // smaller than num_node_ids(). If one needs to create an array of
+  // nodes indexed by node ids, num_node_ids() should be used as the
+  // array's size.
+  int num_nodes() const { return num_nodes_; }
+
+  // The number of live edges in the graph.
+  //
+  // Because edges can be removed from the graph, num_edges() is often
+  // smaller than num_edge_ids(). If one needs to create an array of
+  // edges indexed by edge ids, num_edge_ids() should be used as the
+  // array's size.
+  int num_edges() const { return edges().size(); }
+>>>>>>> tensorflow/master
 
   // Serialize to a GraphDef.
   void ToGraphDef(GraphDef* graph_def) const;
@@ -220,6 +326,12 @@ class Graph {
   //   for (Node* node : graph.nodes()) { ... }
   gtl::iterator_range<NodeIter> nodes() const;
 
+<<<<<<< HEAD
+=======
+  // Returns one more than the maximum id assigned to any node.
+  int num_node_ids() const { return nodes_.size(); }
+
+>>>>>>> tensorflow/master
   // Returns the node associated with an id, or nullptr if no node
   // with that id (the node with that id was removed and the id has
   // not yet been re-used). *this owns the returned instance.
@@ -259,6 +371,12 @@ class Graph {
   // Registry of all known ops.  Not owned.
   const OpRegistryInterface* const ops_;
 
+<<<<<<< HEAD
+=======
+  // GraphDef versions
+  VersionDef versions_;
+
+>>>>>>> tensorflow/master
   // Allocator which will give us good locality.
   core::Arena arena_;
 
@@ -266,6 +384,12 @@ class Graph {
   // the node with that id was removed from the graph.
   std::vector<Node*> nodes_;
 
+<<<<<<< HEAD
+=======
+  // Number of nodes alive.
+  int64 num_nodes_ = 0;
+
+>>>>>>> tensorflow/master
   // Map from edge ids to allocated edges.  edges_[id] may be nullptr if
   // the edge with that id was removed from the graph.
   std::vector<Edge*> edges_;
@@ -289,6 +413,7 @@ class Graph {
 
 // Helper routines
 
+<<<<<<< HEAD
 inline bool IsSwitch(const Node* node) {
   return node->type_string() == "Switch" || node->type_string() == "RefSwitch";
 }
@@ -320,10 +445,22 @@ inline bool IsSend(const Node* node) {
 inline bool IsRecv(const Node* node) {
   return node->type_string() == "_Recv" || node->type_string() == "_HostRecv";
 }
+=======
+inline bool IsSwitch(const Node* node) { return node->IsSwitch(); }
+inline bool IsMerge(const Node* node) { return node->IsMerge(); }
+inline bool IsEnter(const Node* node) { return node->IsEnter(); }
+inline bool IsExit(const Node* node) { return node->IsExit(); }
+inline bool IsNextIteration(const Node* n) { return n->IsNextIteration(); }
+inline bool IsLoopCond(const Node* node) { return node->IsLoopCond(); }
+inline bool IsControlTrigger(const Node* n) { return n->IsControlTrigger(); }
+inline bool IsSend(const Node* node) { return node->IsSend(); }
+inline bool IsRecv(const Node* node) { return node->IsRecv(); }
+>>>>>>> tensorflow/master
 
 // True for Nodes that mediate the transfer of values between processes.
 inline bool IsTransferNode(const Node* n) { return IsSend(n) || IsRecv(n); }
 
+<<<<<<< HEAD
 inline bool IsConstant(const Node* node) {
   return node->type_string() == "Const" || node->type_string() == "HostConst";
 }
@@ -342,6 +479,14 @@ inline bool IsControlFlow(const Node* n) {
   return IsSwitch(n) || IsMerge(n) || IsEnter(n) || IsExit(n) ||
          IsNextIteration(n);
 }
+=======
+inline bool IsConstant(const Node* node) { return node->IsConstant(); }
+inline bool IsVariable(const Node* node) { return node->IsVariable(); }
+inline bool IsIdentity(const Node* node) { return node->IsIdentity(); }
+
+// Returns true iff 'n' is a control flow node.
+inline bool IsControlFlow(const Node* n) { return n->IsControlFlow(); }
+>>>>>>> tensorflow/master
 
 inline bool IsHostMemoryPreserving(const Node* node) {
   return IsIdentity(node) || IsControlFlow(node);

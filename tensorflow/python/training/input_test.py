@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for training.input."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,8 +23,11 @@ from __future__ import print_function
 
 import os
 import itertools
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
@@ -21,7 +42,11 @@ class MatchFilenamesOnceTest(tf.test.TestCase):
                   for i in range(3)]
     for name in additional:
       open(name, "w").write("Some contents")
+<<<<<<< HEAD
     filenames += additional
+=======
+    filenames = list(set(filenames + additional))
+>>>>>>> tensorflow/master
     with self.test_session():
       star = tf.train.match_filenames_once(
           os.path.join(self.get_temp_dir(), "*"))
@@ -29,9 +54,16 @@ class MatchFilenamesOnceTest(tf.test.TestCase):
           os.path.join(self.get_temp_dir(), "match_filenames.?"))
       one = tf.train.match_filenames_once(additional[1])
       tf.initialize_all_variables().run()
+<<<<<<< HEAD
       self.assertItemsEqual(filenames, star.eval())
       self.assertItemsEqual(additional, question.eval())
       self.assertItemsEqual([additional[1]], one.eval())
+=======
+      self.assertItemsEqual(map(tf.compat.as_bytes, filenames), star.eval())
+      self.assertItemsEqual(map(tf.compat.as_bytes, additional),
+                            question.eval())
+      self.assertItemsEqual([tf.compat.as_bytes(additional[1])], one.eval())
+>>>>>>> tensorflow/master
 
 
 class LimitEpochsTest(tf.test.TestCase):
@@ -49,17 +81,83 @@ class LimitEpochsTest(tf.test.TestCase):
       love_me = tf.constant("Love Me")
       love_me_two_times = tf.train.limit_epochs(love_me, num_epochs=2)
       tf.initialize_all_variables().run()
+<<<<<<< HEAD
       self.assertEqual("Love Me", love_me_two_times.eval())
       self.assertEqual("Love Me", love_me_two_times.eval())
+=======
+      self.assertEqual(b"Love Me", love_me_two_times.eval())
+      self.assertEqual(b"Love Me", love_me_two_times.eval())
+>>>>>>> tensorflow/master
       with self.assertRaises(tf.errors.OutOfRangeError):
         love_me_two_times.eval()
 
 
+<<<<<<< HEAD
+=======
+class InputProducerTest(tf.test.TestCase):
+
+  def testNoShuffle(self):
+    with self.test_session():
+      input_tensor = [[1, 2, 3, 4],
+                      [5, 6, 7, 8],
+                      [9, 10, 11, 12]]
+      num_epochs = 2
+      queue = tf.train.input_producer(
+          input_tensor, num_epochs=num_epochs, shuffle=False)
+      dequeue_many = queue.dequeue_many(len(input_tensor) * num_epochs)
+      dequeue = queue.dequeue()
+      tf.initialize_all_variables().run()
+      threads = tf.train.start_queue_runners()
+
+      # No randomness, so just see repeated copies of the input.
+      self.assertAllEqual(input_tensor * num_epochs, dequeue_many.eval())
+
+      # Reached the limit.
+      with self.assertRaises(tf.errors.OutOfRangeError):
+        dequeue.eval()
+      for thread in threads:
+        thread.join()
+
+  def testNoShapeInference(self):
+    with self.test_session():
+      # Disable shape inference for the input.
+      input_value = [[1, 2, 3, 4],
+                     [5, 6, 7, 8],
+                     [9, 10, 11, 12]]
+      input_tensor = tf.placeholder_with_default(input_value, shape=None)
+      num_epochs = 2
+      queue = tf.train.input_producer(
+          input_tensor, element_shape=[4], num_epochs=num_epochs, shuffle=False)
+      dequeue_many = queue.dequeue_many(len(input_value) * num_epochs)
+      dequeue = queue.dequeue()
+      tf.initialize_all_variables().run()
+      threads = tf.train.start_queue_runners()
+
+      # No randomness, so just see repeated copies of the input.
+      self.assertAllEqual(input_value * num_epochs, dequeue_many.eval())
+
+      # Reached the limit.
+      with self.assertRaises(tf.errors.OutOfRangeError):
+        dequeue.eval()
+      for thread in threads:
+        thread.join()
+
+  def testShapeError(self):
+    input_tensor = tf.placeholder(tf.float32, None)
+    with self.assertRaisesRegexp(ValueError, "fully defined shape"):
+      _ = tf.train.input_producer(input_tensor)
+
+
+>>>>>>> tensorflow/master
 class StringInputProducerTest(tf.test.TestCase):
 
   def testNoShuffle(self):
     with self.test_session():
+<<<<<<< HEAD
       strings = ["to", "be", "or", "not", "to", "be"]
+=======
+      strings = [b"to", b"be", b"or", b"not", b"to", b"be"]
+>>>>>>> tensorflow/master
       num_epochs = 3
       queue = tf.train.string_input_producer(
           strings, num_epochs=num_epochs, shuffle=False)
@@ -80,7 +178,11 @@ class StringInputProducerTest(tf.test.TestCase):
 
   def testShuffle(self):
     with self.test_session():
+<<<<<<< HEAD
       strings = ["a", "b", "c"]
+=======
+      strings = [b"a", b"b", b"c"]
+>>>>>>> tensorflow/master
       num_epochs = 600
       queue = tf.train.string_input_producer(
           strings, num_epochs=num_epochs, shuffle=True, seed=271828)
@@ -91,13 +193,21 @@ class StringInputProducerTest(tf.test.TestCase):
 
       # Validate that we only shuffle the strings within an epoch and
       # count how often each possible order appears.
+<<<<<<< HEAD
       expected = ["abc", "acb", "bac", "bca", "cab", "cba"]
+=======
+      expected = [b"abc", b"acb", b"bac", b"bca", b"cab", b"cba"]
+>>>>>>> tensorflow/master
       frequency = {}
       for e in expected:
         frequency[e] = 0
       for _ in range(num_epochs):
         output = dequeue_many.eval()
+<<<<<<< HEAD
         key = "".join(output)
+=======
+        key = b"".join(output)
+>>>>>>> tensorflow/master
         self.assertIn(key, expected)
         frequency[key] += 1
 
@@ -116,6 +226,40 @@ class StringInputProducerTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+<<<<<<< HEAD
+=======
+  def testNullStringPython(self):
+    # Graph-construction time check for empty string list:
+    with self.test_session():
+      with self.assertRaises(ValueError):
+        _ = tf.train.string_input_producer([])
+
+  def testNullString(self):
+    # Runtime check for empty string list.  This is slightly oblique:
+    # The queue runner should die with an assertion error on the null
+    # input tensor, causing the dequeue to fail with an OutOfRangeError.
+    with self.test_session():
+      coord = tf.train.Coordinator()
+      queue = tf.train.string_input_producer(tf.constant([], dtype=tf.string))
+      dequeue = queue.dequeue()
+      tf.initialize_all_variables().run()
+      threads = tf.train.start_queue_runners(coord=coord)
+      with self.assertRaises(tf.errors.OutOfRangeError):
+        dequeue.eval()
+      coord.request_stop()
+      for thread in threads:
+        thread.join()
+
+  def testSharedName(self):
+    with self.test_session():
+      strings = [b"to", b"be", b"or", b"not", b"to", b"be"]
+      queue = tf.train.string_input_producer(
+          strings, shared_name="SHARED_NAME_XYZ", name="Q")
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          queue.queue_ref.op.node_def.attr["shared_name"])
+
+>>>>>>> tensorflow/master
 
 class RangeInputProducerTest(tf.test.TestCase):
 
@@ -178,13 +322,29 @@ class RangeInputProducerTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+<<<<<<< HEAD
+=======
+  def testSharedName(self):
+    with self.test_session():
+      range_size = 5
+      queue = tf.train.range_input_producer(
+          range_size, shared_name="SHARED_NAME_XYZ", name="Q")
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          queue.queue_ref.op.node_def.attr["shared_name"])
+
+>>>>>>> tensorflow/master
 
 class SliceInputProducerTest(tf.test.TestCase):
 
   def testNoShuffle(self):
     with self.test_session() as sess:
       num_epochs = 3
+<<<<<<< HEAD
       source_strings = ["Alpha", "Beta", "Delta", "Gamma"]
+=======
+      source_strings = [b"Alpha", b"Beta", b"Delta", b"Gamma"]
+>>>>>>> tensorflow/master
       source_ints = [2, 3, 5, 7]
       slices = tf.train.slice_input_producer(
           [source_strings, source_ints], num_epochs=num_epochs, shuffle=False)
@@ -217,14 +377,23 @@ class SliceInputProducerTest(tf.test.TestCase):
 
       # Validate that we only shuffle the integers within an epoch and
       # count how often each possible order appears.
+<<<<<<< HEAD
       expected = [",".join(x) for x in
                   itertools.permutations(["A7", "B3", "D5", "G2"])]
+=======
+      expected = [b",".join(x) for x in
+                  itertools.permutations([b"A7", b"B3", b"D5", b"G2"])]
+>>>>>>> tensorflow/master
       frequency = {}
       for e in expected:
         frequency[e] = 0
       for _ in range(num_epochs):
         output = [sess.run(slices) for _ in range(len(source_strings))]
+<<<<<<< HEAD
         key = ",".join([s + str(i) for s, i in output])
+=======
+        key = b",".join([s + tf.compat.as_bytes(str(i)) for s, i in output])
+>>>>>>> tensorflow/master
         self.assertIn(key, expected)
         frequency[key] += 1
 
@@ -243,6 +412,20 @@ class SliceInputProducerTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+<<<<<<< HEAD
+=======
+  def testSharedName(self):
+    with self.test_session():
+      source_strings = ["A", "B", "D", "G"]
+      source_ints = [7, 3, 5, 2]
+      slices = tf.train.slice_input_producer(
+          [source_strings, source_ints], shared_name="SHARED_NAME_XYZ",
+          name="sip")
+
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          slices[0].op.inputs[1].op.inputs[0].op.node_def.attr["shared_name"])
+>>>>>>> tensorflow/master
 
 class BatchTest(tf.test.TestCase):
 
@@ -253,7 +436,15 @@ class BatchTest(tf.test.TestCase):
       zero64 = tf.constant(0, dtype=tf.int64)
       examples = tf.Variable(zero64)
       counter = examples.count_up_to(num_batches * batch_size)
+<<<<<<< HEAD
       batched = tf.train.batch([counter, "string"], batch_size=batch_size)
+=======
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(tf.pack([zero64, zero64 + 1]), [2, 1]),
+          values=tf.cast(tf.pack([counter, -counter]), tf.float32),
+          shape=[2])
+      batched = tf.train.batch(
+          [counter, sparse_counter, "string"], batch_size=batch_size)
       tf.initialize_all_variables().run()
       threads = tf.train.start_queue_runners()
 
@@ -261,7 +452,86 @@ class BatchTest(tf.test.TestCase):
         results = sess.run(batched)
         self.assertAllEqual(results[0], np.arange(i * batch_size,
                                                   (i + 1) * batch_size))
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(2 * batch_size) // 2,  # 0, 0, 1, 1, ...
+                       [0, 1] * batch_size)).T)
+        #  [x, -x, x+1, -(x+1), ...]
+        expected = np.arange(2 * i * batch_size, 2 * (i + 1) * batch_size) // 2
+        expected *= ([1, -1] * batch_size)  # mult by [1, -1, 1, -1, ...]
+        self.assertAllEqual(results[1].values, expected)
+        self.assertAllEqual(results[1].shape, [batch_size, 2])
+        self.assertAllEqual(results[2], [b"string"] * batch_size)
+
+      # Reached the limit.
+      with self.assertRaises(tf.errors.OutOfRangeError):
+        sess.run(batched)
+      for thread in threads:
+        thread.join()
+
+  def testOneThreadDynamicPad(self):
+    with self.test_session() as sess:
+      batch_size = 10
+      num_batches = 3
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      string = tf.tile(["string"], tf.to_int32(tf.pack([counter])))
+      tf.initialize_all_variables().run()
+      batched = tf.train.batch(
+          [counter, string], batch_size=batch_size, dynamic_pad=True)
+      threads = tf.train.start_queue_runners()
+
+      for i in range(num_batches):
+        results = sess.run(batched)
+        expected_results = np.arange(i * batch_size, (i + 1) * batch_size)
+        max_len = expected_results[-1]
+        self.assertAllEqual(results[0], expected_results)
+        expected_strings = [
+            [b"string"] * rep + [b""] * (max_len - rep)
+            for rep in expected_results]
+        self.assertAllEqual(results[1], expected_strings)
+
+      # Reached the limit.
+      with self.assertRaises(tf.errors.OutOfRangeError):
+        sess.run(batched)
+      for thread in threads:
+        thread.join()
+
+  def testOneThreadEnqueueMany(self):
+    with self.test_session() as sess:
+      batch_size = 10
+      num_batches = 3
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(counter, tf.float32)]),
+          shape=[1])
+      pre_batched = tf.train.batch(
+          [counter, sparse_counter, "string"], batch_size=2)
+      batched = tf.train.batch(pre_batched, enqueue_many=True,
+                               batch_size=batch_size)
+>>>>>>> tensorflow/master
+      tf.initialize_all_variables().run()
+      threads = tf.train.start_queue_runners()
+
+      for i in range(num_batches):
+        results = sess.run(batched)
+        self.assertAllEqual(results[0], np.arange(i * batch_size,
+                                                  (i + 1) * batch_size))
+<<<<<<< HEAD
         self.assertAllEqual(results[1], ["string"] * batch_size)
+=======
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(batch_size), np.zeros(batch_size))).T)
+        self.assertAllEqual(
+            results[1].values, np.arange(i * batch_size, (i + 1) * batch_size))
+        self.assertAllEqual(results[1].shape, [batch_size, 1])
+        self.assertAllEqual(results[2], [b"string"] * batch_size)
+>>>>>>> tensorflow/master
 
       # Reached the limit.
       with self.assertRaises(tf.errors.OutOfRangeError):
@@ -274,10 +544,23 @@ class BatchTest(tf.test.TestCase):
       batch_size = 10
       num_batches = 3
       zero64 = tf.constant(0, dtype=tf.int64)
+<<<<<<< HEAD
       examples = tf.Variable(zero64)
       counter = examples.count_up_to(num_batches * batch_size)
       batched = tf.train.batch([counter, "string"], batch_size=batch_size,
                                num_threads=4)
+=======
+
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(counter, tf.float32)]),
+          shape=[1])
+      batched = tf.train.batch(
+          [counter, sparse_counter, "string"],
+          batch_size=batch_size, num_threads=4)
+>>>>>>> tensorflow/master
       tf.initialize_all_variables().run()
       threads = tf.train.start_queue_runners()
 
@@ -286,8 +569,18 @@ class BatchTest(tf.test.TestCase):
         results = sess.run(batched)
         tf.logging.info("Batch %d: %s", i, results[0])
         self.assertEqual(len(results[0]), batch_size)
+<<<<<<< HEAD
         all_counts.extend(results[0])
         self.assertAllEqual(results[1], ["string"] * batch_size)
+=======
+        self.assertAllEqual(results[0], results[1].values)
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(batch_size), np.zeros(batch_size))).T)
+        self.assertAllEqual(results[1].shape, [batch_size, 1])
+        all_counts.extend(results[0])
+        self.assertAllEqual(results[2], [b"string"] * batch_size)
+>>>>>>> tensorflow/master
       self.assertItemsEqual(all_counts, range(num_batches * batch_size))
 
       # Reached the limit.
@@ -296,11 +589,36 @@ class BatchTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+<<<<<<< HEAD
+=======
+  def testSharedName(self):
+    with self.test_session():
+      batch_size = 10
+      num_batches = 3
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      batched = tf.train.batch(
+          [counter, "string"], batch_size=batch_size,
+          shared_name="SHARED_NAME_XYZ", name="Q")
+
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          batched[0].op.inputs[0].op.node_def.attr["shared_name"])
+
+  def testCannotInferRankError(self):
+    with self.test_session():
+      x = tf.placeholder(dtype=tf.int64)
+      with self.assertRaisesRegexp(ValueError, "Cannot infer Tensor's rank"):
+        tf.train.batch([x], batch_size=2)
+
+>>>>>>> tensorflow/master
 
 class BatchJoinTest(tf.test.TestCase):
 
   def testTwoThreads(self):
     with self.test_session() as sess:
+<<<<<<< HEAD
       # Two threads, the first generates (0..34, "a").
       num_a = 35
       zero64 = tf.constant(0, dtype=tf.int64)
@@ -316,6 +634,33 @@ class BatchJoinTest(tf.test.TestCase):
       batch_size = 5
       batched = tf.train.batch_join([[counter, "a"], [ninety_nine, "b"]],
                                     batch_size=batch_size)
+=======
+      # Two threads, the first generates (0..69, "a").
+      num_a = 70
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_a)
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(counter, tf.float32)]),
+          shape=[1])
+
+      # The second generates (99, "b") 90 times and then stops.
+      num_b = 90
+      ninety_nine = tf.train.limit_epochs(
+          tf.constant(99, dtype=tf.int64), num_b)
+      sparse_ninety_nine = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(ninety_nine, tf.float32)]),
+          shape=[1])
+
+      # These get joined together and grouped into batches of 5.
+      batch_size = 5
+      batched = tf.train.batch_join(
+          [[counter, sparse_counter, "a"],
+           [ninety_nine, sparse_ninety_nine, "b"]],
+          batch_size=batch_size)
+>>>>>>> tensorflow/master
       tf.initialize_all_variables().run()
       threads = tf.train.start_queue_runners()
 
@@ -328,9 +673,19 @@ class BatchJoinTest(tf.test.TestCase):
         results = sess.run(batched)
         tf.logging.info("Batch %d: %s", i, results[0])
         self.assertEqual(len(results[0]), batch_size)
+<<<<<<< HEAD
         self.assertEqual(len(results[1]), batch_size)
         which_a = [i for i, s in enumerate(results[1]) if s == "a"]
         which_b = [i for i, s in enumerate(results[1]) if s == "b"]
+=======
+        self.assertEqual(len(results[2]), batch_size)
+        self.assertAllEqual(results[0], results[1].values)
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(batch_size), np.zeros(batch_size))).T)
+        self.assertAllEqual(results[1].shape, [batch_size, 1])
+        which_a = [i for i, s in enumerate(results[2]) if s == b"a"]
+        which_b = [i for i, s in enumerate(results[2]) if s == b"b"]
         self.assertEqual(len(which_a) + len(which_b), batch_size)
         if len(which_a) > 0 and len(which_b) > 0: saw_both += 1
         all_a.extend([results[0][i] for i in which_a])
@@ -351,6 +706,98 @@ class BatchJoinTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+  def testTwoThreadsDynamicPad(self):
+    with self.test_session() as sess:
+      # Two threads, the first generates (0..69, ["a"] * 1..70).
+      num_a = 70
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_a)
+
+      # The second generates (99, ["b"] * 99) 90 times and then stops.
+      num_b = 90
+      ninety_nine = tf.train.limit_epochs(
+          tf.constant(99, dtype=tf.int64), num_b)
+
+      # These get joined together and grouped into batches of 5.
+      batch_size = 5
+      a = tf.tile(["a"], tf.to_int32(tf.pack([counter + 1])))
+      b = tf.tile(["b"], tf.to_int32(tf.pack([ninety_nine])))
+      batched = tf.train.batch_join(
+          [[counter, a],
+           [ninety_nine, b]],
+          batch_size=batch_size, dynamic_pad=True)
+      tf.initialize_all_variables().run()
+      threads = tf.train.start_queue_runners()
+
+      # Should see the "a" and "b" threads mixed together.
+      all_a = []
+      count_string_a = []
+      seen_b = 0
+      saw_both = 0
+      num_batches = (num_a + num_b) // batch_size
+      for i in range(num_batches):
+        results = sess.run(batched)
+        tf.logging.info("Batch %d: %s", i, results[0])
+        self.assertEqual(len(results[0]), batch_size)
+        self.assertEqual(len(results[1]), batch_size)
+        for s in results[1]:
+          if s[0] == b"b":
+            self.assertAllEqual(s, [b"b"] * 99)
+          else:
+            count_string_a.append(sum(x == b"a" for x in s))
+        which_a = [i for i, s in enumerate(results[1]) if s[0] == b"a"]
+        which_b = [i for i, s in enumerate(results[1]) if s[0] == b"b"]
+>>>>>>> tensorflow/master
+        self.assertEqual(len(which_a) + len(which_b), batch_size)
+        if len(which_a) > 0 and len(which_b) > 0: saw_both += 1
+        all_a.extend([results[0][i] for i in which_a])
+        seen_b += len(which_b)
+        self.assertAllEqual([99] * len(which_b),
+                            [results[0][i] for i in which_b])
+
+      # Some minimum level of mixing of the results of both threads.
+      self.assertGreater(saw_both, 1)
+
+      # Verify the order of results from "a" were preserved.
+<<<<<<< HEAD
+=======
+      self.assertAllEqual(  # tiled "a" with counter + 1
+          count_string_a, np.arange(num_a) + 1)
+>>>>>>> tensorflow/master
+      self.assertAllEqual(all_a, np.arange(num_a))
+      self.assertEqual(seen_b, num_b)
+
+      # Reached the limit.
+      with self.assertRaises(tf.errors.OutOfRangeError):
+        sess.run(batched)
+      for thread in threads:
+        thread.join()
+
+<<<<<<< HEAD
+=======
+  def testSharedName(self):
+    with self.test_session():
+      batch_size = 10
+      num_batches = 3
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      batched = tf.train.batch_join(
+          [[counter, "string"]], batch_size=batch_size,
+          shared_name="SHARED_NAME_XYZ", name="Q")
+
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          batched[0].op.inputs[0].op.node_def.attr["shared_name"])
+
+  def testCannotInferRankError(self):
+    with self.test_session():
+      x = tf.placeholder(dtype=tf.int64)
+      with self.assertRaisesRegexp(ValueError, "Cannot infer Tensor's rank"):
+        tf.train.batch_join([[x]], batch_size=2)
+
+>>>>>>> tensorflow/master
 
 class ShuffleBatchTest(tf.test.TestCase):
 
@@ -361,8 +808,18 @@ class ShuffleBatchTest(tf.test.TestCase):
       zero64 = tf.constant(0, dtype=tf.int64)
       examples = tf.Variable(zero64)
       counter = examples.count_up_to(num_batches * batch_size)
+<<<<<<< HEAD
       batched = tf.train.shuffle_batch(
           [counter, "string"], batch_size=batch_size, capacity=32,
+=======
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(counter, tf.float32)]),
+          shape=[1])
+      batched = tf.train.shuffle_batch(
+          [counter, sparse_counter, "string"],
+          batch_size=batch_size, capacity=32,
+>>>>>>> tensorflow/master
           min_after_dequeue=16, seed=141421)
       tf.initialize_all_variables().run()
       threads = tf.train.start_queue_runners()
@@ -372,7 +829,16 @@ class ShuffleBatchTest(tf.test.TestCase):
         results = sess.run(batched)
         self.assertEqual(len(results[0]), batch_size)
         all_counts.extend(results[0])
+<<<<<<< HEAD
         self.assertAllEqual(results[1], ["string"] * batch_size)
+=======
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(batch_size), np.zeros(batch_size))).T)
+        self.assertAllEqual(results[0], results[1].values)
+        self.assertAllEqual(results[1].shape, [batch_size, 1])
+        self.assertAllEqual(results[2], [b"string"] * batch_size)
+>>>>>>> tensorflow/master
       # Results scrambled, but include all the expected numbers.
       deltas = [all_counts[i + 1] - all_counts[i]
                 for i in range(len(all_counts) - 1)]
@@ -392,8 +858,18 @@ class ShuffleBatchTest(tf.test.TestCase):
       zero64 = tf.constant(0, dtype=tf.int64)
       examples = tf.Variable(zero64)
       counter = examples.count_up_to(num_batches * batch_size)
+<<<<<<< HEAD
       batched = tf.train.shuffle_batch(
           [counter, "string"], batch_size=batch_size, capacity=32,
+=======
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(counter, tf.float32)]),
+          shape=[1])
+      batched = tf.train.shuffle_batch(
+          [counter, sparse_counter, "string"],
+          batch_size=batch_size, capacity=32,
+>>>>>>> tensorflow/master
           min_after_dequeue=16, seed=173205, num_threads=4)
       tf.initialize_all_variables().run()
       threads = tf.train.start_queue_runners()
@@ -404,7 +880,16 @@ class ShuffleBatchTest(tf.test.TestCase):
         tf.logging.info("Batch %d: %s", i, results[0])
         self.assertEqual(len(results[0]), batch_size)
         all_counts.extend(results[0])
+<<<<<<< HEAD
         self.assertAllEqual(results[1], ["string"] * batch_size)
+=======
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(batch_size), np.zeros(batch_size))).T)
+        self.assertAllEqual(results[0], results[1].values)
+        self.assertAllEqual(results[1].shape, [batch_size, 1])
+        self.assertAllEqual(results[2], [b"string"] * batch_size)
+>>>>>>> tensorflow/master
       # Results scrambled, but include all the expected numbers.
       deltas = [all_counts[i + 1] - all_counts[i]
                 for i in range(len(all_counts) - 1)]
@@ -417,6 +902,26 @@ class ShuffleBatchTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+<<<<<<< HEAD
+=======
+  def testSharedName(self):
+    with self.test_session():
+      batch_size = 10
+      num_batches = 3
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      batched = tf.train.shuffle_batch(
+          [counter, "string"], batch_size=batch_size,
+          capacity=32,
+          min_after_dequeue=10,
+          shared_name="SHARED_NAME_XYZ", name="Q")
+
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          batched[0].op.inputs[0].op.node_def.attr["shared_name"])
+
+>>>>>>> tensorflow/master
 
 class ShuffleBatchJoinTest(tf.test.TestCase):
 
@@ -427,17 +932,38 @@ class ShuffleBatchJoinTest(tf.test.TestCase):
       zero64 = tf.constant(0, dtype=tf.int64)
       examples = tf.Variable(zero64)
       counter = examples.count_up_to(num_a)
+<<<<<<< HEAD
+=======
+      sparse_counter = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(counter, tf.float32)]),
+          shape=[1])
+>>>>>>> tensorflow/master
 
       # The second generates (99, "b") 35 times and then stops.
       num_b = 35
       ninety_nine = tf.train.limit_epochs(
           tf.constant(99, dtype=tf.int64), num_b)
+<<<<<<< HEAD
+=======
+      sparse_ninety_nine = tf.SparseTensor(
+          indices=tf.reshape(zero64, [1, 1]),
+          values=tf.pack([tf.cast(ninety_nine, tf.float32)]),
+          shape=[1])
+>>>>>>> tensorflow/master
 
       # These get joined together and grouped into batches of 5.
       batch_size = 5
       batched = tf.train.shuffle_batch_join(
+<<<<<<< HEAD
           [[counter, "a"], [ninety_nine, "b"]], batch_size=batch_size,
           capacity=32, min_after_dequeue=16, seed=223607)
+=======
+          [[counter, sparse_counter, "a"],
+           [ninety_nine, sparse_ninety_nine, "b"]],
+          batch_size=batch_size, capacity=32,
+          min_after_dequeue=16, seed=223607)
+>>>>>>> tensorflow/master
 
       tf.initialize_all_variables().run()
       threads = tf.train.start_queue_runners()
@@ -451,11 +977,24 @@ class ShuffleBatchJoinTest(tf.test.TestCase):
         results = sess.run(batched)
         tf.logging.info("Batch %d: %s", i, results[0])
         self.assertEqual(len(results[0]), batch_size)
+<<<<<<< HEAD
         self.assertEqual(len(results[1]), batch_size)
         which_a = [i for i, s in enumerate(results[1]) if s == "a"]
         which_b = [i for i, s in enumerate(results[1]) if s == "b"]
         self.assertEqual(len(which_a) + len(which_b), batch_size)
         if len(which_a) > 0 and len(which_b) > 0: saw_both += 1
+=======
+        self.assertEqual(len(results[2]), batch_size)
+        self.assertAllEqual(results[0], results[1].values)
+        self.assertAllEqual(
+            results[1].indices,
+            np.vstack((np.arange(batch_size), np.zeros(batch_size))).T)
+        self.assertAllEqual(results[1].shape, [batch_size, 1])
+        which_a = [i for i, s in enumerate(results[2]) if s == b"a"]
+        which_b = [i for i, s in enumerate(results[2]) if s == b"b"]
+        self.assertEqual(len(which_a) + len(which_b), batch_size)
+        if which_a and which_b: saw_both += 1
+>>>>>>> tensorflow/master
         all_a.extend([results[0][i] for i in which_a])
         seen_b += len(which_b)
         self.assertAllEqual([99] * len(which_b),
@@ -477,6 +1016,26 @@ class ShuffleBatchJoinTest(tf.test.TestCase):
       for thread in threads:
         thread.join()
 
+<<<<<<< HEAD
+=======
+  def testSharedName(self):
+    with self.test_session():
+      batch_size = 10
+      num_batches = 3
+      zero64 = tf.constant(0, dtype=tf.int64)
+      examples = tf.Variable(zero64)
+      counter = examples.count_up_to(num_batches * batch_size)
+      batched = tf.train.shuffle_batch_join(
+          [[counter, "string"]], batch_size=batch_size,
+          capacity=32,
+          min_after_dequeue=10,
+          shared_name="SHARED_NAME_XYZ", name="Q")
+
+      self.assertProtoEquals(
+          "s: 'SHARED_NAME_XYZ'",
+          batched[0].op.inputs[0].op.node_def.attr["shared_name"])
+
+>>>>>>> tensorflow/master
 
 if __name__ == "__main__":
   tf.test.main()

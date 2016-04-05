@@ -2,7 +2,18 @@
   "compilerOptions": {
     "noImplicitAny": false,
     "noEmitOnError": true,
+<<<<<<< HEAD
     "compileOnSave": false,
     "target": "ES5"
   }
+=======
+    "target": "ES5"
+  },
+  "compileOnSave": false,
+  "exclude": [
+    "node_modules",
+    "typings/main.d.ts",
+    "typings/main"
+  ]
+>>>>>>> tensorflow/master
 }

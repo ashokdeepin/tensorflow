@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+>>>>>>> tensorflow/master
 <link rel="import" href="../tf-graph/tf-graph-icon.html">
 
 <dom-module id="tf-node-list-item">
@@ -9,6 +13,10 @@
     font-size: 11pt;
     font-weight: 400;
     position: relative;
+<<<<<<< HEAD
+=======
+    display: inline-block;
+>>>>>>> tensorflow/master
   }
 
   #list-item:hover {
@@ -20,7 +28,10 @@
   }
 
   #list-item span {
+<<<<<<< HEAD
     display: block;
+=======
+>>>>>>> tensorflow/master
     margin-left: 40px;
   }
 
@@ -28,6 +39,16 @@
     color: #999;
   }
 
+<<<<<<< HEAD
+=======
+  #list-item span.edge-label {
+    float: right;
+    font-size: 10px;
+    margin-left: 3px;
+    margin-right: 5px;
+  }
+
+>>>>>>> tensorflow/master
   .node-icon {
     position: absolute;
     top: 1px;
@@ -44,6 +65,10 @@
           node="[[itemNode]]" render-info="[[itemRenderInfo]]"
           template-index="[[templateIndex]]"></tf-graph-icon>
       <span title$="[[name]]">[[name]]</span>
+<<<<<<< HEAD
+=======
+      <span class="edge-label">[[edgeLabel]]</span>
+>>>>>>> tensorflow/master
     </div>
   </template>
 
@@ -63,6 +88,11 @@
            * @type {tf.graph.Node}
            */
           itemNode: Object,
+<<<<<<< HEAD
+=======
+          /** The edge label associated with this item. */
+          edgeLabel: String,
+>>>>>>> tensorflow/master
           /**
            * The render node information for the item node. Used by the graph
            * icon in determining fill color.
@@ -75,7 +105,11 @@
           },
           colorBy: String,
           colorByParams: Object,
+<<<<<<< HEAD
           templateIndex: Function,
+=======
+          templateIndex: Function
+>>>>>>> tensorflow/master
         },
 
         _itemTypeChanged: function() {
@@ -94,7 +128,10 @@
             type: this.itemType
           });
         }
+<<<<<<< HEAD
 
+=======
+>>>>>>> tensorflow/master
       });
     })();
   </script>

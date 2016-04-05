@@ -1,11 +1,37 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_LIB_STRINGS_STR_UTIL_H_
 #define TENSORFLOW_LIB_STRINGS_STR_UTIL_H_
 
 #include <string>
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/lib/core/stringpiece.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+=======
+#include <vector>
+#include "tensorflow/core/lib/core/stringpiece.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+#include "tensorflow/core/lib/strings/strcat.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 // Basic string utility routines
 namespace tensorflow {
@@ -50,6 +76,14 @@ size_t RemoveWhitespaceContext(StringPiece* text);
 // overflow occurred, returns false.  Otherwise, returns false.
 bool ConsumeLeadingDigits(StringPiece* s, uint64* val);
 
+<<<<<<< HEAD
+=======
+// Consume a leading token composed of non-whitespace characters only.
+// If *s starts with a non-zero number of non-whitespace characters, store
+// them in *val, advance *s past them, and return true.  Else return false.
+bool ConsumeNonWhitespace(StringPiece* s, StringPiece* val);
+
+>>>>>>> tensorflow/master
 // If "*s" starts with "expected", consume it and return true.
 // Otherwise, return false.
 bool ConsumePrefix(StringPiece* s, StringPiece expected);
@@ -66,9 +100,13 @@ void TitlecaseString(string* s, StringPiece delimiters);
 
 // Join functionality
 template <typename T>
+<<<<<<< HEAD
 string Join(const std::vector<T>& s, const char* sep);
 template <typename T>
 string Join(const gtl::ArraySlice<T>& s, const char* sep);
+=======
+string Join(const T& s, const char* sep);
+>>>>>>> tensorflow/master
 
 struct AllowEmpty {
   bool operator()(StringPiece sp) const { return true; }
@@ -95,6 +133,7 @@ bool SplitAndParseAsInts(StringPiece text, char delim,
 
 // ------------------------------------------------------------------
 // Implementation details below
+<<<<<<< HEAD
 namespace internal {
 template <typename T>
 string JoinHelper(typename gtl::ArraySlice<T>::const_iterator begin,
@@ -105,10 +144,19 @@ string JoinHelper(typename gtl::ArraySlice<T>::const_iterator begin,
   for (typename gtl::ArraySlice<T>::const_iterator it = begin; it != end;
        ++it) {
     tensorflow::strings::StrAppend(&result, (first ? "" : sep), *it);
+=======
+template <typename T>
+string Join(const T& s, const char* sep) {
+  string result;
+  bool first = true;
+  for (const auto& x : s) {
+    tensorflow::strings::StrAppend(&result, (first ? "" : sep), x);
+>>>>>>> tensorflow/master
     first = false;
   }
   return result;
 }
+<<<<<<< HEAD
 }  // namespace internal
 
 template <typename T>
@@ -120,6 +168,8 @@ template <typename T>
 string Join(const gtl::ArraySlice<T>& s, const char* sep) {
   return internal::JoinHelper<T>(s.begin(), s.end(), sep);
 }
+=======
+>>>>>>> tensorflow/master
 
 inline std::vector<string> Split(StringPiece text, char delim) {
   return Split(text, delim, AllowEmpty());
@@ -130,7 +180,11 @@ std::vector<string> Split(StringPiece text, char delim, Predicate p) {
   std::vector<string> result;
   int token_start = 0;
   if (!text.empty()) {
+<<<<<<< HEAD
     for (int i = 0; i < text.size() + 1; i++) {
+=======
+    for (size_t i = 0; i < text.size() + 1; i++) {
+>>>>>>> tensorflow/master
       if ((i == text.size()) || (text[i] == delim)) {
         StringPiece token(text.data() + token_start, i - token_start);
         if (p(token)) {

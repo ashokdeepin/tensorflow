@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Implements the StreamExecutor interface by passing through to its
 // implementation_ value (in pointer-to-implementation style), which
 // implements StreamExecutorInterface.
@@ -11,6 +29,11 @@
 #include "tensorflow/stream_executor/lib/env.h"
 #include "tensorflow/stream_executor/lib/error.h"
 #include "tensorflow/stream_executor/lib/notification.h"
+<<<<<<< HEAD
+=======
+#include "tensorflow/stream_executor/lib/stacktrace.h"
+#include "tensorflow/stream_executor/lib/str_util.h"
+>>>>>>> tensorflow/master
 #include "tensorflow/stream_executor/lib/stringprintf.h"
 #include "tensorflow/stream_executor/lib/threadpool.h"
 #include "tensorflow/stream_executor/platform/port.h"
@@ -25,6 +48,17 @@ namespace perftools {
 namespace gputools {
 namespace {
 
+<<<<<<< HEAD
+=======
+string StackTraceIfVLOG10() {
+  if (VLOG_IS_ON(10)) {
+    return port::StrCat(" ", port::CurrentStackTrace(), "\n");
+  } else {
+    return "";
+  }
+}
+
+>>>>>>> tensorflow/master
 // Maximum stack depth to report when generating backtrace on mem allocation
 // (for GPU memory leak checker)
 static const int kMaxStackDepth = 256;
@@ -51,9 +85,12 @@ internal::StreamExecutorInterface *StreamExecutorImplementationFromPlatformKind(
     case PlatformKind::kOpenCL:
       factory = *internal::MakeOpenCLExecutorImplementation();
       break;
+<<<<<<< HEAD
     case PlatformKind::kOpenCLAltera:
       factory = *internal::MakeOpenCLAlteraExecutorImplementation();
       break;
+=======
+>>>>>>> tensorflow/master
     case PlatformKind::kHost:
       factory = internal::MakeHostExecutorImplementation;
       break;
@@ -133,7 +170,12 @@ MakeScopedTracer(StreamExecutor *stream_exec, BeginCallT begin_call,
 
 StreamExecutor::StreamExecutor(PlatformKind platform_kind,
                                const PluginConfig &plugin_config)
+<<<<<<< HEAD
     : implementation_(StreamExecutorImplementationFromPlatformKind(
+=======
+    : platform_(nullptr),
+      implementation_(StreamExecutorImplementationFromPlatformKind(
+>>>>>>> tensorflow/master
           platform_kind, plugin_config)),
       platform_kind_(platform_kind),
       device_ordinal_(-1),
@@ -145,16 +187,32 @@ StreamExecutor::StreamExecutor(PlatformKind platform_kind,
 }
 
 StreamExecutor::StreamExecutor(
+<<<<<<< HEAD
     PlatformKind platform_kind,
     internal::StreamExecutorInterface *implementation)
     : implementation_(implementation),
       platform_kind_(platform_kind),
+=======
+    const Platform *platform, internal::StreamExecutorInterface *implementation)
+    : platform_(platform),
+      implementation_(implementation),
+>>>>>>> tensorflow/master
       device_ordinal_(-1),
       background_threads_(new port::ThreadPool(
           port::Env::Default(), "stream_executor", kNumBackgroundThreads)),
       live_stream_count_(0),
       tracing_enabled_(false) {
+<<<<<<< HEAD
   CheckPlatformKindIsValid(platform_kind);
+=======
+  if (port::Lowercase(platform_->Name()) == "cuda") {
+    platform_kind_ = PlatformKind::kCuda;
+  } else if (port::Lowercase(platform_->Name()) == "opencl") {
+    platform_kind_ = PlatformKind::kOpenCL;
+  } else if (port::Lowercase(platform_->Name()) == "host") {
+    platform_kind_ = PlatformKind::kHost;
+  }
+>>>>>>> tensorflow/master
 }
 
 StreamExecutor::~StreamExecutor() {
@@ -193,7 +251,11 @@ bool StreamExecutor::GetKernel(const MultiKernelLoaderSpec &spec,
 
 void StreamExecutor::Deallocate(DeviceMemoryBase *mem) {
   VLOG(1) << "Called StreamExecutor::Deallocate(mem=" << mem->opaque()
+<<<<<<< HEAD
           << ") mem->size()=" << mem->size();
+=======
+          << ") mem->size()=" << mem->size() << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   if (mem->opaque() != nullptr) {
     EraseAllocRecord(mem->opaque());
@@ -318,8 +380,13 @@ bool StreamExecutor::BlockHostUntilDone(Stream *stream) {
 
 void *StreamExecutor::Allocate(uint64 size) {
   void *buf = implementation_->Allocate(size);
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::Allocate(size=" << size
           << ") returns " << buf;
+=======
+  VLOG(1) << "Called StreamExecutor::Allocate(size=" << size << ") returns "
+          << buf << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
   CreateAllocRecord(buf, size);
 
   return buf;
@@ -333,20 +400,33 @@ bool StreamExecutor::GetSymbol(const string &symbol_name, void **mem,
 void *StreamExecutor::HostMemoryAllocate(uint64 size) {
   void *buffer = implementation_->HostMemoryAllocate(size);
   VLOG(1) << "Called StreamExecutor::HostMemoryAllocate(size=" << size
+<<<<<<< HEAD
           << ") returns " << buffer;
+=======
+          << ") returns " << buffer << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
   return buffer;
 }
 
 void StreamExecutor::HostMemoryDeallocate(void *location) {
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::HostMemoryDeallocate(location="
           << location << ")";
+=======
+  VLOG(1) << "Called StreamExecutor::HostMemoryDeallocate(location=" << location
+          << ")" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   return implementation_->HostMemoryDeallocate(location);
 }
 
 bool StreamExecutor::HostMemoryRegister(void *location, uint64 size) {
   VLOG(1) << "Called StreamExecutor::HostMemoryRegister(location=" << location
+<<<<<<< HEAD
           << ", size=" << size << ")";
+=======
+          << ", size=" << size << ")" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
   if (location == nullptr || size == 0) {
     LOG(WARNING) << "attempting to register null or zero-sized memory: "
                  << location << "; size " << size;
@@ -356,12 +436,21 @@ bool StreamExecutor::HostMemoryRegister(void *location, uint64 size) {
 
 bool StreamExecutor::HostMemoryUnregister(void *location) {
   VLOG(1) << "Called StreamExecutor::HostMemoryUnregister(location=" << location
+<<<<<<< HEAD
           << ")";
+=======
+          << ")" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
   return implementation_->HostMemoryUnregister(location);
 }
 
 bool StreamExecutor::SynchronizeAllActivity() {
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::SynchronizeAllActivity()";
+=======
+  VLOG(1) << "Called StreamExecutor::SynchronizeAllActivity()"
+          << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
   bool ok = implementation_->SynchronizeAllActivity();
 
   // This should all be quick and infallible work, so we can perform the
@@ -373,16 +462,27 @@ bool StreamExecutor::SynchronizeAllActivity() {
 
 bool StreamExecutor::SynchronousMemZero(DeviceMemoryBase *location,
                                         uint64 size) {
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::SynchronousMemZero(location="
           << location << ", size=" << size << ")";
+=======
+  VLOG(1) << "Called StreamExecutor::SynchronousMemZero(location=" << location
+          << ", size=" << size << ")" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   return implementation_->SynchronousMemZero(location, size);
 }
 
 bool StreamExecutor::SynchronousMemSet(DeviceMemoryBase *location, int value,
                                        uint64 size) {
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::SynchronousMemSet(location="
           << location << ", value=" << value << ", size=" << size << ")";
+=======
+  VLOG(1) << "Called StreamExecutor::SynchronousMemSet(location=" << location
+          << ", value=" << value << ", size=" << size << ")"
+          << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   return implementation_->SynchronousMemSet(location, value, size);
 }
@@ -391,7 +491,11 @@ bool StreamExecutor::SynchronousMemcpy(DeviceMemoryBase *gpu_dst,
                                        const void *host_src, uint64 size) {
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(gpu_dst="
           << gpu_dst->opaque() << ", host_src=" << host_src << ", size=" << size
+<<<<<<< HEAD
           << ") H2D";
+=======
+          << ") H2D" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   // Tracing overloaded methods is very difficult due to issues with type
   // inference on template args. Since use of these overloaded methods is
@@ -402,9 +506,15 @@ bool StreamExecutor::SynchronousMemcpy(DeviceMemoryBase *gpu_dst,
 bool StreamExecutor::SynchronousMemcpy(void *host_dst,
                                        const DeviceMemoryBase &gpu_src,
                                        uint64 size) {
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(host_dst="
           << host_dst << ", gpu_src=" << gpu_src.opaque() << ", size=" << size
           << ") D2H";
+=======
+  VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(host_dst=" << host_dst
+          << ", gpu_src=" << gpu_src.opaque() << ", size=" << size << ") D2H"
+          << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   return implementation_->SynchronousMemcpy(host_dst, gpu_src, size);
 }
@@ -413,8 +523,13 @@ bool StreamExecutor::SynchronousMemcpy(DeviceMemoryBase *gpu_dst,
                                        const DeviceMemoryBase &gpu_src,
                                        uint64 size) {
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpy(gpu_dst="
+<<<<<<< HEAD
           << gpu_dst->opaque() << ", gpu_src=" << gpu_src.opaque() << ", size=" << size
           << ") D2D";
+=======
+          << gpu_dst->opaque() << ", gpu_src=" << gpu_src.opaque()
+          << ", size=" << size << ") D2D" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   return implementation_->SynchronousMemcpyDeviceToDevice(gpu_dst, gpu_src,
                                                           size);
@@ -423,7 +538,12 @@ bool StreamExecutor::SynchronousMemcpy(DeviceMemoryBase *gpu_dst,
 port::Status StreamExecutor::SynchronousMemcpyD2H(
     const DeviceMemoryBase &gpu_src, int64 size, void *host_dst) {
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpyD2H(gpu_src="
+<<<<<<< HEAD
           << gpu_src.opaque() << ", size=" << size << ", host_dst=" << host_dst << ")";
+=======
+          << gpu_src.opaque() << ", size=" << size << ", host_dst=" << host_dst
+          << ")" << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   port::Status result{port::Status::OK()};
   SCOPED_TRACE(TraceListener::SynchronousMemcpyD2H,
@@ -444,8 +564,14 @@ port::Status StreamExecutor::SynchronousMemcpyD2H(
 port::Status StreamExecutor::SynchronousMemcpyH2D(const void *host_src,
                                                   int64 size,
                                                   DeviceMemoryBase *gpu_dst) {
+<<<<<<< HEAD
   VLOG(1) << "Called StreamExecutor::SynchronousMemcpyH2D(host_src="
           << host_src << ", size=" << size << ", gpu_dst" << gpu_dst->opaque() << ")";
+=======
+  VLOG(1) << "Called StreamExecutor::SynchronousMemcpyH2D(host_src=" << host_src
+          << ", size=" << size << ", gpu_dst" << gpu_dst->opaque() << ")"
+          << StackTraceIfVLOG10();
+>>>>>>> tensorflow/master
 
   port::Status result{port::Status::OK()};
   SCOPED_TRACE(TraceListener::SynchronousMemcpyH2D,

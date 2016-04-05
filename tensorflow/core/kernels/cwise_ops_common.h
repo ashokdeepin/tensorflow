@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_KERNELS_CWISE_OPS_COMMON_H_
 #define TENSORFLOW_KERNELS_CWISE_OPS_COMMON_H_
 
@@ -30,8 +48,22 @@ class BinaryOpShared : public OpKernel {
     // If ctx->status().ok() is true, then out is guaranteed to be allocated.
     BinaryOpState(OpKernelContext* ctx);
 
+<<<<<<< HEAD
     BCast bcast;
     Tensor* out = nullptr;
+=======
+    const Tensor& in0;
+    const Tensor& in1;
+
+    BCast bcast;
+    Tensor* out = nullptr;
+    int64 out_num_elements;
+
+    int64 in0_num_elements;
+    int64 in1_num_elements;
+
+    int ndims;
+>>>>>>> tensorflow/master
   };
 
   template <int NDIMS>
@@ -59,13 +91,17 @@ class BinaryOp : public BinaryOpShared {
                        DataTypeToEnum<Tin>::v()) {}
 
   void Compute(OpKernelContext* ctx) override {
+<<<<<<< HEAD
     const Tensor& in0 = ctx->input(0);
     const Tensor& in1 = ctx->input(1);
+=======
+>>>>>>> tensorflow/master
     // 'state': Shared helper not dependent on T to reduce code size
     BinaryOpState state(ctx);
     if (!ctx->status().ok()) return;
     Tensor* out = state.out;
     BCast* bcast = &state.bcast;
+<<<<<<< HEAD
     if (out->NumElements() == 0) {
       return;
     }
@@ -88,13 +124,43 @@ class BinaryOp : public BinaryOpShared {
       functor::BinaryFunctor<Device, Functor, 1>()(
           ctx->eigen_device<Device>(), out->flat<Tout>(), in0.flat<Tin>(),
           in1.flat<Tin>());
+=======
+    auto& in0 = state.in0;
+    auto& in1 = state.in1;
+    if (state.out_num_elements == 0) {
+      return;
+    }
+    const int ndims = state.ndims;
+    const Device& eigen_device = ctx->eigen_device<Device>();
+    if (ndims <= 1) {
+      auto out_flat = out->flat<Tout>();
+      if (state.in1_num_elements == 1) {
+        // tensor op scalar
+        functor::BinaryFunctor<Device, Functor, 1>().Right(
+            eigen_device, out_flat, in0.flat<Tin>(), in1.scalar<Tin>());
+        return;
+      }
+      auto in1_flat = in1.flat<Tin>();
+      if (state.in0_num_elements == 1) {
+        // scalar op tensor
+        functor::BinaryFunctor<Device, Functor, 1>().Left(
+            eigen_device, out_flat, in0.scalar<Tin>(), in1_flat);
+        return;
+      }
+      functor::BinaryFunctor<Device, Functor, 1>()(eigen_device, out_flat,
+                                                   in0.flat<Tin>(), in1_flat);
+>>>>>>> tensorflow/master
       return;
     }
 
     if (ndims == 2) {
       functor::BinaryFunctor<Device, Functor, 2>().BCast(
+<<<<<<< HEAD
           ctx->eigen_device<Device>(),
           out->shaped<Tout, 2>(bcast->result_shape()),
+=======
+          eigen_device, out->shaped<Tout, 2>(bcast->result_shape()),
+>>>>>>> tensorflow/master
           in0.shaped<Tin, 2>(bcast->x_reshape()),
           ToIndexArray<2>(bcast->x_bcast()),
           in1.shaped<Tin, 2>(bcast->y_reshape()),
@@ -104,8 +170,12 @@ class BinaryOp : public BinaryOpShared {
 
     if (ndims == 3) {
       functor::BinaryFunctor<Device, Functor, 3>().BCast(
+<<<<<<< HEAD
           ctx->eigen_device<Device>(),
           out->shaped<Tout, 3>(bcast->result_shape()),
+=======
+          eigen_device, out->shaped<Tout, 3>(bcast->result_shape()),
+>>>>>>> tensorflow/master
           in0.shaped<Tin, 3>(bcast->x_reshape()),
           ToIndexArray<3>(bcast->x_bcast()),
           in1.shaped<Tin, 3>(bcast->y_reshape()),
@@ -144,6 +214,7 @@ class UnaryOp : public OpKernel {
   }
 };
 
+<<<<<<< HEAD
 // Coefficient-wise select operation.
 //   Device: E.g., CPUDevice, GPUDevice.
 template <typename Device, typename T>
@@ -180,6 +251,13 @@ void Assign(const D& d, OUT out, RHS rhs) {
   } else {
     out.device(d) = rhs;
   }
+=======
+namespace functor {
+
+template <typename D, typename OUT, typename RHS>
+void Assign(const D& d, OUT out, RHS rhs) {
+  out.device(d) = rhs;
+>>>>>>> tensorflow/master
 }
 
 // Partial specialization of BinaryFunctor<Device=CPUDevice, Functor>.
@@ -331,6 +409,7 @@ struct UnaryFunctor<CPUDevice, Functor> {
   }
 };
 
+<<<<<<< HEAD
 template <typename T>
 struct SelectFunctor<CPUDevice, T> {
   void operator()(const CPUDevice& d, typename TTypes<T>::Flat out,
@@ -347,16 +426,31 @@ struct SelectFunctor<CPUDevice, T> {
   REGISTER_KERNEL_BUILDER(Name(N).Device(DEVICE_##D).TypeConstraint<T>("T"), \
                           SelectOp<D##Device, T>)
 
+=======
+}  // end namespace functor
+
+>>>>>>> tensorflow/master
 #define REGISTER(OP, D, N, F, T)                                             \
   REGISTER_KERNEL_BUILDER(Name(N).Device(DEVICE_##D).TypeConstraint<T>("T"), \
                           OP<D##Device, F<T>>);
 
 // Macros to register kernels for multiple types (T0, T1, etc.)  on
+<<<<<<< HEAD
 // device type "D" (CPU or GPU) for operatin "N" (e.g., sqrt) using
 // the functor "F" (e.g., functor:sqrt).
 
 #if defined(__ANDROID__)
 // On Android, only register the first type (float)
+=======
+// device type "D" (CPU or GPU) for operation "N" (e.g., sqrt) using
+// the functor "F" (e.g., functor:sqrt).
+
+#if defined(__ANDROID_TYPES_SLIM__)
+// Normally Android TensorFlow is built with a reduced number of types (float).
+// Override on the command-line "--define ANDROID_TYPES=__ANDROID_TYPES_FULL__"
+// to generate a library with full type support with a consequent increase in
+// code size.
+>>>>>>> tensorflow/master
 #define REGISTER2(OP, D, N, F, T0, T1) REGISTER(OP, D, N, F, T0)
 #define REGISTER3(OP, D, N, F, T0, T1, T2) REGISTER(OP, D, N, F, T0)
 #define REGISTER4(OP, D, N, F, T0, T1, T2, T3) REGISTER(OP, D, N, F, T0)
@@ -364,7 +458,15 @@ struct SelectFunctor<CPUDevice, T> {
 #define REGISTER6(OP, D, N, F, T0, T1, T2, T3, T4, T5) REGISTER(OP, D, N, F, T0)
 #define REGISTER7(OP, D, N, F, T0, T1, T2, T3, T4, T5, T6) \
   REGISTER(OP, D, N, F, T0)
+<<<<<<< HEAD
 #else  // !defined(__ANDROID__)
+=======
+#define REGISTER8(OP, D, N, F, T0, T1, T2, T3, T4, T5, T6, T7) \
+  REGISTER(OP, D, N, F, T0)
+#define REGISTER9(OP, D, N, F, T0, T1, T2, T3, T4, T5, T6, T7, T8) \
+  REGISTER(OP, D, N, F, T0)
+#else  // !defined(__ANDROID_TYPES_SLIM__)
+>>>>>>> tensorflow/master
 #define REGISTER2(OP, D, N, F, T0, T1) \
   REGISTER(OP, D, N, F, T0)            \
   REGISTER(OP, D, N, F, T1)
@@ -383,7 +485,17 @@ struct SelectFunctor<CPUDevice, T> {
 #define REGISTER7(OP, D, N, F, T0, T1, T2, T3, T4, T5, T6) \
   REGISTER4(OP, D, N, F, T0, T1, T2, T3)                   \
   REGISTER3(OP, D, N, F, T4, T5, T6)
+<<<<<<< HEAD
 #endif  // defined(__ANDROID__)
+=======
+#define REGISTER8(OP, D, N, F, T0, T1, T2, T3, T4, T5, T6, T7) \
+  REGISTER4(OP, D, N, F, T0, T1, T2, T3)                       \
+  REGISTER4(OP, D, N, F, T4, T5, T6, T7)
+#define REGISTER9(OP, D, N, F, T0, T1, T2, T3, T4, T5, T6, T7, T8) \
+  REGISTER5(OP, D, N, F, T0, T1, T2, T3, T4)                       \
+  REGISTER4(OP, D, N, F, T5, T6, T7, T8)
+#endif  // defined(__ANDROID_TYPES_SLIM__)
+>>>>>>> tensorflow/master
 
 }  // end namespace tensorflow
 

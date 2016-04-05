@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // TODO(josh11b): Rewrite function parameter names to avoid C++ keywords
 // or "opts".
 
@@ -12,9 +30,16 @@
 #include "tensorflow/core/lib/gtl/map_util.h"
 #include "tensorflow/core/lib/gtl/stl_util.h"
 #include "tensorflow/core/lib/strings/strcat.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/public/env.h"
+=======
+#include "tensorflow/core/platform/env.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -153,7 +178,11 @@ void WriteCCOp(const OpDef& op_def, WritableFile* h, WritableFile* cc) {
                      R"comment(  .WithName(StringPiece): Set the Node's name
   .WithDevice(StringPiece): Set the Node's requested device
   .WithControlInput(Node*) / .WithControlInputs({Node*, ...}):
+<<<<<<< HEAD
     Add control depencies on the specified Node(s).
+=======
+    Add control dependencies on the specified Node(s).
+>>>>>>> tensorflow/master
 
 Returns a pointer to the created Node)comment");
 
@@ -239,6 +268,7 @@ Returns a pointer to the created Node)comment");
 }
 
 // Converts:
+<<<<<<< HEAD
 //   bazel-out/.../genfiles/XX
 // to: XX.
 string GetPath(const std::string& dot_h_fname) {
@@ -246,6 +276,26 @@ string GetPath(const std::string& dot_h_fname) {
   if (pos == string::npos) return dot_h_fname;
   // - 1 account for the terminating null character (\0) in "/genfiles/".
   return dot_h_fname.substr(pos + sizeof("/genfiles/") - 1);
+=======
+//   bazel-out/.../genfiles/(external/YYY/)?XX
+// to: XX.
+string GetPath(const std::string& dot_h_fname) {
+  auto pos = dot_h_fname.find("/genfiles/");
+  string result = dot_h_fname;
+  if (pos != string::npos) {
+    // - 1 account for the terminating null character (\0) in "/genfiles/".
+    result = dot_h_fname.substr(pos + sizeof("/genfiles/") - 1);
+  }
+  if (result.size() > sizeof("external/") &&
+      result.compare(0, sizeof("external/") - 1, "external/") == 0) {
+    result = result.substr(sizeof("external/") - 1);
+    pos = result.find("/");
+    if (pos != string::npos) {
+      result = result.substr(pos + 1);
+    }
+  }
+  return result;
+>>>>>>> tensorflow/master
 }
 
 // Converts:
@@ -291,11 +341,19 @@ void WriteCCOps(const OpList& ops, const std::string& dot_h_fname,
                       "#define ",
                       guard, R"header(
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/graph/graph_def_builder.h"
 #include "tensorflow/core/lib/gtl/array_slice.h"
 #include "tensorflow/core/public/tensor.h"
 #include "tensorflow/core/public/tensor_shape.h"
+=======
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_shape.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/graph/graph_def_builder.h"
+#include "tensorflow/core/lib/gtl/array_slice.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace ops {

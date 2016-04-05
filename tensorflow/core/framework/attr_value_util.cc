@@ -1,11 +1,35 @@
+<<<<<<< HEAD
 #include "tensorflow/core/framework/attr_value_util.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/framework/attr_value_util.h"
+
+#include <vector>
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/types.h"
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/core/stringpiece.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/platform/protobuf.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/regexp.h"
+=======
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -15,11 +39,14 @@ string SummarizeString(const string& str) {
   return strings::StrCat("\"", str_util::CEscape(str), "\"");
 }
 
+<<<<<<< HEAD
 string SummarizeShape(const TensorShapeProto& proto) {
   TensorShape shape(proto);
   return shape.ShortDebugString();
 }
 
+=======
+>>>>>>> tensorflow/master
 string SummarizeTensor(const TensorProto& tensor_proto) {
   Tensor t;
   if (!t.FromProto(tensor_proto)) {
@@ -44,7 +71,11 @@ string SummarizeAttrValue(const AttrValue& attr_value) {
     case AttrValue::kType:
       return DataType_Name(attr_value.type());
     case AttrValue::kShape:
+<<<<<<< HEAD
       return SummarizeShape(attr_value.shape());
+=======
+      return PartialTensorShape::DebugString(attr_value.shape());
+>>>>>>> tensorflow/master
     case AttrValue::kTensor:
       return SummarizeTensor(attr_value.tensor());
     case AttrValue::kList: {
@@ -77,7 +108,12 @@ string SummarizeAttrValue(const AttrValue& attr_value) {
       } else if (attr_value.list().shape_size() > 0) {
         for (int i = 0; i < attr_value.list().shape_size(); ++i) {
           if (i > 0) strings::StrAppend(&ret, ", ");
+<<<<<<< HEAD
           strings::StrAppend(&ret, SummarizeShape(attr_value.list().shape(i)));
+=======
+          strings::StrAppend(
+              &ret, TensorShape::DebugString(attr_value.list().shape(i)));
+>>>>>>> tensorflow/master
         }
       } else if (attr_value.list().tensor_size() > 0) {
         for (int i = 0; i < attr_value.list().tensor_size(); ++i) {
@@ -86,6 +122,10 @@ string SummarizeAttrValue(const AttrValue& attr_value) {
                              SummarizeTensor(attr_value.list().tensor(i)));
         }
       }
+<<<<<<< HEAD
+=======
+
+>>>>>>> tensorflow/master
       strings::StrAppend(&ret, "]");
       return ret;
     }
@@ -154,10 +194,19 @@ Status AttrValueHasType(const AttrValue& attr_value, StringPiece type) {
         "AttrValue had value with unexpected type 'placeholder");
   }
 
+<<<<<<< HEAD
   // If the attr type is 'list', we expect attr_value.has_list() to be true.
   // However, proto3's attr_value.has_list() can be false when set to an empty
   // list. So we simply check if has_list is false and some other field in
   // attr_value is set to flag the error.
+=======
+  // If the attr type is 'list', we expect attr_value.has_list() to be
+  // true.  However, proto3's attr_value.has_list() can be false when
+  // set to an empty list for GraphDef versions <= 4. So we simply
+  // check if has_list is false and some other field in attr_value is
+  // set to flag the error.  This test can be made more strict once
+  // support for GraphDef versions <= 4 is dropped.
+>>>>>>> tensorflow/master
   if (StringPiece(type).starts_with("list(") && !attr_value.has_list()) {
     if (num_set) {
       return errors::InvalidArgument(
@@ -235,10 +284,23 @@ bool ParseAttrValue(StringPiece type, StringPiece text, AttrValue* out) {
   if (is_list) {
     // TextFormat parser considers "i: 7" to be the same as "i: [7]",
     // but we only want to allow list values with [].
+<<<<<<< HEAD
     if (!RE2::FullMatch(ToRegexpStringPiece(text), "\\s*\\[.*\\]\\s*")) {
       return false;
     }
     if (RE2::FullMatch(ToRegexpStringPiece(text), "\\s*\\[\\s*\\]\\s*")) {
+=======
+    StringPiece cleaned = text;
+    str_util::RemoveLeadingWhitespace(&cleaned);
+    str_util::RemoveTrailingWhitespace(&cleaned);
+    if (cleaned.size() < 2 || cleaned[0] != '[' ||
+        cleaned[cleaned.size() - 1] != ']') {
+      return false;
+    }
+    cleaned.remove_prefix(1);
+    str_util::RemoveLeadingWhitespace(&cleaned);
+    if (cleaned.size() == 1) {
+>>>>>>> tensorflow/master
       // User wrote "[]", so return empty list without invoking the TextFormat
       // parse which returns an error for "i: []".
       out->Clear();
@@ -289,6 +351,13 @@ void SetAttrValue(const TensorShape& value, AttrValue* out) {
   value.AsProto(out->mutable_shape());
 }
 
+<<<<<<< HEAD
+=======
+void SetAttrValue(const PartialTensorShape& value, AttrValue* out) {
+  value.AsProto(out->mutable_shape());
+}
+
+>>>>>>> tensorflow/master
 void SetAttrValue(const gtl::ArraySlice<TensorShape> value, AttrValue* out) {
   out->mutable_list();  // Create list() even if value empty.
   for (const auto& v : value) {
@@ -296,6 +365,17 @@ void SetAttrValue(const gtl::ArraySlice<TensorShape> value, AttrValue* out) {
   }
 }
 
+<<<<<<< HEAD
+=======
+void SetAttrValue(const gtl::ArraySlice<PartialTensorShape> value,
+                  AttrValue* out) {
+  out->mutable_list();  // Create list() even if value empty.
+  for (const auto& v : value) {
+    v.AsProto(out->mutable_list()->add_shape());
+  }
+}
+
+>>>>>>> tensorflow/master
 void SetAttrValue(const Tensor& value, AttrValue* out) {
   if (value.NumElements() > 1) {
     value.AsProtoTensorContent(out->mutable_tensor());

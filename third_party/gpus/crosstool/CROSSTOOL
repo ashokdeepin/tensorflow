@@ -11,6 +11,13 @@ default_toolchain {
   toolchain_identifier: "local_linux"
 }
 default_toolchain {
+<<<<<<< HEAD
+=======
+  cpu: "arm"
+  toolchain_identifier: "local_linux"
+}
+default_toolchain {
+>>>>>>> tensorflow/master
   cpu: "darwin"
   toolchain_identifier: "local_darwin"
 }
@@ -107,6 +114,10 @@ toolchain {
 
   # Anticipated future default.
   linker_flag: "-no-canonical-prefixes"
+<<<<<<< HEAD
+=======
+  unfiltered_cxx_flag: "-fno-canonical-system-headers"
+>>>>>>> tensorflow/master
   # Have gcc return the exit code from ld.
   linker_flag: "-pass-exit-codes"
   # Stamp the binary with a unique identifier.
@@ -143,4 +154,8 @@ toolchain {
     compiler_flag: "-fdata-sections"
     linker_flag: "-Wl,--gc-sections"
   }
+<<<<<<< HEAD
+=======
+  linking_mode_flags { mode: DYNAMIC }
+>>>>>>> tensorflow/master
 }

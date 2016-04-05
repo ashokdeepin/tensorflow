@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Sequence-to-sequence model with an attention mechanism."""
 
 from __future__ import absolute_import
@@ -10,9 +28,12 @@ import numpy as np
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import tensorflow as tf
 
+<<<<<<< HEAD
 from tensorflow.models.rnn import rnn_cell
 from tensorflow.models.rnn import seq2seq
 
+=======
+>>>>>>> tensorflow/master
 from tensorflow.models.rnn.translate import data_utils
 
 
@@ -28,7 +49,11 @@ class Seq2SeqModel(object):
   version of this model, but with bi-directional encoder, was presented in
     http://arxiv.org/abs/1409.0473
   and sampled softmax is described in Section 3 of the following paper.
+<<<<<<< HEAD
     http://arxiv.org/pdf/1412.2007v2.pdf
+=======
+    http://arxiv.org/abs/1412.2007
+>>>>>>> tensorflow/master
   """
 
   def __init__(self, source_vocab_size, target_vocab_size, buckets, size,
@@ -85,6 +110,7 @@ class Seq2SeqModel(object):
       softmax_loss_function = sampled_loss
 
     # Create the internal multi-layer cell for our RNN.
+<<<<<<< HEAD
     single_cell = rnn_cell.GRUCell(size)
     if use_lstm:
       single_cell = rnn_cell.BasicLSTMCell(size)
@@ -97,6 +123,23 @@ class Seq2SeqModel(object):
       return seq2seq.embedding_attention_seq2seq(
           encoder_inputs, decoder_inputs, cell, source_vocab_size,
           target_vocab_size, output_projection=output_projection,
+=======
+    single_cell = tf.nn.rnn_cell.GRUCell(size)
+    if use_lstm:
+      single_cell = tf.nn.rnn_cell.BasicLSTMCell(size)
+    cell = single_cell
+    if num_layers > 1:
+      cell = tf.nn.rnn_cell.MultiRNNCell([single_cell] * num_layers)
+
+    # The seq2seq function: we use embedding for the input and attention.
+    def seq2seq_f(encoder_inputs, decoder_inputs, do_decode):
+      return tf.nn.seq2seq.embedding_attention_seq2seq(
+          encoder_inputs, decoder_inputs, cell,
+          num_encoder_symbols=source_vocab_size,
+          num_decoder_symbols=target_vocab_size,
+          embedding_size=size,
+          output_projection=output_projection,
+>>>>>>> tensorflow/master
           feed_previous=do_decode)
 
     # Feeds for inputs.
@@ -118,14 +161,21 @@ class Seq2SeqModel(object):
 
     # Training outputs and losses.
     if forward_only:
+<<<<<<< HEAD
       self.outputs, self.losses = seq2seq.model_with_buckets(
           self.encoder_inputs, self.decoder_inputs, targets,
           self.target_weights, buckets, self.target_vocab_size,
           lambda x, y: seq2seq_f(x, y, True),
+=======
+      self.outputs, self.losses = tf.nn.seq2seq.model_with_buckets(
+          self.encoder_inputs, self.decoder_inputs, targets,
+          self.target_weights, buckets, lambda x, y: seq2seq_f(x, y, True),
+>>>>>>> tensorflow/master
           softmax_loss_function=softmax_loss_function)
       # If we use output projection, we need to project outputs for decoding.
       if output_projection is not None:
         for b in xrange(len(buckets)):
+<<<<<<< HEAD
           self.outputs[b] = [tf.nn.xw_plus_b(output, output_projection[0],
                                              output_projection[1])
                              for output in self.outputs[b]]
@@ -133,6 +183,16 @@ class Seq2SeqModel(object):
       self.outputs, self.losses = seq2seq.model_with_buckets(
           self.encoder_inputs, self.decoder_inputs, targets,
           self.target_weights, buckets, self.target_vocab_size,
+=======
+          self.outputs[b] = [
+              tf.matmul(output, output_projection[0]) + output_projection[1]
+              for output in self.outputs[b]
+          ]
+    else:
+      self.outputs, self.losses = tf.nn.seq2seq.model_with_buckets(
+          self.encoder_inputs, self.decoder_inputs, targets,
+          self.target_weights, buckets,
+>>>>>>> tensorflow/master
           lambda x, y: seq2seq_f(x, y, False),
           softmax_loss_function=softmax_loss_function)
 
@@ -169,7 +229,11 @@ class Seq2SeqModel(object):
       average perplexity, and the outputs.
 
     Raises:
+<<<<<<< HEAD
       ValueError: if length of enconder_inputs, decoder_inputs, or
+=======
+      ValueError: if length of encoder_inputs, decoder_inputs, or
+>>>>>>> tensorflow/master
         target_weights disagrees with bucket size for the specified bucket_id.
     """
     # Check if the sizes match.

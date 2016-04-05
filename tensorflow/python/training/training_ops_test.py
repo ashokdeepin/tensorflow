@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.learning.training_ops."""
 
 from __future__ import absolute_import
@@ -6,11 +24,18 @@ from __future__ import print_function
 
 import itertools
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
 
 from tensorflow.python.framework import types
+=======
+import numpy as np
+import tensorflow as tf
+
+from tensorflow.python.framework import dtypes
+>>>>>>> tensorflow/master
 from tensorflow.python.framework.test_util import TensorFlowTestCase
 from tensorflow.python.ops import constant_op
 from tensorflow.python.ops import variables
@@ -22,6 +47,7 @@ class TrainingOpsTest(TensorFlowTestCase):
 
   def _toType(self, dtype):
     if dtype == np.float32:
+<<<<<<< HEAD
       return types.float32
     elif dtype == np.float64:
       return types.float64
@@ -29,6 +55,15 @@ class TrainingOpsTest(TensorFlowTestCase):
       return types.int32
     elif dtype == np.int64:
       return types.int64
+=======
+      return tf.float32
+    elif dtype == np.float64:
+      return tf.float64
+    elif dtype == np.int32:
+      return tf.int32
+    elif dtype == np.int64:
+      return tf.int64
+>>>>>>> tensorflow/master
     else:
       assert False, (dtype)
 
@@ -66,6 +101,36 @@ class TrainingOpsTest(TensorFlowTestCase):
           x - lr * grad * (y + grad * grad) ** (-0.5), out)
       self.assertAllEqual(y + grad * grad, accum.eval())
 
+<<<<<<< HEAD
+=======
+  def _testTypesForFtrl(self, x, y, z, lr, grad, use_gpu=None, l1=0.0,
+                        l2=0.0, lr_power=-0.5):
+    self.setUp()
+    with self.test_session(use_gpu=use_gpu):
+      var = variables.Variable(x)
+      accum = variables.Variable(y)
+      linear = variables.Variable(z)
+      variables.initialize_all_variables().run()
+
+      self.assertAllEqual(x, var.eval())
+      apply_ftrl = training_ops.apply_ftrl(var, accum, linear, grad, lr, l1, l2,
+                                           lr_power)
+      out = apply_ftrl.eval()
+      self.assertShapeEqual(out, apply_ftrl)
+      accum_update = y + grad * grad
+      linear_update = z + grad - (accum_update ** (-lr_power) - y ** (
+          -lr_power)) / lr * x
+      quadratic = 1.0 / (accum_update ** (lr_power) * lr) + 2 * l2
+      expected_out = np.array([(np.sign(
+          linear_update[i]) * l1 - linear_update[i]) / (
+              quadratic[i]) if np.abs(
+                  linear_update[i]) > l1 else 0.0 for i in range(
+                      linear_update.size)])
+      self.assertAllClose(accum_update, accum.eval())
+      self.assertAllClose(linear_update, linear.eval())
+      self.assertAllClose(expected_out, out)
+
+>>>>>>> tensorflow/master
   def testApplyAdagrad(self):
     for (dtype, use_gpu) in itertools.product(
         [np.float32, np.float64], [False, True]):
@@ -75,6 +140,20 @@ class TrainingOpsTest(TensorFlowTestCase):
       grad = np.arange(100).astype(dtype)
       self._testTypesForAdagrad(x, y, lr, grad, use_gpu)
 
+<<<<<<< HEAD
+=======
+  def testApplyFtrl(self):
+    for dtype in [np.float32, np.float64]:
+      x = np.arange(100).astype(dtype)
+      y = np.arange(1, 101).astype(dtype)
+      z = np.arange(102, 202).astype(dtype)
+      lr = np.array(2.0).astype(dtype)
+      l1 = np.array(3.0).astype(dtype)
+      l2 = np.array(4.0).astype(dtype)
+      grad = np.arange(100).astype(dtype)
+      self._testTypesForFtrl(x, y, z, lr, grad, use_gpu=False, l1=l1, l2=l2)
+
+>>>>>>> tensorflow/master
   def _testTypesForSparseAdagrad(self, x, y, lr, grad, indices):
     self.setUp()
     with self.test_session(use_gpu=False):
@@ -93,6 +172,33 @@ class TrainingOpsTest(TensorFlowTestCase):
         self.assertAllClose(
             x[index] - lr * grad[i] * (y[index] + grad[i] * grad[i]) ** (-0.5),
             var.eval()[index])
+<<<<<<< HEAD
+=======
+        self.assertAllClose(y[index] + grad[i] * grad[i], accum.eval()[index])
+
+  def _testTypesForSparseFtrl(self, x, y, z, lr, grad, indices, l1=0.0, l2=0.0,
+                              lr_power=-0.5):
+    self.setUp()
+    with self.test_session(use_gpu=False):
+      var = variables.Variable(x)
+      accum = variables.Variable(y)
+      linear = variables.Variable(z)
+      variables.initialize_all_variables().run()
+
+      self.assertAllEqual(x, var.eval())
+      sparse_apply_ftrl = training_ops.sparse_apply_ftrl(
+          var, accum, linear, grad,
+          constant_op.constant(indices, self._toType(indices.dtype)),
+          lr, l1, l2, lr_power=lr_power)
+      out = sparse_apply_ftrl.eval()
+      self.assertShapeEqual(out, sparse_apply_ftrl)
+
+      for (i, index) in enumerate(indices):
+        self.assertAllClose(
+            x[index] - lr * grad[i] * (y[index] + grad[i] * grad[i]) ** (
+                lr_power),
+            var.eval()[index])
+>>>>>>> tensorflow/master
         self.assertAllEqual(y[index] + grad[i] * grad[i], accum.eval()[index])
 
   def testSparseApplyAdagrad(self):
@@ -108,6 +214,37 @@ class TrainingOpsTest(TensorFlowTestCase):
       indices = np.array([0, 2]).astype(index_type)
       self._testTypesForSparseAdagrad(x, y, lr, grad, indices)
 
+<<<<<<< HEAD
+=======
+  def testSparseApplyAdagradDim1(self):
+    for (dtype, index_type) in itertools.product(
+        [np.float32, np.float64], [np.int32, np.int64]):
+      x_val = [[1.0], [2.0], [3.0]]
+      y_val = [[4.0], [5.0], [6.0]]
+      x = np.array(x_val).astype(dtype)
+      y = np.array(y_val).astype(dtype)
+      lr = np.array(2.0).astype(dtype)
+      grad_val = [[1.5], [2.5]]
+      grad = np.array(grad_val).astype(dtype)
+      indices = np.array([0, 2]).astype(index_type)
+      self._testTypesForSparseAdagrad(x, y, lr, grad, indices)
+
+  def testSparseApplyFtrlDim1(self):
+    for (dtype, index_type) in itertools.product(
+        [np.float32, np.float64], [np.int32, np.int64]):
+      x_val = [[0.0], [0.0], [0.0]]
+      y_val = [[4.0], [5.0], [6.0]]
+      z_val = [[0.0], [0.0], [0.0]]
+      x = np.array(x_val).astype(dtype)
+      y = np.array(y_val).astype(dtype)
+      z = np.array(z_val).astype(dtype)
+      lr = np.array(2.0).astype(dtype)
+      grad_val = [[1.5], [2.5]]
+      grad = np.array(grad_val).astype(dtype)
+      indices = np.array([0, 2]).astype(index_type)
+      self._testTypesForSparseFtrl(x, y, z, lr, grad, indices)
+
+>>>>>>> tensorflow/master
   def testApplyAdam(self):
     for dtype, use_gpu in itertools.product(
         [np.float32, np.float64], [False, True]):

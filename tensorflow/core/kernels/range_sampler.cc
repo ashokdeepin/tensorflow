@@ -1,7 +1,29 @@
+<<<<<<< HEAD
 #include "tensorflow/core/kernels/range_sampler.h"
 
 #include <vector>
 #include <unordered_set>
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/kernels/range_sampler.h"
+
+#include <unordered_set>
+#include <vector>
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/lib/core/errors.h"
 #include "tensorflow/core/lib/gtl/map_util.h"
@@ -9,7 +31,12 @@
 #include "tensorflow/core/lib/strings/numbers.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include "tensorflow/core/platform/logging.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
+=======
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -44,7 +71,11 @@ namespace {
 // We use batch_size and num_tries, where num_tries is the observed number of
 // tries it took to get batch_size unique values.
 //
+<<<<<<< HEAD
 // Assuming (falsely) that the nubmer of tries to get a batch of batch_size
+=======
+// Assuming (falsely) that the number of tries to get a batch of batch_size
+>>>>>>> tensorflow/master
 // distinct values is _always_ num_tries, the probability that the value
 // is in a batch is (1 - (1-p)^num_tries)
 static float ExpectedCountHelper(float p, int batch_size, int num_tries) {
@@ -81,7 +112,11 @@ void RangeSampler::SampleBatchGetExpectedCountAvoid(
       }
     }
   } else {
+<<<<<<< HEAD
     CHECK_EQ(avoided_values.size(), 0)
+=======
+    CHECK_EQ(avoided_values.size(), size_t{0})
+>>>>>>> tensorflow/master
         << "avoided_values only supported with unique=true";
     for (int i = 0; i < batch_size; i++) {
       batch[i] = Sample(rnd);
@@ -103,8 +138,12 @@ void RangeSampler::SampleBatchGetExpectedCountAvoid(
   }
 }
 
+<<<<<<< HEAD
 AllSampler::AllSampler(int64 range)
     : RangeSampler(range), inv_range_(1.0 / range) {}
+=======
+AllSampler::AllSampler(int64 range) : RangeSampler(range) {}
+>>>>>>> tensorflow/master
 
 void AllSampler::SampleBatchGetExpectedCountAvoid(
     random::SimplePhilox* rnd, bool unique, MutableArraySlice<int64> batch,
@@ -122,7 +161,11 @@ void AllSampler::SampleBatchGetExpectedCountAvoid(
       batch_expected_count[i] = 1;
     }
   }
+<<<<<<< HEAD
   CHECK_EQ(0, avoided_values.size());
+=======
+  CHECK_EQ(size_t{0}, avoided_values.size());
+>>>>>>> tensorflow/master
   CHECK_EQ(extras.size(), extras_expected_count.size());
   for (size_t i = 0; i < extras.size(); i++) {
     extras_expected_count[i] = 1;
@@ -197,7 +240,11 @@ float UnigramSampler::Probability(int64 value) const {
   return unsafe_sampler_.Probability(value);
 }
 
+<<<<<<< HEAD
 // Overriding at a high level results in far fewer lock aquisitions.
+=======
+// Overriding at a high level results in far fewer lock acquisitions.
+>>>>>>> tensorflow/master
 void UnigramSampler::SampleBatchGetExpectedCountAvoid(
     random::SimplePhilox* rnd, bool unique, MutableArraySlice<int64> batch,
     MutableArraySlice<float> batch_expected_count, ArraySlice<int64> extras,

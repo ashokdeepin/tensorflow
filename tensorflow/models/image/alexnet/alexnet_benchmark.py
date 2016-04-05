@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Timing benchmark for AlexNet inference.
 
 To run, use:
@@ -20,10 +38,16 @@ from __future__ import print_function
 
 from datetime import datetime
 import math
+<<<<<<< HEAD
 from six.moves import xrange  # pylint: disable=redefined-builtin
 import time
 
 import tensorflow.python.platform
+=======
+import time
+
+from six.moves import xrange  # pylint: disable=redefined-builtin
+>>>>>>> tensorflow/master
 import tensorflow as tf
 
 
@@ -55,10 +79,17 @@ def inference(images):
   with tf.name_scope('conv1') as scope:
     kernel = tf.Variable(tf.truncated_normal([11, 11, 3, 64], dtype=tf.float32,
                                              stddev=1e-1), name='weights')
+<<<<<<< HEAD
     conv = tf.nn.conv2d(images, kernel, [1, 4, 4, 1], padding='VALID')
     biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32),
                          trainable=True, name='biases')
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+=======
+    conv = tf.nn.conv2d(images, kernel, [1, 4, 4, 1], padding='SAME')
+    biases = tf.Variable(tf.constant(0.0, shape=[64], dtype=tf.float32),
+                         trainable=True, name='biases')
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv1 = tf.nn.relu(bias, name=scope)
     print_activations(conv1)
     parameters += [kernel, biases]
@@ -81,7 +112,11 @@ def inference(images):
     conv = tf.nn.conv2d(pool1, kernel, [1, 1, 1, 1], padding='SAME')
     biases = tf.Variable(tf.constant(0.0, shape=[192], dtype=tf.float32),
                          trainable=True, name='biases')
+<<<<<<< HEAD
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+=======
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv2 = tf.nn.relu(bias, name=scope)
     parameters += [kernel, biases]
   print_activations(conv2)
@@ -102,7 +137,11 @@ def inference(images):
     conv = tf.nn.conv2d(pool2, kernel, [1, 1, 1, 1], padding='SAME')
     biases = tf.Variable(tf.constant(0.0, shape=[384], dtype=tf.float32),
                          trainable=True, name='biases')
+<<<<<<< HEAD
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+=======
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv3 = tf.nn.relu(bias, name=scope)
     parameters += [kernel, biases]
     print_activations(conv3)
@@ -115,7 +154,11 @@ def inference(images):
     conv = tf.nn.conv2d(conv3, kernel, [1, 1, 1, 1], padding='SAME')
     biases = tf.Variable(tf.constant(0.0, shape=[256], dtype=tf.float32),
                          trainable=True, name='biases')
+<<<<<<< HEAD
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+=======
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv4 = tf.nn.relu(bias, name=scope)
     parameters += [kernel, biases]
     print_activations(conv4)
@@ -128,7 +171,11 @@ def inference(images):
     conv = tf.nn.conv2d(conv4, kernel, [1, 1, 1, 1], padding='SAME')
     biases = tf.Variable(tf.constant(0.0, shape=[256], dtype=tf.float32),
                          trainable=True, name='biases')
+<<<<<<< HEAD
     bias = tf.reshape(tf.nn.bias_add(conv, biases), conv.get_shape())
+=======
+    bias = tf.nn.bias_add(conv, biases)
+>>>>>>> tensorflow/master
     conv5 = tf.nn.relu(bias, name=scope)
     parameters += [kernel, biases]
     print_activations(conv5)
@@ -149,7 +196,11 @@ def time_tensorflow_run(session, target, info_string):
 
   Args:
     session: the TensorFlow session to run the computation under.
+<<<<<<< HEAD
     target: the targe Tensor that is passed to the session's run() function.
+=======
+    target: the target Tensor that is passed to the session's run() function.
+>>>>>>> tensorflow/master
     info_string: a string summarizing this run, to be printed with the stats.
 
   Returns:
@@ -185,8 +236,13 @@ def run_benchmark():
     # In order to force the model to start with the same activations sizes,
     # we add 3 to the image_size and employ VALID padding above.
     images = tf.Variable(tf.random_normal([FLAGS.batch_size,
+<<<<<<< HEAD
                                            image_size + 3,
                                            image_size + 3, 3],
+=======
+                                           image_size,
+                                           image_size, 3],
+>>>>>>> tensorflow/master
                                           dtype=tf.float32,
                                           stddev=1e-1))
 

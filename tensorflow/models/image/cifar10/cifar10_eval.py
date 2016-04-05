@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Evaluation for CIFAR-10.
 
 Accuracy:
@@ -23,8 +41,11 @@ from datetime import datetime
 import math
 import time
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 from tensorflow.python.platform import gfile
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -102,7 +123,11 @@ def eval_once(saver, summary_writer, top_k_op, summary_op):
 
 def evaluate():
   """Eval CIFAR-10 for a number of steps."""
+<<<<<<< HEAD
   with tf.Graph().as_default():
+=======
+  with tf.Graph().as_default() as g:
+>>>>>>> tensorflow/master
     # Get images and labels for CIFAR-10.
     eval_data = FLAGS.eval_data == 'test'
     images, labels = cifar10.inputs(eval_data=eval_data)
@@ -117,6 +142,7 @@ def evaluate():
     # Restore the moving average version of the learned variables for eval.
     variable_averages = tf.train.ExponentialMovingAverage(
         cifar10.MOVING_AVERAGE_DECAY)
+<<<<<<< HEAD
     variables_to_restore = {}
     for v in tf.all_variables():
       if v in tf.trainable_variables():
@@ -124,14 +150,21 @@ def evaluate():
       else:
         restore_name = v.op.name
       variables_to_restore[restore_name] = v
+=======
+    variables_to_restore = variable_averages.variables_to_restore()
+>>>>>>> tensorflow/master
     saver = tf.train.Saver(variables_to_restore)
 
     # Build the summary operation based on the TF collection of Summaries.
     summary_op = tf.merge_all_summaries()
 
+<<<<<<< HEAD
     graph_def = tf.get_default_graph().as_graph_def()
     summary_writer = tf.train.SummaryWriter(FLAGS.eval_dir,
                                             graph_def=graph_def)
+=======
+    summary_writer = tf.train.SummaryWriter(FLAGS.eval_dir, g)
+>>>>>>> tensorflow/master
 
     while True:
       eval_once(saver, summary_writer, top_k_op, summary_op)
@@ -142,9 +175,15 @@ def evaluate():
 
 def main(argv=None):  # pylint: disable=unused-argument
   cifar10.maybe_download_and_extract()
+<<<<<<< HEAD
   if gfile.Exists(FLAGS.eval_dir):
     gfile.DeleteRecursively(FLAGS.eval_dir)
   gfile.MakeDirs(FLAGS.eval_dir)
+=======
+  if tf.gfile.Exists(FLAGS.eval_dir):
+    tf.gfile.DeleteRecursively(FLAGS.eval_dir)
+  tf.gfile.MakeDirs(FLAGS.eval_dir)
+>>>>>>> tensorflow/master
   evaluate()
 
 

@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // SWIG wrapper for lib::tensorflow::Status
 
 %include "tensorflow/python/platform/base.i"
@@ -6,7 +24,11 @@
 %apply int { tensorflow::error::Code };  // Treat the enum as an integer.
 
 %{
+<<<<<<< HEAD
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 %}
 
 %typemap(out, fragment="StatusNotOK") tensorflow::Status {
@@ -34,7 +56,11 @@ if (pywrap_status) {
 %}
 
 %fragment("StatusNotOK", "header") %{
+<<<<<<< HEAD
 #include "tensorflow/core/public/status.h"
+=======
+#include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 
 namespace {
 // Initialized on the first call to RaiseStatusNotOK().
@@ -69,13 +95,21 @@ void RaiseStatusNotOK(const tensorflow::Status& status, swig_type_info *type) {
   }
 
   if (StatusNotOKError != Py_None) {
+<<<<<<< HEAD
     auto fullmsg_ptr = make_safe(_SwigString_FromString(fullmsg));
+=======
+    auto fullmsg_ptr = make_safe(_SwigSimpleStr_FromString(fullmsg));
+>>>>>>> tensorflow/master
     auto exception_ptr = make_safe(PyObject_CallFunctionObjArgs(
         StatusNotOKError, fullmsg_ptr.get(), NULL));
     exception = exception_ptr.get();
     if (exception) {
       auto pycode = make_safe(PyInt_FromLong(static_cast<long>(code)));
+<<<<<<< HEAD
       auto pymsg = make_safe(_SwigString_FromString(status.error_message()));
+=======
+      auto pymsg = make_safe(_SwigSimpleStr_FromString(status.error_message()));
+>>>>>>> tensorflow/master
       auto pystatus = make_safe(SWIG_NewPointerObj(
           SWIG_as_voidptr(new tensorflow::Status(status)), type, SWIG_POINTER_OWN));
       PyObject_SetAttrString(exception, "code", pycode.get());
@@ -100,6 +134,7 @@ void RaiseStatusNotOK(const tensorflow::Status& status, swig_type_info *type) {
 %unignore tensorflow;
 %unignore tensorflow::lib;
 %unignore tensorflow::Status;
+<<<<<<< HEAD
 %unignore tensorflow::Status::Status;
 %unignore tensorflow::Status::Status(tensorflow::error::Code, StringPiece);
 %unignore tensorflow::Status::~Status;
@@ -112,5 +147,11 @@ void RaiseStatusNotOK(const tensorflow::Status& status, swig_type_info *type) {
 %rename(__str__) tensorflow::Status::ToString;
 
 %include "tensorflow/core/public/status.h"
+=======
+%unignore tensorflow::Status::~Status;
+%ignore tensorflow::Status::operator=;
+
+%include "tensorflow/core/lib/core/status.h"
+>>>>>>> tensorflow/master
 
 %unignoreall

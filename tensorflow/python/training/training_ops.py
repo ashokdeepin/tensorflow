@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Python wrappers for training ops."""
 
 from __future__ import absolute_import
@@ -7,6 +25,10 @@ from __future__ import print_function
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.training import gen_training_ops
+<<<<<<< HEAD
+=======
+# go/tf-wildcard-import
+>>>>>>> tensorflow/master
 # pylint: disable=wildcard-import
 from tensorflow.python.training.gen_training_ops import *
 # pylint: enable=wildcard-import
@@ -32,6 +54,21 @@ def _AssertInputIsScalar(op, index):
   op.inputs[index].get_shape().assert_is_compatible_with(tensor_shape.scalar())
 
 
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("ApplyAdadelta")
+def _ApplyAdadeltaShape(op):
+  """Shape function for the ApplyAdadelta op."""
+  var_shape = op.inputs[0].get_shape()
+  accum_shape = op.inputs[1].get_shape().merge_with(var_shape)
+  accum_update_shape = op.inputs[2].get_shape().merge_with(var_shape)
+  _AssertInputIsScalar(op, 3)  # lr
+  _AssertInputIsScalar(op, 4)  # rho
+  _AssertInputIsScalar(op, 5)  # epsilon
+  grad_shape = op.inputs[6].get_shape().merge_with(accum_shape)
+  return [grad_shape]
+
+>>>>>>> tensorflow/master
 @ops.RegisterShape("ApplyAdagrad")
 def _ApplyAdagradShape(op):
   """Shape function for the ApplyAdagrad op."""
@@ -42,6 +79,23 @@ def _ApplyAdagradShape(op):
   return [grad_shape]
 
 
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("ApplyFtrl")
+def _ApplyFtrlShape(op):
+  """Shape function for the ApplyFtrlOp op."""
+  var_shape = op.inputs[0].get_shape()
+  accum_shape = op.inputs[1].get_shape().merge_with(var_shape)
+  linear_shape = op.inputs[2].get_shape().merge_with(accum_shape)
+  grad_shape = op.inputs[3].get_shape().merge_with(linear_shape)
+  _AssertInputIsScalar(op, 4)  # lr
+  _AssertInputIsScalar(op, 5)  # l1
+  _AssertInputIsScalar(op, 6)  # l2
+  _AssertInputIsScalar(op, 7)  # lr_power
+  return [grad_shape]
+
+
+>>>>>>> tensorflow/master
 @ops.RegisterShape("ApplyAdam")
 def _ApplyAdamShape(op):
   """Shape function for the ApplyAdam op."""
@@ -91,6 +145,23 @@ def _ApplyGradientDescentShape(op):
   delta_shape = op.inputs[2].get_shape().merge_with(var_shape)
   return [delta_shape]
 
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("SparseApplyAdadelta")
+def _SparseApplyAdadeltaShape(op):
+   """Shape function for the SparseApplyAdadelta op."""
+   var_shape = op.inputs[0].get_shape()
+   accum_grad_shape = op.inputs[1].get_shape().merge_with(var_shape)
+   accum_update_shape = op.inputs[2].get_shape().merge_with(accum_grad_shape)
+   _AssertInputIsScalar(op, 3)  # lr
+   _AssertInputIsScalar(op, 4)  # decay_rate
+   _AssertInputIsScalar(op, 5)  # epsilon
+   grad_shape = op.inputs[6].get_shape().merge_with(
+       tensor_shape.TensorShape([None]).concatenate(accum_update_shape[1:]))
+   unused_indices_shape = op.inputs[7].get_shape().merge_with(
+       tensor_shape.vector(grad_shape[0]))
+   return [accum_update_shape]
+>>>>>>> tensorflow/master
 
 @ops.RegisterShape("SparseApplyAdagrad")
 def _SparseApplyAdagradShape(op):
@@ -105,6 +176,26 @@ def _SparseApplyAdagradShape(op):
   return [accum_shape]
 
 
+<<<<<<< HEAD
+=======
+@ops.RegisterShape("SparseApplyFtrl")
+def _SparseApplyFtrlShape(op):
+  """Shape function for the SparseApplyFtrl op."""
+  var_shape = op.inputs[0].get_shape()
+  accum_shape = op.inputs[1].get_shape().merge_with(var_shape)
+  linear_shape = op.inputs[2].get_shape().merge_with(accum_shape)
+  grad_shape = op.inputs[3].get_shape().merge_with(
+      tensor_shape.TensorShape([None]).concatenate(linear_shape[1:]))
+  unused_indices_shape = op.inputs[4].get_shape().merge_with(
+      tensor_shape.vector(grad_shape[0]))
+  _AssertInputIsScalar(op, 5)  # lr
+  _AssertInputIsScalar(op, 6)  # l1
+  _AssertInputIsScalar(op, 7)  # l2
+  _AssertInputIsScalar(op, 8)  # lr_power
+  return [linear_shape]
+
+
+>>>>>>> tensorflow/master
 @ops.RegisterShape("SparseApplyMomentum")
 def _SparseApplyMomentumShape(op):
   """Shape function for the SparseApplyMomentum op."""

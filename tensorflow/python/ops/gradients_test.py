@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.ops.gradients."""
 from __future__ import absolute_import
 from __future__ import division
@@ -5,6 +23,7 @@ from __future__ import print_function
 
 import warnings
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -25,6 +44,28 @@ from tensorflow.python.ops import nn_grad
 from tensorflow.python.ops import state_grad
 # pylint: enable=unused-import
 from tensorflow.python.ops.constant_op import constant
+=======
+import numpy as np
+import tensorflow as tf
+
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import function
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import test_util
+from tensorflow.python.ops import array_grad  # pylint: disable=unused-import
+from tensorflow.python.ops import array_ops
+from tensorflow.python.ops import constant_op
+from tensorflow.python.ops import data_flow_grad  # pylint: disable=unused-import
+from tensorflow.python.ops import data_flow_ops  # pylint: disable=unused-import
+from tensorflow.python.ops import gradients
+from tensorflow.python.ops import math_grad  # pylint: disable=unused-import
+from tensorflow.python.ops import math_ops
+from tensorflow.python.ops import nn_grad  # pylint: disable=unused-import
+from tensorflow.python.ops import state_grad  # pylint: disable=unused-import
+from tensorflow.python.ops.constant_op import constant
+from tensorflow.python.ops import functional_ops  # pylint: disable=unused-import
+
+>>>>>>> tensorflow/master
 from tensorflow.python.ops.nn_ops import bias_add
 from tensorflow.python.platform import googletest
 
@@ -53,7 +94,11 @@ def _OpsBetween(graph, to_ops, from_ops):
     reached_ops[op._id] = True
   gradients._MarkReachedOps(from_ops, reached_ops)
   between_ops = gradients._GatherInputs(to_ops, reached_ops)
+<<<<<<< HEAD
   between_ops.sort(lambda x, y: y._id - x._id)
+=======
+  between_ops.sort(key=lambda x: -x._id)
+>>>>>>> tensorflow/master
   return between_ops
 
 
@@ -146,7 +191,11 @@ class GradientsTest(test_util.TensorFlowTestCase):
       with g.device("/gpu:0"):
         wx = math_ops.matmul(w, x)
       gw = gradients.gradients(wx, [w], colocate_gradients_with_ops=True)[0]
+<<<<<<< HEAD
     self.assertEquals("/gpu:0", gw.device)
+=======
+    self.assertEqual(gw.op.colocation_groups(), wx.op.colocation_groups())
+>>>>>>> tensorflow/master
 
   def testColocateGradientsWithAggregation(self):
     with ops.Graph().as_default() as g:
@@ -158,10 +207,19 @@ class GradientsTest(test_util.TensorFlowTestCase):
       wy = math_ops.matmul(w, y)
       with g.device("/gpu:0"):
         z = wx + wy
+<<<<<<< HEAD
       gw1 = gradients.gradients(z, [w], colocate_gradients_with_ops=True)[0]
       self.assertEquals("/gpu:1", gw1.device)
       gw2 = gradients.gradients(z, [w], colocate_gradients_with_ops=False)[0]
       self.assertEquals(None, gw2.device)
+=======
+
+      gw1 = gradients.gradients(z, [w], colocate_gradients_with_ops=True)[0]
+      self.assertEqual(gw1.op.colocation_groups(), w.op.colocation_groups())
+
+      gw2 = gradients.gradients(z, [w], colocate_gradients_with_ops=False)[0]
+      self.assertTrue(w.op.colocation_groups() != gw2.op.colocation_groups())
+>>>>>>> tensorflow/master
 
   def testBoundaryStop(self):
     # Test that we don't differentiate 'x'. The gradient function for 'x' is
@@ -173,7 +231,11 @@ class GradientsTest(test_util.TensorFlowTestCase):
       y = x + 1.0
       z = y + 1
       grads = gradients.gradients(z, [x])
+<<<<<<< HEAD
       self.assertTrue(all([x for x in grads]))
+=======
+      self.assertTrue(all(x is not None for x in grads))
+>>>>>>> tensorflow/master
 
   def testBoundaryContinue(self):
     # Test that we differentiate both 'x' and 'y' correctly when x is a
@@ -183,7 +245,11 @@ class GradientsTest(test_util.TensorFlowTestCase):
       y = x * 2.0
       z = y * 3.0
       grads = gradients.gradients(z, [x, y])
+<<<<<<< HEAD
       self.assertTrue(all([x for x in grads]))
+=======
+      self.assertTrue(all(x is not None for x in grads))
+>>>>>>> tensorflow/master
       self.assertEqual(6.0, grads[0].eval())
 
   def testAggregationMethodAccumulateN(self):
@@ -196,7 +262,11 @@ class GradientsTest(test_util.TensorFlowTestCase):
           [x, y],
           aggregation_method=
           gradients.AggregationMethod.EXPERIMENTAL_ACCUMULATE_N)
+<<<<<<< HEAD
       self.assertTrue(all([x for x in grads]))
+=======
+      self.assertTrue(all(x is not None for x in grads))
+>>>>>>> tensorflow/master
       self.assertEqual(20.0, grads[0].eval())
       self.assertEqual(10.0, grads[1].eval())
 
@@ -209,7 +279,11 @@ class GradientsTest(test_util.TensorFlowTestCase):
           z,
           [x, y],
           aggregation_method=gradients.AggregationMethod.ADD_N)
+<<<<<<< HEAD
       self.assertTrue(all([x for x in grads]))
+=======
+      self.assertTrue(all(x is not None for x in grads))
+>>>>>>> tensorflow/master
       self.assertEqual(20.0, grads[0].eval())
       self.assertEqual(10.0, grads[1].eval())
 
@@ -222,7 +296,11 @@ class GradientsTest(test_util.TensorFlowTestCase):
           z,
           [x, y],
           aggregation_method=gradients.AggregationMethod.EXPERIMENTAL_TREE)
+<<<<<<< HEAD
       self.assertTrue(all([x for x in grads]))
+=======
+      self.assertTrue(all(x is not None for x in grads))
+>>>>>>> tensorflow/master
       self.assertEqual(20.0, grads[0].eval())
       self.assertEqual(10.0, grads[1].eval())
 
@@ -231,19 +309,66 @@ class GradientsTest(test_util.TensorFlowTestCase):
       @ops.RegisterGradient("TestOp")
       def _TestOpGrad(op, float_grad, string_grad):
         """Gradient function for TestOp."""
+<<<<<<< HEAD
         self.assertEquals(float_grad.dtype, types.float32)
+=======
+        self.assertEquals(float_grad.dtype, dtypes.float32)
+>>>>>>> tensorflow/master
         self.assertFalse(string_grad)
         return float_grad
       ops.RegisterShape("TestOp")(None)
 
       c = constant(1.0)
+<<<<<<< HEAD
       x, y = g.create_op("TestOp", [c], [types.float32, types.string]).outputs
+=======
+      x, y = g.create_op("TestOp", [c], [dtypes.float32, dtypes.string]).outputs
+>>>>>>> tensorflow/master
       z = x * 2.0
       w = z * 3.0
       grads = gradients.gradients(z, [c])
       self.assertTrue(isinstance(grads[0], ops.Tensor))
 
 
+<<<<<<< HEAD
+=======
+class FunctionGradientsTest(test_util.TensorFlowTestCase):
+
+  @classmethod
+  def XSquarePlusB(cls, x, b):
+    return x * x + b
+
+  def testFunctionGradientsBasic(self):
+    g = ops.Graph()
+    with g.as_default():
+      f = function.Defun(x=tf.float32, b=tf.float32)(self.XSquarePlusB)
+      x = tf.constant([2.0], name="x")
+      b = tf.constant([1.0], name="b")
+
+      y = f(x, b)
+      # Build gradient graph (should add SymbolicGradient node for function).
+      grads = gradients.gradients(y, [x, b])
+      with self.test_session() as sess:
+        self.assertAllEqual([4.0], sess.run(grads)[0])
+        self.assertAllEqual([1.0], sess.run(grads)[1])
+
+  def testFunctionGradientsComposition(self):
+    with ops.Graph().as_default():
+      f = function.Defun(x=tf.float32, b=tf.float32)(self.XSquarePlusB)
+      x = tf.constant([2.0], name="x")
+      b1 = tf.constant([1.0], name="b1")
+      b2 = tf.constant([1.0], name="b2")
+
+      y = f(f(x, b1), b2)
+      # Build gradient graph (should add SymbolicGradient node for function).
+      grads = gradients.gradients(y, [x, b1])
+
+      with self.test_session() as sess:
+        self.assertAllEqual([40.0], sess.run(grads)[0])
+        self.assertAllEqual([10.0], sess.run(grads)[1])
+
+
+>>>>>>> tensorflow/master
 class StopGradientTest(test_util.TensorFlowTestCase):
 
   def testStopGradient(self):
@@ -293,13 +418,36 @@ class IndexedSlicesToTensorTest(test_util.TensorFlowTestCase):
       c_dense = math_ops.mul(c_sparse, 1.0)
       self.assertAllClose(np_val, c_dense.eval())
 
+<<<<<<< HEAD
+=======
+  def testIndexedSlicesToTensorList(self):
+    with self.test_session():
+      numpy_list = []
+      dense_list = []
+      sparse_list = []
+      for _ in range(3):
+        np_val = np.random.rand(4, 4, 4, 4).astype(np.float32)
+        c = constant_op.constant(np_val)
+        c_sparse = math_ops._as_indexed_slices(c)
+        numpy_list.append(np_val)
+        dense_list.append(c)
+        sparse_list.append(c_sparse)
+      packed_dense = array_ops.pack(dense_list)
+      packed_sparse = array_ops.pack(sparse_list)
+      self.assertAllClose(packed_dense.eval(), packed_sparse.eval())
+
+>>>>>>> tensorflow/master
   def testInt64Indices(self):
     with self.test_session():
       np_val = np.random.rand(4, 4, 4, 4).astype(np.float32)
       c = constant_op.constant(np_val)
       c_sparse = math_ops._as_indexed_slices(c)
       c_sparse = ops.IndexedSlices(
+<<<<<<< HEAD
           c_sparse.values, math_ops.cast(c_sparse.indices, types.int64),
+=======
+          c_sparse.values, math_ops.cast(c_sparse.indices, dtypes.int64),
+>>>>>>> tensorflow/master
           c_sparse.dense_shape)
       self.assertAllEqual(np_val.shape, c_sparse.dense_shape.eval())
       c_dense = math_ops.mul(c_sparse, 1.0)
@@ -307,16 +455,26 @@ class IndexedSlicesToTensorTest(test_util.TensorFlowTestCase):
 
   def testWarnings(self):
     # Smaller than the threshold: no warning.
+<<<<<<< HEAD
     c_sparse = ops.IndexedSlices(array_ops.placeholder(types.float32),
                                  array_ops.placeholder(types.int32),
+=======
+    c_sparse = ops.IndexedSlices(array_ops.placeholder(dtypes.float32),
+                                 array_ops.placeholder(dtypes.int32),
+>>>>>>> tensorflow/master
                                  constant([4, 4, 4, 4]))
     with warnings.catch_warnings(record=True) as w:
       math_ops.mul(c_sparse, 1.0)
     self.assertEqual(0, len(w))
 
     # Greater than or equal to the threshold: warning.
+<<<<<<< HEAD
     c_sparse = ops.IndexedSlices(array_ops.placeholder(types.float32),
                                  array_ops.placeholder(types.int32),
+=======
+    c_sparse = ops.IndexedSlices(array_ops.placeholder(dtypes.float32),
+                                 array_ops.placeholder(dtypes.int32),
+>>>>>>> tensorflow/master
                                  constant([100, 100, 100, 100]))
     with warnings.catch_warnings(record=True) as w:
       math_ops.mul(c_sparse, 1.0)
@@ -326,9 +484,15 @@ class IndexedSlicesToTensorTest(test_util.TensorFlowTestCase):
         in str(w[0].message))
 
     # Unknown dense shape: warning.
+<<<<<<< HEAD
     c_sparse = ops.IndexedSlices(array_ops.placeholder(types.float32),
                                  array_ops.placeholder(types.int32),
                                  array_ops.placeholder(types.int32))
+=======
+    c_sparse = ops.IndexedSlices(array_ops.placeholder(dtypes.float32),
+                                 array_ops.placeholder(dtypes.int32),
+                                 array_ops.placeholder(dtypes.int32))
+>>>>>>> tensorflow/master
     with warnings.catch_warnings(record=True) as w:
       math_ops.mul(c_sparse, 1.0)
     self.assertEqual(1, len(w))

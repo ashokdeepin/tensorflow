@@ -1,12 +1,38 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #include "tensorflow/core/framework/op_def_util.h"
 
 #include "tensorflow/core/framework/op_def.pb.h"
 #include "tensorflow/core/framework/op_def_builder.h"
+<<<<<<< HEAD
 #include "tensorflow/core/platform/protobuf.h"
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/lib/core/status_test_util.h"
 #include "tensorflow/core/lib/strings/str_util.h"
 #include <gtest/gtest.h>
+=======
+#include "tensorflow/core/lib/core/status_test_util.h"
+#include "tensorflow/core/lib/strings/str_util.h"
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/protobuf.h"
+#include "tensorflow/core/platform/test.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace {
@@ -19,14 +45,22 @@ OpDef FromText(const string& text) {
 
 class ValidateOpDefTest : public ::testing::Test {
  protected:
+<<<<<<< HEAD
   Status TestProto(const string& text) {
     return ValidateOpDef(FromText(text));
   }
+=======
+  Status TestProto(const string& text) { return ValidateOpDef(FromText(text)); }
+>>>>>>> tensorflow/master
 
   Status TestBuilder(const OpDefBuilder& builder) {
     OpDef op_def;
     Status status = builder.Finalize(&op_def);
+<<<<<<< HEAD
     EXPECT_OK(status);
+=======
+    TF_EXPECT_OK(status);
+>>>>>>> tensorflow/master
     if (!status.ok()) {
       return status;
     } else {
@@ -45,6 +79,7 @@ class ValidateOpDefTest : public ::testing::Test {
 };
 
 TEST_F(ValidateOpDefTest, OpDefValid) {
+<<<<<<< HEAD
   EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int")));
   EXPECT_OK(TestBuilder(OpDefBuilder("X").Input("a: int32")));
   EXPECT_OK(TestBuilder(OpDefBuilder("X").Output("a: bool")));
@@ -55,6 +90,18 @@ TEST_F(ValidateOpDefTest, OpDefValid) {
   EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int >= -5 = 3")));
   EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: numbertype")));
   EXPECT_OK(TestBuilder(OpDefBuilder("Uppercase")));
+=======
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Input("a: int32")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Output("a: bool")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("t: type").Input("a: t")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int = 3")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int >= -5")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int >= -5")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: int >= -5 = 3")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("X").Attr("a: numbertype")));
+  TF_EXPECT_OK(TestBuilder(OpDefBuilder("Uppercase")));
+>>>>>>> tensorflow/master
 }
 
 TEST_F(ValidateOpDefTest, InvalidName) {
@@ -154,16 +201,29 @@ TEST_F(ValidateOpDefTest, BadAttrDefault) {
 
   // default_value {} is indistinguishable from default_value{ list{} } (one
   // with an empty list) in proto3 semantics.
+<<<<<<< HEAD
   EXPECT_OK(
+=======
+  TF_EXPECT_OK(
+>>>>>>> tensorflow/master
       TestProto("name: 'GoodAttrDef' attr { name: 'a' "
                 "type: 'list(int)' default_value { } }"));
 
   // Empty lists are allowed:
+<<<<<<< HEAD
   EXPECT_OK(
       TestProto("name: 'GoodAttrDef' attr { name: 'a' "
                 "type: 'list(int)' default_value { list { } } }"));
   // Builder should make the same proto:
   EXPECT_OK(TestBuilder(OpDefBuilder("GoodAttrDef").Attr("a: list(int) = []")));
+=======
+  TF_EXPECT_OK(
+      TestProto("name: 'GoodAttrDef' attr { name: 'a' "
+                "type: 'list(int)' default_value { list { } } }"));
+  // Builder should make the same proto:
+  TF_EXPECT_OK(
+      TestBuilder(OpDefBuilder("GoodAttrDef").Attr("a: list(int) = []")));
+>>>>>>> tensorflow/master
 
   // Unless there is a minimum length specified:
   ExpectFailure(TestProto("name: 'BadAttrDef' attr { name: 'a' "
@@ -211,7 +271,11 @@ TEST_F(ValidateOpDefTest, BadAttrMin) {
       TestProto("name: 'BadAttrMin' attr { name: 'a' "
                 "type: 'list(string)' has_minimum: true minimum: -5 }"),
       "list type must have a non-negative minimum, not -5");
+<<<<<<< HEAD
   EXPECT_OK(
+=======
+  TF_EXPECT_OK(
+>>>>>>> tensorflow/master
       TestProto("name: 'GoodAttrMin' attr { name: 'a' type: 'list(string)' "
                 "has_minimum: true minimum: 1 }"));
   ExpectFailure(TestProto("name: 'NoHasMin' attr { name: 'a' "
@@ -222,7 +286,11 @@ TEST_F(ValidateOpDefTest, BadAttrMin) {
 
 TEST_F(ValidateOpDefTest, BadAttrAllowed) {
   // Is in list of allowed types.
+<<<<<<< HEAD
   EXPECT_OK(TestBuilder(
+=======
+  TF_EXPECT_OK(TestBuilder(
+>>>>>>> tensorflow/master
       OpDefBuilder("GoodAttrtude").Attr("x: numbertype = DT_INT32")));
   // Not in list of allowed types.
   ExpectFailure(TestBuilder(OpDefBuilder("BadAttrtude")
@@ -232,8 +300,17 @@ TEST_F(ValidateOpDefTest, BadAttrAllowed) {
       TestBuilder(OpDefBuilder("BadAttrtude")
                       .Attr("x: list(realnumbertype) = [DT_COMPLEX64]")),
       "attr 'x' of complex64 is not in the list of allowed values");
+<<<<<<< HEAD
   // Is in list of allowed strings.
   EXPECT_OK(TestBuilder(
+=======
+  ExpectFailure(
+      TestBuilder(OpDefBuilder("BadAttrtude")
+                      .Attr("x: list(realnumbertype) = [DT_COMPLEX128]")),
+      "attr 'x' of complex128 is not in the list of allowed values");
+  // Is in list of allowed strings.
+  TF_EXPECT_OK(TestBuilder(
+>>>>>>> tensorflow/master
       OpDefBuilder("GoodAttrtude").Attr("x: {'foo', 'bar'} = 'bar'")));
   // Not in list of allowed strings.
   ExpectFailure(TestBuilder(OpDefBuilder("BadAttrtude")
@@ -287,13 +364,21 @@ TEST_F(ValidateOpDefTest, BadArgType) {
                 "attr { name: 'n' type: 'int' has_minimum: true minimum: 1 }"),
       "Attr 'x' used as type_attr for input 'a' has type list(type)");
   // But list(type) is fine as the type of an arg without a number_attr:
+<<<<<<< HEAD
   EXPECT_OK(TestProto(
+=======
+  TF_EXPECT_OK(TestProto(
+>>>>>>> tensorflow/master
       "name: 'Arg' input_arg { name: 'a' type_list_attr: 'x' } "
       "attr { name: 'x' type: 'list(type)' } attr { name: 'n' type: 'int' "
       "has_minimum: true minimum: 1 }"));
 
   // number_attr
+<<<<<<< HEAD
   EXPECT_OK(TestProto(
+=======
+  TF_EXPECT_OK(TestProto(
+>>>>>>> tensorflow/master
       "name: 'Arg' input_arg { name: 'a' type: DT_INT32 number_attr: 'n' } "
       "attr { name: 'n' type: 'int' has_minimum: true minimum: 0 }"));
 

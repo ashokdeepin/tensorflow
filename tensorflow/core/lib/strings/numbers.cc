@@ -1,13 +1,40 @@
+<<<<<<< HEAD
 #include "tensorflow/core/lib/strings/numbers.h"
 
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+#include "tensorflow/core/lib/strings/numbers.h"
+
+#include <ctype.h>
+>>>>>>> tensorflow/master
 #include <float.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <algorithm>
 #include <cmath>
 
+<<<<<<< HEAD
 #include "tensorflow/core/platform/port.h"
 #include "tensorflow/core/platform/logging.h"
+=======
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/macros.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 namespace strings {
@@ -17,7 +44,11 @@ char* FastInt32ToBufferLeft(int32 i, char* buffer) {
   if (i < 0) {
     *buffer++ = '-';
     // We need to do the negation in modular (i.e., "unsigned")
+<<<<<<< HEAD
     // arithmetic; MSVC++ apprently warns for plain "-u", so
+=======
+    // arithmetic; MSVC++ apparently warns for plain "-u", so
+>>>>>>> tensorflow/master
     // we write the equivalent expression "0 - u" instead.
     u = 0 - u;
   }
@@ -86,6 +117,7 @@ char* DoubleToBuffer(double value, char* buffer) {
   return buffer;
 }
 
+<<<<<<< HEAD
 bool safe_strto64(const char* str, int64* value) {
   if (!str) return false;
 
@@ -97,29 +129,63 @@ bool safe_strto64(const char* str, int64* value) {
   if (*str == '-') {
     sign = -1;
     ++str;
+=======
+namespace {
+char SafeFirstChar(StringPiece str) {
+  if (str.empty()) return '\0';
+  return str[0];
+}
+}  // namespace
+
+bool safe_strto64(StringPiece str, int64* value) {
+  // Skip leading space.
+  while (isspace(SafeFirstChar(str))) str.remove_prefix(1);
+
+  int64 vlimit = kint64max;
+  int sign = 1;
+  if (str.Consume("-")) {
+    sign = -1;
+>>>>>>> tensorflow/master
     // Different limit for positive and negative integers.
     vlimit = kint64min;
   }
 
+<<<<<<< HEAD
   if (!isdigit(*str)) return false;
+=======
+  if (!isdigit(SafeFirstChar(str))) return false;
+>>>>>>> tensorflow/master
 
   int64 result = 0;
   if (sign == 1) {
     do {
+<<<<<<< HEAD
       int digit = *str - '0';
+=======
+      int digit = SafeFirstChar(str) - '0';
+>>>>>>> tensorflow/master
       if ((vlimit - digit) / 10 < result) {
         return false;
       }
       result = result * 10 + digit;
+<<<<<<< HEAD
       ++str;
     } while (isdigit(*str));
   } else {
     do {
       int digit = *str - '0';
+=======
+      str.remove_prefix(1);
+    } while (isdigit(SafeFirstChar(str)));
+  } else {
+    do {
+      int digit = SafeFirstChar(str) - '0';
+>>>>>>> tensorflow/master
       if ((vlimit + digit) / 10 > result) {
         return false;
       }
       result = result * 10 - digit;
+<<<<<<< HEAD
       ++str;
     } while (isdigit(*str));
   }
@@ -128,11 +194,22 @@ bool safe_strto64(const char* str, int64* value) {
   while (isspace(*str)) ++str;
 
   if (*str) return false;
+=======
+      str.remove_prefix(1);
+    } while (isdigit(SafeFirstChar(str)));
+  }
+
+  // Skip trailing space.
+  while (isspace(SafeFirstChar(str))) str.remove_prefix(1);
+
+  if (!str.empty()) return false;
+>>>>>>> tensorflow/master
 
   *value = result;
   return true;
 }
 
+<<<<<<< HEAD
 bool safe_strto32(const char* str, int32* value) {
   if (!str) return false;
 
@@ -144,10 +221,21 @@ bool safe_strto32(const char* str, int32* value) {
   if (*str == '-') {
     sign = -1;
     ++str;
+=======
+bool safe_strto32(StringPiece str, int32* value) {
+  // Skip leading space.
+  while (isspace(SafeFirstChar(str))) str.remove_prefix(1);
+
+  int64 vmax = kint32max;
+  int sign = 1;
+  if (str.Consume("-")) {
+    sign = -1;
+>>>>>>> tensorflow/master
     // Different max for positive and negative integers.
     ++vmax;
   }
 
+<<<<<<< HEAD
   if (!isdigit(*str)) return false;
 
   int64 result = 0;
@@ -163,6 +251,23 @@ bool safe_strto32(const char* str, int32* value) {
   while (isspace(*str)) ++str;
 
   if (*str) return false;
+=======
+  if (!isdigit(SafeFirstChar(str))) return false;
+
+  int64 result = 0;
+  do {
+    result = result * 10 + SafeFirstChar(str) - '0';
+    if (result > vmax) {
+      return false;
+    }
+    str.remove_prefix(1);
+  } while (isdigit(SafeFirstChar(str)));
+
+  // Skip trailing space.
+  while (isspace(SafeFirstChar(str))) str.remove_prefix(1);
+
+  if (!str.empty()) return false;
+>>>>>>> tensorflow/master
 
   *value = result * sign;
   return true;
@@ -221,6 +326,41 @@ bool StringToFp(const string& s, Fprint* fp) {
   }
 }
 
+<<<<<<< HEAD
+=======
+StringPiece Uint64ToHexString(uint64 v, char* buf) {
+  static const char* hexdigits = "0123456789abcdef";
+  const int num_byte = 16;
+  buf[num_byte] = '\0';
+  for (int i = num_byte - 1; i >= 0; i--) {
+    buf[i] = hexdigits[v & 0xf];
+    v >>= 4;
+  }
+  return StringPiece(buf, num_byte);
+}
+
+bool HexStringToUint64(const StringPiece& s, uint64* result) {
+  uint64 v = 0;
+  if (s.empty()) {
+    return false;
+  }
+  for (size_t i = 0; i < s.size(); i++) {
+    char c = s[i];
+    if (c >= '0' && c <= '9') {
+      v = (v << 4) + (c - '0');
+    } else if (c >= 'a' && c <= 'f') {
+      v = (v << 4) + 10 + (c - 'a');
+    } else if (c >= 'A' && c <= 'F') {
+      v = (v << 4) + 10 + (c - 'A');
+    } else {
+      return false;
+    }
+  }
+  *result = v;
+  return true;
+}
+
+>>>>>>> tensorflow/master
 string HumanReadableNumBytes(int64 num_bytes) {
   if (num_bytes == kint64min) {
     // Special case for number with not representable negation.

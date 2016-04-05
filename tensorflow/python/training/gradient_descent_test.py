@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional test for GradientDescent."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -29,6 +50,28 @@ class GradientDescentOptimizerTest(tf.test.TestCase):
       self.assertAllClose([1.0 - 3.0 * 0.1, 2.0 - 3.0 * 0.1], var0.eval())
       self.assertAllClose([3.0 - 3.0 * 0.01, 4.0 - 3.0 * 0.01], var1.eval())
 
+<<<<<<< HEAD
+=======
+  def testTensorLearningRate(self):
+    with self.test_session():
+      var0 = tf.Variable([1.0, 2.0])
+      var1 = tf.Variable([3.0, 4.0])
+      grads0 = tf.constant([0.1, 0.1])
+      grads1 = tf.constant([0.01, 0.01])
+      lrate = tf.constant(3.0)
+      sgd_op = tf.train.GradientDescentOptimizer(lrate).apply_gradients(
+          zip([grads0, grads1], [var0, var1]))
+      tf.initialize_all_variables().run()
+      # Fetch params to validate initial values
+      self.assertAllClose([1.0, 2.0], var0.eval())
+      self.assertAllClose([3.0, 4.0], var1.eval())
+      # Run 1 step of sgd
+      sgd_op.run()
+      # Validate updated params
+      self.assertAllClose([1.0 - 3.0 * 0.1, 2.0 - 3.0 * 0.1], var0.eval())
+      self.assertAllClose([3.0 - 3.0 * 0.01, 4.0 - 3.0 * 0.01], var1.eval())
+
+>>>>>>> tensorflow/master
   def testFloat64(self):
     with self.test_session():
       opt = tf.train.GradientDescentOptimizer(3.0)
@@ -62,6 +105,19 @@ class GradientDescentOptimizerTest(tf.test.TestCase):
           opt.apply_gradients, zip(good_grads, bad_vars))
       opt.apply_gradients(zip(good_grads, good_vars))
 
+<<<<<<< HEAD
+=======
+  def testGradWrtRef(self):
+    with self.test_session():
+      opt = tf.train.GradientDescentOptimizer(3.0)
+      values = [1.0, 3.0]
+      vars_ = [tf.Variable([v]) for v in values]
+      grads_and_vars = opt.compute_gradients(vars_[0].ref() + vars_[1], vars_)
+      tf.initialize_all_variables().run()
+      for grad, _ in grads_and_vars:
+        self.assertAllClose([1.0], grad.eval())
+
+>>>>>>> tensorflow/master
   def testWithGlobalStep(self):
     with self.test_session():
       global_step = tf.Variable(0, trainable=False)

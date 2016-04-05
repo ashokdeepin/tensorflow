@@ -1,14 +1,40 @@
+<<<<<<< HEAD
 // Copyright (c) 2011 The LevelDB Authors. All rights reserved.
 // Use of this source code is governed by a BSD-style license that can be
 // found in the LICENSE file. See the AUTHORS file for names of contributors.
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+>>>>>>> tensorflow/master
 
 #include "tensorflow/core/lib/histogram/histogram.h"
 #include <float.h>
 #include <math.h>
+<<<<<<< HEAD
 #include "tensorflow/core/framework/summary.pb.h"
 
 #include "tensorflow/core/platform/logging.h"
 #include "tensorflow/core/platform/port.h"
+=======
+#include <vector>
+#include "tensorflow/core/framework/summary.pb.h"
+
+#include "tensorflow/core/platform/logging.h"
+#include "tensorflow/core/platform/mutex.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 namespace tensorflow {
 namespace histogram {
 
@@ -46,7 +72,11 @@ Histogram::Histogram(gtl::ArraySlice<double> custom_bucket_limits)
                             custom_bucket_limits.end()),
       bucket_limits_(custom_bucket_limits_) {
 #ifndef NDEBUG
+<<<<<<< HEAD
   DCHECK_GT(bucket_limits_.size(), 0);
+=======
+  DCHECK_GT(bucket_limits_.size(), size_t{0});
+>>>>>>> tensorflow/master
   // Verify that the bucket boundaries are strictly increasing
   for (size_t i = 1; i < bucket_limits_.size(); i++) {
     DCHECK_GT(bucket_limits_[i], bucket_limits_[i - 1]);
@@ -102,6 +132,7 @@ void Histogram::Add(double value) {
 
 double Histogram::Median() const { return Percentile(50.0); }
 
+<<<<<<< HEAD
 double Histogram::Percentile(double p) const {
   if (num_ == 0.0) return 0.0;
   double threshold = num_ * (p / 100.0);
@@ -120,6 +151,45 @@ double Histogram::Percentile(double p) const {
       if (r > max_) r = max_;
       return r;
     }
+=======
+// Linearly map the variable x from [x0, x1] unto [y0, y1]
+double Histogram::Remap(double x, double x0, double x1, double y0,
+                        double y1) const {
+  return y0 + (x - x0) / (x1 - x0) * (y1 - y0);
+}
+
+// Pick tight left-hand-side and right-hand-side bounds and then
+// interpolate a histogram value at percentile p
+double Histogram::Percentile(double p) const {
+  if (num_ == 0.0) return 0.0;
+
+  double threshold = num_ * (p / 100.0);
+  double cumsum_prev = 0;
+  for (size_t i = 0; i < buckets_.size(); i++) {
+    double cumsum = cumsum_prev + buckets_[i];
+
+    // Find the first bucket whose cumsum >= threshold
+    if (cumsum >= threshold) {
+      // Prevent divide by 0 in remap which happens if cumsum == cumsum_prev
+      // This should only get hit when p == 0, cumsum == 0, and cumsum_prev == 0
+      if (cumsum == cumsum_prev) {
+        continue;
+      }
+
+      // Calculate the lower bound of interpolation
+      double lhs = (i == 0 || cumsum_prev == 0) ? min_ : bucket_limits_[i - 1];
+      lhs = std::max(lhs, min_);
+
+      // Calculate the upper bound of interpolation
+      double rhs = bucket_limits_[i];
+      rhs = std::min(rhs, max_);
+
+      double weight = Remap(threshold, cumsum_prev, cumsum, lhs, rhs);
+      return weight;
+    }
+
+    cumsum_prev = cumsum;
+>>>>>>> tensorflow/master
   }
   return max_;
 }

@@ -1,9 +1,33 @@
+<<<<<<< HEAD
 # pylint: disable=wildcard-import,unused-import,g-bad-import-order
 """## Activation Functions
 
 The activation ops provide different types of nonlinearities for use in
 neural networks.  These include smooth nonlinearities (`sigmoid`,
 `tanh`, and `softplus`), continuous but not everywhere differentiable
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+# pylint: disable=unused-import,g-bad-import-order
+"""## Activation Functions
+
+The activation ops provide different types of nonlinearities for use in neural
+networks.  These include smooth nonlinearities (`sigmoid`, `tanh`, `elu`,
+`softplus`, and `softsign`), continuous but not everywhere differentiable
+>>>>>>> tensorflow/master
 functions (`relu`, `relu6`, and `relu_x`), and random regularization
 (`dropout`).
 
@@ -12,7 +36,13 @@ shape as the input tensor.
 
 @@relu
 @@relu6
+<<<<<<< HEAD
 @@softplus
+=======
+@@elu
+@@softplus
+@@softsign
+>>>>>>> tensorflow/master
 @@dropout
 @@bias_add
 @@sigmoid
@@ -38,6 +68,7 @@ strided according to the `strides` argument.  `strides = [1, 1, 1, 1]` applies
 the filter to a patch at every offset, `strides = [1, 2, 2, 1]` applies the
 filter to every other image patch in each dimension, etc.
 
+<<<<<<< HEAD
 Ignoring channels for the moment, the spatial semantics of the convolution ops
 are as follows.  If the 4-D `input` has shape
 `[batch, in_height, in_width, ...]` and the 4-D `filter` has shape
@@ -52,12 +83,57 @@ are as follows.  If the 4-D `input` has shape
         sum_{di, dj} input[b, strides[1] * i + di, strides[2] * j + dj, ...] *
                      filter[di, dj, ...]
 
+=======
+Ignoring channels for the moment, and assume that the 4-D `input` has shape
+`[batch, in_height, in_width, ...]` and the 4-D `filter` has shape
+`[filter_height, filter_width, ...]`, then the spatial semantics of the
+convolution ops are as follows: first, according to the padding scheme chosen
+as `'SAME'` or `'VALID'`, the output size and the padding pixels are computed.
+For the `'SAME'` padding, the output height and width are computed as:
+
+    out_height = ceil(float(in_height) / float(strides[1]))
+    out_width  = ceil(float(in_width) / float(strides[2]))
+
+and the padding on the top and left are computed as:
+
+    pad_along_height = ((out_height - 1) * strides[1] +
+                        filter_height - in_height)
+    pad_along_width = ((out_width - 1) * strides[2] +
+                       filter_width - in_width)
+    pad_top = pad_along_height / 2
+    pad_left = pad_along_width / 2
+
+Note that the division by 2 means that there might be cases when the padding on
+both sides (top vs bottom, right vs left) are off by one. In this case, the
+bottom and right sides always get the one additional padded pixel. For example,
+when `pad_along_height` is 5, we pad 2 pixels at the top and 3 pixels at the
+bottom. Note that this is different from existing libraries such as cuDNN and
+Caffe, which explicitly specify the number of padded pixels and always pad the
+same number of pixels on both sides.
+
+For the `'VALID`' padding, the output height and width are computed as:
+
+    out_height = ceil(float(in_height - filter_height + 1) / float(strides[1]))
+    out_width  = ceil(float(in_width - filter_width + 1) / float(strides[2]))
+
+and the padding values are always zero. The output is then computed as
+
+    output[b, i, j, :] =
+        sum_{di, dj} input[b, strides[1] * i + di - pad_top,
+                           strides[2] * j + dj - pad_left, ...] *
+                     filter[di, dj, ...]
+
+where any value outside the original input image region are considered zero (
+i.e. we pad zero values around the border of the image).
+
+>>>>>>> tensorflow/master
 Since `input` is 4-D, each `input[b, i, j, :]` is a vector.  For `conv2d`, these
 vectors are multiplied by the `filter[di, dj, :, :]` matrices to produce new
 vectors.  For `depthwise_conv_2d`, each scalar component `input[b, i, j, k]`
 is multiplied by a vector `filter[di, dj, k]`, and all the vectors are
 concatenated.
 
+<<<<<<< HEAD
 In the formula for `shape(output)`, the rounding direction depends on padding:
 
 * `padding = 'SAME'`: Round down (only full size windows are considered).
@@ -66,6 +142,12 @@ In the formula for `shape(output)`, the rounding direction depends on padding:
 @@conv2d
 @@depthwise_conv2d
 @@separable_conv2d
+=======
+@@conv2d
+@@depthwise_conv2d
+@@separable_conv2d
+@@conv2d_transpose
+>>>>>>> tensorflow/master
 
 ## Pooling
 
@@ -79,6 +161,7 @@ In detail, the output is
 
     output[i] = reduce(value[strides * i:strides * i + ksize])
 
+<<<<<<< HEAD
 for each tuple of indices `i`.  The output shape is
 
     shape(output) = (shape(value) - ksize + 1) / strides
@@ -87,6 +170,10 @@ where the rounding direction depends on padding:
 
 * `padding = 'SAME'`: Round down (only full size windows are considered).
 * `padding = 'VALID'`: Round up (partial windows are included).
+=======
+where the indices also take into consideration the padding values. Please refer
+to the `Convolution` section for details about the padding calculation.
+>>>>>>> tensorflow/master
 
 @@avg_pool
 @@max_pool
@@ -99,6 +186,11 @@ have varying scale, and to aid generalization.
 
 @@l2_normalize
 @@local_response_normalization
+<<<<<<< HEAD
+=======
+@@sufficient_statistics
+@@normalize_moments
+>>>>>>> tensorflow/master
 @@moments
 
 ## Losses
@@ -115,7 +207,14 @@ TensorFlow provides several operations that help you perform classification.
 
 @@sigmoid_cross_entropy_with_logits
 @@softmax
+<<<<<<< HEAD
 @@softmax_cross_entropy_with_logits
+=======
+@@log_softmax
+@@softmax_cross_entropy_with_logits
+@@sparse_softmax_cross_entropy_with_logits
+@@weighted_cross_entropy_with_logits
+>>>>>>> tensorflow/master
 
 ## Embeddings
 
@@ -123,6 +222,10 @@ TensorFlow provides library support for looking up values in embedding
 tensors.
 
 @@embedding_lookup
+<<<<<<< HEAD
+=======
+@@embedding_lookup_sparse
+>>>>>>> tensorflow/master
 
 ## Evaluation
 
@@ -172,19 +275,31 @@ from __future__ import division
 from __future__ import print_function
 
 from six.moves import xrange  # pylint: disable=redefined-builtin
+<<<<<<< HEAD
 from tensorflow.python.framework import ops
 from tensorflow.python.framework import tensor_shape
 from tensorflow.python.framework import types
+=======
+
+from tensorflow.python.framework import dtypes
+from tensorflow.python.framework import ops
+from tensorflow.python.framework import tensor_shape
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import array_ops
 from tensorflow.python.ops import candidate_sampling_ops
 from tensorflow.python.ops import constant_op
 from tensorflow.python.ops import control_flow_ops
 from tensorflow.python.ops import embedding_ops
+<<<<<<< HEAD
+=======
+from tensorflow.python.ops import init_ops
+>>>>>>> tensorflow/master
 from tensorflow.python.ops import math_ops
 from tensorflow.python.ops import nn_grad
 from tensorflow.python.ops import nn_ops
 from tensorflow.python.ops import numerics
 from tensorflow.python.ops import random_ops
+<<<<<<< HEAD
 from tensorflow.python.ops import sparse_ops
 from tensorflow.python.ops.math_ops import sigmoid
 from tensorflow.python.ops.math_ops import tanh
@@ -193,6 +308,24 @@ from tensorflow.python.ops.math_ops import tanh
 from tensorflow.python.ops.nn_ops import *
 from tensorflow.python.ops.candidate_sampling_ops import *
 from tensorflow.python.ops.embedding_ops import *
+=======
+from tensorflow.python.ops import rnn_cell
+from tensorflow.python.ops import seq2seq
+from tensorflow.python.ops import sparse_ops
+from tensorflow.python.ops import variable_scope as vs
+from tensorflow.python.ops.math_ops import sigmoid
+from tensorflow.python.ops.math_ops import tanh
+from tensorflow.python.util.all_util import make_all
+
+# Bring more nn-associated functionality into this package.
+# go/tf-wildcard-import
+# pylint: disable=wildcard-import
+from tensorflow.python.ops.nn_ops import *
+from tensorflow.python.ops.candidate_sampling_ops import *
+from tensorflow.python.ops.embedding_ops import *
+from tensorflow.python.ops.rnn import *
+# pylint: enable=wildcard-import
+>>>>>>> tensorflow/master
 
 
 def sigmoid_cross_entropy_with_logits(logits, targets, name=None):
@@ -205,7 +338,16 @@ def sigmoid_cross_entropy_with_logits(logits, targets, name=None):
 
   For brevity, let `x = logits`, `z = targets`.  The logistic loss is
 
+<<<<<<< HEAD
       x - x * z + log(1 + exp(-x))
+=======
+        z * -log(sigmoid(x)) + (1 - z) * -log(1 - sigmoid(x))
+      = z * -log(1 / (1 + exp(-x))) + (1 - z) * -log(exp(-x) / (1 + exp(-x)))
+      = z * log(1 + exp(-x)) + (1 - z) * (-log(exp(-x)) + log(1 + exp(-x)))
+      = z * log(1 + exp(-x)) + (1 - z) * (x + log(1 + exp(-x))
+      = (1 - z) * x + log(1 + exp(-x))
+      = x - x * z + log(1 + exp(-x))
+>>>>>>> tensorflow/master
 
   To ensure stability and avoid overflow, the implementation uses
 
@@ -221,10 +363,26 @@ def sigmoid_cross_entropy_with_logits(logits, targets, name=None):
   Returns:
     A `Tensor` of the same shape as `logits` with the componentwise
     logistic losses.
+<<<<<<< HEAD
+=======
+
+  Raises:
+    ValueError: If `logits` and `targets` do not have the same shape.
+>>>>>>> tensorflow/master
   """
   with ops.op_scope([logits, targets], name, "logistic_loss") as name:
     logits = ops.convert_to_tensor(logits, name="logits")
     targets = ops.convert_to_tensor(targets, name="targets")
+<<<<<<< HEAD
+=======
+    try:
+      targets.get_shape().merge_with(logits.get_shape())
+    except ValueError:
+      raise ValueError(
+          "logits and targets must have the same shape (%s vs %s)"
+          % (logits.get_shape(), targets.get_shape()))
+
+>>>>>>> tensorflow/master
     # The logistic loss formula from above is
     #   x - x * z + log(1 + exp(-x))
     # For x < 0, a more numerically stable formula is
@@ -236,6 +394,7 @@ def sigmoid_cross_entropy_with_logits(logits, targets, name=None):
                         name=name)
 
 
+<<<<<<< HEAD
 def xw_plus_b(x, weights, biases, name=None):
   """Computes matmul(x, weights) + biases.
 
@@ -256,6 +415,77 @@ def xw_plus_b(x, weights, biases, name=None):
     biases = ops.convert_to_tensor(biases, name="biases")
     mm = math_ops.matmul(x, weights)
     return nn_ops.bias_add(mm, biases, name=name)
+=======
+def weighted_cross_entropy_with_logits(logits, targets, pos_weight,
+                                       name=None):
+  """Computes a weighted cross entropy.
+
+  This is like `sigmoid_cross_entropy_with_logits()` except that `pos_weight`,
+  allows one to trade off recall and precision by up- or down-weighting the
+  cost of a positive error relative to a negative error.
+
+  The usual cross-entropy cost is defined as:
+
+    targets * -log(sigmoid(logits)) + (1 - targets) * -log(1 - sigmoid(logits))
+
+  The argument `pos_weight` is used as a multiplier for the positive targets:
+
+    targets * -log(sigmoid(logits)) * pos_weight +
+        (1 - targets) * -log(1 - sigmoid(logits))
+
+  For brevity, let `x = logits`, `z = targets`, `q = pos_weight`.
+  The loss is:
+
+        qz * -log(sigmoid(x)) + (1 - z) * -log(1 - sigmoid(x))
+      = qz * -log(1 / (1 + exp(-x))) + (1 - z) * -log(exp(-x) / (1 + exp(-x)))
+      = qz * log(1 + exp(-x)) + (1 - z) * (-log(exp(-x)) + log(1 + exp(-x)))
+      = qz * log(1 + exp(-x)) + (1 - z) * (x + log(1 + exp(-x))
+      = (1 - z) * x + (qz +  1 - z) * log(1 + exp(-x))
+      = (1 - z) * x + (1 + (q - 1) * z) * log(1 + exp(-x))
+
+  Setting `l = (1 + (q - 1) * z)`, to ensure stability and avoid overflow,
+  the implementation uses
+
+      (1 - z) * x + l * (log(1 + exp(-abs(x))) + max(-x, 0))
+
+  `logits` and `targets` must have the same type and shape.
+
+  Args:
+    logits: A `Tensor` of type `float32` or `float64`.
+    targets: A `Tensor` of the same type and shape as `logits`.
+    pos_weight: A coefficient to use on the positive examples.
+    name: A name for the operation (optional).
+
+  Returns:
+    A `Tensor` of the same shape as `logits` with the componentwise
+    weightedlogistic losses.
+
+  Raises:
+    ValueError: If `logits` and `targets` do not have the same shape.
+  """
+  with ops.op_scope([logits, targets], name, "logistic_loss") as name:
+    logits = ops.convert_to_tensor(logits, name="logits")
+    targets = ops.convert_to_tensor(targets, name="targets")
+    try:
+      targets.get_shape().merge_with(logits.get_shape())
+    except ValueError:
+      raise ValueError(
+          "logits and targets must have the same shape (%s vs %s)"
+          % (logits.get_shape(), targets.get_shape()))
+
+    # The logistic loss formula from above is
+    #   (1 - z) * x + (1 + (q - 1) * z) * log(1 + exp(-x))
+    # For x < 0, a more numerically stable formula is
+    #   (1 - z) * x + (1 + (q - 1) * z) * log(1 + exp(x)) - l * x
+    # To avoid branching, we use the combined version
+    #   (1 - z) * x + l * (log(1 + exp(-abs(x))) + max(-x, 0))
+    log_weight = 1 + (pos_weight - 1) * targets
+    return math_ops.add(
+        (1 - targets) * logits,
+        log_weight * (math_ops.log(1 + math_ops.exp(-math_ops.abs(logits))) +
+                      nn_ops.relu(-logits)),
+        name=name)
+>>>>>>> tensorflow/master
 
 
 def relu_layer(x, weights, biases, name=None):
@@ -315,7 +545,11 @@ def zero_fraction(value, name=None):
   This is useful in summaries to measure and report sparsity.  For example,
 
       z = tf.Relu(...)
+<<<<<<< HEAD
       summ = tf.scalar_summary('sparsity', tf.zero_fraction(z))
+=======
+      summ = tf.scalar_summary('sparsity', tf.nn.zero_fraction(z))
+>>>>>>> tensorflow/master
 
   Args:
     value: A tensor of numeric type.
@@ -328,6 +562,7 @@ def zero_fraction(value, name=None):
     value = ops.convert_to_tensor(value, name="value")
     zero = constant_op.constant(0, dtype=value.dtype, name="zero")
     return math_ops.reduce_mean(math_ops.cast(math_ops.equal(value, zero),
+<<<<<<< HEAD
                                               types.float32))
 
 
@@ -382,6 +617,9 @@ def dropout(x, keep_prob, noise_shape=None, seed=None, name=None):
     ret = x * math_ops.inv(keep_prob) * binary_tensor
     ret.set_shape(x.get_shape())
     return ret
+=======
+                                              dtypes.float32))
+>>>>>>> tensorflow/master
 
 
 def depthwise_conv2d(input, filter, strides, padding, name=None):
@@ -521,27 +759,139 @@ def separable_conv2d(input, depthwise_filter, pointwise_filter, strides,
                          padding="VALID", name=name)
 
 
+<<<<<<< HEAD
 def moments(x, axes, name=None):
+=======
+def sufficient_statistics(x, axes, shift=True, keep_dims=False, name=None):
+  """Calculate the sufficient statistics for the mean and variance of `x`.
+
+  These sufficient statistics are computed using the one pass algorithm on
+  an input that's optionally shifted using the value of the 1st element in `x`.
+  See:
+  https://en.wikipedia.org/wiki/Algorithms_for_calculating_variance#Computing_shifted_data
+
+  Args:
+    x: A `Tensor`.
+    axes: Array of ints. Axes along which to compute mean and variance.
+    shift: If true, shift the data to provide more numerically stable results.
+    keep_dims: produce statistics with the same dimensionality as the input.
+    name: Name used to scope the operations that compute the sufficient stats.
+
+  Returns:
+    Four `Tensor` objects of the same type as `x`:
+    * the count (number of elements to average over).
+    * the (possibly shifted) sum of the elements in the array.
+    * the (possibly shifted) sum of squares of the elements in the array.
+    * the shift by which the mean must be corrected or None if `shift` is False.
+  """
+  with ops.op_scope([x, axes], name, "sufficient_statistics"):
+    x = ops.convert_to_tensor(x, name="x")
+    x_shape = x.get_shape()
+    if x_shape.is_fully_defined():
+      counts = 1
+      m_shape = []
+      for d in xrange(x_shape.ndims):
+        dim = x_shape[d].value
+        if d in set(axes):
+          counts *= dim
+          dim = 1
+        m_shape.append(dim)
+      counts = constant_op.constant(counts, dtype=x.dtype)
+    else:  # shape needs to be inferred at runtime.
+      x_shape = array_ops.shape(x)
+      select_axes = sparse_ops.sparse_to_dense(axes, array_ops.shape(x_shape),
+                                               True, False)
+      m_shape = math_ops.select(select_axes, array_ops.ones_like(x_shape),
+                                x_shape)
+      counts = math_ops.cast(
+          math_ops.reduce_prod(x_shape / m_shape),
+          x.dtype,
+          name="count")
+    if shift:
+      shift_value = array_ops.slice(x, array_ops.zeros_like(m_shape), m_shape)
+      m_ss = math_ops.sub(x, shift_value)
+      v_ss = math_ops.squared_difference(x, shift_value)
+      if keep_dims:
+        shift_value = array_ops.identity(shift_value, name="shift")
+      else:
+        shift_value = array_ops.squeeze(shift_value,
+                                        squeeze_dims=axes,
+                                        name="shift")
+    else:  # not shift.
+      m_ss = x
+      v_ss = math_ops.square(x)
+      shift_value = None
+    m_ss = math_ops.reduce_sum(m_ss, axes, keep_dims=keep_dims, name="mean_ss")
+    v_ss = math_ops.reduce_sum(v_ss, axes, keep_dims=keep_dims, name="var_ss")
+  return counts, m_ss, v_ss, shift_value
+
+
+def normalize_moments(counts, mean_ss, variance_ss, shift, name=None):
+  """Calculate the mean and variance of based on the sufficient statistics.
+
+  Args:
+    counts: A `Tensor` containing a the total count of the data (one value).
+    mean_ss: A `Tensor` containing the mean sufficient statistics: the (possibly
+      shifted) sum of the elements to average over.
+    variance_ss: A `Tensor` containing the variance sufficient statistics: the
+      (possibly shifted) squared sum of the data to compute the variance over.
+    shift: A `Tensor` containing the value by which the data is shifted for
+      numerical stability, or `None` if no shift was performed.
+    name: Name used to scope the operations that compute the moments.
+
+  Returns:
+    Two `Tensor` objects: `mean` and `variance`.
+  """
+  with ops.op_scope([counts, mean_ss, variance_ss, shift], name, "normalize"):
+    divisor = math_ops.inv(counts, name="divisor")
+    if shift is not None:
+      shifted_mean = math_ops.mul(mean_ss, divisor, name="shifted_mean")
+      mean = math_ops.add(shifted_mean, shift, name="mean")
+    else:  # no shift.
+      shifted_mean = math_ops.mul(mean_ss, divisor, name="mean")
+      mean = shifted_mean
+    variance = math_ops.sub(
+        math_ops.mul(variance_ss, divisor),
+        math_ops.square(shifted_mean),
+        name="variance")
+  return (mean, variance)
+
+
+def moments(x, axes, name=None, keep_dims=False):
+>>>>>>> tensorflow/master
   """Calculate the mean and variance of `x`.
 
   The mean and variance are calculated by aggregating the contents of `x`
   across `axes`.  If `x` is 1-D and `axes = [0]` this is just the mean
   and variance of a vector.
 
+<<<<<<< HEAD
   For so-called "global normalization" needed for convolutional filters pass
   `axes=[0, 1, 2]` (batch, height, width).  For batch normalization pass
   `axes=[0]` (batch).
+=======
+  When using these moments for batch normalization (see
+  `tf.nn.batch_normalization`):
+    * for so-called "global normalization", used with convolutional filters with
+      shape `[batch, height, width, depth]`, pass `axes=[0, 1, 2]`.
+    * for simple batch normalization pass `axes=[0]` (batch only).
+>>>>>>> tensorflow/master
 
   Args:
     x: A `Tensor`.
     axes: array of ints.  Axes along which to compute mean and
       variance.
+<<<<<<< HEAD
+=======
+    keep_dims: produce moments with the same dimensionality as the input.
+>>>>>>> tensorflow/master
     name: Name used to scope the operations that compute the moments.
 
   Returns:
     Two `Tensor` objects: `mean` and `variance`.
   """
   with ops.op_scope([x, axes], name, "moments"):
+<<<<<<< HEAD
     x = ops.convert_to_tensor(x, name="x")
     x_shape = x.get_shape()
     if all(x_shape[d].value is not None for d in axes):
@@ -569,6 +919,106 @@ def moments(x, axes, name=None):
     var = math_ops.mul(math_ops.reduce_sum(math_ops.square(x - mean), axes),
                        divisor, name="variance")
     return mean, var
+=======
+    counts, m_ss, v_ss, shift = sufficient_statistics(x,
+                                                      axes,
+                                                      keep_dims=keep_dims,
+                                                      name=name)
+    return normalize_moments(counts, m_ss, v_ss, shift, name=name)
+
+
+def batch_normalization(x,
+                        mean,
+                        variance,
+                        offset,
+                        scale,
+                        variance_epsilon,
+                        name=None):
+  """Batch normalization.
+
+  As described in http://arxiv.org/abs/1502.03167.
+  Normalizes a tensor by `mean` and `variance`, and applies (optionally) a
+  `scale` \\\\(\gamma\\\\) to it, as well as an `offest` \\\\(\beta\\\\):
+
+  \\\\(\frac{\gamma(x-\mu)}{\sigma}+\beta\\\\)
+
+  `mean`, `variance`, `offset` and `scale` are all expected to be of one of two
+  shapes:
+    * In all generality, they can have the same number of dimensions as the
+      input `x`, with identical sizes as `x` for the dimensions that are not
+      normalized over (the 'depth' dimension(s)), and dimension 1 for the
+      others which are being normalized over.
+      `mean` and `variance` in this case would typically be the outputs of
+      `tf.nn.moments(..., keep_dims=True)` during training, or running averages
+      thereof during inference.
+    * In the common case where the 'depth' dimension is the last dimension in
+      the input tensor `x`, they may be one dimensional tensors of the same
+      size as the 'depth' dimension.
+      This is the case for example for the common `[batch, depth]` layout of
+      fully-connected layers, and `[batch, height, width, depth]` for
+      convolutions.
+      `mean` and `variance` in this case would typically be the outputs of
+      `tf.nn.moments(..., keep_dims=False)` during training, or running averages
+      thereof during inference.
+
+  Args:
+    x: Input `Tensor` of arbitrary dimensionality.
+    mean: A mean `Tensor`.
+    variance: A variance `Tensor`.
+    offset: An offset `Tensor`, often denoted \\\\(\beta\\\\) in equations, or
+      None. If present, will be added to the normalized tensor.
+    scale: A scale `Tensor`, often denoted \\\\(\gamma\\\\) in equations, or
+      `None`. If present, the scale is applied to the normalized tensor.
+    variance_epsilon: A small float number to avoid dividing by 0.
+    name: A name for this operation (optional).
+
+  Returns:
+    the normalized, scaled, offset tensor.
+  """
+  with ops.op_scope([x, mean, variance, scale, offset], name, "batchnorm"):
+    inv = math_ops.rsqrt(variance + variance_epsilon)
+    if scale is not None:
+      inv *= scale
+    return x * inv + (
+        offset - mean * inv if offset is not None else -mean * inv)
+
+
+def batch_norm_with_global_normalization(t,
+                                         m,
+                                         v,
+                                         beta,
+                                         gamma,
+                                         variance_epsilon,
+                                         scale_after_normalization,
+                                         name=None):
+  """Batch normalization.
+
+  This op is deprecated. See `tf.nn.batch_normalization`.
+
+  Args:
+    t: A 4D input Tensor.
+    m: A 1D mean Tensor with size matching the last dimension of t.
+      This is the first output from tf.nn.moments,
+      or a saved moving average thereof.
+    v: A 1D variance Tensor with size matching the last dimension of t.
+      This is the second output from tf.nn.moments,
+      or a saved moving average thereof.
+    beta: A 1D beta Tensor with size matching the last dimension of t.
+      An offset to be added to the normalized tensor.
+    gamma: A 1D gamma Tensor with size matching the last dimension of t.
+      If "scale_after_normalization" is true, this tensor will be multiplied
+      with the normalized tensor.
+    variance_epsilon: A small float number to avoid dividing by 0.
+    scale_after_normalization: A bool indicating whether the resulted tensor
+      needs to be multiplied with gamma.
+    name: A name for this operation (optional).
+
+   Returns:
+     A batch-normalized `t`.
+  """
+  return batch_normalization(t, m, v, beta, gamma if scale_after_normalization
+                             else None, variance_epsilon, name)
+>>>>>>> tensorflow/master
 
 
 def _sum_rows(x):
@@ -589,6 +1039,10 @@ def _compute_sampled_logits(weights, biases, inputs, labels, num_sampled,
                             sampled_values=None,
                             subtract_log_q=True,
                             remove_accidental_hits=False,
+<<<<<<< HEAD
+=======
+                            partition_strategy="mod",
+>>>>>>> tensorflow/master
                             name=None):
   """Helper function for nce_loss and sampled_softmax_loss functions.
 
@@ -601,6 +1055,7 @@ def _compute_sampled_logits(weights, biases, inputs, labels, num_sampled,
   sum to 1 per-example.
 
   Args:
+<<<<<<< HEAD
     weights: tensor of label embeddings with shape = [num_classes, dim]
     biases: tensor of num_classes label biases
     inputs: tensor with shape = [batch_size, dim] corresponding to forward
@@ -636,6 +1091,53 @@ def _compute_sampled_logits(weights, biases, inputs, labels, num_sampled,
     #   sampled shape: num_sampled vector
     #   true_expected_count shape = [batch_size, 1]
     #   sampled_expected_count shape = num_sampled vector
+=======
+    weights: A `Tensor` of shape `[num_classes, dim]`, or a list of `Tensor`
+        objects whose concatenation along dimension 0 has shape
+        `[num_classes, dim]`.  The (possibly-partitioned) class embeddings.
+    biases: A `Tensor` of shape `[num_classes]`.  The class biases.
+    inputs: A `Tensor` of shape `[batch_size, dim]`.  The forward
+        activations of the input network.
+    labels: A `Tensor` of type `int64` and shape `[batch_size,
+        num_true]`. The target classes.  Note that this format differs from
+        the `labels` argument of `nn.softmax_cross_entropy_with_logits`.
+    num_sampled: An `int`.  The number of classes to randomly sample per batch.
+    num_classes: An `int`. The number of possible classes.
+    num_true: An `int`.  The number of target classes per training example.
+    sampled_values: a tuple of (`sampled_candidates`, `true_expected_count`,
+        `sampled_expected_count`) returned by a `*_candidate_sampler` function.
+        (if None, we default to `log_uniform_candidate_sampler`)
+    subtract_log_q: A `bool`.  whether to subtract the log expected count of
+        the labels in the sample to get the logits of the true labels.
+        Default is True.  Turn off for Negative Sampling.
+    remove_accidental_hits:  A `bool`.  whether to remove "accidental hits"
+        where a sampled class equals one of the target classes.  Default is
+        False.
+    partition_strategy: A string specifying the partitioning strategy, relevant
+        if `len(weights) > 1`. Currently `"div"` and `"mod"` are supported.
+        Default is `"mod"`. See `tf.nn.embedding_lookup` for more details.
+    name: A name for the operation (optional).
+  Returns:
+    out_logits, out_labels: `Tensor` objects each with shape
+        `[batch_size, num_true + num_sampled]`, for passing to either
+        `nn.sigmoid_cross_entropy_with_logits` (NCE) or
+        `nn.softmax_cross_entropy_with_logits` (sampled softmax).
+  """
+
+  if not isinstance(weights, list):
+    weights = [weights]
+
+  with ops.op_scope(
+      weights + [biases, inputs, labels], name, "compute_sampled_logits"):
+    if labels.dtype != dtypes.int64:
+      labels = math_ops.cast(labels, dtypes.int64)
+    labels_flat = array_ops.reshape(labels, [-1])
+
+    # Sample the negative labels.
+    #   sampled shape: [num_sampled] tensor
+    #   true_expected_count shape = [batch_size, 1] tensor
+    #   sampled_expected_count shape = [num_sampled] tensor
+>>>>>>> tensorflow/master
     if sampled_values is None:
       sampled_values = candidate_sampling_ops.log_uniform_candidate_sampler(
           true_classes=labels,
@@ -648,12 +1150,28 @@ def _compute_sampled_logits(weights, biases, inputs, labels, num_sampled,
     sampled, true_expected_count, sampled_expected_count = sampled_values
     # pylint: enable=unpacking-non-sequence
 
+<<<<<<< HEAD
     # weights shape is [num_classes, dim]
     # labels_flat is a [batch_size * num_true] vector
     # true_w shape is [batch_size * num_true, dim]
     # true_b is a [batch_size * num_true] vector
     true_w = embedding_ops.embedding_lookup(weights, labels_flat)
     true_b = embedding_ops.embedding_lookup(biases, labels_flat)
+=======
+    # labels_flat is a [batch_size * num_true] tensor
+    # sampled is a [num_sampled] int tensor
+    all_ids = array_ops.concat(0, [labels_flat, sampled])
+
+    # weights shape is [num_classes, dim]
+    all_w = embedding_ops.embedding_lookup(
+        weights, all_ids, partition_strategy=partition_strategy)
+    all_b = embedding_ops.embedding_lookup(biases, all_ids)
+    # true_w shape is [batch_size * num_true, dim]
+    # true_b is a [batch_size * num_true] tensor
+    true_w = array_ops.slice(
+        all_w, [0, 0], array_ops.pack([array_ops.shape(labels_flat)[0], -1]))
+    true_b = array_ops.slice(all_b, [0], array_ops.shape(labels_flat))
+>>>>>>> tensorflow/master
 
     # inputs shape is [batch_size, dim]
     # true_w shape is [batch_size * num_true, dim]
@@ -672,11 +1190,19 @@ def _compute_sampled_logits(weights, biases, inputs, labels, num_sampled,
     true_logits += true_b
 
     # Lookup weights and biases for sampled labels.
+<<<<<<< HEAD
     #   sampled is a num_sampled int vector
     #   sampled_w shape is [num_sampled, dim]
     #   sampled_b is a num_sampled float vector
     sampled_w = embedding_ops.embedding_lookup(weights, sampled)
     sampled_b = embedding_ops.embedding_lookup(biases, sampled)
+=======
+    #   sampled_w shape is [num_sampled, dim]
+    #   sampled_b is a [num_sampled] float tensor
+    sampled_w = array_ops.slice(
+        all_w, array_ops.pack([array_ops.shape(labels_flat)[0], 0]), [-1, -1])
+    sampled_b = array_ops.slice(all_b, array_ops.shape(labels_flat), [-1])
+>>>>>>> tensorflow/master
 
     # inputs has shape [batch_size, dim]
     # sampled_w has shape [num_sampled, dim]
@@ -694,15 +1220,27 @@ def _compute_sampled_logits(weights, biases, inputs, labels, num_sampled,
       # This is how SparseToDense expects the indices.
       acc_indices_2d = array_ops.reshape(acc_indices, [-1, 1])
       acc_ids_2d_int32 = array_ops.reshape(math_ops.cast(
+<<<<<<< HEAD
           acc_ids, types.int32), [-1, 1])
+=======
+          acc_ids, dtypes.int32), [-1, 1])
+>>>>>>> tensorflow/master
       sparse_indices = array_ops.concat(
           1, [acc_indices_2d, acc_ids_2d_int32], "sparse_indices")
       # Create sampled_logits_shape = [batch_size, num_sampled]
       sampled_logits_shape = array_ops.concat(
           0,
           [array_ops.shape(labels)[:1], array_ops.expand_dims(num_sampled, 0)])
+<<<<<<< HEAD
       sampled_logits += sparse_ops.sparse_to_dense(
           sparse_indices, sampled_logits_shape, acc_weights, 0.0)
+=======
+      if sampled_logits.dtype != acc_weights.dtype:
+        acc_weights = math_ops.cast(acc_weights, sampled_logits.dtype)
+      sampled_logits += sparse_ops.sparse_to_dense(
+          sparse_indices, sampled_logits_shape, acc_weights,
+          default_value=0.0, validate_indices=False)
+>>>>>>> tensorflow/master
 
     if subtract_log_q:
       # Subtract log of Q(l), prior probability that l appears in sampled.
@@ -725,6 +1263,10 @@ def nce_loss(weights, biases, inputs, labels, num_sampled, num_classes,
              num_true=1,
              sampled_values=None,
              remove_accidental_hits=False,
+<<<<<<< HEAD
+=======
+             partition_strategy="mod",
+>>>>>>> tensorflow/master
              name="nce_loss"):
   """Computes and returns the noise-contrastive estimation training loss.
 
@@ -732,10 +1274,17 @@ def nce_loss(weights, biases, inputs, labels, num_sampled, num_classes,
   unnormalized statistical models]
   (http://www.jmlr.org/proceedings/papers/v9/gutmann10a/gutmann10a.pdf).
   Also see our [Candidate Sampling Algorithms Reference]
+<<<<<<< HEAD
   (http://www.tensorflow.org/extras/candidate_sampling.pdf)
 
   Note: In the case where num_true > 1, we assign to each target class
   the target probability 1 / num_true so that the target probabilities
+=======
+  (../../extras/candidate_sampling.pdf)
+
+  Note: In the case where `num_true` > 1, we assign to each target class
+  the target probability 1 / `num_true` so that the target probabilities
+>>>>>>> tensorflow/master
   sum to 1 per-example.
 
   Note: It would be useful to allow a variable number of target classes per
@@ -745,6 +1294,7 @@ def nce_loss(weights, biases, inputs, labels, num_sampled, num_classes,
   with an otherwise unused class.
 
   Args:
+<<<<<<< HEAD
     weights: A `Tensor` of shape [num_classes, dim].  The class embeddings.
     biases: A `Tensor` of shape [num_classes].  The class biases.
     inputs: A `Tensor` of shape [batch_size, dim].  The forward
@@ -757,17 +1307,45 @@ def nce_loss(weights, biases, inputs, labels, num_sampled, num_classes,
     sampled_values: a tuple of `(sampled_candidates, true_expected_count,
         sampled_expected_count)` returned by a *_candidate_sampler function.
         (if None, we default to LogUniformCandidateSampler)
+=======
+    weights: A `Tensor` of shape `[num_classes, dim]`, or a list of `Tensor`
+        objects whose concatenation along dimension 0 has shape
+        [num_classes, dim].  The (possibly-partitioned) class embeddings.
+    biases: A `Tensor` of shape `[num_classes]`.  The class biases.
+    inputs: A `Tensor` of shape `[batch_size, dim]`.  The forward
+        activations of the input network.
+    labels: A `Tensor` of type `int64` and shape `[batch_size,
+        num_true]`. The target classes.
+    num_sampled: An `int`.  The number of classes to randomly sample per batch.
+    num_classes: An `int`. The number of possible classes.
+    num_true: An `int`.  The number of target classes per training example.
+    sampled_values: a tuple of (`sampled_candidates`, `true_expected_count`,
+        `sampled_expected_count`) returned by a `*_candidate_sampler` function.
+        (if None, we default to `log_uniform_candidate_sampler`)
+>>>>>>> tensorflow/master
     remove_accidental_hits:  A `bool`.  Whether to remove "accidental hits"
         where a sampled class equals one of the target classes.  If set to
         `True`, this is a "Sampled Logistic" loss instead of NCE, and we are
         learning to generate log-odds instead of log probabilities.  See
         our [Candidate Sampling Algorithms Reference]
+<<<<<<< HEAD
         (http://www.tensorflow.org/extras/candidate_sampling.pdf).
         Default is False.
     name: A name for the operation (optional).
 
   Returns:
     A batch_size 1-D tensor of per-example NCE losses.
+=======
+        (../../extras/candidate_sampling.pdf).
+        Default is False.
+    partition_strategy: A string specifying the partitioning strategy, relevant
+        if `len(weights) > 1`. Currently `"div"` and `"mod"` are supported.
+        Default is `"mod"`. See `tf.nn.embedding_lookup` for more details.
+    name: A name for the operation (optional).
+
+  Returns:
+    A `batch_size` 1-D tensor of per-example NCE losses.
+>>>>>>> tensorflow/master
   """
   logits, labels = _compute_sampled_logits(
       weights, biases, inputs, labels, num_sampled, num_classes,
@@ -775,6 +1353,10 @@ def nce_loss(weights, biases, inputs, labels, num_sampled, num_classes,
       sampled_values=sampled_values,
       subtract_log_q=True,
       remove_accidental_hits=remove_accidental_hits,
+<<<<<<< HEAD
+=======
+      partition_strategy=partition_strategy,
+>>>>>>> tensorflow/master
       name=name)
   sampled_losses = sigmoid_cross_entropy_with_logits(logits,
                                                      labels,
@@ -788,6 +1370,10 @@ def sampled_softmax_loss(weights, biases, inputs, labels, num_sampled,
                          num_classes, num_true=1,
                          sampled_values=None,
                          remove_accidental_hits=True,
+<<<<<<< HEAD
+=======
+                         partition_strategy="mod",
+>>>>>>> tensorflow/master
                          name="sampled_softmax_loss"):
   """Computes and returns the sampled softmax training loss.
 
@@ -801,6 +1387,7 @@ def sampled_softmax_loss(weights, biases, inputs, labels, num_sampled,
   expression `tf.nn.softmax(tf.matmul(inputs, weights) + biases)`.
 
   See our [Candidate Sampling Algorithms Reference]
+<<<<<<< HEAD
   (http://www.tensorflow.org/extras/candidate_sampling.pdf)
 
   Also see Section 3 of http://arxiv.org/abs/1412.2007 for the math.
@@ -826,6 +1413,39 @@ def sampled_softmax_loss(weights, biases, inputs, labels, num_sampled,
 
   Returns:
     A batch_size 1-D tensor of per-example sampled softmax losses.
+=======
+  (../../extras/candidate_sampling.pdf)
+
+  Also see Section 3 of [Jean et al., 2014](http://arxiv.org/abs/1412.2007)
+  ([pdf](http://arxiv.org/pdf/1412.2007.pdf)) for the math.
+
+  Args:
+    weights: A `Tensor` of shape `[num_classes, dim]`, or a list of `Tensor`
+        objects whose concatenation along dimension 0 has shape
+        [num_classes, dim].  The (possibly-sharded) class embeddings.
+    biases: A `Tensor` of shape `[num_classes]`.  The class biases.
+    inputs: A `Tensor` of shape `[batch_size, dim]`.  The forward
+        activations of the input network.
+    labels: A `Tensor` of type `int64` and shape `[batch_size,
+        num_true]`. The target classes.  Note that this format differs from
+        the `labels` argument of `nn.softmax_cross_entropy_with_logits`.
+    num_sampled: An `int`.  The number of classes to randomly sample per batch.
+    num_classes: An `int`. The number of possible classes.
+    num_true: An `int`.  The number of target classes per training example.
+    sampled_values: a tuple of (`sampled_candidates`, `true_expected_count`,
+        `sampled_expected_count`) returned by a `*_candidate_sampler` function.
+        (if None, we default to `log_uniform_candidate_sampler`)
+    remove_accidental_hits:  A `bool`.  whether to remove "accidental hits"
+        where a sampled class equals one of the target classes.  Default is
+        True.
+    partition_strategy: A string specifying the partitioning strategy, relevant
+        if `len(weights) > 1`. Currently `"div"` and `"mod"` are supported.
+        Default is `"mod"`. See `tf.nn.embedding_lookup` for more details.
+    name: A name for the operation (optional).
+
+  Returns:
+    A `batch_size` 1-D tensor of per-example sampled softmax losses.
+>>>>>>> tensorflow/master
 
   """
   logits, labels = _compute_sampled_logits(
@@ -834,7 +1454,43 @@ def sampled_softmax_loss(weights, biases, inputs, labels, num_sampled,
       sampled_values=sampled_values,
       subtract_log_q=True,
       remove_accidental_hits=remove_accidental_hits,
+<<<<<<< HEAD
       name=name)
   sampled_losses = nn_ops.softmax_cross_entropy_with_logits(logits, labels)
   # sampled_losses is a batch_size vector.
   return sampled_losses
+=======
+      partition_strategy=partition_strategy,
+      name=name)
+  sampled_losses = nn_ops.softmax_cross_entropy_with_logits(logits, labels)
+  # sampled_losses is a [batch_size] tensor.
+  return sampled_losses
+
+
+# TODO(cwhipkey): sigmoid and tanh should not be exposed from tf.nn.
+__all__ = make_all(__name__)
+__all__.append("zero_fraction")  # documented in training.py
+
+# Modules whitelisted for reference through tf.nn.
+# TODO(cwhipkey): migrate callers to use the submodule directly.
+__all__.extend(["nn_ops", "rnn_cell", "seq2seq"])
+
+# Symbols whitelisted for export without documentation.
+# TODO(cwhipkey): review these and move to contrib or expose through
+# documentation.
+__all__.extend([
+    "all_candidate_sampler",
+    "batch_norm_with_global_normalization",
+    "batch_normalization",
+    "bidirectional_rnn",
+    "conv2d_backprop_filter",
+    "conv2d_backprop_input",
+    "depthwise_conv2d_native",
+    "dynamic_rnn",
+    "lrn",
+    "relu_layer",
+    "rnn",
+    "state_saving_rnn",
+    "xw_plus_b",
+])
+>>>>>>> tensorflow/master

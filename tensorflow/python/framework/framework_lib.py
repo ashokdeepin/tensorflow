@@ -1,4 +1,23 @@
+<<<<<<< HEAD
 # pylint: disable=wildcard-import,unused-import,g-bad-import-order,line-too-long
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+# pylint: disable=unused-import,g-bad-import-order
+>>>>>>> tensorflow/master
 """Classes and functions for building TensorFlow graphs.
 
 ## Core graph data structures
@@ -18,13 +37,25 @@
 @@name_scope
 @@control_dependencies
 @@convert_to_tensor
+<<<<<<< HEAD
 @@get_default_graph
 @@import_graph_def
+=======
+@@convert_to_tensor_or_indexed_slices
+@@get_default_graph
+@@reset_default_graph
+@@import_graph_def
+@@load_op_library
+>>>>>>> tensorflow/master
 
 ## Graph collections
 
 @@add_to_collection
 @@get_collection
+<<<<<<< HEAD
+=======
+@@get_collection_ref
+>>>>>>> tensorflow/master
 @@GraphKeys
 
 ## Defining new operations
@@ -36,13 +67,26 @@
 @@Dimension
 @@op_scope
 @@get_seed
+<<<<<<< HEAD
 """
 
 # Classes used when building a Graph.
+=======
+
+## For libraries building on TensorFlow
+
+@@register_tensor_conversion_function
+"""
+
+>>>>>>> tensorflow/master
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
+=======
+# Classes used when building a Graph.
+>>>>>>> tensorflow/master
 from tensorflow.python.framework.ops import Graph
 from tensorflow.python.framework.ops import Operation
 from tensorflow.python.framework.ops import Tensor
@@ -56,10 +100,20 @@ from tensorflow.python.framework.ops import name_scope
 from tensorflow.python.framework.ops import op_scope
 from tensorflow.python.framework.ops import control_dependencies
 from tensorflow.python.framework.ops import get_default_graph
+<<<<<<< HEAD
 from tensorflow.python.framework.ops import GraphKeys
 from tensorflow.python.framework.ops import add_to_collection
 from tensorflow.python.framework.ops import get_collection
 from tensorflow.python.framework.ops import convert_to_tensor
+=======
+from tensorflow.python.framework.ops import reset_default_graph
+from tensorflow.python.framework.ops import GraphKeys
+from tensorflow.python.framework.ops import add_to_collection
+from tensorflow.python.framework.ops import get_collection
+from tensorflow.python.framework.ops import get_collection_ref
+from tensorflow.python.framework.ops import convert_to_tensor
+from tensorflow.python.framework.ops import convert_to_tensor_or_indexed_slices
+>>>>>>> tensorflow/master
 from tensorflow.python.framework.random_seed import get_seed
 from tensorflow.python.framework.random_seed import set_random_seed
 from tensorflow.python.framework.importer import import_graph_def
@@ -71,4 +125,17 @@ from tensorflow.python.framework.ops import RegisterShape
 from tensorflow.python.framework.tensor_shape import Dimension
 from tensorflow.python.framework.tensor_shape import TensorShape
 
+<<<<<<< HEAD
 from tensorflow.python.framework.types import *
+=======
+# Needed when interfacing tensorflow to new array libraries
+from tensorflow.python.framework.ops import register_tensor_conversion_function
+
+# go/tf-wildcard-import
+# pylint: disable=wildcard-import
+from tensorflow.python.framework.dtypes import *
+
+# Load a TensorFlow plugin
+from tensorflow.python.framework.load_library import *
+# pylint: enable=wildcard-import
+>>>>>>> tensorflow/master

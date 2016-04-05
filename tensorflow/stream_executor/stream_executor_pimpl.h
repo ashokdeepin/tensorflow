@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 #ifndef TENSORFLOW_STREAM_EXECUTOR_STREAM_EXECUTOR_PIMPL_H_
 #define TENSORFLOW_STREAM_EXECUTOR_STREAM_EXECUTOR_PIMPL_H_
 
@@ -56,9 +74,13 @@ class StreamExecutor {
  public:
   explicit StreamExecutor(PlatformKind kind,
                           const PluginConfig &plugin_config = PluginConfig());
+<<<<<<< HEAD
 
   // Primarily used for testing.
   StreamExecutor(PlatformKind kind,
+=======
+  StreamExecutor(const Platform *platform,
+>>>>>>> tensorflow/master
                  internal::StreamExecutorInterface *implementation);
 
   ~StreamExecutor();
@@ -66,9 +88,19 @@ class StreamExecutor {
   port::Status Init();
   port::Status Init(int device_ordinal, DeviceOptions device_options);
 
+<<<<<<< HEAD
   // Returns the platform that this StreamExecutor is acting upon.
   PlatformKind platform_kind() const { return platform_kind_; }
 
+=======
+  // DEPRECATED: Do not use; use platform() instead.
+  // Returns the platform that this StreamExecutor is acting upon.
+  PlatformKind platform_kind() const { return platform_kind_; }
+
+  // Returns a reference to the platform that created this executor.
+  const Platform *platform() const { return platform_; }
+
+>>>>>>> tensorflow/master
   // Retrieves (loads) a kernel for the platform this StreamExecutor is acting
   // upon, if one exists.
   //
@@ -523,15 +555,27 @@ class StreamExecutor {
   // can acquire the lock on their first (mutating) call as well.
   mutable mutex mu_;
 
+<<<<<<< HEAD
   // A mapping of pointer (to GPU memory) to string representation of the stack
   // (of the allocating thread) at the time at which the pointer was allocated.
   std::map<void *, AllocRecord> mem_allocs_ GUARDED_BY(mu_);
+=======
+  // Reference to the platform that created this executor.
+  const Platform *platform_;
+>>>>>>> tensorflow/master
 
   // Pointer to the platform-specific-interface implementation. This is
   // delegated to by the interface routines in pointer-to-implementation
   // fashion.
   std::unique_ptr<internal::StreamExecutorInterface> implementation_;
 
+<<<<<<< HEAD
+=======
+  // A mapping of pointer (to GPU memory) to string representation of the stack
+  // (of the allocating thread) at the time at which the pointer was allocated.
+  std::map<void *, AllocRecord> mem_allocs_ GUARDED_BY(mu_);
+
+>>>>>>> tensorflow/master
   // Memoized BLAS support object -- we only want to create this once when asked
   // for a BLAS interface.
   std::unique_ptr<blas::BlasSupport> blas_ GUARDED_BY(mu_);

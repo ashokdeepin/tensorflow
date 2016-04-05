@@ -1,3 +1,21 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // Neural Net operation support for StreamExecutor instances.
 //
 // This is an abstract interface for a platform to optionally support common
@@ -17,6 +35,10 @@ namespace perftools {
 namespace gputools {
 
 class Stream;
+<<<<<<< HEAD
+=======
+class ScratchAllocator;
+>>>>>>> tensorflow/master
 
 namespace dnn {
 
@@ -40,6 +62,12 @@ enum class QuantizedActivationMode {
   k32Bit = 4,
 };
 
+<<<<<<< HEAD
+=======
+// Returns a string representation of the given quantization mode.
+string QuantizedActivationModeString(QuantizedActivationMode mode);
+
+>>>>>>> tensorflow/master
 // Describes the dimensions that a layer consumes/produces.
 //
 // This is a matrix (height, width), its "depth" (feature_map_count),
@@ -160,6 +188,16 @@ class BatchDescriptor {
   // with dimensions given the 'output' descriptor.
   static int64 FullyConnectedBiasCount(const BatchDescriptor& output);
 
+<<<<<<< HEAD
+=======
+  // Return a BatchDescriptor for the output of a depth concatenation
+  // with the given input descriptors. The inputs should have the same
+  // dimensions, except possibly for feature_map_count(), though this
+  // function does not verify that.
+  static BatchDescriptor DepthConcatenateOutputDescriptor(
+      port::ArraySlice<dnn::BatchDescriptor> inputs);
+
+>>>>>>> tensorflow/master
  private:
   int64 count_;
   int64 feature_map_count_;
@@ -265,8 +303,11 @@ class FilterDescriptor {
   int64 input_filter_height_;
   int64 input_filter_width_;
   FilterLayout layout_;
+<<<<<<< HEAD
 
   SE_DISALLOW_COPY_AND_ASSIGN(FilterDescriptor);
+=======
+>>>>>>> tensorflow/master
 };
 
 // Describes a convolution.
@@ -341,6 +382,12 @@ enum class PoolingMode : int64 {
   kAverage,
 };
 
+<<<<<<< HEAD
+=======
+// Returns a short name for the pooling mode, e.g. "Avg".
+string ShortPoolingModeString(PoolingMode mode);
+
+>>>>>>> tensorflow/master
 // Describes a pooling operation to be enqueued onto a stream via a platform's
 // DnnSupport.
 //
@@ -408,6 +455,7 @@ class PoolingDescriptor {
   int64 horizontal_padding_;
   int64 vertical_stride_;
   int64 horizontal_stride_;
+<<<<<<< HEAD
 
   SE_DISALLOW_COPY_AND_ASSIGN(PoolingDescriptor);
 };
@@ -420,6 +468,33 @@ class PoolingDescriptor {
 // sum_j_. If wrap_around is true, the sum_j_ for y_i on the left and right of
 // a segment wrap around at the edges of the segment, if wrap_around is false
 // zeros are inserted instead.
+=======
+};
+
+// Describes a local response normalization (LRN). LRN is used e.g. in
+// dist_belief.
+//
+// Let V be the vector of feature maps at some (batch, y, x)
+// coordinate. LRN applies independently to each vector V in the
+// input, across all coordinates (batch, y, x), by mapping each V to
+// another vector U of the same size using the formula
+//
+//   V_i = U_i / ((bias + alpha * (sum_j U_j^2)) ^ beta)
+//
+// where the sum is taken for j in the inclusive range [i - range, i + range].
+//
+// When calculating V_i the j in the sum can extend beyond the bounds
+// of U. If wrap_around is true, then U_j = U_{j mod F} where F is the
+// size of U, which is the number of feature maps. If wrap_around is
+// false, then U_j = 0 for j outside [0, F-1].
+//
+// If segment_size <= F, where F is the number of feature_maps, then
+// segment_size has no effect. Otherwise, each consecutive segment of
+// segment_size entries in V are normalized separately.
+//
+// Not all StreamExecutors allow wrap_around == true or segment_size
+// != 64. Some do not implement normalization at all.
+>>>>>>> tensorflow/master
 class NormalizeDescriptor {
  public:
   NormalizeDescriptor();
@@ -473,8 +548,11 @@ class NormalizeDescriptor {
   float beta_;
   bool wrap_around_;
   int32 segment_size_;
+<<<<<<< HEAD
 
   SE_DISALLOW_COPY_AND_ASSIGN(NormalizeDescriptor);
+=======
+>>>>>>> tensorflow/master
 };
 
 // Describes a kind of non-linearity (threshold-like mathematical function).
@@ -488,6 +566,11 @@ enum class ActivationMode {
   // BatchDescriptor::value_max().
   kReluX,
   kTanh,
+<<<<<<< HEAD
+=======
+  // Like ReluX, but passes all values in the range [-X,X].
+  kBandPass,
+>>>>>>> tensorflow/master
 };
 
 // Returns a string representation of the given activation mode.
@@ -495,10 +578,14 @@ string ActivationModeString(ActivationMode mode);
 
 // Describes the operation that DoElementwiseOperation should perform on its
 // inputs.
+<<<<<<< HEAD
 enum class ElementwiseOperation {
   kAdd,
   kMultiply
 };
+=======
+enum class ElementwiseOperation { kAdd, kMultiply };
+>>>>>>> tensorflow/master
 
 string ElementwiseOperationString(ElementwiseOperation op);
 
@@ -526,6 +613,11 @@ class DnnSupport {
   //  output_descriptor: dimensions of the output layer.
   //  output_data: un-owned device memory region in which to place the
   //    convolution result.
+<<<<<<< HEAD
+=======
+  //  scratch_allocator: un-owned, may-be-null object that may allocate scratch
+  //    space in order to speed up the convolution operation.
+>>>>>>> tensorflow/master
   //
   // input_descriptor, filter_descriptor, convolution_descriptor and
   // output_descriptor together specify exactly how the convolution is aligned
@@ -549,7 +641,12 @@ class DnnSupport {
       const DeviceMemory<float>& filter_data,
       const dnn::ConvolutionDescriptor& convolution_descriptor,
       const dnn::BatchDescriptor& output_descriptor,
+<<<<<<< HEAD
       DeviceMemory<float>* output_data) = 0;
+=======
+      DeviceMemory<float>* output_data,
+      ScratchAllocator* scratch_allocator) = 0;
+>>>>>>> tensorflow/master
 
   // Enqueues a double-precision convolution operation onto the stream.
   // See DoConvolve above for argument details.
@@ -597,6 +694,11 @@ class DnnSupport {
   //  input_descriptor: dimensions of the input layer.
   //  backward_input_data: un-owned device memory region in which to place the
   //    backprop of the input.
+<<<<<<< HEAD
+=======
+  //  scratch_allocator: un-owned, may-be-null object that may allocate scratch
+  //    space in order to speed up the convolution operation.
+>>>>>>> tensorflow/master
   virtual bool DoConvolveBackwardData(
       Stream* stream, const FilterDescriptor& filter_descriptor,
       const DeviceMemory<float>& filter_data,
@@ -604,7 +706,12 @@ class DnnSupport {
       DeviceMemory<float> backward_output_data,
       const ConvolutionDescriptor& convolution_descriptor,
       const BatchDescriptor& input_descriptor,
+<<<<<<< HEAD
       DeviceMemory<float>* backward_input_data) = 0;
+=======
+      DeviceMemory<float>* backward_input_data,
+      ScratchAllocator* scratch_allocator) = 0;
+>>>>>>> tensorflow/master
 
   // Enqueues a single-precision backward convolution (for filter) operation
   // onto
@@ -625,6 +732,11 @@ class DnnSupport {
   //  filter_descriptor: dimensions of the convolution filter.
   //  backward_filter_data: un-owned device memory region in which to place the
   //    backprop of the filter.
+<<<<<<< HEAD
+=======
+  //  scratch_allocator: un-owned, may-be-null object that may allocate scratch
+  //    space in order to speed up the convolution operation.
+>>>>>>> tensorflow/master
   virtual bool DoConvolveBackwardFilter(
       Stream* stream, const BatchDescriptor& input_descriptor,
       const DeviceMemory<float>& input_data,
@@ -632,7 +744,12 @@ class DnnSupport {
       DeviceMemory<float> backward_output_data,
       const ConvolutionDescriptor& convolution_descriptor,
       const FilterDescriptor& filter_descriptor,
+<<<<<<< HEAD
       DeviceMemory<float>* backward_filter_data) = 0;
+=======
+      DeviceMemory<float>* backward_filter_data,
+      ScratchAllocator* scratch_allocator) = 0;
+>>>>>>> tensorflow/master
 
   // Fully connects the "nodes" (float values) in input_data with
   // shape input_dimensions to output_data with output_dimensions
@@ -769,8 +886,15 @@ class DnnSupport {
                               const DeviceMemory<float>& input_diff_data,
                               DeviceMemory<float>* output_diff_data) = 0;
 
+<<<<<<< HEAD
   // Applies local response normalization to all of the values
   // held on the device in 'input_data'.
+=======
+  // Applies local response normalization to the values from
+  // input_data and writes the result to output_data. See comments on
+  // NormalizeDescriptor for a description of local response
+  // normalization.
+>>>>>>> tensorflow/master
   virtual bool DoNormalize(Stream* stream,
                            const dnn::NormalizeDescriptor& normalize_descriptor,
                            const DeviceMemory<float>& input_data,
@@ -835,6 +959,49 @@ class DnnSupport {
       const dnn::BatchDescriptor& output_dimensions,
       DeviceMemory<float>* output_data) = 0;
 
+<<<<<<< HEAD
+=======
+  // Pads the input with zeros in the X and Y dimensions. The feature_map
+  // dimension is unchanged.
+  //
+  // Arguments (all borrowed):
+  //  stream: borrowed pointer to the stream that the 'elementwise operation'
+  // should be enqueued onto.
+  //  dimensions: The dimensions of the input.
+  //  input_data: un-owned device memory region which contains the
+  //    input data for the input layer.
+  //  left_pad: Amount to pad the input on the left.
+  //  right_pad: Amount to pad the input on the right.
+  //  top_pad: Amount to pad the input at the top (low Y).
+  //  bottom_pad: Amount to pad the input at the bottom (high Y).
+  //  output_data: un-owned device memory region in which to place the
+  //    padded result.
+  virtual bool DoXYPad(Stream* stream, const dnn::BatchDescriptor &dimensions,
+                       const DeviceMemory<float> &input_data,
+                       int64 left_pad, int64 right_pad, int64 top_pad,
+                       int64 bottom_pad, DeviceMemory<float> *output_data) = 0;
+
+  // Extracts a slice of the input in the X and Y dimensions. The feature_map
+  // dimension is unchanged.
+  //
+  // Arguments (all borrowed):
+  //  stream: borrowed pointer to the stream that the 'elementwise operation'
+  // should be enqueued onto.
+  //  dimensions: The dimensions of the input.
+  //  input_data: un-owned device memory region which contains the
+  //    input data for the input layer.
+  //  left_trim: Amount to cut off the input on the left.
+  //  right_trim: Amount to cut off the input on the right.
+  //  top_trim: Amount to cut off the input at the top (low y).
+  //  bottom_trim: Amount to cut off the input at the bottom (high Y).
+  //  output_data: un-owned device memory region in which to place the
+  //    padded result.
+  virtual bool DoXYSlice(Stream* stream, const dnn::BatchDescriptor &dimensions,
+                    const DeviceMemory<float> &input_data,
+                    int64 left_trim, int64 right_trim, int64 top_trim,
+                    int64 bottom_trim, DeviceMemory<float> *output_data) = 0;
+
+>>>>>>> tensorflow/master
   // Enqueues an asynchronous memcpy of the *quantized* output of a layer (that
   // is, bytes instead of scaled floats) into 'host_dst' if they are available
   // for the underlying DNN implementation. If this quantized output is not
@@ -847,6 +1014,7 @@ class DnnSupport {
   //  gpu_unquantized_src: the device memory that contains the unquantized data
   //    -- this data should also have a corresponding quantized representation
   //    on the device for this operation to succeed.
+<<<<<<< HEAD
   //  host_dst: un-owned host memory region that is mutated in place,
   //    it is clobbered by the values in 'gpu_unquantized_src' when the enqueued
   //    (asynchronous) memcpy operation is performed.
@@ -864,6 +1032,16 @@ class DnnSupport {
   virtual bool DoMemcpyD2HQuantized(
       Stream* stream, const DeviceMemory<float>& gpu_unquantized_src,
       port::MutableArraySlice<int32> host_dst) = 0;
+=======
+  //  mode: Type of quantization of the data to write into host_dst.
+  //  host_dst: un-owned host memory region that is mutated in place,
+  //    it is clobbered by the values in 'gpu_unquantized_src' when the enqueued
+  //    (asynchronous) memcpy operation is performed.
+  //  size: size in bytes of the host_dst host memory region.
+  virtual bool DoMemcpyD2HQuantized(
+      Stream* stream, const DeviceMemory<float>& gpu_unquantized_src,
+      QuantizedActivationMode mode, void* host_dst, int64 size) = 0;
+>>>>>>> tensorflow/master
 
   // Enqueues an asynchronous memcpy of 'host_dst' into the *quantized* input
   // of a layer (that is, bytes instead of scaled floats) if they are supported
@@ -875,13 +1053,23 @@ class DnnSupport {
   //  stream: borrowed pointer to the stream that the 'quantized memcpy'
   //    operation should be enqueued onto.
   //  host_src: un-owned host memory region that contains the quantized data.
+<<<<<<< HEAD
+=======
+  //  size: size in bytes of the host_src host memory region.
+  //  mode: Type of quantization of the data to read from host_src.
+>>>>>>> tensorflow/master
   //  gpu_unquantized_dst: the device memory that is clobbered by the values in
   //    'host_src' when the enqueued (asynchronous) memcpy operation is
   //    performed. -- this data should also have a corresponding quantized
   //    representation on the device for this operation to
   //    succeed.
   virtual bool DoMemcpyH2DQuantized(
+<<<<<<< HEAD
       Stream* stream, port::ArraySlice<uint8> host_src,
+=======
+      Stream* stream, const void* host_src, int64 size,
+      QuantizedActivationMode mode,
+>>>>>>> tensorflow/master
       DeviceMemory<float>* gpu_unquantized_dst) = 0;
 
  private:

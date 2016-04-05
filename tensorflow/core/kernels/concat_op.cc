@@ -1,7 +1,26 @@
+<<<<<<< HEAD
+=======
+/* Copyright 2015 Google Inc. All Rights Reserved.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================*/
+
+>>>>>>> tensorflow/master
 // See docs in ../ops/array_ops.cc.
 
 #include <vector>
 
+<<<<<<< HEAD
 #include "tensorflow/core/framework/op_kernel.h"
 #include "tensorflow/core/framework/register_types.h"
 #include "tensorflow/core/framework/types.h"
@@ -11,6 +30,18 @@
 #include "tensorflow/core/public/tensor.h"
 #include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
 #include "tensorflow/core/public/status.h"
+=======
+#include "third_party/eigen3/unsupported/Eigen/CXX11/Tensor"
+#include "tensorflow/core/framework/op_kernel.h"
+#include "tensorflow/core/framework/register_types.h"
+#include "tensorflow/core/framework/tensor.h"
+#include "tensorflow/core/framework/tensor_types.h"
+#include "tensorflow/core/framework/types.h"
+#include "tensorflow/core/kernels/bounds_check.h"
+#include "tensorflow/core/kernels/concat_lib.h"
+#include "tensorflow/core/lib/core/status.h"
+#include "tensorflow/core/platform/types.h"
+>>>>>>> tensorflow/master
 
 namespace tensorflow {
 
@@ -30,19 +61,33 @@ class ConcatOp : public OpKernel {
     const Tensor* concat_dim_tensor;
     OP_REQUIRES_OK(c, c->input("concat_dim", &concat_dim_tensor));
     OP_REQUIRES(
+<<<<<<< HEAD
         c, TensorShapeUtils::IsLegacyScalar(concat_dim_tensor->shape()),
         errors::InvalidArgument(
             "Concat dim tensor should be a scalar integer, but got shape ",
             concat_dim_tensor->shape().DebugString()));
     const int32 concat_dim = concat_dim_tensor->scalar<int32>()();
+=======
+        c, IsLegacyScalar(concat_dim_tensor->shape()),
+        errors::InvalidArgument(
+            "Concat dim tensor should be a scalar integer, but got shape ",
+            concat_dim_tensor->shape().DebugString()));
+    const int32 concat_dim =
+        internal::SubtleMustCopy(concat_dim_tensor->scalar<int32>()());
+>>>>>>> tensorflow/master
     OpInputList values;
     OP_REQUIRES_OK(c, c->input_list("values", &values));
     const int N = values.size();
     const int input_dims = values[0].dims();
     const TensorShape& input_shape = values[0].shape();
     OP_REQUIRES(
+<<<<<<< HEAD
         c, (0 <= concat_dim && concat_dim < input_dims) ||
                (kAllowLegacyScalars && concat_dim == 0),
+=======
+        c, FastBoundsCheck(concat_dim, input_dims) ||
+               (allow_legacy_scalars() && concat_dim == 0),
+>>>>>>> tensorflow/master
         errors::InvalidArgument(
             "ConcatOp : Expected concatenating dimensions in the range [", 0,
             ", ", input_dims, "), but got ", concat_dim));
@@ -59,16 +104,28 @@ class ConcatOp : public OpKernel {
       inputs_flat_dim0 *= input_shape.dim_size(d);
     }
     int output_concat_dim = 0;
+<<<<<<< HEAD
     const bool input_is_scalar = TensorShapeUtils::IsLegacyScalar(input_shape);
     for (int i = 0; i < N; ++i) {
       const auto in = values[i];
       const bool in_is_scalar = TensorShapeUtils::IsLegacyScalar(in.shape());
+=======
+    const bool input_is_scalar = IsLegacyScalar(input_shape);
+    for (int i = 0; i < N; ++i) {
+      const auto in = values[i];
+      const bool in_is_scalar = IsLegacyScalar(in.shape());
+>>>>>>> tensorflow/master
       OP_REQUIRES(
           c, in.dims() == input_dims || (input_is_scalar && in_is_scalar),
           errors::InvalidArgument(
               "ConcatOp : Ranks of all input tensors should match: shape[0] = ",
+<<<<<<< HEAD
               input_shape.ShortDebugString(), " vs. shape[", i, "] = ",
               in.shape().ShortDebugString()));
+=======
+              input_shape.DebugString(), " vs. shape[", i, "] = ",
+              in.shape().DebugString()));
+>>>>>>> tensorflow/master
       for (int j = 0; j < input_dims; ++j) {
         if (j == concat_dim) {
           continue;
@@ -77,20 +134,33 @@ class ConcatOp : public OpKernel {
             c, in.dim_size(j) == input_shape.dim_size(j),
             errors::InvalidArgument(
                 "ConcatOp : Dimensions of inputs should match: shape[0] = ",
+<<<<<<< HEAD
                 input_shape.ShortDebugString(), " vs. shape[", i, "] = ",
                 in.shape().ShortDebugString()));
+=======
+                input_shape.DebugString(), " vs. shape[", i, "] = ",
+                in.shape().DebugString()));
+>>>>>>> tensorflow/master
       }
       if (in.NumElements() > 0) {
         int64 inputs_flat_dim1 = in.NumElements() / inputs_flat_dim0;
         inputs_flat.emplace_back(new typename TTypes<T, 2>::ConstMatrix(
             in.shaped<T, 2>({inputs_flat_dim0, inputs_flat_dim1})));
       }
+<<<<<<< HEAD
       // TODO(irving): Remove check once !kAllowLegacyScalars
+=======
+      // TODO(irving): Remove check once !allow_legacy_scalars().
+>>>>>>> tensorflow/master
       output_concat_dim += in.dims() > 0 ? in.dim_size(concat_dim) : 1;
     }
 
     TensorShape output_shape(input_shape);
+<<<<<<< HEAD
     // TODO(irving): Remove rank 0 case once !kAllowLegacyScalars
+=======
+    // TODO(irving): Remove rank 0 case once !allow_legacy_scalars().
+>>>>>>> tensorflow/master
     if (output_shape.dims() == 0) {
       output_shape.AddDim(output_concat_dim);
     } else {
@@ -151,4 +221,90 @@ REGISTER_KERNEL_BUILDER(Name("Concat")
 
 #endif  // GOOGLE_CUDA
 
+<<<<<<< HEAD
+=======
+class ConcatOffsetOp : public OpKernel {
+ public:
+  explicit ConcatOffsetOp(OpKernelConstruction* ctx) : OpKernel(ctx) {}
+
+  void Compute(OpKernelContext* ctx) override {
+    const Tensor& concat_dim = ctx->input(0);
+    OP_REQUIRES(
+        ctx, IsLegacyScalar(concat_dim.shape()),
+        errors::InvalidArgument(
+            "Concat dim tensor should be a scalar integer, but got shape ",
+            concat_dim.shape().DebugString()));
+    for (int i = 1; i < ctx->num_inputs(); ++i) {
+      const Tensor& inp = ctx->input(i);
+      OP_REQUIRES(ctx, TensorShapeUtils::IsVector(inp.shape()),
+                  errors::InvalidArgument("input ", i,
+                                          " should be a vector, but got shape ",
+                                          inp.shape().DebugString()));
+    }
+    // Suppose a Concat() op needs to Concatenate N tensors, each of
+    // which has the same number of dimensions.  Their shapes match
+    // except the concat dimension.
+    //
+    // E.g., say, we want to concatenate 3 tensors in the 2nd
+    // dimension, and their shapes are:
+    //
+    //  [2, 2, 5, 7]
+    //  [2, 3, 5, 7]
+    //  [2, 4, 5, 7]
+    //
+    // Here, N=3, cdim=1, dims=4. The concatenated tensor has shape
+    // [2,9,5,7]. We will compute the cumulative sum along the 2nd
+    // dimension to figure out each input's offset in the concatenated
+    // output:
+    //  [0, 0, 0, 0]
+    //  [0, 2, 0, 0]
+    //  [0, 5, 0, 0]
+    const int32 N = ctx->num_inputs() - 1;
+    const Tensor& inp0 = ctx->input(1);
+    auto inp0_vec = inp0.vec<int32>();
+    const int64 cdim = internal::SubtleMustCopy(concat_dim.scalar<int32>()());
+    const int64 dims = inp0.NumElements();
+    OP_REQUIRES(ctx, FastBoundsCheck(cdim, dims),
+                errors::InvalidArgument("Concat dim is out of range: ", cdim,
+                                        " vs. ", dims));
+    int32 offset = 0;
+    for (int i = 0; i < N; ++i) {
+      const Tensor& inp = ctx->input(1 + i);
+      OP_REQUIRES(
+          ctx, dims == inp.NumElements(),
+          errors::InvalidArgument("input ", i, " should contain ", dims,
+                                  " elements, but got", inp.NumElements()));
+      auto inp_vec = inp.vec<int32>();
+      Tensor* out = nullptr;
+      OP_REQUIRES_OK(ctx, ctx->allocate_output(i, {dims}, &out));
+      auto out_vec = out->vec<int32>();
+      for (int64 j = 0; j < dims; ++j) {
+        if (j == cdim) {
+          out_vec(j) = offset;
+          offset += inp_vec(j);
+        } else {
+          OP_REQUIRES(
+              ctx, (inp0_vec(j) == inp_vec(j)),
+              errors::InvalidArgument("input[", i, ",", j, "] mismatch: ",
+                                      inp0_vec(j), " vs. ", inp_vec(j)));
+          out_vec(j) = 0;
+        }
+      }
+    }
+  }
+
+  bool IsExpensive() override { return false; }
+};
+
+REGISTER_KERNEL_BUILDER(Name("ConcatOffset").Device(DEVICE_CPU),
+                        ConcatOffsetOp);
+
+REGISTER_KERNEL_BUILDER(Name("ConcatOffset")
+                            .Device(DEVICE_GPU)
+                            .HostMemory("concat_dim")
+                            .HostMemory("shape")
+                            .HostMemory("offset"),
+                        ConcatOffsetOp);
+
+>>>>>>> tensorflow/master
 }  // namespace tensorflow

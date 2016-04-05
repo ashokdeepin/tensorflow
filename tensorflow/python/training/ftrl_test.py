@@ -1,10 +1,31 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Functional tests for Ftrl operations."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
+=======
+>>>>>>> tensorflow/master
 import numpy as np
 import tensorflow as tf
 
@@ -155,7 +176,11 @@ class FtrlOptimizerTest(tf.test.TestCase):
     v0_val, v1_val = sess.run([var0, var1])
     return v0_val, v1_val
 
+<<<<<<< HEAD
   # When variables are intialized with Zero, FTRL-Proximal has two properties:
+=======
+  # When variables are initialized with Zero, FTRL-Proximal has two properties:
+>>>>>>> tensorflow/master
   # 1. Without L1&L2 but with fixed learning rate, FTRL-Proximal is identical
   # with GradientDescent.
   # 2. Without L1&L2 but with adaptive learning rate, FTRL-Proximal is identical

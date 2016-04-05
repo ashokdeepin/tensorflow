@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 <link rel="import" href="../../bower_components/polymer/polymer.html">
 <link rel="import" href="../../bower_components/paper-checkbox/paper-checkbox.html">
 <link rel="import" href="../imports/lodash.html">
+=======
+<link rel="import" href="../polymer/polymer.html">
+<link rel="import" href="../paper-button/paper-button.html">
+<link rel="import" href="../paper-checkbox/paper-checkbox.html">
+<link rel="import" href="../tf-imports/lodash.html">
+>>>>>>> tensorflow/master
 <link rel="import" href="../tf-dashboard-common/scrollbar-style.html">
 <link rel="import" href="../tf-multi-checkbox/tf-multi-checkbox.html">
 
@@ -34,9 +41,15 @@ Properties out:
         </div>
       </template>
       <template is="dom-if" if="[[!xValue]]">
+<<<<<<< HEAD
         <div id="tooltip-help" class="tooltip-container">
           Selected Runs:
         </div>
+=======
+        <h3 id="tooltip-help" class="tooltip-container">
+          Runs
+        </h3>
+>>>>>>> tensorflow/master
       </template>
     </div>
     <tf-multi-checkbox
@@ -47,6 +60,16 @@ Properties out:
       class-scale="[[classScale]]"
       hide-missing-tooltips
     ></tf-multi-checkbox>
+<<<<<<< HEAD
+=======
+    <paper-button
+      class="x-button"
+      id="toggle-all"
+      on-tap="_toggleAll"
+    >
+    Toggle All Runs
+    </paper-button>
+>>>>>>> tensorflow/master
     <style>
       :host {
         display: flex;
@@ -58,7 +81,10 @@ Properties out:
         width: 100%;
         flex-grow: 0;
         flex-shrink: 0;
+<<<<<<< HEAD
         padding-left: 35px;
+=======
+>>>>>>> tensorflow/master
         padding-right: 16px;
         padding-bottom: 6px;
         box-sizing: border-box;
@@ -68,7 +94,16 @@ Properties out:
         display: flex;
         flex-grow: 1;
         flex-shrink: 1;
+<<<<<<< HEAD
         height: 0px; /* hackhack So the flex-grow takes over and gives it space */
+=======
+      }
+      .x-button {
+        font-size: 13px;
+        background-color: var(--tb-ui-light-accent);
+        margin-top: 5px;
+        color: var(--tb-ui-dark-accent);
+>>>>>>> tensorflow/master
       }
       .x-tooltip {
         display: flex;
@@ -81,6 +116,19 @@ Properties out:
       .x-tooltip-value {
         align-self: flex-end;
       }
+<<<<<<< HEAD
+=======
+      #tooltip-help {
+        color: var(--paper-grey-800);
+        margin: 0;
+        font-weight: normal;
+        font-size: 14px;
+        margin-bottom: 5px;
+      }
+      paper-button {
+        margin-left: 0;
+      }
+>>>>>>> tensorflow/master
     </style>
   </template>
   <script>
@@ -96,6 +144,16 @@ Properties out:
       classScale: Object, // map from run name to color class (css)
       closestRun: {type: String, value: null}, // which run has a value closest to mouse coordinate
     },
+<<<<<<< HEAD
+=======
+    _toggleAll: function() {
+      if (this.outSelected.length > 0) {
+        this.outSelected = [];
+      } else {
+        this.outSelected = this.runs.slice();
+      }
+    },
+>>>>>>> tensorflow/master
     _arrayify: function(item) {
       return [item];
     },

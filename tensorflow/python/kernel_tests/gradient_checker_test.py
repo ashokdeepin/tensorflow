@@ -1,8 +1,27 @@
+<<<<<<< HEAD
+=======
+# Copyright 2015 Google Inc. All Rights Reserved.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+# ==============================================================================
+
+>>>>>>> tensorflow/master
 """Tests for tensorflow.kernels.gradient_checker."""
 from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 
+<<<<<<< HEAD
 import tensorflow.python.platform
 
 import numpy as np
@@ -10,10 +29,19 @@ import tensorflow as tf
 
 from tensorflow.python.kernel_tests.gradient_checker import ComputeGradientError
 
+=======
+import numpy as np
+import tensorflow as tf
+
+>>>>>>> tensorflow/master
 
 class GradientCheckerTest(tf.test.TestCase):
 
   def testAddSimple(self):
+<<<<<<< HEAD
+=======
+    np.random.seed(1)  # Fix seed to avoid flakiness
+>>>>>>> tensorflow/master
     with self.test_session(use_gpu=False):
       # a test case for Add operation
       size = (2, 3)
@@ -22,11 +50,19 @@ class GradientCheckerTest(tf.test.TestCase):
       y = tf.add(x1, x2, name="y")
 
       # checking gradients for x1
+<<<<<<< HEAD
       error = ComputeGradientError(x1, size, y, size)
+=======
+      error = tf.test.compute_gradient_error(x1, size, y, size)
+>>>>>>> tensorflow/master
     tf.logging.info("x1 error = %f", error)
     assert error < 1e-4
 
   def testAddSimpleGPU(self):
+<<<<<<< HEAD
+=======
+    np.random.seed(2)  # Fix seed to avoid flakiness
+>>>>>>> tensorflow/master
     with self.test_session(use_gpu=True):
       # a test case for Add operation
       size = (2, 3)
@@ -35,11 +71,19 @@ class GradientCheckerTest(tf.test.TestCase):
       y = tf.add(x1, x2, name="y")
 
       # checking gradients for x1
+<<<<<<< HEAD
       error = ComputeGradientError(x1, size, y, size)
+=======
+      error = tf.test.compute_gradient_error(x1, size, y, size)
+>>>>>>> tensorflow/master
     tf.logging.info("x1 error = %f", error)
     assert error < 1e-4
 
   def testAddCustomized(self):
+<<<<<<< HEAD
+=======
+    np.random.seed(3)  # Fix seed to avoid flakiness
+>>>>>>> tensorflow/master
     with self.test_session():
       # a test case for Add operation
       size = (2, 3)
@@ -51,12 +95,25 @@ class GradientCheckerTest(tf.test.TestCase):
 
       # checkint gradients for x2 using a special init_value and delta
       x_init_value = np.asarray(np.arange(6, dtype=np.float64).reshape(2, 3))
+<<<<<<< HEAD
       error = ComputeGradientError(x2, size, y, size, x_init_value=x_init_value,
                                    delta=1e-2)
+=======
+      error = tf.test.compute_gradient_error(x2,
+                                             size,
+                                             y,
+                                             size,
+                                             x_init_value=x_init_value,
+                                             delta=1e-2)
+>>>>>>> tensorflow/master
     tf.logging.info("x2 error = %f", error)
     assert error < 1e-10
 
   def testGather(self):
+<<<<<<< HEAD
+=======
+    np.random.seed(4)  # Fix seed to avoid flakiness
+>>>>>>> tensorflow/master
     with self.test_session():
       p_shape = (4, 2)
       p_size = 8
@@ -67,11 +124,19 @@ class GradientCheckerTest(tf.test.TestCase):
       indices = tf.constant(index_values, name="i")
       y = tf.gather(params, indices, name="y")
 
+<<<<<<< HEAD
       error = ComputeGradientError(params, p_shape, y, y_shape)
+=======
+      error = tf.test.compute_gradient_error(params, p_shape, y, y_shape)
+>>>>>>> tensorflow/master
     tf.logging.info("gather error = %f", error)
     assert error < 1e-4
 
   def testNestedGather(self):
+<<<<<<< HEAD
+=======
+    np.random.seed(5)  # Fix seed to avoid flakiness
+>>>>>>> tensorflow/master
     with self.test_session():
       p_shape = (8, 2)
       p_size = 16
@@ -86,6 +151,7 @@ class GradientCheckerTest(tf.test.TestCase):
       indices2 = tf.constant(index_values2, name="i2")
       y2 = tf.gather(y, indices2, name="y2")
 
+<<<<<<< HEAD
       error = ComputeGradientError(params, p_shape, y2, y2_shape)
     tf.logging.info("nested gather error = %f", error)
     assert error < 1e-4
@@ -93,6 +159,41 @@ class GradientCheckerTest(tf.test.TestCase):
 
 # Gradient checker for MNIST.
 def BuildAndTestMiniMNIST(param_index, tag):
+=======
+      error = tf.test.compute_gradient_error(params, p_shape, y2, y2_shape)
+    tf.logging.info("nested gather error = %f", error)
+    assert error < 1e-4
+
+  def testComplexMul(self):
+    with self.test_session():
+      size = ()
+      c = tf.constant(5 + 7j, dtype=tf.complex64)
+      x = tf.constant(11 - 13j, dtype=tf.complex64)
+      y = c * x
+      analytical, numerical = tf.test.compute_gradient(x, size, y, size)
+      correct = np.array([[5, 7], [-7, 5]])
+      self.assertAllEqual(correct, analytical)
+      self.assertAllClose(correct, numerical, rtol=1e-4)
+      self.assertLess(tf.test.compute_gradient_error(x, size, y, size), 2e-4)
+
+  def testComplexConj(self):
+    with self.test_session():
+      size = ()
+      x = tf.constant(11 - 13j, dtype=tf.complex64)
+      y = tf.conj(x)
+      analytical, numerical = tf.test.compute_gradient(x, size, y, size)
+      correct = np.array([[1, 0], [0, -1]])
+      self.assertAllEqual(correct, analytical)
+      self.assertAllClose(correct, numerical, rtol=3e-6)
+      self.assertLess(tf.test.compute_gradient_error(x, size, y, size), 2e-5)
+
+
+# Gradient checker for MNIST.
+def BuildAndTestMiniMNIST(param_index, tag):
+  # Fix seed to avoid occasional flakiness
+  np.random.seed(6)
+
+>>>>>>> tensorflow/master
   # Hyperparameters
   batch = 3
   inputs = 16
@@ -151,9 +252,17 @@ def BuildAndTestMiniMNIST(param_index, tag):
     cost = tf.nn.softmax_cross_entropy_with_logits(logits, labels, name="cost")
 
     # Test the gradients.
+<<<<<<< HEAD
     err = ComputeGradientError(all_params[param_index],
                                param_sizes[param_index],
                                cost, [batch], delta=1e-5)
+=======
+    err = tf.test.compute_gradient_error(all_params[param_index],
+                                         param_sizes[param_index],
+                                         cost,
+                                         [batch],
+                                         delta=1e-5)
+>>>>>>> tensorflow/master
 
   tf.logging.info("Mini MNIST: %s gradient error = %g", tag, err)
   return err
